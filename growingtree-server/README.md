@@ -1,20 +1,17 @@
 # growingtree-server
 
-FIXME
+To create 
 
-## Getting Started
+    lein new pedestal-service growingtree-server
+    lein run
+    Go to [localhost:8080](http://localhost:8080/)
+    lein test to run tests inside service_test.clj
 
-1. Start the application: `lein run`
-2. Go to [localhost:8080](http://localhost:8080/) to see: `Hello World!`
-3. Read your app's source code at src/growingtree_server/service.clj. Explore the docs of functions
-   that define routes and responses.
-4. Run your app's tests with `lein test`. Read the tests at test/growingtree_server/service_test.clj.
-5. Learn more! See the [Links section below](#links).
 
-## Configuration
+## Server
 
-To configure logging see config/logback.xml. By default, the app logs to stdout and logs/.
-To learn more about configuring Logback, read its [documentation](http://logback.qos.ch/documentation.html).
+Server route and other configuration definition inside `service.clj`.
 
-## Links
-* [Other examples](https://github.com/pedestal/samples)
+Service object impls Activity protocol and uses function `service-fn` to consume-effects from app effect queue. You can post message content to other web service, or store content to connected datomic store.
+
+For each API endpoint, Service will create `EventSource` at those endpoints that handle http requests. Service use addEventListener to attach event listener to get data from http request.
