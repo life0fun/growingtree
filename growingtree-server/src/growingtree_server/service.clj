@@ -71,10 +71,12 @@
   (ring-response/response ""))
 
 
+; gen uuid session id
 (defn- session-id [] (.toString (java.util.UUID/randomUUID)))
 
 (declare url-for)
 
+; find session id from request cookie, and update client's merged cookie.
 (defn subscribe
   [request]
   (let [session-id (or (get-in request [:cookies "chat-id" :value])
@@ -84,16 +86,17 @@
         (update-in [:cookies] merge cookie))))
 
 
+; session intercept to extract cookie.
 (definterceptor session-interceptor
   (middlewares/session {:store (cookie/cookie-store)}))
 
 (defn about-page
   [request]
-  (ring-resp/response (format "Clojure %s" (clojure-version))))
+  (ring-response/response (format "Clojure %s" (clojure-version))))
 
 (defn home-page
   [request]
-  (ring-resp/response "Hello World!"))
+  (ring-response/response "Hello World!"))
 
 (defroutes routes
   [[["/" {:get home-page}

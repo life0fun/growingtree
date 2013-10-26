@@ -29,6 +29,14 @@ App Model Paths:
   [:main :timeline :*] - timeline by id
 
 
+## Service 
+
+Service object impls Activity protocol and uses function `service-fn` to consume-effects from app effect queue. You can post message content to other web service, or store content to connected datomic store.
+
+Service defintion at client side has two parts, wrap event end point into event source and add event listener onto it. The end point is where server send events emit. The other part is service-fn that consume-effects from app effect queue and xhr post request data to the back-end server.
+
+So it absorb server send events from back-end and consume-effects from client data model and xhr post requests to back-end.
+
 ## Extract templates with slicing
 
 We are using Bootstrap 2.2 style our UI.

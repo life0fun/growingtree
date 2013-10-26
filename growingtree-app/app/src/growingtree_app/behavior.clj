@@ -8,7 +8,8 @@
 (defn set-value-transform [old-value message]
   (:value message))
 
-(def example-app
+; client app is a record that impls Receiver protocol.
+(def growingtree-app
   ;; There are currently 2 versions (formats) for dataflow
   ;; description: the original version (version 1) and the current
   ;; version (version 2). If the version is not specified, the
