@@ -4,6 +4,13 @@ To create the app,
 
     lein new pedestal-app growingtree-app
 
+To trigger recompilation of changes to templates, watch src.
+Also, use incognito browser to avoid cookie settings.
+
+  => (use 'dev)
+  => (start)
+  => (watch :development)
+  watching [:chat-client] / :development
 
 ## App model and Data model
 
@@ -46,7 +53,7 @@ UIs are defined in templates. Each template has two attributes, template and fie
 All templates can be sliced out from the file 
 `app/src/growingtree_app/html_templates.clj` by calling
     
-    (def template-fn (tfn (tnodes "growingtree-app.html" "hello")))
+    (def template-fn (tfn (tnodes "growingtree-app.html" "temp-name")))
 
 template-fn is a function which, when called with a map of values, will return a string of HTML with filled-in values.
 
@@ -57,6 +64,10 @@ The field attribute takes a comma delimited list of
     html-element-attribute-name:map-key
 
 content is a special case which means that the content (innerHTML) of the element will be set to this value.
+
+To verify template working, need to restart to reload app.
+  => (use 'growingtree-app.html-templates)
+  => (def t (growingtree-app-templates))
 
 
 ## Usage
