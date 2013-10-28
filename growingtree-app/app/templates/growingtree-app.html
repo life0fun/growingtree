@@ -18,54 +18,40 @@
           3 Members
         </p>
       </div> -->
-      <div class='chat-wrapper'>
-        <p> hello gro </p>
-        <div class='chat-frame'>
-          <div class='messages' field="content:messages">
-            <div class='message' template="lecture" field="id:id">
-              <div field="class:status">
-                
-                <div class='gutter'></div>
-                <div class='body'>
-                  <div class='header'>
-                    <span class='name' field="content:nickname">anonymous</span>
-                    <span class='time' field="content:time">- 10:23 PM</span>
-                </div>
-                  <div class='content' field="content:text">
-                    Master cleanse vice bushwick lomo literally Austin.  Pour-over wayfarers brunch portland literally Austin.
-                  </div>
-                </div>
+      <div class='container-fluid'>
+        <div class='row-fluid'>
+          <div class="span3">
+            <div class="well sidebar-nav">
+              <ul class="nav nav-list">
+                <li class="nav-header"> Course </li>
+                <li> lectures </li>
+                <li> homework </li>
+                <li class="nav-header"> Parent </li>
+                <li> children </li>
+              </ul>
+            </div> <!-- well -->
+          </div> <!-- span 3 -->
+         
+          <div class="span9" template="lectures" field="id:id">
+            <div class="leaderboard">
+                <h1> Learn, Practice, Develop. </h1>
+                <p> Hello Parents, this is the learning management for your kids</p>
+            </div>
+
+            <!-- first, div wrap content of lectures, then template for each lecture -->
+            <div field="content:lectures">
+              <div template="lectures" field="id:id">
+                <span class='content' field="content:lecturename">anonymous</span> 
               </div>
             </div>
           </div>
-          <div class='chat-footer'></div>
-        </div>
-        <div class='chat-bar'>
-          <form class='enter-message hide'>
-            <div class='right'>
-              <i class='nickname-icon'></i>
-              <button class='send-button' id="send-message-button" type="submit">Send</button>
-            </div>
-            <i class='message-icon focused'></i>
-            <input id="message-input" type="text" placeholder='Enter a message...'>
-          </form>
-          <form class='enter-nickname'>
-            <div class='right'>
-              <!-- <i class='message-icon'></i> -->
-              <button class='ok-button' id="set-nickname-button" type="submit">OK!</button>
-            </div>
-            <div class='tooltip'>I know you’re excited but please enter a nickname first.</div>
-            <i class='nickname-icon focused'></i>
-            <input id="nickname-input" type="text" placeholder='Enter your nickname...'>
-          </form>
-        </div>
-      </div>
+        </div> <!-- end of row fluid -->
+      </div> <!-- end of container fluid -->
       <!--
         # Whenever we add a new message, make sure to fire this:
         $('.chat-frame').scrollTop($('.chat-frame').height());
        -->
     </div>
-
   </div>
 
 </_within>

@@ -16,6 +16,6 @@
   ;; The last argument to 'dtfn' is a set of fields that should be
   ;; treated as static fields (may only be set once). Dynamic templates
   ;; use ids to set values so you cannot dynamically set an id.
-  {:index-page (dtfn (tnodes "growingtree-app.html" "course") #{})}
-  {:lecture-page (dtfn (tnodes "growingtree-app.html" "lecture") #{})})
+  {:index-page (dtfn (tnodes "growingtree-app.html" "course") #{})
+   :lecture-page (dtfn (tnodes "growingtree-app.html" "lectures") #{})})
 

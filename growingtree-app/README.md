@@ -7,14 +7,13 @@ To create the app,
 To trigger recompilation of changes to templates, watch src.
 Also, use incognito browser to avoid cookie settings.
 
-  => (use 'dev)
   => (start)
   => (watch :development)
   watching [:chat-client] / :development
 
 ## App model and Data model
 
-Data Model Path 
+Data Model Path create nodes stores global mutable data of the web app.
 
   [:parent :*] - Parents by id
   [:child :*] - children by id
@@ -25,7 +24,10 @@ Data Model Path
   [:timeline :*] - timeline by id
 
 
-App Model Paths:
+App Model Paths defines nodes that represent portion of template in UI.
+Each node is like a coin that has two sides, at the app model side, you define transform actions that this template should handle upon UI events. at the dom side, render wire up UI events to app model transform actions.
+
+When you define app model nodes, keep in mind it represents a template and you need to define transform actions to handle UI events within the template.
   
   [:main :parent :*] - Parents by id
   [:main :child :*] - children by id

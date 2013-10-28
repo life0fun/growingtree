@@ -10,30 +10,23 @@
 
 ;; In start namespace, the application is built and started.
 
-; create app with render-fn to consume app model delta.
+; create app with render-fn to consume app model msg delta.
 (defn create-app [render-config]
-  (let [
-        ;app is a record which implements the Receiver protocol.
-        app (app/build behavior/growingtree-app)
-
-        ;render-fn to consume app-model delta from UI to DOM.
+  (let [app (app/build behavior/growingtree-app)  ; app data flow record
         render-fn (push-render/renderer "content" render-config render/log-fn)
-        
         app-model (render/consume-app-model app render-fn)]
-
-    ; Start the application
     (app/begin app)
-    
-    ; send a msg to trigger
     (p/put-message (:input app) 
                    {msg/type :set-course 
-                    msg/topic [] :value "Hello Course 1!"})
+                    msg/topic [:course] :value "Hello Course 1!"})
 
-
-    ;; Returning the app and app-model from the main function allows
-    ;; the tooling to add support for useful features like logging
-    ;; and recording.
     {:app app :app-model app-model}))
+
+; set up service to consume effect queue
+;(defn setup-services [app ->services services-fn]
+;  (app/consume-effects (:app app) services-fn)
+;  (p/start (->services (:app app))))
+
 
 (defn ^:export main []
   ;; config/config.edn refers to this namespace as a main namespace
