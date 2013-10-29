@@ -12,13 +12,14 @@
 
 ; create app with render-fn to consume app model msg delta.
 (defn create-app [render-config]
-  (let [app (app/build behavior/growingtree-app)  ; app data flow record
+  (let [app (app/build behavior/growingtree-app)
+        ; render fn maps app model root to DOM div id="content"
         render-fn (push-render/renderer "content" render-config render/log-fn)
         app-model (render/consume-app-model app render-fn)]
     (app/begin app)
     (p/put-message (:input app) 
                    {msg/type :set-course 
-                    msg/topic [:course] :value "Hello Course 1!"})
+                    msg/topic [:course] :text "course from create-app"})
 
     {:app app :app-model app-model}))
 

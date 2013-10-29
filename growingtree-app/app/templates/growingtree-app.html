@@ -10,48 +10,92 @@
 <_within file="application.html">
 
   <div id="content">
-    <div class='startup' id='root' template="course">
-      <!-- Turned off until sample has members count feature
-      <div class='members'>
-        <p>
-          <i class='users-icon'></i>
-          3 Members
-        </p>
-      </div> -->
-      <div class='container-fluid'>
-        <div class='row-fluid'>
-          <div class="span3">
-            <div class="well sidebar-nav">
-              <ul class="nav nav-list">
-                <li class="nav-header"> Course </li>
-                <li> lectures </li>
-                <li> homework </li>
-                <li class="nav-header"> Parent </li>
-                <li> children </li>
-              </ul>
-            </div> <!-- well -->
-          </div> <!-- span 3 -->
-         
-          <div class="span9" template="lectures" field="id:id">
-            <div class="leaderboard">
-                <h1> Learn, Practice, Develop. </h1>
-                <p> Hello Parents, this is the learning management for your kids</p>
-            </div>
-
-            <!-- first, div wrap content of lectures, then template for each lecture -->
-            <div field="content:lectures">
-              <div template="lectures" field="id:id">
-                <span class='content' field="content:lecturename">anonymous</span> 
-              </div>
-            </div>
+    <div class="container-fluid" template="homepage" field="id:id">
+      <!-- sidebar nav is static, and common to all -->
+      <div class="row-fluid">
+        <div class="span3">
+          <div class="well sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header"> Family </li>
+              <li> Parent </li>
+              <li> children </li>
+              <li class="nav-header"> Learning </li>
+              <li> Courses </li>
+              <li> Lectures </li>
+              <li class="nav-header"> Practice </li>
+              <li> Assignments </li>
+              <li> Homeworks </li>
+              <li class="nav-header"> Social </li>
+              <li> Top Questions </li>
+              <li> Top Answers </li>
+              <li class="nav-header"> Time Line </li>
+              <li> Contributions </li>
+              <li> Knowledge </li>
+              <li> Activities </li>
+            </ul>
+          </div> <!-- well -->
+        </div> <!-- span 3 -->
+       
+        <div class="span9">
+          <div class="leaderboard">
+              <h1> Learn, Practice, Develop -- Together ! </h1>
+              <p> Hello Parents, this is the social learning management system for your kids !</p>
           </div>
-        </div> <!-- end of row fluid -->
-      </div> <!-- end of container fluid -->
-      <!--
-        # Whenever we add a new message, make sure to fire this:
-        $('.chat-frame').scrollTop($('.chat-frame').height());
-       -->
+
+          <!-- top rows -->
+          <div class="toprows" field="content:toprows">
+            <!-- 
+            <div class='toprow' template="toprow" field="id:id">
+              <div class='gutter'></div>
+              <div class='body'>
+                <div class='header'>
+                  <span class='name' field="content:">anonymous</span>
+                  <span class='time' field="content:time">- 10:23 PM</span>
+                </div>
+                <div class='content' field="content:text">
+                  Master cleanse vice bushwick lomo literally Austin.  Pour-over wayfarers brunch portland literally Austin.
+                </div>
+              </div>
+
+              <ul id="sub-list"> 
+              </ul>
+            </div>
+            -->
+          </div>
+        </div>  <!-- end of span9 -->
+      </div> <!-- end of row fluid -->
+    </div> <!-- end of container fluid -->
+
+    <!-- top category list, parents have list of child, course has list of lectures -->
+    <div class="toprow" template="toprow" field="id:id">
+      <div class="gutter"></div>
+      <div class="body">
+        <div class="header">
+          <span class="name" field="content:text">anonymous</span>
+          <span class="time" field="content:time">- 10:23 PM</span>
+        </div>
+        <div class="content" field="content:text">
+          Master cleanse vice bushwick lomo literally Austin.  Pour-over wayfarers brunch portland literally Austin.
+        </div>
+      </div>
+      <!-- now a list of sub -->
+      <ul id="sub-list"> 
+      </ul>
     </div>
+
+    <!-- sub-list entry  -->
+    <li template="sublistentry" field="id:id">
+      <div class="view">
+        <input class="toggle" type="checkbox">
+        <label field="content:text"></label>
+        <button class="destroy"></button>
+      </div>
+      <input class="edit" value="Rule the web">
+    </li>    
+    <!--
+      # Whenever we add a new message, make sure to fire this:
+      $('.chat-frame').scrollTop($('.chat-frame').height());
+     -->
   </div>
 
 </_within>

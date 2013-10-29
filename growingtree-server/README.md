@@ -18,6 +18,7 @@ To create
 
   lein repl
   => (dev)
+  => (watch)
   => (start)
   => (require 'growingtree-server.service :reload)
   => (restart)

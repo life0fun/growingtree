@@ -46,7 +46,8 @@ Service defintion at client side has two parts, wrap event end point into event 
 
 So it absorb server send events from back-end and consume-effects from client data model and xhr post requests to back-end.
 
-## Extract templates with slicing
+
+## Slicing templates
 
 We are using Bootstrap 2.2 style our UI.
 
@@ -71,6 +72,35 @@ To verify template working, need to restart to reload app.
   => (use 'growingtree-app.html-templates)
   => (def t (growingtree-app-templates))
 
+
+# App model DOM and Browser Model
+
+Render convert data model path [:todo :task] to browser DOM node. When creating render function, we say use render-config and browser DOM root is div id="content".
+
+    `render-fn (push-render/renderer "content" render-config render/log-fn)`
+
+so when emitter [:node-create [:todo :task] :map], render handler will find parent node,
+create a new node, set node's html from template, and append new node to parent.
+
+    (defn render-todo [renderer [_ path] transmitter]
+      (let [parent (render/get-parent-id renderer path)
+           id (render/new-id! renderer path "todoapp")
+           html (templates/add-template renderer path (:todo-page templates))]
+        (dom/append! (dom/by-id parent) (html))))
+ 
+There are two ways to create new node, one is create a node that attach to DOM id, for example, "todoapp", and later use dom append! to insert node to parent dom.
+    
+    id (render/new-id! renderer path "todoapp")
+
+The other way is create a node without any DOM id, and use templates prepend-t to attach node's html to template. Note here the :chat node is at a div node with field="content:messages", means div's content is taken from :messages key in data, hence the html is wrapped inside :messages key of the passed in map.
+
+    (defn create-message-node [r [_ path] d]
+      (let [id (render/new-id! r path)            
+            html (templates/add-template r path (:message templates))]
+        (templates/prepend-t r [:chat] {:messages (html {:id id :status "pending"})})))
+
+
+The design choice of either use domina dom or use push render templates functions.
 
 ## Usage
 

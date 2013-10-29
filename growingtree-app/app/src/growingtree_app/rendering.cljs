@@ -11,6 +11,14 @@
 ; Load templates.
 (def templates (html-templates/growingtree-app-templates))
 
+; pad time with leading 0 for single digit.
+(defn- format-time [d]
+  (let [pad (fn [n] (if (< n 10) (str "0" n) (str n)))]
+    (str (pad (.getHours d)) ":"
+         (pad (.getMinutes d)) ":"
+         (pad (.getSeconds d)))))
+
+
 ; render converts node in nested map to dom element. The root node []
 ; is configured when we created the render.
 ; render fn has 3 args, render, render op and a transmitter to sends
@@ -20,21 +28,18 @@
 ;
 ; new-id can be used to create the id for the new dom element.
 ; add-template attaches dynamic template div subtree to dom.
-(defn render-index-page [r [_ path] transmitter]
+(defn render-home-page [r [_ path] transmitter]
   (let [parent (render/get-parent-id r path)
         id (render/new-id! r path)
-        html (templates/add-template r path (:index-page templates))]
+        html (templates/add-template r path (:home-page templates))]
     ; invoke reted html fn to gen html and attach to dom using domina.
-    (dom/append! (dom/by-id parent) (html {:id id :message ""}))))
+    (dom/append! (dom/by-id parent) (html {:id id}))))
 
-
-; pad time with leading 0 for single digit.
-(defn- format-time [d]
-  (let [pad (fn [n] (if (< n 10) (str "0" n) (str n)))]
-    (str (pad (.getHours d)) ":"
-         (pad (.getMinutes d)) ":"
-         (pad (.getSeconds d)))))
-
+; create a top course node, need to get a list of lectures for the course.
+(defn create-course-node [r [_ path] d]
+  (let [id (render/new-id! r path)
+        html (templates/add-template r path (:toprow-node templates))]
+    (templates/prepend-t r [:course] {:toprows (html {:id id :text "learning clojure"})})))
 
 ; use framework update-t to update dom upon new courselectures list recved.
 (defn update-courselectures [r [_ path old new] transmitter]
@@ -60,6 +65,7 @@
 ; the render config is refed in config/config.edn
 ; wildcard :* means exactly one segment with any value, :** means 0+ more.
 (defn render-config []
-  [[:node-create  [:course] render-index-page]
-   [:node-destroy [:course] auto/default-exit] 
+  [[:node-create  [:course] render-home-page]
+   [:node-destroy [:course] auto/default-exit]
+   [:node-create  [:course :*] create-course-node] 
    [:value [:course :courselectures] update-courselectures]])

@@ -26,7 +26,8 @@
 ; by render upon UI events on this portion.
 (defn init-app-model [_]
   [{:course
-      {:name {}
+      {:courses {}  ; a map keyed by course name
+       :lecturelist {} ; a list of lectures
        :form
          {:set-course  ; actions with [:course :form :set-course]
            {:transforms    ; render binds transform fn to pick course list click event
@@ -36,7 +37,6 @@
 (defn set-value-transform [old-value message]
   (:value message))
 
-
 (def sort-order
   {[:course] 0
    [:lecture] 1})
@@ -45,8 +45,8 @@
 (defn set-course-delta
   "emit a vector of vectors of transform deltas that render use to set the course"
   [coursename]
-  [[:node-create [:course :name] :map]    ; create course node
-   [:value [:course :name] coursename]
+  [[:node-create [:course :courses] :map]    ; create course node
+   [:value [:course :courses] coursename]
    [:transform-enable [:course :form :courselecture] ; click on any lecture under the course
                       :set-course-lecture [{msg/topic [:course :courselectures]
                                             (msg/param :courselectures) []
