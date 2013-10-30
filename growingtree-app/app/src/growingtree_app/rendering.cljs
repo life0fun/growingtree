@@ -35,7 +35,7 @@
     ; invoke reted html fn to gen html and attach to dom using domina.
     (dom/append! (dom/by-id parent) (html {:id id}))))
 
-; create a top course node, need to get a list of lectures for the course.
+; create a top course node, attach to toprows div.
 (defn create-course-node [r [_ path] d]
   (let [id (render/new-id! r path)
         html (templates/add-template r path (:toprow-node templates))]

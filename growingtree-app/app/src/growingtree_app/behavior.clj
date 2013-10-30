@@ -21,7 +21,7 @@
 
 ;; emitter to report changes, and attach transforms to template events.
 
-; emit init app model emtter only once when app starts, render converts them to dom nodes.
+; emit init app model emtter only once when app starts. emitter will emit to create all nodes.
 ; the most important things is to define transform fn that can be triggered
 ; by render upon UI events on this portion.
 (defn init-app-model [_]
