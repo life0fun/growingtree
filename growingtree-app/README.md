@@ -13,16 +13,16 @@ Also, use incognito browser to avoid cookie settings.
 
 ## App model and Data model
 
-
 Data Model Path create nodes stores global mutable data of the web app.
 
-  [:parent :*] - Parents by id
-  [:child :*] - children by id
-  [:course :*] - course by id
-  [:lecture :*] - lecture by id
-  [:homework :*] - homework by id
-  [:assignment :*] - assignment by id
-  [:timeline :*] - timeline by id
+    [:parent] - current parent
+    [:child] - current child
+    [:parent :filter] - parent filter, {(msg/param :filter) {:key :value}}
+    [:child :filter] - parent filter, {(msg/param :filter) {:key :value}}
+    [:course] - current selected courses
+    [:course :filter] - filter, {(msg/param :filter) {:key :value}}
+    [:lecture] - current selected lecture
+    [:lecture :filter] - filter, {(msg/param :filter) {:key :value}}
 
 
 App Model Paths defines nodes that represent portion of template in UI.
@@ -30,13 +30,13 @@ Each node is like a coin that has two sides, at the app model side, you define t
 
 When you define app model nodes, keep in mind it represents a template and you need to define transform actions to handle UI events within the template.
   
-  [:main :parent :*] - Parents by id
-  [:main :child :*] - children by id
-  [:main :course :*] - course by id
-  [:main :lecture :*] - lecture by id
-  [:main :homework :*] - homework by id
-  [:main :assignment :*] - assignment by id
-  [:main :timeline :*] - timeline by id
+    [:main :parent :*] - Parents by id
+    [:main :child :*] - children by id
+    [:main :course :*] - course by id
+    [:main :lecture :*] - lecture by id
+    [:main :homework :*] - homework by id
+    [:main :assignment :*] - assignment by id
+    [:main :timeline :*] - timeline by id
 
 
 ## Service 
@@ -106,21 +106,20 @@ For :node-create delta, render fn gets 2 args, type, and path.
       (let [parent (render/get-parent-id renderer path)
            id (render/new-id! renderer path "todoapp")
            html (templates/add-template renderer path (:todo-page templates))]
-        (dom/append! (dom/by-id parent) (html))))
+        (dom/append! (dom/by-id parent) (html ))))
  
-There are two ways to create new node, one is create a node that attach to DOM id, for example, "todoapp", and later use dom append! to insert node to parent dom.
-    
-    id (render/new-id! renderer path "todoapp")
+There are two ways to create new node, one is create a render DOM node for a path that maps to a browser DOM id, for example, [:todo] maps to div id "todoapp". Then later we add-template to [:todo] node, render template to html and dom append to [:todo]'s parent.
 
-The other way is create a node without any DOM id, and use templates prepend-t to attach node's html to template. Note here the :chat node is at a div node with field="content:messages", means div's content is taken from :messages key in data, hence the html is wrapped inside :messages key of the passed in map.
+The other way is call new-id to get an id for the path node [:x :y], then attach a template to the path node; finally, render the template and assign it the id from render DOM as browser div id.
+
+The other way is create a render dom id for the path node, attach template to it. and use templates prepend-t to attach path node's html to designated path node, for example, here we attach message path node's template to [:chat]. Note here the :chat node is at a div node with field="content:messages", means div's content is taken from :messages key in data, hence the html is wrapped inside :messages key of the passed in map.
 
     (defn create-message-node [r [_ path] d]
       (let [id (render/new-id! r path)            
             html (templates/add-template r path (:message templates))]
         (templates/prepend-t r [:chat] {:messages (html {:id id :status "pending"})})))
 
-The design choice of either use domina dom or use push render templates functions.
-
+Note that with filed="content:XXX" approach, all div defined with this filed=content:XXX will get the rendered template html.
 
 For :value delta, render-fn destructure the message into [type path old-val new-val]
 

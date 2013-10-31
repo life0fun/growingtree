@@ -11,6 +11,11 @@
 ;; correct. For examples of various kinds of tests, see
 ;; test/growingtree_app/behavior-test.clj.
 
+; first, top level data path. Data path location is for msg/topic.
+; Each path location is a ref mutable. If design data model to have only one root,
+; all updates to nested attrs will need to use (assoc todo :task (assoc (:tasks todos)))
+; msg is always a map contains all keys. Each key value can be another map.
+
 ;; transforms
 
 ; msg map cont
@@ -26,12 +31,21 @@
 ; by render upon UI events on this portion.
 (defn init-app-model [_]
   [{:course
-      {:courses {}  ; a map keyed by course name
-       :lecturelist {} ; a list of lectures
+      {:filtered {}  ; a map of filtered course
        :form
          {:set-course  ; actions with [:course :form :set-course]
            {:transforms    ; render binds transform fn to pick course list click event
             {:set-course [{msg/topic [:course] (msg/param :course) {}}]}}}}}])
+
+
+; user can interact with sidebar, so setup interaction on sidebar
+(defn init-sidebar-emitter [inputs]
+  "set up message emitter for sidebar nav UI interaction"
+  [[:transform-enable [:course :filter] 
+                       :set-course-filter [{msg/type :set-course-filter 
+                                            msg/topic [:course :filter]
+                                            (msg/param :filter) {}}]]
+  ])
 
 
 (defn set-value-transform [old-value message]
@@ -54,6 +68,12 @@
   ])
 
 
+; set course filter value with the new value from message
+(defn course-filter-transform
+  [old-value message]
+  (:filter message))  ; key in message is :filter
+
+
 ; upon any changes in *data model* in course node subtree, emit those deltas
 (defn course-emit
   [inputs]
@@ -69,16 +89,18 @@
 
 
 ;; Data Model Paths: store all global mutable states.
-;; [:courselist] - a list of all courses
+;; [:parent] - current parent
+;; [:child] - current child
+;; [:parent :filter] - parent filter, {(msg/param :filter) {:key :value}}
+;; [:child :filter] - parent filter, {(msg/param :filter) {:key :value}}
 ;; [:course] - current selected courses
-;; [:course :courselectures] - a list of lectures belongs to the course
-;; [:lecturelist] - a list of lectures of all course
+;; [:course :filter] - filter, {(msg/param :filter) {:key :value}}
 ;; [:lecture] - current selected lecture
+;; [:lecture :filter] - filter, {(msg/param :filter) {:key :value}}
+
 ;; [:inbound :received] - Received inbound messages
 ;; [:outbound :sent] - Sent outbound messages
 ;; [:outbound :sending] - Pending message that effect looks to send
-;; [:parent] - current parent
-;; [:parent :child] - current parent's children
    
 ;; App Model Paths: represent div in template. linking UI action handle to 
 ;; [:course :name] - create node to store current course, then set transform-enable fn for form template 
@@ -98,14 +120,22 @@
 (def growingtree-app
   {:version 2   ; use current version 2
    :debug true
-   :transform [[:set-course [:course] course-transform]]
-   :emit [{:init init-app-model}  ; one time emit app-model for render to create app dom
+   :transform [[:set-course [:course] course-transform]
+               [:set-course-filter [:course :filter] course-filter-transform]
+              ]
+   :emit [{:init init-app-model}
+          ;{:init init-sidebar-emitter}
           [#{[:parent :*]
              [:course :*]} (app/default-emitter [])]
+         
           [#{[:course] [:courselist] [:course :lecturelist] [:lecturelist] [:lecture]} course-emit]
+         
           [#{[:pedestal :debug :dataflow-time]
              [:pedestal :debug :dataflow-time-max]
-             [:pedestal :debug :dataflow-time-avg]} (app/default-emitter [])]]})
+             [:debug [:pedestal :**] swap-transform]
+             [:pedestal :debug :dataflow-time-avg]} (app/default-emitter [])]
+         ]
+  })
 
 
 ;; Once this behavior works, run the Data UI and record

@@ -3,7 +3,7 @@
             [io.pedestal.app.render.push :as render]
             [io.pedestal.app.render.events :as events]
             [io.pedestal.app.render.push.templates :as templates]
-            [io.pedestal.app.messages :as msg]
+            [io.pedestal.app.messages :as msgs]
             [io.pedestal.app.render.push.handlers :as h]
             [io.pedestal.app.render.push.handlers.automatic :as auto])
   (:require-macros [growingtree-app.html-templates :as html-templates]))
@@ -61,11 +61,27 @@
     (dom/append! (dom/by-id parent) (lectures {:id id}))))
 
 
+; handle click on sidebar
+(defn course-filter-transforms [r [_ path transfn msg] d]
+  (let [m (msgs/fill :set-course-filter 
+                      msg {:filter {:key :subject :value "function"}})]
+    (events/send-on :click (dom/by-id "sidenav-parents") d m)))
+  
+; update list of course
+(defn update-courses [r [_ path old new] transmitter]
+  (let [id (render/new-id! r path)
+        html (templates/add-template r path (:toprow-node templates))
+        htmltext (html {:id id :text (:value new)})]
+    (templates/prepend-t r [:course] {:toprows htmltext})))
+
 ; render config dispatch app model delta to render fn.
 ; the render config is refed in config/config.edn
 ; wildcard :* means exactly one segment with any value, :** means 0+ more.
 (defn render-config []
   [[:node-create  [:course] render-home-page]
    [:node-destroy [:course] auto/default-exit]
-   [:node-create  [:course :*] create-course-node] 
-   [:value [:course :courselectures] update-courselectures]])
+   [:node-create  [:course :*] create-course-node]
+   [:transform-enable [:course :filter] course-filter-transforms]
+   [:value [:course :courselectures] update-courselectures]
+   [:value [:course :filter] update-courses]
+   ])
