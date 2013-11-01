@@ -13,6 +13,6 @@
   ;; treated as static fields (may only be set once). Dynamic templates
   ;; use ids to set values so you cannot dynamically set an id.
   {:home-page (dtfn (tnodes "growingtree-app.html" "homepage") #{})
-   ;:toprow-node (dtfn (tnodes "growingtree-app.html" "toprow") #{})
-   ;:sublist-entry (dtfn (tnodes "growingtree-app.html" "sublistentry") #{})
+   :toprow-node (dtfn (tnodes "growingtree-app.html" "toprow") #{:id})
+   :sublist-entry (dtfn (tnodes "growingtree-app.html" "sublistentry") #{})
   })

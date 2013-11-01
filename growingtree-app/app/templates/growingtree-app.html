@@ -10,9 +10,9 @@
 <_within file="application.html">
 
   <div id="content">
-    <div class="container-fluid">
+    <div class="container-fluid" template="homepage" id="root">
       <!-- sidebar nav is static, and common to all -->
-      <div class="row-fluid" template="homepage" id="root">
+      <div class="row-fluid">
         <div class="span3">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
@@ -52,7 +52,7 @@
     </div> <!-- end of container fluid -->
 
     <!-- top category list, parents have list of child, course has list of lectures -->
-    <div class="toprow" template="toprow" field="id:id">
+    <div template="toprow" field="id:id">
       <div class="gutter"></div>
       <div class="body">
         <div class="header">
@@ -71,7 +71,7 @@
             <label field="content:text"></label>
             <button class="destroy"></button>
           </div>
-          <input class="edit" value="Rule the web">
+          <input class="edit" value="Datomic Rule the web">
         </li>
       </ul>
     </div>

@@ -21,8 +21,7 @@
     ; send msg to bootstrap the app !
     (p/put-message (:input app) 
                    {msg/type :set-course 
-                    msg/topic [:course] 
-                    :text "x"})
+                    msg/topic [:course]})
 
     {:app app :app-model app-model}))
 

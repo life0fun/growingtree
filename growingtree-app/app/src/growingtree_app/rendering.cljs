@@ -31,10 +31,11 @@
 (defn render-home-page 
   [r [_ path] transmitter]
   (let [parent (render/get-parent-id r path)  ; root of top level is [], maps to div id=content
-        id (render/new-id! r path "root")  ; top level nodes maps to dom div id=root
+        id (render/new-id! r path)  ; top level nodes maps to dom div id=root
         html (templates/add-template r path (:home-page templates))]
     ; invoke reted html fn to gen html and attach to dom using domina.
-    (dom/append! (dom/by-id parent) (html))))
+    (dom/append! (dom/by-id parent) (html))
+  ))
 
 
 ; gen a dom render id for this newly created node and append it as the child of
@@ -43,9 +44,10 @@
   [r [_ path] d]
   (let [parent (render/get-parent-id r path)
         id (render/new-id! r path)  ; gen a domRender id for this 
-        html (templates/add-template r path (:toprow-node templates))]
-     (templates/prepend-t r [:course] 
-                          {:toprows (html {:id id :text "learning clojure is fun"})})
+        html (templates/add-template r path (:toprow-node templates))
+        ]
+    (templates/prepend-t r [:course] 
+                         {:toprows (html {:id id :text "learning clojure is fun"})})
     ;(dom/append! (dom/by-id parent) (html {:id id :text "learning clojure"}))
   ))
 
@@ -92,7 +94,7 @@
 (defn render-config []
   [[:node-create  [:course] render-home-page]
    [:node-destroy [:course] auto/default-exit]
-   ;[:node-create  [:course :*] create-course-node]
+   [:node-create  [:course :*] create-course-node]
    ;[:transform-enable [:course :filtered] course-filtered-transforms]
    ;[:value [:course :filtered] update-courses]
   ])
