@@ -30,19 +30,23 @@
 ; add-template attaches dynamic template div subtree to dom.
 (defn render-home-page 
   [r [_ path] transmitter]
-  (let [parent (render/get-parent-id r path)
-        id (render/new-id! r path)
+  (let [parent (render/get-parent-id r path)  ; root of top level is [], maps to div id=content
+        id (render/new-id! r path "root")  ; top level nodes maps to dom div id=root
         html (templates/add-template r path (:home-page templates))]
     ; invoke reted html fn to gen html and attach to dom using domina.
-    (dom/append! (dom/by-id parent) (html {:id id :messages ""}))))
+    (dom/append! (dom/by-id parent) (html))))
 
-; create a top course node, attach to toprows div.
+
+; gen a dom render id for this newly created node and append it as the child of
+; top level [:course] path node.
 (defn create-course-node 
   [r [_ path] d]
-  (let [id (render/new-id! r path)
+  (let [parent (render/get-parent-id r path)
+        id (render/new-id! r path)  ; gen a domRender id for this 
         html (templates/add-template r path (:toprow-node templates))]
-    (templates/prepend-t r [:course] 
-                         {:toprows (html {:id id :text "learning clojure"})})
+     (templates/prepend-t r [:course] 
+                          {:toprows (html {:id id :text "learning clojure is fun"})})
+    ;(dom/append! (dom/by-id parent) (html {:id id :text "learning clojure"}))
   ))
 
 ; use framework update-t to update dom upon new courselectures list recved.
@@ -54,10 +58,7 @@
     (templates/update-t r path {:lectures msg})))
 
 
-; Use the `new-id!` function to associate a new id to the
-; given path. With two arguments, this function will generate
-; a random unique id. With three arguments, the given id will
-; be associated with the given path.
+; Use the `new-id!` function to gen a new id and assign it to the given node path.
 (defn add-template 
   [r [_ path :as delta] input-queue]      
   (let [parent (render/get-parent-id renderer path)
@@ -68,18 +69,20 @@
   ))
 
 
-; handle click on sidebar
-(defn course-filter-transforms [r [_ path transfn msg] d]
+; associate sidebar click event to fill msg of set course filter msg to update data model.
+(defn course-filtered-transforms 
+  [r [_ path transfn msg] d]
   (let [m (msgs/fill :set-course-filter 
-                      msg {:filter {:key :subject :value "function"}})]
+                      msg {:filtered {:key :subject :value "function"}})]
     (events/send-on :click (dom/by-id "sidenav-parents") d m)))
 
   
 ; update list of course
-(defn update-courses [r [_ path old new] transmitter]
+(defn update-courses 
+  [r [_ path old new] transmitter]
   (let [id (render/new-id! r path)
         html (templates/add-template r path (:toprow-node templates))
-        htmltext (html {:id id :text (:value new)})]
+        htmltext (html {:id id :text (:value new)})]  ; div field content:text
     (templates/prepend-t r [:course] {:toprows htmltext})))
 
 
@@ -90,6 +93,6 @@
   [[:node-create  [:course] render-home-page]
    [:node-destroy [:course] auto/default-exit]
    ;[:node-create  [:course :*] create-course-node]
-   ;[:transform-enable [:course :filtered] course-filter-transforms]
+   ;[:transform-enable [:course :filtered] course-filtered-transforms]
    ;[:value [:course :filtered] update-courses]
   ])

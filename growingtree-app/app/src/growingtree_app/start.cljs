@@ -17,11 +17,12 @@
         render-fn (push-render/renderer "content" render-config render/log-fn)
         app-model (render/consume-app-model app render-fn)]
     (app/begin app)
+
     ; send msg to bootstrap the app !
     (p/put-message (:input app) 
                    {msg/type :set-course 
                     msg/topic [:course] 
-                    :text "course from create-app"})
+                    :text "x"})
 
     {:app app :app-model app-model}))
 

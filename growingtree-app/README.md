@@ -92,10 +92,11 @@ Each transform-enable handler got 3 args, first is render, the second destructur
           (evts/send-on :click (dc/sel (str "#" (render/get-id r p) " .destroy")) input-queue messages ))))
 
 
-
 ## Render DOM and app model deltas
 
-Render convert data model path [:todo :task] to browser DOM node. When creating render function, we say use render-config and browser DOM root is div id="content".
+The push renderer creates an internal DOM structure that is useful for creating templates and mapping from the application tree(node path) to the actual browser's DOM. It does this by creating an internal DomRenderer, which is defined by the following methods ** get-id, get-parent-id, new-id!, delete-id!, on-destroy!, set-data!, drop-data! and get-data**. 
+
+The idea is that these functions take a path from an application delta and map it to an object in the DOM. When creating render function, we say use render-config and browser DOM root is div id="content".
 
     `render-fn (push-render/renderer "content" render-config render/log-fn)`
 

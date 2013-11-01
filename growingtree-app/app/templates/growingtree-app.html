@@ -10,14 +10,14 @@
 <_within file="application.html">
 
   <div id="content">
-    <div class="startup container-fluid" id="root" template="homepage">
+    <div class="container-fluid">
       <!-- sidebar nav is static, and common to all -->
-      <div class="row-fluid">
+      <div class="row-fluid" template="homepage" id="root">
         <div class="span3">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               <li class="nav-header"> Family </li>
-              <li> Parents </li>
+              <li id="sidenav-parents"> Parents </li>
               <li> children </li>
               <li class="nav-header"> Learning </li>
               <li> Courses </li>
@@ -71,7 +71,8 @@
             <label field="content:text"></label>
             <button class="destroy"></button>
           </div>
-        <input class="edit" value="Rule the web">
+          <input class="edit" value="Rule the web">
+        </li>
       </ul>
     </div>
 

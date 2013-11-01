@@ -21,7 +21,7 @@
 ; msg map cont
 (defn course-transform
   [_ message]
-  (:name message))  ; ret :name key from course msg map to set state val.
+  (:text message))  ; ret :text key from course msg map to set state val.
 
 
 ;; emitter to report changes, and attach transforms to template events.
@@ -34,7 +34,7 @@
       {:filtered {}  ; a map of filtered course
        :form
          {:set-course  ; actions with [:course :form :set-course]
-           {:transforms    ; render binds transform fn to pick course list click event
+           {:transforms   ; the node path is from top to here [:course :form :set-course]
             {:set-course [{msg/topic [:course] (msg/param :course) {}}]}}}}}])
 
 
@@ -62,15 +62,15 @@
   [[:node-create [:course :filtered] :map]    ; create course node
    [:value [:course :filtered] courses]
    [:transform-enable [:course :filtered] ; click on any lecture under the course
-                      :set-course-lecture [{msg/topic [:course :filtered]
-                                            (msg/param :filtered) {}}]]
+                      :set-course-filtered [{msg/topic [:course :filtered]
+                                            (msg/param :filtered) {}}]] ; render will fill
   ])
 
 
 ; set course filter value with the new value from message
 (defn course-filter-transform
   [old-value message]
-  (:filtered message))  ; key in message is :filter
+  (:filtered message))  ; set new val from :filtered msg
 
 
 ; upon any changes in *data model* in course node subtree, emit those deltas
@@ -120,7 +120,7 @@
   {:version 2   ; use current version 2
    :debug true
    :transform [[:set-course [:course] course-transform]
-               [:set-course-filter [:course :filtered] course-filter-transform]
+               [:set-course-filtered [:course :filtered] course-filter-transform]
               ]
    :emit [{:init init-app-model}
           ;{:init init-sidebar-emitter}
