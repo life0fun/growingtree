@@ -9,3 +9,8 @@
   font-weight: bold;
   margin-top: 50px;
 }
+
+/* make each row top margin to space out */
+.row-top { 
+  margin-top:20px; 
+}

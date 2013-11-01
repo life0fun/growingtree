@@ -46,9 +46,9 @@
         id (render/new-id! r path)  ; gen a domRender id for this 
         html (templates/add-template r path (:toprow-node templates))
         ]
-    (templates/prepend-t r [:course] 
-                         {:toprows (html {:id id :text "learning clojure is fun"})})
-    ;(dom/append! (dom/by-id parent) (html {:id id :text "learning clojure"}))
+    ;(templates/prepend-t r [:course] 
+    ;                     {:toprows (html {:id id :text "learning clojure is fun"})})
+    (dom/append! (dom/by-id "toprow-list") (html {:id id :text "learning clojure from dom"}))
   ))
 
 ; use framework update-t to update dom upon new courselectures list recved.
