@@ -41,10 +41,10 @@
 ; user can interact with sidebar, so setup interaction on sidebar
 (defn init-sidebar-emitter [inputs]
   "set up message emitter for sidebar nav UI interaction"
-  [[:transform-enable [:course :filter] 
+  [[:transform-enable [:course :filtered] 
                        :set-course-filter [{msg/type :set-course-filter 
-                                            msg/topic [:course :filter]
-                                            (msg/param :filter) {}}]]
+                                            msg/topic [:course :filtered]
+                                            (msg/param :filtered) {}}]]
   ])
 
 
@@ -58,20 +58,19 @@
 ; when set course, all transform actions in course form templates close over current course name.
 (defn set-course-delta
   "emit a vector of vectors of transform deltas that render use to set the course"
-  [coursename]
-  [[:node-create [:course :courses] :map]    ; create course node
-   [:value [:course :courses] coursename]
-   [:transform-enable [:course :form :courselecture] ; click on any lecture under the course
-                      :set-course-lecture [{msg/topic [:course :courselectures]
-                                            (msg/param :courselectures) []
-                                            :course coursename}]]
+  [courses]
+  [[:node-create [:course :filtered] :map]    ; create course node
+   [:value [:course :filtered] courses]
+   [:transform-enable [:course :filtered] ; click on any lecture under the course
+                      :set-course-lecture [{msg/topic [:course :filtered]
+                                            (msg/param :filtered) {}}]]
   ])
 
 
 ; set course filter value with the new value from message
 (defn course-filter-transform
   [old-value message]
-  (:filter message))  ; key in message is :filter
+  (:filtered message))  ; key in message is :filter
 
 
 ; upon any changes in *data model* in course node subtree, emit those deltas
@@ -121,19 +120,20 @@
   {:version 2   ; use current version 2
    :debug true
    :transform [[:set-course [:course] course-transform]
-               [:set-course-filter [:course :filter] course-filter-transform]
+               [:set-course-filter [:course :filtered] course-filter-transform]
               ]
    :emit [{:init init-app-model}
           ;{:init init-sidebar-emitter}
           [#{[:parent :*]
              [:course :*]} (app/default-emitter [])]
-         
-          [#{[:course] [:courselist] [:course :lecturelist] [:lecturelist] [:lecture]} course-emit]
-         
+
+          [#{[:course] [:course :filtered]} course-emit]
+
           [#{[:pedestal :debug :dataflow-time]
              [:pedestal :debug :dataflow-time-max]
              [:debug [:pedestal :**] swap-transform]
-             [:pedestal :debug :dataflow-time-avg]} (app/default-emitter [])]
+             [:pedestal :debug :dataflow-time-avg]
+            } (app/default-emitter [])]
          ]
   })
 

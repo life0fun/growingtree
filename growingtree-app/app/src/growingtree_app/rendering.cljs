@@ -28,37 +28,44 @@
 ;
 ; new-id can be used to create the id for the new dom element.
 ; add-template attaches dynamic template div subtree to dom.
-(defn render-home-page [r [_ path] transmitter]
+(defn render-home-page 
+  [r [_ path] transmitter]
   (let [parent (render/get-parent-id r path)
         id (render/new-id! r path)
         html (templates/add-template r path (:home-page templates))]
     ; invoke reted html fn to gen html and attach to dom using domina.
-    (dom/append! (dom/by-id parent) (html {:id id}))))
+    (dom/append! (dom/by-id parent) (html {:id id :messages ""}))))
 
 ; create a top course node, attach to toprows div.
-(defn create-course-node [r [_ path] d]
+(defn create-course-node 
+  [r [_ path] d]
   (let [id (render/new-id! r path)
         html (templates/add-template r path (:toprow-node templates))]
-    (templates/prepend-t r [:course] {:toprows (html {:id id :text "learning clojure"})})))
+    (templates/prepend-t r [:course] 
+                         {:toprows (html {:id id :text "learning clojure"})})
+  ))
 
 ; use framework update-t to update dom upon new courselectures list recved.
-(defn update-courselectures [r [_ path old new] transmitter]
+(defn update-courselectures 
+  [r [_ path old new] transmitter]
   (let [id (render/get-id r path)
         msg (assoc new :id (:id new) :time (format-time (:time new)))]
     ; set data under [:course :courselectures] to new msg map
-    (templates/update-t r path {:lectures msg}))) 
+    (templates/update-t r path {:lectures msg})))
 
 
 ; Use the `new-id!` function to associate a new id to the
 ; given path. With two arguments, this function will generate
 ; a random unique id. With three arguments, the given id will
 ; be associated with the given path.
-(defn add-template [r [_ path :as delta] input-queue]      
+(defn add-template 
+  [r [_ path :as delta] input-queue]      
   (let [parent (render/get-parent-id renderer path)
         id (render/new-id! r path)
         lectures (templates/add-template r path (:lecture-page templates))]
-    ; template id set to div filed id
-    (dom/append! (dom/by-id parent) (lectures {:id id}))))
+    ; template id set to div filed id;
+    (dom/append! (dom/by-id parent) (lectures {:id id}))
+  ))
 
 
 ; handle click on sidebar
@@ -66,6 +73,7 @@
   (let [m (msgs/fill :set-course-filter 
                       msg {:filter {:key :subject :value "function"}})]
     (events/send-on :click (dom/by-id "sidenav-parents") d m)))
+
   
 ; update list of course
 (defn update-courses [r [_ path old new] transmitter]
@@ -74,14 +82,14 @@
         htmltext (html {:id id :text (:value new)})]
     (templates/prepend-t r [:course] {:toprows htmltext})))
 
+
 ; render config dispatch app model delta to render fn.
 ; the render config is refed in config/config.edn
 ; wildcard :* means exactly one segment with any value, :** means 0+ more.
 (defn render-config []
   [[:node-create  [:course] render-home-page]
    [:node-destroy [:course] auto/default-exit]
-   [:node-create  [:course :*] create-course-node]
-   [:transform-enable [:course :filter] course-filter-transforms]
-   [:value [:course :courselectures] update-courselectures]
-   [:value [:course :filter] update-courses]
-   ])
+   ;[:node-create  [:course :*] create-course-node]
+   ;[:transform-enable [:course :filtered] course-filter-transforms]
+   ;[:value [:course :filtered] update-courses]
+  ])

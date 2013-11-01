@@ -17,8 +17,8 @@
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               <li class="nav-header"> Family </li>
-              <li id="sidenav-parents"> Parents </li>
-              <li id="sidenav-children"> children </li>
+              <li> Parents </li>
+              <li> children </li>
               <li class="nav-header"> Learning </li>
               <li> Courses </li>
               <li> Lectures </li>
@@ -57,26 +57,24 @@
       <div class="body">
         <div class="header">
           <span class="name" field="content:text">anonymous</span>
-          <span class="time" field="content:time">- 10:23 PM</span>
+          <span class="time" field="content:time">10:23 PM</span>
         </div>
         <div class="content" field="content:text">
           Master cleanse vice bushwick lomo literally Austin.  Pour-over wayfarers brunch portland literally Austin.
         </div>
       </div>
-      <!-- now a list of sub -->
-      <ul id="sub-list"> 
+
+      <ul id="sub-list">
+        <li template="sublistentry" field="id:id">
+          <div class="view">
+            <input class="toggle" type="checkbox">
+            <label field="content:text"></label>
+            <button class="destroy"></button>
+          </div>
+        <input class="edit" value="Rule the web">
       </ul>
     </div>
 
-    <!-- sub-list entry  -->
-    <li template="sublistentry" field="id:id">
-      <div class="view">
-        <input class="toggle" type="checkbox">
-        <label field="content:text"></label>
-        <button class="destroy"></button>
-      </div>
-      <input class="edit" value="Rule the web">
-    </li>    
     <!--
       # Whenever we add a new message, make sure to fire this:
       $('.chat-frame').scrollTop($('.chat-frame').height());
