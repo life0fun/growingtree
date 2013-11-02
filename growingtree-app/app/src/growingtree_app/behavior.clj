@@ -18,34 +18,21 @@
 
 ;; transforms
 
-; msg map cont
+; extract the user clicked nav category from msg, and store it in [:nav :category] node
+(defn set-nav-category
+  [_ message]
+  (:category message))  ; value stored inside :category key
+
+
 (defn course-transform
   [_ message]
   (:text message))  ; ret :text key from course msg map to set state val.
 
 
-;; emitter to report changes, and attach transforms to template events.
-
-; emit init app model emtter only once when app starts. emitter will emit to create all nodes.
-; the most important things is to define transform fn that can be triggered
-; by render upon UI events on this portion.
-(defn init-app-model [_]
-  [{:course
-      {:filtered {}  ; a map of filtered course
-       :form
-         {:set-course  ; actions with [:course :form :set-course]
-           {:transforms   ; the node path is from top to here [:course :form :set-course]
-            {:set-course [{msg/topic [:course] (msg/param :course) {}}]}}}}}])
-
-
-; user can interact with sidebar, so setup interaction on sidebar
-(defn init-sidebar-emitter [inputs]
-  "set up message emitter for sidebar nav UI interaction"
-  [[:transform-enable [:course :filtered] 
-                       :set-course-filter [{msg/type :set-course-filter 
-                                            msg/topic [:course :filtered]
-                                            (msg/param :filtered) {}}]]
-  ])
+; set course filter value with the new value from message
+(defn course-filtered-transform
+  [old-value message]
+  (:filtered message))  ; render fills out value in :filtered msg
 
 
 (defn set-value-transform [old-value message]
@@ -55,22 +42,49 @@
   {[:course] 0
    [:lecture] 1})
 
+
+;; derive dataflow, derive fn got 2 args, old value, and tracking map
+(defn refresh-category
+  [oldv inputs]
+  ; fake sample code
+  (let [newmsg (new-msgs (d/old-and-new inputs [:nav category]) :received)]
+    newmsg))
+
+
+;; emitter to report changes, and attach transforms to template events.
+
+; emit init app model emtter only once when app starts. emitter will emit to create all nodes.
+; the most important things is to define transform fn that can be triggered
+; by render upon UI events on this portion.
+(defn init-app-model [_]
+  [{:course
+      {:filtered  ; a map of filtered course
+        {:transforms   ; the node path is from top to here [:course :form :set-course]
+          {:set-course-filtered [{msg/topic [:course :filtered] 
+                                 (msg/param :filtered) {}}]}}}}])
+
+
+; user can interact with sidebar, so setup interaction on sidebar
+(defn init-sidebar-emitter [inputs]
+  "set up message emitter for sidebar nav UI interaction"
+  [[:transform-enable [:nav :category] 
+                      :set-nav-category 
+                      [{msg/type :set-nav-category
+                        msg/topic [:nav :category]
+                        (msg/param :category) {}}]]]
+  )
+
+
 ; when set course, all transform actions in course form templates close over current course name.
 (defn set-course-delta
   "emit a vector of vectors of transform deltas that render use to set the course"
   [courses]
-  [[:node-create [:course :filtered] :map]    ; create course node
-   [:value [:course :filtered] courses]
+  [;[:node-create [:course :filtered] :map]    ; create course node
+   [:value [:course] courses]
    [:transform-enable [:course :filtered] ; click on any lecture under the course
                       :set-course-filtered [{msg/topic [:course :filtered]
                                             (msg/param :filtered) {}}]] ; render will fill
   ])
-
-
-; set course filter value with the new value from message
-(defn course-filter-transform
-  [old-value message]
-  (:filtered message))  ; set new val from :filtered msg
 
 
 ; upon any changes in *data model* in course node subtree, emit those deltas
@@ -88,11 +102,12 @@
 
 
 ;; Data Model Paths: store all global mutable states.
+;; [:nav :category] - use click sidebar nav to show 
 ;; [:parent] - current parent
 ;; [:child] - current child
 ;; [:parent :filter] - parent filter, {(msg/param :filter) {:key :value}}
 ;; [:child :filter] - parent filter, {(msg/param :filter) {:key :value}}
-;; [:course] - current selected courses
+;; [:course] - current selected course, by user click on courses lists
 ;; [:course :filter] - filter, {(msg/param :filter) {:key :value}}
 ;; [:lecture] - current selected lecture
 ;; [:lecture :filter] - filter, {(msg/param :filter) {:key :value}}
@@ -102,30 +117,27 @@
 ;; [:outbound :sending] - Pending message that effect looks to send
    
 ;; App Model Paths: represent div in template. linking UI action handle to 
-;; [:course :name] - create node to store current course, then set transform-enable fn for form template 
-;;                   under course, and transform closure fn defined here closed over current course name.
-;; [:course :form :*] - a form div in template contain a list of course
-;; [:lecture :name] - create node to store current lecture.
-;; [:lecture :form :*] - a form  template div of lecture list
-;; [:assignment :name] - current assignment name
-;; [:assignment :form :*] - a div of list of assignment
-;; [:parent :name] - current parent name
-;; [:parent :form :*] - a div of parent list
-;; [:child :name] - Displays the current child name
-;; [:child :form :*] - a div of child list
+
 
 
 ; client app dataflow is a record that impls Receiver protocol.
 (def growingtree-app
   {:version 2   ; use current version 2
    :debug true
-   :transform [[:set-course [:course] course-transform]
-               [:set-course-filtered [:course :filtered] course-filter-transform]
+   :transform [[:set-nav-category [:nav :category] set-nav-category]
+               [:set-course [:course] course-transform]
+               [:set-course-filtered [:course :filtered] course-filtered-transform]
               ]
-   :emit [{:init init-app-model}
-          ;{:init init-sidebar-emitter}
+   ; :derive #{
+   ;          [#{[:nav :category]} [:course] refresh-category]
+   ;         }
+   :emit [;{:init init-app-model}
+          {:init init-sidebar-emitter}
+
           [#{[:parent :*]
              [:course :*]} (app/default-emitter [])]
+
+          [#{[:nav :category]} (app/default-emitter [])]
 
           [#{[:course] [:course :filtered]} course-emit]
 

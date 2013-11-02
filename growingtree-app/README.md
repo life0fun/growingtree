@@ -50,6 +50,8 @@ So it absorb server send events from back-end and consume-effects from client da
 
 ## Data Flow Programming
 
+Data flow programming means data flow along a path, across many path node, and at each path node, you update data model tree, and possibly trigger other down stream data flows for chained reaction.
+
 Data Flow model is a new way of to interact with data from UI other than MVC pattern.
 It centerlized around data, bridges functions that transform the data with user interactive UI events through messages.
 
@@ -90,6 +92,15 @@ Each transform-enable handler got 3 args, first is render, the second destructur
           (evts/send-on :click (dc/sel (str "#" (render/get-id r p) " input")) input-queue messages )
         (= k :remove-task)                                           
           (evts/send-on :click (dc/sel (str "#" (render/get-id r p) " .destroy")) input-queue messages ))))
+
+
+Derive dataflow does not handle message directly. A derive dataflow is made up of 3 components, a set of upstream input path nodes, the output path node where updated value goes into, and the actual derive function. The derive function receives 2 args, the first item is the old value in the output path ndoe, the second item is a tracking map. A tracking map is a special pedestal map that keeps track of changes in the data model. A tracking map is made up of the following keys: :removed, :added, :updated, :input-paths, :old-model, :new-model, and :message.
+
+    (defn wind-chill-fn [old-wind-chill inputs]
+      (let [t (get-in inputs [:new-model :app :sensor :temperature])
+            v (get-in inputs [:new-model :app :sensor :wind-speed])]
+        ;; simple wind chill formula is 0.0817 * (3.71v^0.5 + 5.81 – 0.25 V) * (T – 91.4) + 91.4
+        (+ (* 0.0817 (- (+ (* (Math/sqrt v) 3.71) 5.81) (* 0.25 v)) (- t 91.4)) 91.4)))
 
 
 ## Render DOM and app model deltas

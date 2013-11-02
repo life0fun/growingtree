@@ -18,10 +18,11 @@
         app-model (render/consume-app-model app render-fn)]
     (app/begin app)
 
-    ; send msg to bootstrap the app !
+    ; send msg to bootstrap the app ! fake user clicked nav course
     (p/put-message (:input app) 
-                   {msg/type :set-course 
-                    msg/topic [:course]})
+                   {msg/type :set-nav-category 
+                    msg/topic [:nav :category]
+                    :category :courses})
 
     {:app app :app-model app-model}))
 
