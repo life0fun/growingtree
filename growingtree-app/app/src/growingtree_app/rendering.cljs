@@ -81,23 +81,31 @@
 (def category-transforms
   (fn [r [_ p k message] inq]
     (events/send-on :click (dom/by-id "sidenav-courses") inq
-                    (msgs/fill :set-nav-category message {:category :courses})))
+                    (msgs/fill :set-nav-category message {:category :parents})))
   )
 
 ; when user click nav sidebar, create new template attach to path node [:nav :category]
 ; and attach to toprow-list dom 
-(defn render-nav-category
-  [r [_ path oldv newv] transmitter]
-  (let [;cat (:value newv)
-        parent (render/get-parent-id r path)
-        id (render/new-id! r path)  ; gen a domRender id for this 
+(defn create-nav-category
+  [r [_ path] d]
+  (let [title (str "learning category " path)
+        parent (render/get-parent-id r path) ; parent is used for dom/append to parent
+        id (render/new-id! r path)  ; gen id for this path node
         html (templates/add-template r path (:toprow-node templates))
        ]
+    ; this does not effect
     (. js/console (log "render-nav-category " ))
-    ;(templates/prepend-t r [:course] 
-    ;                     {:toprows (html {:id id :text "learning clojure is fun"})})
-    (dom/append! (dom/by-id "toprow-list") (html {:id id :text "learning clojure from dom"}))
+    ;(templates/prepend-t r [:nav :category] ; template in this path node attach to []
+    ;                     {:toprows (html {:id id :text title})})
+
+    ; dom append will append to the main
+    (dom/append! (dom/by-id "toprow-list") (html {:id id :text title}))
   ))
+
+; when we change category, destroy the old category
+(defn destroy-nav-category 
+  [r [_ path] d]  
+  (dom/destroy! (dom/by-id (render/get-id r path))))  ; find id for this path node
 
 ; render config dispatch app model delta to render fn.
 ; the render config is refed in config/config.edn
@@ -114,5 +122,7 @@
    
    ; wire sidebar nav click to send this transform, and render value changed.
    [:transform-enable [:nav :category] category-transforms]
-   [:value [:nav :category] render-nav-category]
+   ;[:value [:nav :category] render-nav-category]
+   [:node-create [:nav :category :*] create-nav-category]
+   [:node-destroy [:nav :category :*] destroy-nav-category]
   ])

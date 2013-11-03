@@ -47,6 +47,18 @@ Service defintion at client side has two parts, wrap event end point into event 
 
 So it absorb server send events from back-end and consume-effects from client data model and xhr post requests to back-end.
 
+## Information model
+
+Mutable state is stored in single root tree that represents information model. The single root tree data structure is a nested clojure map. Each path node in the tree is addressable by the path node, [:path :node]. Mutable state is clojure atom. To update mutable state in data model, we define transform function inside behavior, which dispatch message to transform function based on message type and message topic. Transform function get 2 args, the old value of the state, and the message. You can extract new value from message to compute new value. The return value from transform function is used to set the new state value.
+
+    (defn add-name [old-value message]
+      ((fnil conj []) old-value (:name message)))
+
+under the hood, transform function updates data model map use update-in.
+
+    (apply update-in data-model [target op arg1 arg2])
+
+
 
 ## Data Flow Programming
 
@@ -102,6 +114,11 @@ Derive dataflow does not handle message directly. A derive dataflow is made up o
         ;; simple wind chill formula is 0.0817 * (3.71v^0.5 + 5.81 – 0.25 V) * (T – 91.4) + 91.4
         (+ (* 0.0817 (- (+ (* (Math/sqrt v) 3.71) 5.81) (* 0.25 v)) (- t 91.4)) 91.4)))
 
+The tracking map tracks the change in data model. Remember that data model is a single rooted tree. so tracking map (get-in tracking-map-inputs [:new-model :todo :filter]) contains current filter type. To get filtered task map.
+
+    (get-in inputs [:new-model :todo :filtered-tasks]
+
+
 
 ## Render DOM and app model deltas
 
@@ -151,6 +168,33 @@ The derive function receives two arguments when it is called. The first item is 
     (defn compute-filtered-tasks [_ inputs]  
       (let [filter-type (get-in inputs [:new-model :todo :filter])
             tasks (get-in inputs [:new-model :todo :tasks])]
+
+
+## Emitter
+
+Emitters are made up of two components. The first component is a list of input paths into the data model. The second component is the emitter function.
+
+The emitter function is designed to take a single argument, which is a tracking map. By using the tracking map, you can determine what has changed, and can produce the application deltas necessary to signal this change. As data model is a single rooted tree, which is a nested map, so we can use  (get-in tracking-map-inputs [:new-model :todo :filter]) to get either the old-model value or the new-model value for any path node in data model and emit application model delta.
+
+For example, if a path was added to the data model, this could be signalled with a :node-create. If one was removed, it could be :node-destroy. When a value is changed in the data model, an application delta could be either :attr, or :value, depending on how fine grained the change you want to signal.
+
+    :emit [{:in #{[:todo :filtered-tasks :* :*]} :fn todo-emitter  :mode :always :init init-emitter }
+
+    (defn todo-emitter [inputs]
+      (vec (concat
+        ((app/default-emitter) inputs)
+        (mapcat (fn [[_ _ task]] [[:node-create ...]]) (:added inputs)
+        (mapcat (fn [[_ _ task] :as path] [[:value path (get-in inputs (concat [:new-model] path))]]) (:updated inputs))
+        (mapcat (fn [[_ _ task] :as path] [[:node-destroy path]]) (:removed inputs)
+
+
+For value changes, the default emitter will emit 
+    
+    [:value [:nav :category] nil :courses]
+
+the emit handler in render side will get [op path old new] vector. op is :value obviously. d is transmitter, for 
+
+    (defn emitter-handler [render [op path old new] d] ... )  
 
 
 ## Slicing templates

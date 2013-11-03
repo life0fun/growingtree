@@ -101,6 +101,57 @@
                    (merge (d/added-inputs inputs) (d/updated-inputs inputs)))))
 
 
+; emitter fn destructs the path of node [:todo :tasks task-id :completed]
+; when adding task, (assoc todo :tasks (assoc (:tasks todo) id tasks)
+(defn todo-emitter 
+  [inputs]
+  ; from inputs tracking map, ret a vector of app model delta
+  (vec (concat
+        ; still use the default emitter, which emit [:value path old new]
+        ((app/default-emitter) inputs)  
+        ; at path node [:todo :filtered :* :*]  a new value is added.
+        ; this is 
+        (mapcat (fn [[_ _ task]]  ; added a task, path is [:todo :tasks task-id]
+                  ;; When a new task is added, it needs to have transform-enables associated with it
+                  ;; It needs to be able to be toggled, and it should be removed.
+                  (when (symbol? task)
+                    [[:transform-enable [:todo :filtered-tasks task] :toggle-task [{msg/topic [:todo] msg/type :toggle-task :id task}]]
+                     [:transform-enable [:todo :filtered-tasks task] :remove-task [{msg/topic [:todo] msg/type :remove-task :id task}]]]))
+                (:added inputs))  ; the added-map from inputs
+        ; 
+        (mapcat (fn [[_ _ task completed :as path]] ; updated a task, path is [:todo :tasks task-id :filter-type]
+                  ;; Right now the default emitter is not updating the value if it is nil or false
+                  ;; So I'm manually inserting the value 
+                  (when (and (symbol? task) (= completed :completed))                 
+                    [[:value path (get-in inputs (concat [:new-model] path))]]
+                    ))
+                (:updated inputs))
+        (mapcat (fn [[_ _ task :as path]] ; deleted a task, path is [:todo :tasks task-id]
+                  ;; Make sure that the tasks are removed when they are removed from the data model
+                  (when (symbol? task)                    
+                    [[:node-destroy path]]
+                    ))
+                (:removed inputs)))
+        ))
+
+; emitter for when nav category value changes, emit node create of clicked category
+(defn nav-cat-emitter
+  [inputs]  ; tracking map of data model
+  (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
+        oldcat (get-in inputs [:old-model :nav :category])
+        newcat (get-in inputs [:new-model :nav :category])]
+    (vec (concat 
+      ((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
+      (mapcat 
+        (fn [[path] nval]
+          (if oldcat
+            [[:node-destroy (conj path oldcat)]
+             [:node-create (conj path newcat) :map]]
+            [[:node-create (conj path newcat) :map]]))
+        deltamap)
+      ))))
+  
+
 ;; Data Model Paths: store all global mutable states.
 ;; [:nav :category] - use click sidebar nav to show 
 ;; [:parent] - current parent
@@ -137,7 +188,10 @@
           [#{[:parent :*]
              [:course :*]} (app/default-emitter [])]
 
-          [#{[:nav :category]} (app/default-emitter [])]
+          ;[#{[:nav :category]} (app/default-emitter [])]
+
+          ; user click sidebar cat change, create new node [:nav :category catval]
+          {:in #{[:nav :category]} :fn nav-cat-emitter :mode :always}
 
           [#{[:course] [:course :filtered]} course-emit]
 
