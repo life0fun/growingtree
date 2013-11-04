@@ -135,8 +135,10 @@ For :node-create delta, render fn gets 2 args, type, and path.
       (let [parent (render/get-parent-id renderer path)
            id (render/new-id! renderer path "todoapp")
            html (templates/add-template renderer path (:todo-page templates))]
-        (dom/append! (dom/by-id parent) (html ))))
+        (dom/append! (dom/by-id parent) (html {:id id}))))
  
+The function templates/add-template takes all the hard work out of dealing with dynamic templates. This function associates the template with the given path and returns a function which generates the initial HTML. Calling the returned function with a map of data will return HTML which can be added to the DOM.
+
 There are two ways to create new node, one is create a render DOM node for a path that maps to a browser DOM id, for example, [:todo] maps to div id "todoapp". Then later we add-template to [:todo] node, render template to html and dom append to [:todo]'s parent.
 
 The other way is call new-id to get an id for the path node [:x :y], then attach a template to the path node; finally, render the template and assign it the id from render DOM as browser div id.
@@ -149,6 +151,11 @@ The other way is create a render dom id for the path node, attach template to it
         (templates/prepend-t r [:chat] {:messages (html {:id id :status "pending"})})))
 
 Note that with filed="content:XXX" approach, all div defined with this filed=content:XXX will get the rendered template html.
+
+To set both element attributes and content, e.g, href in hyper link and content of anchor tag, need to put content:XXX at the front of attrs.
+
+    <a class="title" field="content:thing-entry-title,href:href"></a>
+
 
 For :value delta, render-fn destructure the message into [type path old-val new-val]
 
@@ -217,6 +224,7 @@ The field attribute takes a comma delimited list of
     html-element-attribute-name:map-key
 
 content is a special case which means that the content (innerHTML) of the element will be set to this value.
+
 
 To verify template working, need to restart to reload app.
   => (use 'growingtree-app.html-templates)

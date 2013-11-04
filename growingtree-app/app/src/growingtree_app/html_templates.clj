@@ -12,7 +12,13 @@
   ;; The last argument to 'dtfn' is a set of fields that should be
   ;; treated as static fields (may only be set once). Dynamic templates
   ;; use ids to set values so you cannot dynamically set an id.
+
+  ; dtfn stands for dynamic template fn. tnodes is template nodes.
+  ; dtfn creates template that can be udpated even after attached to DOM.
   {:home-page (dtfn (tnodes "growingtree-app.html" "homepage") #{})
-   :toprow-node (dtfn (tnodes "growingtree-app.html" "toprow") #{:id})
+   :thing (dtfn (tnodes "growingtree-app.html" "thing") #{:id})
+   :thing-thumbnail (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})
+   :thing-entry (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})
+   :toprow (dtfn (tnodes "growingtree-app.html" "toprow") #{:id})
    :sublist-entry (dtfn (tnodes "growingtree-app.html" "sublistentry") #{})
   })

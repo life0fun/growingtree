@@ -80,30 +80,46 @@
 ; wire click event on nav sidebar to send nav category path node
 (def category-transforms
   (fn [r [_ p k message] inq]
-    (events/send-on :click (dom/by-id "sidenav-courses") inq
-                    (msgs/fill :set-nav-category message {:category :parents})))
-  )
+    (let [sidebars ["parents" "children" "courses" "lectures" "homeworks"
+                    "assignments" "topquestions" "topanswers" "ask" "answer"
+                    "contributions" "knowledges" "activities" "locations"]]
+      (doseq [k sidebars]
+        (events/send-on :click (dom/by-id (str "sidenav-" k)) inq
+                        (msgs/fill :set-nav-category 
+                                    message {:category (keyword k)}))))))
 
 ; when user click nav sidebar, create new template attach to path node [:nav :category]
 ; and attach to toprow-list dom 
-(defn create-nav-category
+(defn create-nav-category-things
   [r [_ path] d]
   (let [title (str "learning category " path)
         parent (render/get-parent-id r path) ; parent is used for dom/append to parent
         id (render/new-id! r path)  ; gen id for this path node
-        html (templates/add-template r path (:toprow-node templates))
+        ;html (templates/add-template r path (:toprow templates)) ; added template to this path node
+        html (templates/add-template r path (:thing templates)) ; added template to this path node
+        thumbhtml (templates/add-template r path (:thing-thumbnail templates))
+        entryhtml (templates/add-template r path (:thing-entry templates))
        ]
     ; this does not effect
-    (. js/console (log "render-nav-category " ))
-    ;(templates/prepend-t r [:nav :category] ; template in this path node attach to []
-    ;                     {:toprows (html {:id id :text title})})
+    (. js/console (log "render-nav-category "))
+    ; [:nav] path node's template has been dom appended to root [] home page
+    (templates/append-t    ; append or prepend, the same here. prepend-t
+                r [:nav] 
+                ;{:topthings (html {:id id :href path :thing-entry-title title})})
+                {:topthings (html {:id id :thumbhref "thumbhref" :entryhref path
+                                   :thing-entry-title title})})
+
+    ; this will cause thumbhtml get appended to the list of templates at [:nav]
+    ; (templates/append-t    ; append or prepend, the same here. prepend-t
+    ;             r [:nav]
+    ;             {:topthings (thumbhtml {:thumbhref "thumbnail"})})
 
     ; dom append will append to the main
-    (dom/append! (dom/by-id "toprow-list") (html {:id id :text title}))
+    ;(dom/append! (dom/by-id "topthings") (html {:id id :text title}))
   ))
 
 ; when we change category, destroy the old category
-(defn destroy-nav-category 
+(defn destroy-nav-category-things
   [r [_ path] d]  
   (dom/destroy! (dom/by-id (render/get-id r path))))  ; find id for this path node
 
@@ -112,8 +128,7 @@
 ; wildcard :* means exactly one segment with any value, :** means 0+ more.
 (defn render-config []
   [[:node-create  [:nav] render-home-page]
-   ;[:node-create  [:course] render-home-page]
-   ;[:node-destroy [:course] auto/default-exit]
+   [:node-destroy [:nav] auto/default-exit]
    ;[:node-create  [:course :*] create-course-node]
    
    [:transform-enable [:course :filtered] course-filtered-transforms]
@@ -123,6 +138,6 @@
    ; wire sidebar nav click to send this transform, and render value changed.
    [:transform-enable [:nav :category] category-transforms]
    ;[:value [:nav :category] render-nav-category]
-   [:node-create [:nav :category :*] create-nav-category]
-   [:node-destroy [:nav :category :*] destroy-nav-category]
+   [:node-create [:nav :category :*] create-nav-category-things]
+   [:node-destroy [:nav :category :*] destroy-nav-category-things]
   ])

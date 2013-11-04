@@ -33,19 +33,40 @@
               </li>
               
               <li class="nav-header"> Practice </li>
-              <li> Homeworks </li>
-              <li> Assignments </li>
+              <li> 
+                <a id="sidenav-homeworks"> Homeworks </a> 
+              </li>
+              <li>
+                <a id="sidenav-assignments"> Assignments </a>
+              </li>
               
               <li class="nav-header"> Social </li>
-              <li> Top Questions </li>
-              <li> Top Answers </li>
-              <li> Ask Question </li>
-              <li> Answer Question </li>
+              <li> 
+                <a id="sidenav-topquestions">Top Questions </a>
+              </li>
+              <li> 
+                <a id="sidenav-topanswers"> Top Answers </a>
+              </li>
+              <li> 
+                <a id="sidenav-ask"> Ask Question </a>
+              </li>
+              <li>
+                <a id="sidenav-answer"> Answer Question </a>
+              </li>
               
               <li class="nav-header"> Time Line </li>
-              <li> Contributions </li>
-              <li> Knowledge </li>
-              <li> Activities </li>
+              <li> 
+                <a id="sidenav-contributions"> Contributions </a>
+              </li>
+              <li> 
+                <a id="sidenav-knowledges"> Knowledge </a>
+              </li>
+              <li> 
+                <a id="sidenav-activities"> Activities </a>
+              </li>
+              <li> 
+                <a id="sidenav-locations"> Locations </a>
+              </li>
             </ul>
           </div> <!-- well sidebar-->
         </div> <!-- span 3 -->
@@ -53,19 +74,54 @@
         <div class="span9">
           <div class="leaderboard">
               <h1> Learn, Practice, Develop -- Together ! </h1>
-              <p> Hello Parents, this is the social learning management system for your kids !</p>
+              <h4> Hello Parents, this is the social learning management system for your kids !</h4>
           </div>
 
-          <!-- top rows -->
-          <div class="toprows" field="content:toprows">
+          <!-- top things, like reddit style -->
+          <div class="topthings" field="content:topthings">
           </div>
           <!-- container for a list of top level nodes -->
-          <div id="toprow-list"> </div>
+          <div id="topthings"> </div>
         </div>  <!-- end of span9 -->
       </div> <!-- end of row fluid -->
     </div> <!-- end of container fluid -->
 
-    <!-- top category list, parents have list of child, course has list of lectures -->
+    <!-- top things list, a list of parents, courses, lectures, things -->
+    <div class="offset0 thing" template="thing" field="id:id">
+      <p class="parent"></p>
+      <span class="rank"> 1 </span>
+      <div class="midcol unvoted">
+        <div class="arrow up"></div>
+        <div class="score unvoted"> 1234 </div>
+        <div class="arrow down"></div>
+      </div>
+      
+      <!-- no need to use template, maybe dom append by-idand more concise -->
+      <a class="thumbnail" template="thing-thumbnail" field="href:thumbhref">
+        <img src="#" width="70" height="52" alt="">
+      </a>
+
+      <!-- no need to use template, maybe dom append by-idand more concise -->
+      <div class="entry unvoted" template="thing-entry">
+        <p class="title">
+          <a class="title" field="content:thing-entry-title,href:entryhref"></a>
+          <span class="domain">(<a href="#">growingtree.com</a>)</span>
+        </p>
+        <p class="tagline">submitted</p>
+        <ul class="flat-list buttons">
+          <li class="first">
+            <a class="comments" href="#">403 comments</a>
+          </li>
+          <li class="share">
+            <span class="share-button toggle" style="">
+              <a class="option active" href="#">share</a>
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- deprecated for test only -->
     <div class="offset0 row-top" template="toprow" field="id:id">
       <div class="gutter"></div>
       <div class="body">
