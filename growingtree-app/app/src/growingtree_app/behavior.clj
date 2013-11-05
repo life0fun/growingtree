@@ -143,7 +143,7 @@
     (vec (concat 
       ((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
       (mapcat 
-        (fn [[path] nval]
+        (fn [[path] nval]  ; when out of delta, 
           (if oldcat
             [[:node-destroy (conj path oldcat)]
              [:node-create (conj path newcat) :map]]
@@ -151,6 +151,12 @@
         deltamap)
       ))))
   
+
+;; effect dataflow, ret msg to be put into (:output app) queue.
+(defn send-message-to-server [outbound]
+  ; real msg in :sending key and wrap it into :out-message before put into output queue.
+  [{msg/topic [:server] :out-message (:sending outbound)}])
+
 
 ;; Data Model Paths: store all global mutable states.
 ;; [:nav :category] - use click sidebar nav to show 
@@ -174,34 +180,42 @@
 ; client app dataflow is a record that impls Receiver protocol.
 (def growingtree-app
   {:version 2   ; use current version 2
-   :debug true
-   :transform [[:set-nav-category [:nav :category] set-nav-category]
-               [:set-course [:course] course-transform]
-               [:set-course-filtered [:course :filtered] course-filtered-transform]
-              ]
-   ; :derive #{
-   ;          [#{[:nav :category]} [:course] refresh-category]
-   ;         }
-   :emit [;{:init init-app-model}
-          {:init init-sidebar-emitter}
+    :debug true
+    :transform [[:set-nav-category [:nav :category] set-nav-category]
+                [:set-course [:course] course-transform]
+                [:set-course-filtered [:course :filtered] course-filtered-transform]
+               ]
+    ; :derive #{
+    ;          [#{[:nav :category]} [:course] refresh-category]
+    ; }
 
-          [#{[:parent :*]
-             [:course :*]} (app/default-emitter [])]
+    ; effect fn triggered by [:outbound] msg and effect-fn takes msg and 
+    ; ret a vec for msg to be consumed by services-fn, and xhr to back-end.
+    :effect #{
+      [#{[:outbound]} send-message-to-server :map]
+    }
 
-          ;[#{[:nav :category]} (app/default-emitter [])]
+    ; emitter
+    :emit [;{:init init-app-model}
+           {:init init-sidebar-emitter}
 
-          ; user click sidebar cat change, create new node [:nav :category catval]
-          {:in #{[:nav :category]} :fn nav-cat-emitter :mode :always}
+           [#{[:parent :*]
+              [:course :*]} (app/default-emitter [])]
 
-          [#{[:course] [:course :filtered]} course-emit]
+           ;[#{[:nav :category]} (app/default-emitter [])]
 
-          [#{[:pedestal :debug :dataflow-time]
-             [:pedestal :debug :dataflow-time-max]
-             [:debug [:pedestal :**] swap-transform]
-             [:pedestal :debug :dataflow-time-avg]
-            } (app/default-emitter [])]
-         ]
-  })
+           ; user click sidebar cat change, create new node [:nav :category catval]
+           {:in #{[:nav :category]} :fn nav-cat-emitter :mode :always}
+
+           [#{[:course] [:course :filtered]} course-emit]
+
+           [#{[:pedestal :debug :dataflow-time]
+              [:pedestal :debug :dataflow-time-max]
+              [:debug [:pedestal :**] swap-transform]
+              [:pedestal :debug :dataflow-time-avg]
+             } (app/default-emitter [])]
+          ]
+    })
 
 
 ;; Once this behavior works, run the Data UI and record

@@ -18,17 +18,23 @@
             [ring.util.mime-type :as ring-mime]
             [ring.middleware.session.cookie :as cookie]))
 
+
+; store subscribe user id map to SSE context in atom {}
 (def ^{:doc "Map of subscriber IDs to SSE contexts"} subscribers (atom {}))
 
+
+; wrap each request into sse-context map, and store user-id in request cookie.
 (defn context-key
-  "Return key for given `context`."
+  "Return context-key, the user id, for a given sse context, sse-context is a map"
   [sse-context]
-  (get-in sse-context [:request :cookies "chat-id" :value]))
+  (get-in sse-context [:request :cookies "user-id" :value]))
+
 
 (defn add-subscriber
-  "Add `context` to subscribers map."
+  "Add to concurrent hashmap quick lookup of user-id to user sse-contexst"
   [sse-context]
   (swap! subscribers assoc (context-key sse-context) sse-context))
+
 
 (defn remove-subscriber
   "Remove `context` from subscribers map and end the event stream."
@@ -37,8 +43,6 @@
   (swap! subscribers dissoc (context-key context))
   (end-event-stream context))
 
-(def ^{:doc "Interceptor used to add subscribers."}
-  wait-for-events (sse-setup add-subscriber))
 
 (defn send-to-subscriber
   "Send `msg` as event to event stream represented by `context`. If
@@ -46,11 +50,13 @@
   [context msg]
   (try
     (log/info :msg "calling event sending fn")
+    ; sse event data wraped inside "msg" key
     (send-event context "msg" msg)
     (catch java.io.IOException ioe
       (log/error :msg "Exception from event send"
                  :exception ioe)
       (remove-subscriber context))))
+
 
 (defn send-to-subscribers
   "Send `msg` to all event streams in subscribers map."
@@ -58,6 +64,13 @@
   (log/info :msg "sending to all subscribers")
   (doseq [sse-context (vals @subscribers)]
     (send-to-subscriber sse-context msg)))
+
+
+; redirect request to this interceptor, so we hold on the request waiting and send SSE thru.
+; (ring-response/redirect (url-for ::wait-for-events))
+(def ^{:doc "Interceptor used to add subscribers."}
+  wait-for-events (sse-setup add-subscriber))
+
 
 (defn publish
   "Terminal interceptor for publishing msg to subscribers."
@@ -72,16 +85,16 @@
 
 
 ; gen uuid session id
-(defn- session-id [] (.toString (java.util.UUID/randomUUID)))
+(defn- gen-session-id [] (.toString (java.util.UUID/randomUUID)))
 
 (declare url-for)
 
 ; find session id from request cookie, and update client's merged cookie.
 (defn subscribe
   [request]
-  (let [session-id (or (get-in request [:cookies "chat-id" :value])
-                      (session-id))
-        cookie {:chat-id {:value session-id :path "/"}}]
+  (let [session-id (or (get-in request [:cookies "user-id" :value])
+                       (gen-session-id))
+        cookie {:user-id {:value session-id :path "/"}}]
     (-> (ring-response/redirect (url-for ::wait-for-events))
         (update-in [:cookies] merge cookie))))
 
@@ -96,7 +109,7 @@
 
 (defn home-page
   [request]
-  (ring-response/response "Hello World!"))
+  (ring-response/response "Hello, Growing Tree !"))
 
 (defroutes routes
   [[["/" {:get home-page}

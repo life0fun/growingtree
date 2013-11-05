@@ -1,8 +1,7 @@
 (defproject growingtree-server "0.0.1-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :description "growingtree-server"
+  :url "http://colorcloud.com"
+  :license {:name "copyright reserved !" }
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [io.pedestal/pedestal.service "0.2.1"]
                  [io.pedestal/pedestal.service-tools "0.2.1"]
@@ -11,7 +10,20 @@
                  ;; use Tomcat instead of Jetty:
                  [io.pedestal/pedestal.jetty "0.2.1"]
                  ;; [io.pedestal/pedestal.tomcat "0.2.1"]
-                 ]
+
+                 ; datamoc !
+                 [com.datomic/datomic-free "0.8.4215"]
+                 [datomic-schema "1.0.2"]  ; macro for db schema
+                 [clj-redis "0.0.12"]
+                 [org.clojure/data.json "0.2.2"]    ; json package]
+                 [clj-time "0.5.1"]       ; clj-time wraps Joda time
+                ]
+  :profiles {
+    :dev {
+      :datomic {
+        :config "resources/free-transactor-template.properties"
+        :db-uri "datomic:free://localhost:4334/colorcloud"}}}
+
   :min-lein-version "2.0.0"
   :resource-paths ["config", "resources"]
   :aliases {"run-dev" ["trampoline" "run" "-m" "growingtree-server.server/run-dev"]}

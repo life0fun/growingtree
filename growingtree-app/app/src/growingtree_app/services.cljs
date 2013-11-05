@@ -1,36 +1,67 @@
-(ns growingtree-app.services)
+(ns growingtree-app.services
+  (:require [cljs.reader :as r]
+            [io.pedestal.app.net.xhr :as xhr]
+            [io.pedestal.app.protocols :as p]
+            [io.pedestal.app.messages :as msg]
+            [io.pedestal.app.util.log :as log]
+            [growingtree-app.util :as util]))
 
 ;; The services namespace responsible for communicating with back-end
 ;; services. It receives messages from the application's behavior,
 ;; makes requests to services and sends responses back to the
 ;; behavior.
 ;;
-;; This namespace will usually contain a function which can be
-;; configured to receive effect events from the behavior in the file
-;;
-;; app/src/growingtree_app/start.cljs
-;;
-;; After creating a new application, set the effect handler function
-;; to receive effects
-;;
 ;; (app/consume-effect app services-fn)
 ;;
-;; A very simple example of a services function which echoes all events
-;; back to the behavior is shown below.
 
-(comment
+; services-fn consume effect queue msg from app behavior and xhr post to
+; back-end server.
+(defn services-fn 
+  [message queue]
+  ; ensure msg wrap/unwrap keys match.
+  (when-let [msg (:out-message message)]  ; get only the out-message key
+    (let [body (pr-str {:text (:sending msg)})
+          log (fn [args]
+                (.log js/console (pr-str args))
+                (.log js/console (:xhr args)))]
+      (xhr/request (gensym)
+                   "/msgs"   ; always post to /msgs end-point at back-end
+                   :request-method "POST"
+                   :headers {"Content-Type" "application/edn"}
+                   :body body
+                   :on-success log
+                   :on-error log))
+    (.log js/console (str "Send to Server: " (pr-str message)))))
 
-  ;; The services implementation will need some way to send messages
-  ;; back to the application. The queue passed to the services function
-  ;; will convey messages to the application.
-  (defn echo-services-fn [message queue]
-    (put-message queue message))
 
-  )
-
-;; During development, it is helpful to implement services which
-;; simulate communication with the real services. This implementation
-;; can be placed in the file:
-;;
-;; app/src/growingtree_app/simulated/services.cljs
-;;
+; Service type is the interface that receives back-end SSE event. 
+; The /msgs endpoint is channel to receive SSE. After receiving SSE data,
+; convert data into [:inbound] :received msg into (:input app) queue.
+(defrecord Services 
+  [app]
+  p/Activity
+  (start [this]
+    (let [source (js/EventSource. "/msgs")]
+      (.addEventListener source
+                         "msg"
+                         (fn [e]
+                           (let [data (r/read-string (.-data e))]
+                             (.log js/console e)
+                             (p/put-message (:input app)
+                                            {msg/topic [:inbound]
+                                             msg/type :received
+                                             :text (:text data)  ; msg map has :text and :id key.
+                                             :id (util/random-id)})))
+                         false)
+      (.addEventListener source
+                         "open"
+                         (fn [e]
+                           (.log js/console e))
+                         false)
+      (.addEventListener source
+                         "error"
+                         (fn [e]
+                           (.log js/console e))
+                         false)
+      (.log js/console source)))
+  (stop [this]))

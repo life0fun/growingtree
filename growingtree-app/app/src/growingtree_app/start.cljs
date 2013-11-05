@@ -5,6 +5,7 @@
             [io.pedestal.app.render :as render]
             [io.pedestal.app.messages :as msg]
             [growingtree-app.behavior :as behavior]
+            [growingtree-app.services :as services]
             [growingtree-app.rendering :as rendering]))
 
 
@@ -27,9 +28,9 @@
     {:app app :app-model app-model}))
 
 ; set up service to consume effect queue
-;(defn setup-services [app ->services services-fn]
-;  (app/consume-effects (:app app) services-fn)
-;  (p/start (->services (:app app))))
+(defn setup-services [app ->services services-fn]
+  (app/consume-effects (:app app) services-fn)
+  (p/start (->services (:app app))))
 
 
 (defn ^:export main []
@@ -37,4 +38,5 @@
   ;; for several aspects. A main namespace must have a no argument
   ;; main function. To tie into tooling, this function should return
   ;; the newly created app.
-  (create-app (rendering/render-config)))
+  (doto (create-app (rendering/render-config))
+    (setup-services services/->Services services/servcie-fn)))

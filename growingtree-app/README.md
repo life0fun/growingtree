@@ -119,7 +119,6 @@ The tracking map tracks the change in data model. Remember that data model is a 
     (get-in inputs [:new-model :todo :filtered-tasks]
 
 
-
 ## Render DOM and app model deltas
 
 The push renderer creates an internal DOM structure that is useful for creating templates and mapping from the application tree(node path) to the actual browser's DOM. It does this by creating an internal DomRenderer, which is defined by the following methods ** get-id, get-parent-id, new-id!, delete-id!, on-destroy!, set-data!, drop-data! and get-data**. 
@@ -202,6 +201,26 @@ For value changes, the default emitter will emit
 the emit handler in render side will get [op path old new] vector. op is :value obviously. d is transmitter, for 
 
     (defn emitter-handler [render [op path old new] d] ... )  
+
+
+## Back-end Service
+
+Front-end app interface with back-end service through Effect queue and server send event listener service.
+
+App consumes msg from effect queue and xhr post to backend /msgs end point.
+App service type listen to /msgs SSE and convert event data into [:inbound] :received msg and put-message into (:input app) queue.
+
+In App behavior, effect is used to generate output messages, with will be consumed by app services-fn. Effect dataflow upstream is a list of inputs, and an effect function to produce output msgs. For example, {msg/topic [:outbound]} will trigger send-message-to-server.
+
+    :effect #{[#{[:outbound]} send-message-to-server :single-val]}
+
+The effect function takes a single argument, which is the message that put into the [:outbound]. The function must return a vector of messages that will be put into (:output app) queue and consumed by service-fn.
+
+    (defn send-message-to-server [outbound]
+      [{msg/topic [:server] :out-message (:sending outbound)}])
+
+    (defn publish-counter [{:keys [count name]}]
+      [{msg/type :swap msg/topic [:other-counters name] :value count}])
 
 
 ## Slicing templates
