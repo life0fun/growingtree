@@ -106,17 +106,30 @@ Each transform-enable handler got 3 args, first is render, the second destructur
           (evts/send-on :click (dc/sel (str "#" (render/get-id r p) " .destroy")) input-queue messages ))))
 
 
-Derive dataflow does not handle message directly. A derive dataflow is made up of 3 components, a set of upstream input path nodes, the output path node where updated value goes into, and the actual derive function. The derive function receives 2 args, the first item is the old value in the output path ndoe, the second item is a tracking map. A tracking map is a special pedestal map that keeps track of changes in the data model. A tracking map is made up of the following keys: :removed, :added, :updated, :input-paths, :old-model, :new-model, and :message.
+
+Derive dataflow does not handle message directly. A derive dataflow is made up of 3 components, a set of upstream input path nodes, the output path node where updated value goes into, and the actual derive function. The derive function receives 2 args, the first item is the old value in the output path ndoe, the second item is a tracking map. Note that tracking map is passed only when input specifier is default.
+
+A tracking map is a special pedestal map that keeps track of changes in the data model. use (get-in tracking-map [:path :nested-key]) to get the value. A tracking map is made up of the following keys: :removed, :added, :updated, :input-paths, :old-model, :new-model, and :message. 
 
     (defn wind-chill-fn [old-wind-chill inputs]
       (let [t (get-in inputs [:new-model :app :sensor :temperature])
             v (get-in inputs [:new-model :app :sensor :wind-speed])]
-        ;; simple wind chill formula is 0.0817 * (3.71v^0.5 + 5.81 – 0.25 V) * (T – 91.4) + 91.4
+        ; simple wind chill formula is f(alpha * t * v)
         (+ (* 0.0817 (- (+ (* (Math/sqrt v) 3.71) 5.81) (* 0.25 v)) (- t 91.4)) 91.4)))
 
 The tracking map tracks the change in data model. Remember that data model is a single rooted tree. so tracking map (get-in tracking-map-inputs [:new-model :todo :filter]) contains current filter type. To get filtered task map.
 
     (get-in inputs [:new-model :todo :filtered-tasks]
+
+Each derive configuration vector can have 3 or 4 elements.
+
+    [inputs output-path derive-fn input-spec] ;; input-spec is optional
+
+    :derive #{[#{[:my-counter] [:other-counters :*]} [:total-count] total-count :vals]}
+
+For example above, the derive fn will receive value from my-counter and each of the other-counters. The input specifier describes how the arguments will be passed to the function. default means passing tracking map to derive-fn. Other options include :single-val, :map, :vals, :map-seq.
+
+A derive function will be called when any of its inputs change. Derive functions can be arranged into an arbitrary dataflow.
 
 
 ## Render DOM and app model deltas

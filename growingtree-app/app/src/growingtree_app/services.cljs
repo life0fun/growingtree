@@ -20,13 +20,13 @@
   [message queue]
   ; ensure msg wrap/unwrap keys match.
   (when-let [msg (:out-message message)]  ; get only the out-message key
-    (let [body (pr-str {:text (:sending msg)})
+    (let [body (pr-str {:text msg})  ; prn to a string, content type is edn string.
           log (fn [args]
                 (.log js/console (pr-str args))
                 (.log js/console (:xhr args)))]
       (xhr/request (gensym)
                    "/msgs"   ; always post to /msgs end-point at back-end
-                   :request-method "POST"
+                   :request-method "POST"  ; post will cause server to publish
                    :headers {"Content-Type" "application/edn"}
                    :body body
                    :on-success log
@@ -41,12 +41,13 @@
   [app]
   p/Activity
   (start [this]
-    (let [source (js/EventSource. "/msgs")]
+    (let [source (js/EventSource. "/msgs")]  ; get SSE from server.
       (.addEventListener source
                          "msg"
                          (fn [e]
                            (let [data (r/read-string (.-data e))]
                              (.log js/console e)
+                             ; send msg to :received :inbound transform.
                              (p/put-message (:input app)
                                             {msg/topic [:inbound]
                                              msg/type :received

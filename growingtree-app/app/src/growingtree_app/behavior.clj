@@ -16,8 +16,10 @@
 ; all updates to nested attrs will need to use (assoc todo :task (assoc (:tasks todos)))
 ; msg is always a map contains all keys. Each key value can be another map.
 
-;; transforms
 
+;; - - - - - - - - - - - - 
+;; transforms
+;; - - - - - - - - - - - - 
 ; extract the user clicked nav category from msg, and store it in [:nav :category] node
 (defn set-nav-category
   [_ message]
@@ -43,15 +45,33 @@
    [:lecture] 1})
 
 
+; receive-inbound transform for SSE.
+(defn receive-inbound
+  [old-value message]
+  (let [cat (:text message)]
+    cat))  ; return new received catgory
+
+
+;; - - - - - - - - - - - - 
 ;; derive dataflow, derive fn got 2 args, old value, and tracking map
-(defn refresh-category
-  [oldv inputs]
-  ; fake sample code
-  (let [newmsg (new-msgs (d/old-and-new inputs [:nav category]) :received)]
-    newmsg))
+;; - - - - - - - - - - - - 
+
+(defn sse-fn
+  [oldv newv]  ; default input specifier is tracking map, here we use single-val
+  newv)
 
 
+;; - - - - - - - - - - - - 
+;; effect flow, effec-fn gets arg by input specifier and ret a vector of msg for service-fn.
+;; - - - - - - - - - - - - 
+(defn publish-category 
+  [category]   ; single-val input specifier
+  [{ms/topic :server :out-message {:text category}}]  ; wrap category under :text key
+
+
+;; - - - - - - - - - - - - 
 ;; emitter to report changes, and attach transforms to template events.
+;; - - - - - - - - - - - - 
 
 ; emit init app model emtter only once when app starts. emitter will emit to create all nodes.
 ; the most important things is to define transform fn that can be triggered
@@ -111,7 +131,7 @@
         ((app/default-emitter) inputs)  
         ; at path node [:todo :filtered :* :*]  a new value is added.
         ; this is 
-        (mapcat (fn [[_ _ task]]  ; added a task, path is [:todo :tasks task-id]
+        (mapcat (fn [[_ _ task]]  ; added a task, destructure path = [:todo :tasks task-id]
                   ;; When a new task is added, it needs to have transform-enables associated with it
                   ;; It needs to be able to be toggled, and it should be removed.
                   (when (symbol? task)
@@ -143,14 +163,31 @@
     (vec (concat 
       ((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
       (mapcat 
-        (fn [[path] nval]  ; when out of delta, 
+        (fn [[path] nval]
           (if oldcat
             [[:node-destroy (conj path oldcat)]
              [:node-create (conj path newcat) :map]]
             [[:node-create (conj path newcat) :map]]))
         deltamap)
       ))))
-  
+
+
+; emitter when getting sse-data
+(defn sse-data-emitter
+  [inputs]  ; tracking map of data model
+  (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
+        oldcat (get-in inputs [:old-model :sse-data])
+        newcat (get-in inputs [:new-model :sse-data])]
+    (vec (concat 
+      ((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
+      (mapcat 
+        (fn [[path] nval]
+          (if oldcat
+            [[:node-destroy (conj path oldcat)]
+             [:node-create (conj path newcat) :map]]
+            [[:node-create (conj path newcat) :map]]))
+        deltamap)
+      ))))  
 
 ;; effect dataflow, ret msg to be put into (:output app) queue.
 (defn send-message-to-server [outbound]
@@ -184,16 +221,21 @@
     :transform [[:set-nav-category [:nav :category] set-nav-category]
                 [:set-course [:course] course-transform]
                 [:set-course-filtered [:course :filtered] course-filtered-transform]
+                ; sse data will be put into :received :inbound
+                [:received [:inbound] receive-inbound]
                ]
-    ; :derive #{
-    ;          [#{[:nav :category]} [:course] refresh-category]
-    ; }
+    :derive #{
+             [#{[:inbound]} [:sse-data] sse-fn ]
+            }
 
     ; effect fn triggered by [:outbound] msg and effect-fn takes msg and 
     ; ret a vec for msg to be consumed by services-fn, and xhr to back-end.
     :effect #{
-      [#{[:outbound]} send-message-to-server :map]
-    }
+              [#{[:outbound]} send-message-to-server :map]
+
+              ; category val changed, input specifier as :single-val.
+              [{[:nav :category] :category} publish-category :single-val]
+            }
 
     ; emitter
     :emit [;{:init init-app-model}
@@ -206,6 +248,8 @@
 
            ; user click sidebar cat change, create new node [:nav :category catval]
            {:in #{[:nav :category]} :fn nav-cat-emitter :mode :always}
+
+           {:in #{[:sse-data]} :fn sse-data-emitter :mode :always}
 
            [#{[:course] [:course :filtered]} course-emit]
 
