@@ -22,6 +22,7 @@
   :application {;; The directory where all generated JavaScript for
                 ;; this application will be written.
                 :generated-javascript "generated-js"
+                :api-server {:host "localhost" :port 8080 :log-fn nil}
                 ;; The default template to use when creating host
                 ;; pages for each aspect below. Override this in an
                 ;; aspect by adding a :template key.
@@ -91,6 +92,7 @@
                   :template "tooling.html"
                   :order 3}
             :development {:uri "/growingtree-app-dev.html"
+                          :use-api-server? true
                           :name "Development"
                           :out-file "growingtree-app-dev.js"
                           :main growingtree_app.start
