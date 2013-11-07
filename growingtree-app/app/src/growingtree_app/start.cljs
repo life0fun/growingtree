@@ -39,4 +39,4 @@
   ;; main function. To tie into tooling, this function should return
   ;; the newly created app.
   (doto (create-app (rendering/render-config))
-    (setup-services services/->Services services/servcie-fn)))
+    (setup-services services/->Services services/services-fn)))

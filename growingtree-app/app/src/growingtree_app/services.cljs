@@ -20,7 +20,7 @@
   [message queue]
   ; ensure msg wrap/unwrap keys match.
   (when-let [msg (:out-message message)]  ; get only the out-message key
-    (let [body (pr-str {:text msg})  ; prn to a string, content type is edn string.
+    (let [body (pr-str {:text msg})  ; body = :category
           log (fn [args]
                 (.log js/console (pr-str args))
                 (.log js/console (:xhr args)))]
@@ -51,7 +51,7 @@
                              (p/put-message (:input app)
                                             {msg/topic [:inbound]
                                              msg/type :received
-                                             :text (:text data)  ; msg map has :text and :id key.
+                                             :text data  ; put data direct under :text key
                                              :id (util/random-id)})))
                          false)
       (.addEventListener source

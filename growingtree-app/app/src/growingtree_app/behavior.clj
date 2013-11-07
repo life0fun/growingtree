@@ -51,7 +51,7 @@
 ; receive-inbound transform for SSE.
 (defn receive-inbound
   [old-value message]
-  (let [cat (:text message)]
+  (let [cat (:text message)]  ; category inside :text key
     cat))  ; return new received catgory
 
 
@@ -245,13 +245,14 @@
                ]
     :derive #{
              [#{[:nav :category]} [:category] set-category :single-val]
+             [#{[:inbound]} [:category] set-category :single-val]
 
              ;[#{[:inbound]} [:sse-data] sse-fn]
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn, and xhr to back-end.
     :effect #{
-              ; category val changed, :single-val input specifier, do not need the tracking map
+              ; user clicked nav, bcast.
               [#{[:nav :category]} bcast-category :single-val]
             }
 
