@@ -19,9 +19,11 @@
 
 ;; - - - - - - - - - - - - 
 ;; transforms
+;; transform-fn gets 2 args, old-value and message, ret value used to set new value.
 ;; - - - - - - - - - - - - 
+
 ; extract the user clicked nav category from msg, and store it in [:nav :category] node
-(defn set-nav-category
+(defn publish-category
   [_ message]
   (:category message))  ; value stored inside :category key
 
@@ -37,7 +39,8 @@
   (:filtered message))  ; render fills out value in :filtered msg
 
 
-(defn set-value-transform [old-value message]
+(defn set-value-transform 
+  [old-value message]
   (:value message))
 
 (def sort-order
@@ -54,7 +57,13 @@
 
 ;; - - - - - - - - - - - - 
 ;; derive dataflow, derive fn got 2 args, old value, and tracking map
+;; [inputs output-path derive-fn input-spec] ;; input-spec is optional
+;; derive-fn gets 2 args, the old state of the output state, and inputs tracking map, or map, single-val
 ;; - - - - - - - - - - - - 
+
+(defn set-category
+  [oldv newcat]   ; input specifier is single-val, use it directly.
+  newcat)
 
 (defn sse-fn
   [oldv newv]  ; default input specifier is tracking map, here we use single-val
@@ -62,15 +71,20 @@
 
 
 ;; - - - - - - - - - - - - 
-;; effect flow, effec-fn gets arg by input specifier and ret a vector of msg for service-fn.
+;; effect flow, effec-fn gets arg by input specifier and ret a vector of msg,
+;; msgs got enq to (:output app) where service-fn consumes them.
+;; effect-fn gets single arg, the tracking map, or maps, or single-val.
 ;; - - - - - - - - - - - - 
-(defn publish-category 
-  [category]   ; single-val input specifier
-  [{ms/topic :server :out-message {:text category}}]  ; wrap category under :text key
 
+; input specifier is :single-val, so arg is single-value
+(defn bcast-category
+  [category]
+  [{msg/topic [:server] :out-message {:text category}}])  ; wrap category under :text key
+  
 
 ;; - - - - - - - - - - - - 
 ;; emitter to report changes, and attach transforms to template events.
+;; emitter-fn takes a single argument, a tracking map, or maps, or single-val
 ;; - - - - - - - - - - - - 
 
 ; emit init app model emtter only once when app starts. emitter will emit to create all nodes.
@@ -85,14 +99,13 @@
 
 
 ; user can interact with sidebar, so setup interaction on sidebar
+; get use input click event into :outbound path node.
 (defn init-sidebar-emitter [inputs]
   "set up message emitter for sidebar nav UI interaction"
   [[:transform-enable [:nav :category] 
-                      :set-nav-category 
-                      [{msg/type :set-nav-category
-                        msg/topic [:nav :category]
-                        (msg/param :category) {}}]]]
-  )
+                      :publish-category 
+                      [{msg/topic [:nav :category]
+                       (msg/param :category) {}}]]])
 
 
 ; when set course, all transform actions in course form templates close over current course name.
@@ -154,12 +167,13 @@
                 (:removed inputs)))
         ))
 
+
 ; emitter for when nav category value changes, emit node create of clicked category
 (defn nav-cat-emitter
   [inputs]  ; tracking map of data model
   (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
-        oldcat (get-in inputs [:old-model :nav :category])
-        newcat (get-in inputs [:new-model :nav :category])]
+        oldcat (get-in inputs [:old-model :category])
+        newcat (get-in inputs [:new-model :category])]
     (vec (concat 
       ((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
       (mapcat 
@@ -197,6 +211,7 @@
 
 ;; Data Model Paths: store all global mutable states.
 ;; [:nav :category] - use click sidebar nav to show 
+;; [:category] - current category
 ;; [:parent] - current parent
 ;; [:child] - current child
 ;; [:parent :filter] - parent filter, {(msg/param :filter) {:key :value}}
@@ -218,36 +233,37 @@
 (def growingtree-app
   {:version 2   ; use current version 2
     :debug true
-    :transform [[:set-nav-category [:nav :category] set-nav-category]
+    :transform [
+                ; UI event sent to outbound node, then derive to [:nav :category] node
+                [:publish-category [:nav :category] publish-category]
+
+
                 [:set-course [:course] course-transform]
                 [:set-course-filtered [:course :filtered] course-filtered-transform]
                 ; sse data will be put into :received :inbound
                 [:received [:inbound] receive-inbound]
                ]
     :derive #{
-             [#{[:inbound]} [:sse-data] sse-fn ]
+             [#{[:nav :category]} [:category] set-category :single-val]
+
+             ;[#{[:inbound]} [:sse-data] sse-fn]
             }
 
-    ; effect fn triggered by [:outbound] msg and effect-fn takes msg and 
-    ; ret a vec for msg to be consumed by services-fn, and xhr to back-end.
+    ; effect fn takes msg and ret a vec of msg consumed by services-fn, and xhr to back-end.
     :effect #{
-              [#{[:outbound]} send-message-to-server :map]
-
-              ; category val changed, input specifier as :single-val.
-              [{[:nav :category] :category} publish-category :single-val]
+              ; category val changed, :single-val input specifier, do not need the tracking map
+              [#{[:nav :category]} bcast-category :single-val]
             }
 
     ; emitter
     :emit [;{:init init-app-model}
            {:init init-sidebar-emitter}
 
+           ; whenever value of [:category] changed, emit
+           {:in #{[:category]} :fn nav-cat-emitter :mode :always}
+
            [#{[:parent :*]
               [:course :*]} (app/default-emitter [])]
-
-           ;[#{[:nav :category]} (app/default-emitter [])]
-
-           ; user click sidebar cat change, create new node [:nav :category catval]
-           {:in #{[:nav :category]} :fn nav-cat-emitter :mode :always}
 
            {:in #{[:sse-data]} :fn sse-data-emitter :mode :always}
 

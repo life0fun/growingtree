@@ -85,7 +85,7 @@
                     "contributions" "knowledges" "activities" "locations"]]
       (doseq [k sidebars]
         (events/send-on :click (dom/by-id (str "sidenav-" k)) inq
-                        (msgs/fill :set-nav-category 
+                        (msgs/fill :publish-category 
                                     message {:category (keyword k)}))))))
 
 ; when user click nav sidebar, create new template attach to path node [:nav :category]
@@ -137,7 +137,7 @@
    
    ; wire sidebar nav click to send this transform, and render value changed.
    [:transform-enable [:nav :category] category-transforms]
-   ;[:value [:nav :category] render-nav-category]
-   [:node-create [:nav :category :*] create-nav-category-things]
-   [:node-destroy [:nav :category :*] destroy-nav-category-things]
+   ; create and render [:category] template
+   [:node-create [:category :*] create-nav-category-things]
+   [:node-destroy [:category :*] destroy-nav-category-things]
   ])
