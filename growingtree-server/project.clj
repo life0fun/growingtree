@@ -11,6 +11,12 @@
                  [io.pedestal/pedestal.jetty "0.2.1"]
                  ;; [io.pedestal/pedestal.tomcat "0.2.1"]
 
+                 ;; log4js
+                 [ch.qos.logback/logback-classic "1.0.7"]
+                 [org.slf4j/jul-to-slf4j "1.7.2"]
+                 [org.slf4j/jcl-over-slf4j "1.7.2"]
+                 [org.slf4j/log4j-over-slf4j "1.7.2"]
+
                  ; datamoc !
                  [com.datomic/datomic-free "0.8.4215"]
                  [datomic-schema "1.0.2"]  ; macro for db schema
@@ -20,6 +26,7 @@
                 ]
   :profiles {
     :dev {
+      :source-paths ["dev"]
       :datomic {
         :config "resources/free-transactor-template.properties"
         :db-uri "datomic:free://localhost:4334/colorcloud"}}}

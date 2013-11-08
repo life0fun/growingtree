@@ -21,8 +21,8 @@
 
     ; send msg to bootstrap the app ! fake user clicked nav course
     (p/put-message (:input app) 
-                   {msg/type :publish-category
-                    msg/topic [:nav :category]
+                   {msg/type :set-category
+                    msg/topic [:category]
                     :category :courses})
 
     {:app app :app-model app-model}))

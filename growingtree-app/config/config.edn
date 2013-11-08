@@ -106,6 +106,7 @@
                     :output-root :tools-public
                     :template "tooling.html"}
             :production {:uri "/growingtree-app.html"
+                         :use-api-server? true
                          :name "Production"
                          :optimizations :advanced
                          :out-file "growingtree-app.js"

@@ -27,6 +27,9 @@
   [_ message]
   (:category message))  ; value stored inside :category key
 
+(defn set-category
+  [_ message]
+  (:category message))  ; value stored inside :category key
 
 (defn course-transform
   [_ message]
@@ -61,7 +64,7 @@
 ;; derive-fn gets 2 args, the old state of the output state, and inputs tracking map, or map, single-val
 ;; - - - - - - - - - - - - 
 
-(defn set-category
+(defn update-category
   [oldv newcat]   ; input specifier is single-val, use it directly.
   newcat)
 
@@ -175,7 +178,7 @@
         oldcat (get-in inputs [:old-model :category])
         newcat (get-in inputs [:new-model :category])]
     (vec (concat 
-      ((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
+      ;((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
       (mapcat 
         (fn [[path] nval]
           (if oldcat
@@ -236,6 +239,8 @@
     :transform [
                 ; UI event sent to outbound node, then derive to [:nav :category] node
                 [:publish-category [:nav :category] publish-category]
+                ; transformer handles msg to change category
+                [:set-category [:category] set-category]
 
 
                 [:set-course [:course] course-transform]
@@ -244,8 +249,8 @@
                 [:received [:inbound] receive-inbound]
                ]
     :derive #{
-             [#{[:nav :category]} [:category] set-category :single-val]
-             [#{[:inbound]} [:category] set-category :single-val]
+             [#{[:nav :category]} [:category] update-category :single-val]
+             [#{[:inbound]} [:category] update-category :single-val]
 
              ;[#{[:inbound]} [:sse-data] sse-fn]
             }
