@@ -14,13 +14,16 @@
 ;; (app/consume-effect app services-fn)
 ;;
 
+;
 ; services-fn consume effect queue msg from app behavior and xhr post to
 ; back-end server.
+; pr-str is used to convert map data structure to json string for RESTFul.
+;
 (defn services-fn 
   [message queue]
   ; ensure msg wrap/unwrap keys match.
   (when-let [msg (:out-message message)]  ; get only the out-message key
-    (let [body (pr-str {:text msg})  ; body = :category
+    (let [body (pr-str msg)  ; send msg json string directly
           log (fn [args]
                 (.log js/console (pr-str args))
                 (.log js/console (:xhr args)))]
@@ -51,7 +54,7 @@
                              (p/put-message (:input app)
                                             {msg/topic [:inbound]
                                              msg/type :received
-                                             :text data  ; put data direct under :text key
+                                             :text data   ; wrap json string to map
                                              :id (util/random-id)})))
                          false)
       (.addEventListener source

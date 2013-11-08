@@ -4,6 +4,7 @@
             [io.pedestal.app.render.events :as events]
             [io.pedestal.app.render.push.templates :as templates]
             [io.pedestal.app.messages :as msgs]
+            [io.pedestal.app.util.log :as log]
             [io.pedestal.app.render.push.handlers :as h]
             [io.pedestal.app.render.push.handlers.automatic :as auto])
   (:require-macros [growingtree-app.html-templates :as html-templates]))
@@ -92,16 +93,15 @@
 ; and attach to toprow-list dom 
 (defn create-nav-category-things
   [r [_ path] d]
-  (let [title (str "learning category " path)
+  (let [title (str "learning category " (name (last path)))
         parent (render/get-parent-id r path) ; parent is used for dom/append to parent
         id (render/new-id! r path)  ; gen id for this path node
-        ;html (templates/add-template r path (:toprow templates)) ; added template to this path node
         html (templates/add-template r path (:thing templates)) ; added template to this path node
         thumbhtml (templates/add-template r path (:thing-thumbnail templates))
         entryhtml (templates/add-template r path (:thing-entry templates))
        ]
-    ; this does not effect
-    (. js/console (log "render-nav-category "))
+    (.log js/console "render-nav-category " (pr-str path))
+    
     ; [:nav] path node's template has been dom appended to root [] home page
     (templates/append-t    ; append or prepend, the same here. prepend-t
                 r [:nav] 

@@ -54,7 +54,7 @@
 ; receive-inbound transform for SSE.
 (defn receive-inbound
   [old-value message]
-  (let [cat (:text message)]  ; category inside :text key
+  (let [cat (:text message)]  ; data is wrapped in :text key
     cat))  ; return new received catgory
 
 
@@ -82,7 +82,7 @@
 ; input specifier is :single-val, so arg is single-value
 (defn bcast-category
   [category]
-  [{msg/topic [:server] :out-message {:text category}}])  ; wrap category under :text key
+  [{msg/topic [:server] :out-message category}])
   
 
 ;; - - - - - - - - - - - - 
@@ -245,14 +245,17 @@
 
                 [:set-course [:course] course-transform]
                 [:set-course-filtered [:course :filtered] course-filtered-transform]
+                
                 ; sse data will be put into :received :inbound
                 [:received [:inbound] receive-inbound]
                ]
     :derive #{
-             [#{[:nav :category]} [:category] update-category :single-val]
-             [#{[:inbound]} [:category] update-category :single-val]
 
-             ;[#{[:inbound]} [:sse-data] sse-fn]
+             ; UI events triggers update of category path node
+             [#{[:nav :category]} [:category] update-category :single-val]
+
+             ; sse inbound data trigger update of category
+             [#{[:inbound]} [:category] update-category :single-val]
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn, and xhr to back-end.

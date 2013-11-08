@@ -19,6 +19,21 @@
             [ring.middleware.session.cookie :as cookie]))
 
 
+;
+; Route handler get Ring request map and return Ring response map.
+;
+; (defroutes routes
+;       [[["/order"
+;           ^:interceptor [verify-request]
+;           {:get o/list-orders
+;            :post [:make-an-order o/create-order]}
+;           ["/:id"
+;             ^:interceptors [o/verify-order-ownership o/load-order-from-db]
+;             {:get o/view-order
+;             :put o/update-order}]]]])
+;
+
+
 ; store subscribe user id map to SSE context in atom {}
 (def ^{:doc "Map of subscriber IDs to SSE contexts"} subscribers (atom {}))
 
@@ -87,6 +102,8 @@
 ; gen uuid session id
 (defn- gen-session-id [] (.toString (java.util.UUID/randomUUID)))
 
+
+; url-for generate URL from route fully qualified keyword or route name.
 (declare url-for)
 
 ; find session id from request cookie, and update client's merged cookie.
@@ -95,7 +112,7 @@
   (let [session-id (or (get-in request [:cookies "user-id" :value])
                        (gen-session-id))
         cookie {:user-id {:value session-id :path "/"}}]
-    (-> (ring-response/redirect (url-for ::wait-for-events))
+    (-> (ring-response/redirect (url-for ::wait-for-events)) ; namespaced keyword for route.
         (update-in [:cookies] merge cookie))))
 
 
@@ -111,13 +128,15 @@
   [request]
   (ring-response/response "Hello, Growing Tree !"))
 
+
 (defroutes routes
   [[["/" {:get home-page}
      ;; Set default interceptors for /about and any other paths under /
      ^:interceptors [(body-params/body-params) bootstrap/html-body]
      ["/msgs" {:get subscribe :post publish}
-        "/events" {:get wait-for-events}]
+        "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
      ["/about" {:get about-page}]]]])
+
 
 ;; You can use this fn or a per-request fn via io.pedestal.service.http.route/url-for
 (def url-for (route/url-for-routes routes))
