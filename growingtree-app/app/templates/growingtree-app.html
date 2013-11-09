@@ -87,13 +87,13 @@
     </div> <!-- end of container fluid -->
 
     <!-- top things list, a list of parents, courses, lectures, things -->
-    <div class="offset0 thing" template="thing" field="id:id">
+    <div class="offset0 thing link" template="thing" field="id:id">
       <p class="parent"></p>
       <span class="rank"> 1 </span>
       <div class="midcol unvoted">
-        <div class="arrow up"></div>
+        <div class="arrow up" role="button" arial-label="upvote" tabindex="0"></div>
         <div class="score unvoted"> 1234 </div>
-        <div class="arrow down"></div>
+        <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
       </div>
       
       <!-- no need to use template, maybe dom append by-idand more concise -->
