@@ -263,6 +263,17 @@ To verify template working, need to restart to reload app.
   => (def t (growingtree-app-templates))
 
 
+## Template and CSS
+
+When trying to pass both attributes and content to a template with field="content:xx,attr:yy", like in anchor link case, need to put content:xx at the beginning of field string.
+
+    <a class="title" field="content:thing-entry-title,href:entryhref"></a>
+
+We use bootstrap 2.x as our base css. We borrow some styles from reddit for each thing in the category.
+We use sass for css compilation. config.rb specifies how compass compile should find and compile scss file.
+After (watch :development), just `compass compile` will generate css. 
+Note that though you place all images under assets/images, inside scss file you need to refer them under top root /, this is because all assets are compiled and put directly under out/public where server refer all through link resources/public.
+
 ## Usage
 
 First, start web server with `lein run` at growingtree-server home.

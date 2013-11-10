@@ -1,6 +1,6 @@
 (defproject growingtree-server "0.0.1-SNAPSHOT"
   :description "growingtree-server"
-  :url "http://colorcloud.com"
+  :url "http://growingtree.com"
   :license {:name "copyright reserved !" }
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [io.pedestal/pedestal.service "0.2.1"]
@@ -28,7 +28,7 @@
     :dev {
       :source-paths ["dev"]
       :datomic {
-        :config "resources/free-transactor-template.properties"
+        :config "resources/growingtree/free-transactor-template.properties"
         :db-uri "datomic:free://localhost:4334/colorcloud"}}}
 
   :min-lein-version "2.0.0"

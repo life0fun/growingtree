@@ -16,7 +16,9 @@
             [io.pedestal.service.http.route.definition :refer [defroutes]]
             [io.pedestal.service.http.sse :refer :all]
             [ring.util.mime-type :as ring-mime]
-            [ring.middleware.session.cookie :as cookie]))
+            [ring.middleware.session.cookie :as cookie])
+  ; load peer lib to access to datomic db layer
+  (:require [growingtree-server.peer :as peer :refer :all]))
 
 
 ;
@@ -34,8 +36,18 @@
 ;
 
 
+; url-for generate URL from route fully qualified keyword or route name.
+(declare url-for)
+
 ; store subscribe user id map to SSE context in atom {}
 (def ^{:doc "Map of subscriber IDs to SSE contexts"} subscribers (atom {}))
+
+; gen uuid session id
+(defn- gen-session-id [] (.toString (java.util.UUID/randomUUID)))
+
+; session intercept to extract cookie.
+(definterceptor session-interceptor
+  (middlewares/session {:store (cookie/cookie-store)}))
 
 
 ; wrap each request into sse-context map, and store user-id in request cookie.
@@ -43,6 +55,12 @@
   "Return context-key, the user id, for a given sse context, sse-context is a map"
   [sse-context]
   (get-in sse-context [:request :cookies "user-id" :value]))
+
+
+(defn- session-from-request                               
+  "Extract the session id from a request."                
+  [request]                                               
+  (get-in request [:cookies "user-id" :value])) 
 
 
 (defn add-subscriber
@@ -81,6 +99,7 @@
     (send-to-subscriber sse-context msg)))
 
 
+;
 ; redirect request to this interceptor, so we hold on the request waiting and send SSE thru.
 ; (ring-response/redirect (url-for ::wait-for-events))
 (def ^{:doc "Interceptor used to add subscribers."}
@@ -99,13 +118,6 @@
   (ring-response/response ""))
 
 
-; gen uuid session id
-(defn- gen-session-id [] (.toString (java.util.UUID/randomUUID)))
-
-
-; url-for generate URL from route fully qualified keyword or route name.
-(declare url-for)
-
 ; find session id from request cookie, and update client's merged cookie.
 (defn subscribe
   [request]
@@ -116,9 +128,27 @@
         (update-in [:cookies] merge cookie))))
 
 
-; session intercept to extract cookie.
-(definterceptor session-interceptor
-  (middlewares/session {:store (cookie/cookie-store)}))
+;; - - - - - - - route handler - - - - - - - 
+;; route interceptor can be defined by
+;;  1. fn accept ring request map and rets ring response map.
+;;  2. interceptor defined by io.pedestal.service.interceptor/handler
+;;  3. interceptor defined by defhandler macro. both accept a req map and ret a map.
+;;
+;; segments of a route URL path can be parameterized by prepending : to seg name.
+;; the path parameters are parsed and added to the request's param map.
+;;  ["/hello/:who" {:get hello-who}]  (get-in req [:path-params :who])
+;;
+;; curl --cookie-jar /tmp/x --location localhost:8080/api/courses
+;; post handler get a app.messages as arg, have topic and type keys. 
+;;    [{msg-data :edn-params :as request}]
+;; when posting to api, use app.messages and ct application/edn
+;; curl --data \
+;;   "{:io.pedestal.app.messages/topic [:other-counters] \
+;;     :io.pedestal.app.messages/type :swap \
+;;     :value 42}" \
+;;   --header "Content-Type:application/edn" \
+;;   http://localhost:8080/msgs 
+;;
 
 (defn about-page
   [request]
@@ -129,15 +159,40 @@
   (ring-response/response "Hello, Growing Tree !"))
 
 
+; api things
+(defn get-all-things
+  "get full list of a category things"
+  [req]
+  (let [cat (get-in req [:path-params :thing])
+        things (peer/get-all-parents)]
+    (prn "getting thing " cat things)
+    (ring-response/response (str "hello " things))))
+
+(defn add-thing
+  "add a thing upon post request, request contains all info of a http post req"
+  [{msg-data :edn-params :as request}]
+  (log/info :message "received message"
+            :request request
+            :msg-data msg-data)
+  (prn "add thing " (:value msg-data) (get-in request [:edn-params :value]))
+  (peer/add-family)
+  (ring-response/response (str "msg inserted " msg-data)))
+
+
+;; - - - - - routing table - - - - - - - -
+;; define routing table with verb map and route interceptor
 (defroutes routes
   [[["/" {:get home-page}
      ;; Set default interceptors for /about and any other paths under /
      ^:interceptors [(body-params/body-params) bootstrap/html-body]
      ["/msgs" {:get subscribe :post publish}
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
-     ["/about" {:get about-page}]]]])
+     ["/about" {:get about-page}]
+     ["/api/:thing" {:get get-all-things :post add-thing}]
+    ]]])
 
 
+; url-for convert route interceptor to URL with defined routing table.
 ;; You can use this fn or a per-request fn via io.pedestal.service.http.route/url-for
 (def url-for (route/url-for-routes routes))
 
