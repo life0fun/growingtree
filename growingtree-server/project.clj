@@ -23,6 +23,7 @@
                  [clj-redis "0.0.12"]
                  [org.clojure/data.json "0.2.2"]    ; json package]
                  [clj-time "0.5.1"]       ; clj-time wraps Joda time
+                 [cheshire "5.2.0"]       ; json string encode/decode
                 ]
   :profiles {
     :dev {

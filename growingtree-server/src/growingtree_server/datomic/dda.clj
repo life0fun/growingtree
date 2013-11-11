@@ -165,6 +165,12 @@
     (dbschema/list-attr db attr)))
 
 
+(defn get-entity
+  "ret an entity attrs map from eid"
+  [eid]
+  (d/touch (d/entity db eid)))
+
+
 ; show entity by id
 (defn show-entity-by-id
   "show all attrs and values of the entity by id"
@@ -196,9 +202,10 @@
 (defn list-parent
   "find all parents with all children"
   []
-  (let [pc (d/q '[:find ?p :where [?p :parent/child]] db)] ;?p parent who has children
+  (let [pc (d/q '[:find ?p :where [?p :parent/child]] db)
+        entities (doall (map (comp get-entity first) pc))] ;?p parent who has children
     (map (comp show-entity-by-id first) pc)
-    pc))  ; ret pc
+    entities))  ; ret pc
 
 
 ; use :db/add to upsert child attr to parent. find parent eid by list-parent.

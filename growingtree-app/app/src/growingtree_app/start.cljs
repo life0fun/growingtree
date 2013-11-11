@@ -11,6 +11,26 @@
 
 ;; In start namespace, the application is built and started.
 
+
+; put msg into effect queue to trigger consume-fn send get request to /msgs api
+(defn subscribe-to-msgs
+  "put msg into effect queue to trigger consume-fn send get request to /msgs api"
+  [app]
+  (p/put-message (:output app)   ; effect queue is output queue.
+                 {msg/topic [:server]
+                  msg/type :subscribe
+                  :out-message :subscribe}))
+
+
+; fake user clicked nav course side bar
+(defn bootstrap-click-event
+  [app]
+  (p/put-message (:input app) 
+                 {msg/type :set-category
+                  msg/topic [:category]
+                  :category :courses}))
+
+
 ; create app with render-fn to consume app model msg delta.
 (defn create-app [render-config]
   (let [app (app/build behavior/growingtree-app)
@@ -19,16 +39,17 @@
         app-model (render/consume-app-model app render-fn)]
     (app/begin app)
 
-    ; send msg to bootstrap the app ! fake user clicked nav course
-    (p/put-message (:input app) 
-                   {msg/type :set-category
-                    msg/topic [:category]
-                    :category :courses})
+    ; first, subscribe to server bcast msgs, inject msg to :effect queue directly
+    (subscribe-to-msgs app)
 
+    ; send msg to bootstrap the app ! fake user clicked nav course
+    (bootstrap-click-event app)
+    
     {:app app :app-model app-model}))
 
 ; set up service to consume effect queue
-(defn setup-services [app ->services services-fn]
+(defn setup-services 
+  [app ->services services-fn]
   (app/consume-effects (:app app) services-fn)
   (p/start (->services (:app app))))
 

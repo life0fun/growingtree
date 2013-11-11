@@ -161,12 +161,13 @@
 
 ; api things
 (defn get-all-things
-  "get full list of a category things"
+  "get full list of a category things, ret from peer is a string list"
   [req]
   (let [cat (get-in req [:path-params :thing])
         things (peer/get-all-parents)]
-    (prn "getting thing " cat things)
-    (ring-response/response (str "hello " things))))
+    (prn "getting thing entity " cat things)
+    (ring-response/response things)))
+
 
 (defn add-thing
   "add a thing upon post request, request contains all info of a http post req"

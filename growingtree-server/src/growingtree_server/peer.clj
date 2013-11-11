@@ -7,6 +7,7 @@
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format]
             [clj-time.local])
+  (:require [cheshire.core :refer :all])  ; json converter
   (:require [growingtree-server.datomic.dda :as dda])  ; datomic data accessor
   )
 
@@ -49,7 +50,10 @@
 (defn get-all-parents
   "get all parents, no filter"
   []
-  (dda/list-parent))
+  (let [things (dda/list-parent)
+        names (str/join "\n" (map :parent/fname things))]
+    (prn "get all parents " names)
+    names))
 
 (defn add-family
   []

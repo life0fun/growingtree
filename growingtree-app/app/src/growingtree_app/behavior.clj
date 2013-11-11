@@ -80,10 +80,19 @@
 ;; - - - - - - - - - - - - 
 
 ; input specifier is :single-val, so arg is single-value
-(defn bcast-category
+(defn send-server-category
+  "wrap the msg sent to effect queue service-fn in out-message key"
   [category]
-  [{msg/topic [:server] :out-message category}])
+  ; wrap msg body text in key :out-message
+  ; [{msg/topic [:server] msg/type :category :out-message category}]
+  (.log js/console "send server msg type :query to effect query  " category)
+  [{msg/topic [:server] msg/type :query :out-message category}]
+  )
   
+
+(defn send-server-timeline
+  [timeline]
+  [])
 
 ;; - - - - - - - - - - - - 
 ;; emitter to report changes, and attach transforms to template events.
@@ -118,7 +127,7 @@
   [;[:node-create [:course :filtered] :map]    ; create course node
    [:value [:course] courses]
    [:transform-enable [:course :filtered] ; click on any lecture under the course
-                      :set-course-filtered [{msg/topic [:course :filtered]
+                       :set-course-filtered [{msg/topic [:course :filtered]
                                             (msg/param :filtered) {}}]] ; render will fill
   ])
 
@@ -206,10 +215,6 @@
         deltamap)
       ))))  
 
-;; effect dataflow, ret msg to be put into (:output app) queue.
-(defn send-message-to-server [outbound]
-  ; real msg in :sending key and wrap it into :out-message before put into output queue.
-  [{msg/topic [:server] :out-message (:sending outbound)}])
 
 
 ;; Data Model Paths: store all global mutable states.
@@ -261,7 +266,7 @@
     ; effect fn takes msg and ret a vec of msg consumed by services-fn, and xhr to back-end.
     :effect #{
               ; user clicked nav, bcast.
-              [#{[:nav :category]} bcast-category :single-val]
+              [#{[:nav :category]} send-server-category :single-val]
             }
 
     ; emitter

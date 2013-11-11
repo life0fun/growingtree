@@ -100,7 +100,7 @@
         thumbhtml (templates/add-template r path (:thing-thumbnail templates))
         entryhtml (templates/add-template r path (:thing-entry templates))
        ]
-    (.log js/console "render-nav-category " (pr-str path))
+    (.log js/console "create and render nav-category thing " (pr-str path))
     
     ; [:nav] path node's template has been dom appended to root [] home page
     (templates/append-t    ; append or prepend, the same here. prepend-t
