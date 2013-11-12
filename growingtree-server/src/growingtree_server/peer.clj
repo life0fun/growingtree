@@ -47,14 +47,41 @@
   []
   (dda/create-schema))
 
-(defn get-all-parents
-  "get all parents, no filter"
-  []
-  (let [things (dda/list-parent)
-        names (str/join "\n" (map :parent/fname things))]
-    (prn "get all parents " names)
-    names))
 
 (defn add-family
   []
   (dda/add-family))
+
+
+(defn get-all-parents
+  "no filter, ret a list of all parent names str joined with new line"
+  []
+  (let [parents (dda/list-parent)
+        names (str/join "\n" (map :parent/fname parents))]
+    (prn "get all parent name " names)
+    names))
+
+
+(defn get-all-courses
+  "no filter, ret a list of all course titles str joined with new line"
+  []
+  (let [courses (dda/find-course)]
+    (prn "get courses by subject " courses)
+    (generate-string (first courses))))
+
+
+(defn get-things
+  "get a list of things based thing type"
+  [type]  ; type must be keyword when calling.
+  (prn "get things " type)
+  (case type
+    :parents (get-all-parents)
+    :courses (get-all-courses)
+    "default"))
+
+
+
+
+
+
+

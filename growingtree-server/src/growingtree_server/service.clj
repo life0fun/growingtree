@@ -162,10 +162,11 @@
 
 ; api things
 (defn get-all-things
-  "get full list of a category things, ret from peer is a string list"
+  "get things by type, ret from peer a list of thing in a new line sep string"
   [req]
-  (let [cat (get-in req [:path-params :thing])
-        things (peer/get-all-parents)]
+  ; path segment in req contains request params.
+  (let [cat (get-in req [:path-params :thing])  
+        things (peer/get-things (keyword cat))] ; conver to keyword for query
     (prn "getting thing entity " cat things)
     (ring-response/response things)))
 

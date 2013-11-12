@@ -371,22 +371,22 @@
 
 ; find a course
 (defn find-course
-  "find course by subject"
+  "find course by subject, ret a list of course entity"
   []
   (let [subject :course.subject/coding
-        eids (d/q '[:find ?c ?l 
+        eids (d/q '[:find ?c ?l           ; ret both course id and lecture id
                     :in $ ?sub 
                     :where [?c :course/lectures ?l]    ; all courses that have lectures
                     ] ; all lectures of the course
                 db 
                 subject)
-        cids (map first (second eids))  ; always ret the first homework to assign.
-        lids (map second (second eids))]
+        cids (map first eids)  ; always ret the first homework to assign.
+        lids (map second eids)]
     ; (prn "cids" cids)
     ; (prn "lids" lids)
     (show-entity-by-id (first cids))
     (show-entity-by-id (first lids))
-    eids))
+    (map (comp get-entity first) eids)))  ; [ [cid lid] [cid lid]], ret course entity map
 
 
 (defn find-lecture

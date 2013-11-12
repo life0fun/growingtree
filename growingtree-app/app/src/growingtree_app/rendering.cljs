@@ -93,7 +93,7 @@
 ; and attach to toprow-list dom 
 (defn create-nav-category-things
   [r [_ path] d]
-  (let [title (str "learning category " (name (last path)))
+  (let [title (str "this is " (name (last path)))
         parent (render/get-parent-id r path) ; parent is used for dom/append to parent
         id (render/new-id! r path)  ; gen id for this path node
         html (templates/add-template r path (:thing templates)) ; added template to this path node

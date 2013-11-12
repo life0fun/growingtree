@@ -46,12 +46,13 @@
   (fn [response]
     ; {:id G__16, :body "P-fname-...", :status 200, :headers 
     (let [body (:body response)
-          items (str/split-lines body)]   ; only get the body of response
-      (.log js/console (str "app service handle datomic query resp " body))
+          items (str/split-lines body)
+          title (:course/title (cheshire/parse-string body))]   ; only get the body of response
+      (.log js/console (str "app service handle query response " title " body " body))
       (p/put-message input-queue
                      {msg/topic [:inbound]
                       msg/type :received
-                      :text (rand-nth body)   ; wrap json string to map
+                      :text (rand-nth items)   ; wrap json string to map
                       :id (util/random-id)}))))
 
 ;
@@ -65,12 +66,13 @@
   (when-let [msg (:out-message message)]  ; get only the out-message key
     (let [req-body (pr-str msg)
           qhandle (handle-query-response input-queue)]  ; send msg json string directly
-      (.log js/console (str "service-fn consume effect output q " req-body (msg/type message)))
+      (.log js/console (str "service-fn consume effect queue " req-body  " msg/type" (msg/type message)))
       ; dispatch on case
       (case (msg/type message)
         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
         :category (xhr-request "/msgs" "POST" req-body xhr-log xhr-log)  ; log as callback
-        :query (xhr-request "/api/parents" "GET" req-body qhandle xhr-log) 
+        :parents (xhr-request "/api/parents" "GET" req-body qhandle xhr-log) 
+        :courses (xhr-request "/api/courses" "GET" req-body qhandle xhr-log) 
         "default")
       (str "Send to Server: " (pr-str message)) )))
 

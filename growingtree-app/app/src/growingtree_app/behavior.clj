@@ -81,14 +81,17 @@
 ;; effect-fn gets single arg, the tracking map, or maps, or single-val.
 ;; - - - - - - - - - - - - 
 
+;
+; should use multimethod for dispatching.
+;
+; inject msg to output queue of app, consumed by service-fn.
 ; input specifier is :single-val, so arg is single-value
 (defn send-server-category
-  "wrap the msg sent to effect queue service-fn in out-message key"
+  "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [category]
-  ; wrap msg body text in key :out-message
-  ; [{msg/topic [:server] msg/type :category :out-message category}]
-  (.log js/console "send server msg type :query to effect query  " category)
-  [{msg/topic [:server] msg/type :query :out-message category}]
+  (.log js/console "send-server-category upon sidebar click  " category)
+  ; set both msg/type and out-message to category
+  [{msg/topic [:server] msg/type category :out-message category}]
   )
   
 
