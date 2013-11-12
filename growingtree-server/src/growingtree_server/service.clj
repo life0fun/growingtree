@@ -124,6 +124,7 @@
   (let [session-id (or (get-in request [:cookies "user-id" :value])
                        (gen-session-id))
         cookie {:user-id {:value session-id :path "/"}}]
+    (prn "get /msgs ends with subscribe here...")   
     (-> (ring-response/redirect (url-for ::wait-for-events)) ; namespaced keyword for route.
         (update-in [:cookies] merge cookie))))
 

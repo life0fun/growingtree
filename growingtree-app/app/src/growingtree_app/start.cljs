@@ -16,6 +16,7 @@
 (defn subscribe-to-msgs
   "put msg into effect queue to trigger consume-fn send get request to /msgs api"
   [app]
+  (.log js/console "subscribe to msgs upon starting, directly inject msg to output queue")
   (p/put-message (:output app)   ; effect queue is output queue.
                  {msg/topic [:server]
                   msg/type :subscribe

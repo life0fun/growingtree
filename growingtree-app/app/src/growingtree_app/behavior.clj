@@ -54,8 +54,9 @@
 ; receive-inbound transform for SSE.
 (defn receive-inbound
   [old-value message]
-  (let [cat (:text message)]  ; data is wrapped in :text key
-    cat))  ; return new received catgory
+  (let [data (:text message)]  ; data is wrapped in :text key
+    (.log js/console "received inbound " data)
+    data))  ; return new received catgory
 
 
 ;; - - - - - - - - - - - - 
@@ -66,6 +67,7 @@
 
 (defn update-category
   [oldv newcat]   ; input specifier is single-val, use it directly.
+  (.log js/console "derived from nav or inbound, update category " newcat)
   newcat)
 
 (defn sse-fn
@@ -254,12 +256,13 @@
                 ; sse data will be put into :received :inbound
                 [:received [:inbound] receive-inbound]
                ]
-    :derive #{
+
+    :derive #{  ;; derive fn triggered by data change, not by inject data into node!!
 
              ; UI events triggers update of category path node
              [#{[:nav :category]} [:category] update-category :single-val]
 
-             ; sse inbound data trigger update of category
+             ; sse data put into inbound, and trigger update. 
              [#{[:inbound]} [:category] update-category :single-val]
             }
 

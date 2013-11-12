@@ -1,5 +1,6 @@
 (ns growingtree-app.services
-  (:require [cljs.reader :as r]
+  (:require [clojure.string :as str]
+            [cljs.reader :as r]
             [io.pedestal.app.net.xhr :as xhr]
             [io.pedestal.app.protocols :as p]
             [io.pedestal.app.messages :as msg]
@@ -37,17 +38,20 @@
 
 
 ; create a fn to handle query result, inject data into input-queue
+; we need to vary the input we inject to received inbound. If no change, no derived
+; function got called.
 (defn handle-query-response
   "make query result handling fn, inject data into input-queue"
   [input-queue]
   (fn [response]
     ; {:id G__16, :body "P-fname-...", :status 200, :headers 
-    (let [body (:body response)]   ; only get the body of response
-      (.log js/console (str "datomic query resp" body))
+    (let [body (:body response)
+          items (str/split-lines body)]   ; only get the body of response
+      (.log js/console (str "app service handle datomic query resp " body))
       (p/put-message input-queue
                      {msg/topic [:inbound]
                       msg/type :received
-                      :text body   ; wrap json string to map
+                      :text (rand-nth body)   ; wrap json string to map
                       :id (util/random-id)}))))
 
 ;
@@ -61,7 +65,7 @@
   (when-let [msg (:out-message message)]  ; get only the out-message key
     (let [req-body (pr-str msg)
           qhandle (handle-query-response input-queue)]  ; send msg json string directly
-      (.log js/console (str "effect service-fn " req-body (msg/type message)))
+      (.log js/console (str "service-fn consume effect output q " req-body (msg/type message)))
       ; dispatch on case
       (case (msg/type message)
         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
