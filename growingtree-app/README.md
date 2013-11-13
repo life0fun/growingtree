@@ -13,30 +13,41 @@ Also, use incognito browser to avoid cookie settings.
 
 ## App model and Data model
 
-Data Model Path create nodes stores global mutable data of the web app.
+We have two options to arrange our information data model, by arranging functions under each thing type, or making thing types under each function.
+ 
+which one? 
 
-    [:parent] - current parent
-    [:child] - current child
-    [:parent :filter] - parent filter, {(msg/param :filter) {:key :value}}
-    [:child :filter] - parent filter, {(msg/param :filter) {:key :value}}
-    [:course] - current selected courses
-    [:course :filter] - filter, {(msg/param :filter) {:key :value}}
-    [:lecture] - current selected lecture
-    [:lecture :filter] - filter, {(msg/param :filter) {:key :value}}
+    [:parent :all] 
+    [:parent :filtered]  
+
+In this case, each type knows all, easy to add new type, However, boilerplate, we only have limited types.
+
+    [:all :parent] 
+    [:filtered :parent]  
+
+In this case, each fn knows all types. Easy to add new fn. [:fn-X :parent]. Hard to add new type.
+
+As we only have limited know types. We choose functional way to model it for easy add function.
 
 
-App Model Paths defines nodes that represent portion of template in UI.
-Each node is like a coin that has two sides, at the app model side, you define transform actions that this template should handle upon UI events. at the dom side, render wire up UI events to app model transform actions.
+`current` function. store current things, :parent, :child, :course, :lecture.
+    
+    [:current :parent|:child|:course|:lecture] - current things
 
-When you define app model nodes, keep in mind it represents a template and you need to define transform actions to handle UI events within the template.
-  
-    [:main :parent :*] - Parents by id
-    [:main :child :*] - children by id
-    [:main :course :*] - course by id
-    [:main :lecture :*] - lecture by id
-    [:main :homework :*] - homework by id
-    [:main :assignment :*] - assignment by id
-    [:main :timeline :*] - timeline by id
+`all` function. list of all things. 
+    
+    [:all :parent|:child|:course|:lecture] - all things list
+
+`filter type` function. filter type of each things
+
+    [:filter :parent|:child|:course|:lecture] - filter type of each thing
+
+`filtered` function. filtered list of  type for each type of things
+
+    [:filtered :parent|:child|:course|:lecture] - filtered list of each thing
+
+
+Note that data stored in path node in data model is cljs.core.PersistentVector data structure. Response handler parses json string into cljs objects and convert them into cljs.core data structure and store them into path nodes. Once data structure is stored inside path node, clojure code can manipulate it as clj data structure easily !
 
 
 ## Service 

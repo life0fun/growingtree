@@ -188,20 +188,19 @@
         (fn [[path] nval]  ; path is [:all :courses]
           (if oldthing
             [[:node-destroy (conj path oldtitle)]
-             [:node-create (conj path toptitle) :map]]
-            [[:node-create (conj path toptitle) :map]]))
+             [:node-create (conj path toptitle) :map]
+             [:value [:all :courses] newthing]]
+            [[:node-create (conj path toptitle) :map]
+             [:value [:all :courses] newthing]]))
         deltamap)
       ))))
-
-
 
 
 ; when set course, all transform actions in course form templates close over current course name.
 (defn set-course-delta
   "emit a vector of vectors of transform deltas that render use to set the course"
   [courses]
-  [;[:node-create [:course :filtered] :map]    ; create course node
-   [:value [:course] courses]
+  [[:value [:course] courses]
    [:transform-enable [:course :filtered] ; click on any lecture under the course
                        :set-course-filtered [{msg/topic [:course :filtered]
                                             (msg/param :filtered) {}}]] ; render will fill
