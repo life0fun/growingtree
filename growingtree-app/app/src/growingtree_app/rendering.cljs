@@ -140,4 +140,8 @@
    ; create and render [:category] template
    [:node-create [:category :*] create-nav-category-things]
    [:node-destroy [:category :*] destroy-nav-category-things]
+
+   [:node-create [:all :courses] create-nav-category-things]
+   [:node-destroy [:all :courses] destroy-nav-category-things]
+
   ])

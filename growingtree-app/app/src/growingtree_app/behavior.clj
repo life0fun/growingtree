@@ -17,6 +17,12 @@
 ; msg is always a map contains all keys. Each key value can be another map.
 
 
+; when path node in data model gets value, it was already parsed to cljs.core ds by
+; response-handler. We store cljs ds into data model path node. 
+; data model can directly use the data structure. We only need one time parse at response-handler.
+;
+
+
 ;; - - - - - - - - - - - - 
 ;; transforms
 ;; transform-fn gets 2 args, old-value and message, ret value used to set new value.
@@ -70,14 +76,16 @@
     data))  ; return new received catgory
 
 
-; all function transformers
+; all transformers, store list of all things data structure into map.
+; we store cljs.core.Vector data structure into path node. when clj get the ds out,
+; no more parse needed. We only need one parse at response-handler.
 (defn all-transformer
   [oldv message]
-  (let [type (:type message)    ; thing type
-        data-map (:data message)
-        title ((keyword "course/title") (first data-map))]
-    (.log js/console "all-transformer " title data-map)
-    (assoc-in oldv [type] data-map)))
+  (let [type (:type message)    ; thing type 
+        things-vec (:data message)  ; cljs.core.PersistentVector [{thing1} {thing2}]
+        title ((keyword "course/title") (first things-vec))]
+    (.log js/console "all-transformer for " type title things-vec)
+    (assoc-in oldv [type] things-vec)))  ; now vector is stored in [:all :type]
 
 
 ;; - - - - - - - - - - - - 
@@ -91,12 +99,14 @@
   (.log js/console "derived from nav or inbound, update category " newcat)
   newcat)
 
+
+
 (defn sse-fn
   [oldv newv]  ; default input specifier is tracking map, here we use single-val
   newv)
 
 
-; derived fn to compute filtered things
+; derived fn to compute filtered things, illustration for now.
 (defn compute-filtered-course [_ inputs]
   (let [filter-type (get-in inputs [:new-model :course :filter])
         courses (get-in inputs [:new-model :course :tasks])]
@@ -136,6 +146,8 @@
 ;; - - - - - - - - - - - - 
 ;; emitter to report changes, and attach transforms to template events.
 ;; emitter-fn takes a single argument, a tracking map, or maps, or single-val
+;; a delta map keyed by path, and val is a vec of entity map {[:all :courses] [{}]}
+;;  {[:all :courses] [{:course/subject "course.subject/coding", ..}]
 ;; - - - - - - - - - - - - 
 
 ; emit init app model emtter only once when app starts. emitter will emit to create all nodes.
@@ -157,6 +169,31 @@
                       :publish-category 
                       [{msg/topic [:nav :category]
                        (msg/param :category) {}}]]])
+
+
+
+; emit to create node upon all things
+(defn all-course-emitter
+  "emit upon all thing list created"
+  [inputs]
+  (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
+        oldthing (get-in inputs [:old-model :all :courses])  ; thing type should not be plural
+        newthing (get-in inputs [:new-model :all :courses])
+        toptitle (:course/title (first newthing))
+        oldtitle (:course/title (first oldthing))]
+    (.log js/console (str "all course emitter " toptitle newthing))
+    (vec (concat 
+      ;((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
+      (mapcat 
+        (fn [[path] nval]  ; path is [:all :courses]
+          (if oldthing
+            [[:node-destroy (conj path oldtitle)]
+             [:node-create (conj path toptitle) :map]]
+            [[:node-create (conj path toptitle) :map]]))
+        deltamap)
+      ))))
+
+
 
 
 ; when set course, all transform actions in course form templates close over current course name.
@@ -306,6 +343,7 @@
                 [:set-course [:course] course-transform]
                 [:set-course-filtered [:course :filtered] course-filtered-transform]
 
+                ; set-all to store all list of things in its map
                 [:set-all [:all] all-transformer]
                 ;[:set-current [:current :*] current-thing-transform]
                 
@@ -334,6 +372,9 @@
 
            ; whenever value of [:category] changed, emit
            {:in #{[:category]} :fn category-emitter :mode :always}
+
+           ; all things emitter
+           {:in #{[:all :courses]} :fn all-course-emitter :mode :always}
 
            [#{[:parent :*]
               [:course :*]} (app/default-emitter [])]

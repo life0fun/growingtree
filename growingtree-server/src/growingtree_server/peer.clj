@@ -97,6 +97,7 @@
         topcourse (first courses)
         coursekeys [:course/title :course/overview :course/subject]
         ;data (entity->map coursekeys topcourse)
+        ; a lazy map list will result in cljs.core.PersistentVector
         data (map (partial entity->map coursekeys) courses)
         ]
     (prn "get courses by subject topcourse" topcourse)

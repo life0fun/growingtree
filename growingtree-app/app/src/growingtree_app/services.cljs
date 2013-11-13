@@ -36,6 +36,8 @@
 ;; for cljs map data structure, use (get-in data-map [attr nested-attr])
 ;; for cljs pure object, use variadic (aget object attr nested-attr)
 ;;
+;; we convert response data to cljs.core.PersistentVector and store i
+
 
 
 ; log fn for xhr request
@@ -61,29 +63,32 @@
 
 ; create a fn to handle query response, inject data into input-queue
 ; as json is more efficient than edn, we use json-response at server side.
-; we dispatch to corresponding 
+; we will dispatch msg to path node accordingly.
+; server always sends map lazy list, becomes cljs.core.PersistentVector here.
 (defn response-handler
   "request response handle, close over thing type and input queue to put json back "
   [type input-queue]
   (fn [response]
     (let [body (:body response)
           bodyjson (JSON/parse body)  ; parse json to js object.
-          bodymap (js->clj bodyjson :keywordize-keys true)  ; convert to cljs object
+          ; parse to cljs.core.Vector data structre. We only need one parse to data structure here.
+          things-vec (js->clj bodyjson :keywordize-keys true)  
           title (aget bodyjson 0 "course/overview")
           ;title2 (aget bodyjson 1 "course/overview")
-          title2 ((keyword "course/title") (first bodymap))
+          title2 ((keyword "course/title") (first things-vec))
           ;thing-map (r/read-string body)  ; convert string into cljs.core.PersistentHashMap
           ; need cljs version of read-string
           ;title ((keyword "course/title") thing-map)
           ]
       (.log js/console (str "response body " body))
-      (.log js/console "title " title title2 " js->clj " bodymap)
+      (.log js/console "title " title title2 " js->clj " things-vec)
       ;(.log js/console (str "PersistentHashMap " thing-map))
       ;(.log js/console (str "app service handle query response title " title " " body))
       (p/put-message input-queue
-                     {msg/topic [:all]  ; thing type
-                      msg/type :set-all      ; set all thing op type
-                      :data bodymap   ; wrap json string to map
+                     {msg/topic [:all]  ; target function is all things.
+                      msg/type :set-all      ; set all thing target type
+                      :type type        ; set thing type
+                      :data things-vec  ; store cljs.core.Vector into path node
                       :id (util/random-id)}))))
 
 ;
