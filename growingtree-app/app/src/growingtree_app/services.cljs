@@ -15,6 +15,28 @@
 ;; (app/consume-effect app services-fn)
 ;;
 
+;;
+;; response from server can be either json string, or application/edn
+;; xhr req response is text string. cljs.reader convert text into cljs.ocre.PersistentHashMap.
+;; if it is edn, use cljs.reader/read-string to convert it to cljs persistentHashMap object.
+;; to access keys in cljs object, use cljs.core.Keyword.
+;; (.log js/console ((keyword "foo") (cljs.reader/read-string "{:foo :bar}")))
+;; need to support lein cljsbuild clean, or will rm -fr out/
+;; 
+;; for json processing, https://github.com/yogthos/cljs-ajax/blob/master/src/ajax/core.cljs
+;; when response is json string, parse to cljs object.
+;;    bodyjson (JSON/parse (:body response))
+;; when response is edn, read-string to parse to cljs.core.PersistentHashMap
+;; convert cljs object to cljs data structre, use js->cljs
+;;    (js-cljs (JSON/parse (:body response)) :keywordize-keys true)
+;; 
+;; access json object, (aget jsonobject "key-name")
+;; access cljs persistentMap, ((keyword "course/title") cljsPersistentHashMap)
+;;
+;; for cljs map data structure, use (get-in data-map [attr nested-attr])
+;; for cljs pure object, use variadic (aget object attr nested-attr)
+;;
+
 
 ; log fn for xhr request
 (defn xhr-log
@@ -44,15 +66,24 @@
   "make query result handling fn, inject data into input-queue"
   [input-queue]
   (fn [response]
-    ; {:id G__16, :body "P-fname-...", :status 200, :headers 
     (let [body (:body response)
-          items (str/split-lines body)
-          title (:course/title (cheshire/parse-string body))]   ; only get the body of response
-      (.log js/console (str "app service handle query response " title " body " body))
+          bodyjson (JSON/parse body)
+          bodymap (js->clj bodyjson :keywordize-keys true)
+          title (aget bodyjson 0 "course/overview")
+          title2 (aget bodyjson 1 "course/overview")
+          ;title2 ((keyword "course/title") bodymap)
+          ;thing-map (r/read-string body)  ; convert string into cljs.core.PersistentHashMap
+          ; need cljs version of read-string
+          ;title ((keyword "course/title") thing-map)
+          ]
+      (.log js/console (str "response body " body))
+      (.log js/console "title " title title2 " js->clj " bodymap)
+      ;(.log js/console (str "PersistentHashMap " thing-map))
+      ;(.log js/console (str "app service handle query response title " title " " body))
       (p/put-message input-queue
                      {msg/topic [:inbound]
                       msg/type :received
-                      :text (rand-nth items)   ; wrap json string to map
+                      :text title   ; wrap json string to map
                       :id (util/random-id)}))))
 
 ;
@@ -81,7 +112,8 @@
 (defn received-sse
   "recvd sse, put it into received inbound path node in app input queue"
   [app e]
-  (let [data (r/read-string (.-data e))]  ; read event data with cljs reader
+  ; read event data with cljs reader, need cljs version of read-string
+  (let [data (r/read-string (.-data e))]  ; access cljs object attr with symbol
     (.log js/console e)  ; take a log
     (p/put-message (:input app)
                    {msg/topic [:inbound]

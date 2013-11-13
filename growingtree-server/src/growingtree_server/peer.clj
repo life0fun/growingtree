@@ -7,7 +7,8 @@
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format]
             [clj-time.local])
-  (:require [cheshire.core :refer :all])  ; json converter
+  (:require [cheshire.core :refer :all]
+            [cheshire.generate :refer [add-encoder encode-map]])
   (:require [growingtree-server.datomic.dda :as dda])  ; datomic data accessor
   )
 
@@ -48,6 +49,31 @@
   (dda/create-schema))
 
 
+; convert datomic entityMap to simple map to serialize to json
+(defn entity->map [convert-data entity]
+  "given a list of attributes in convert-data, find their values from entity and put as map attr"
+  (reduce (fn [m attr]
+            (if (keyword? attr)
+              (if-let [v (attr entity)]
+                (assoc m attr v)
+                m)
+              (let [[attr conv-fn] attr]
+                (if-let [v (attr entity)]
+                  (assoc m attr (conv-fn v))
+                  m))))
+          {}
+          convert-data))
+
+; usage
+; (def book-convert-data
+;   [:book/title
+;    :book/created_at
+;    [:book/created_by :author/id]
+;    [:book/comments (fn [comments] (map :comment/text comments))]])
+;
+; (entity->map book-convert-data a-book-entity)
+
+
 (defn add-family
   []
   (dda/add-family))
@@ -62,12 +88,23 @@
     names))
 
 
+; need to convert datomic EntityMap to simple map string so we can stream text json.
 (defn get-all-courses
   "no filter, ret a list of all course titles str joined with new line"
   []
-  (let [courses (dda/find-course)]
-    (prn "get courses by subject " courses)
-    (generate-string (first courses))))
+  (add-encoder datomic.query.EntityMap encode-map)
+  (let [courses (dda/find-course)
+        topcourse (first courses)
+        coursekeys [:course/title :course/overview :course/subject]
+        ;data (entity->map coursekeys topcourse)
+        data (map (partial entity->map coursekeys) courses)
+        ]
+    (prn "get courses by subject topcourse" topcourse)
+    (prn "all courses " courses)
+    (prn "encoded data " data)
+    data))
+    
+    
 
 
 (defn get-things

@@ -150,6 +150,15 @@
 ;;   --header "Content-Type:application/edn" \
 ;;   http://localhost:8080/msgs 
 ;;
+;; it has been benchmarked that sending json is more efficient than edn, albeit edn
+;; let you tag attributes. the content type is application/json or application/edn.
+;; To send json, instantiate a json-response in route handler and ret that response obj.
+;;      jsonresp (bootstrap/json-response things)
+;;
+;; to send edn, set content-type to application/edn
+;;   (-> (ring-response/response things)
+;;     (ring-response/content-type "application/edn"))))
+;; 
 
 (defn about-page
   [request]
@@ -166,9 +175,12 @@
   [req]
   ; path segment in req contains request params.
   (let [cat (get-in req [:path-params :thing])  
-        things (peer/get-things (keyword cat))] ; conver to keyword for query
-    (prn "getting thing entity " cat things)
-    (ring-response/response things)))
+        things (peer/get-things (keyword cat))
+        jsonresp (bootstrap/json-response things)] ; conver to keyword for query
+    (prn "server service get-all-things " cat things)
+    jsonresp))
+    ; (-> (ring-response/response things)
+    ;     (ring-response/content-type "application/edn"))))
 
 
 (defn add-thing
