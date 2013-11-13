@@ -11,6 +11,11 @@
 
 ;; In start namespace, the application is built and started.
 
+(defn create-app
+  [app]
+  (p/put-message (:input app) 
+                 {msg/type :create-app
+                  msg/topic [:app]}))
 
 ; put msg into effect queue to trigger consume-fn send get request to /msgs api
 (defn subscribe-to-msgs
@@ -42,6 +47,9 @@
 
     ; first, subscribe to server bcast msgs, inject msg to :effect queue directly
     (subscribe-to-msgs app)
+
+    ; create app model
+    ;(create-app app)
 
     ; send msg to bootstrap the app ! fake user clicked nav course
     (bootstrap-click-event app)

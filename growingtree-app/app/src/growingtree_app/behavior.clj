@@ -35,9 +35,18 @@
   [_ message]
   (:text message))  ; ret :text key from course msg map to set state val.
 
-
 ; set course filter value with the new value from message
 (defn course-filtered-transform
+  [old-value message]
+  (:filtered message))  ; render fills out value in :filtered msg
+
+
+(defn parent-transform
+  [_ message]
+  (:text message))  ; ret :text key from course msg map to set state val.
+
+; set course filter value with the new value from message
+(defn parent-filtered-transform
   [old-value message]
   (:filtered message))  ; render fills out value in :filtered msg
 
@@ -51,12 +60,24 @@
    [:lecture] 1})
 
 
-; receive-inbound transform for SSE.
+; receive-inbound handle request response or SSE from server. msg injected by 
+; service response-handler. msg has thing type, and data is json string.
 (defn receive-inbound
   [old-value message]
-  (let [data (:text message)]  ; data is wrapped in :text key
+  (let [type (:type message)  ; thing type
+        data (:data message)]  ; get json response data
     (.log js/console "received inbound " data)
     data))  ; return new received catgory
+
+
+; all function transformers
+(defn all-transformer
+  [oldv message]
+  (let [type (:type message)    ; thing type
+        data-map (:data message)
+        title ((keyword "course/title") (first data-map))]
+    (.log js/console "all-transformer " title data-map)
+    (assoc-in oldv [type] data-map)))
 
 
 ;; - - - - - - - - - - - - 
@@ -73,6 +94,19 @@
 (defn sse-fn
   [oldv newv]  ; default input specifier is tracking map, here we use single-val
   newv)
+
+
+; derived fn to compute filtered things
+(defn compute-filtered-course [_ inputs]
+  (let [filter-type (get-in inputs [:new-model :course :filter])
+        courses (get-in inputs [:new-model :course :tasks])]
+    (if (= filter-type :any)
+      tasks
+      (into {} (filter (fn [[task-id task]]
+                         (or
+                          (and (= filter-type :completed) (:completed task))
+                          (and (= filter-type :active) (not (:completed task)))))
+                       tasks)))))
 
 
 ;; - - - - - - - - - - - - 
@@ -186,7 +220,8 @@
 
 
 ; emitter for when nav category value changes, emit node create of clicked category
-(defn nav-cat-emitter
+(defn category-emitter
+  "upon value change in [:category] node, ret a list of delta msg to be emit to push render"
   [inputs]  ; tracking map of data model
   (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         oldcat (get-in inputs [:old-model :category])
@@ -222,24 +257,39 @@
 
 
 
-;; Data Model Paths: store all global mutable states.
+;; Data Model
+;;
+;; which one? 
+;;   [:parent :all] [:parent :filtered]  
+;; Each type knows all, easy to add new type, However, boilerplate, we only have limited types.
+;;
+;;   [:all :parent] [:filtered :parent]  
+;; Each fn knows all types. Easy to add new fn. [:fn-X :parent]. Hard to add new type.
+;; 
+;; As we only have limited know types. We choose functional way for easy add function.
+;;
+
+
+;; all mutable type are clj maps. use (gensym prefix-string) to generate unique id as 
+;; map key to nest a list of maps into outer big map !
+
 ;; [:nav :category] - use click sidebar nav to show 
 ;; [:category] - current category
-;; [:parent] - current parent
-;; [:child] - current child
-;; [:parent :filter] - parent filter, {(msg/param :filter) {:key :value}}
-;; [:child :filter] - parent filter, {(msg/param :filter) {:key :value}}
-;; [:course] - current selected course, by user click on courses lists
-;; [:course :filter] - filter, {(msg/param :filter) {:key :value}}
-;; [:lecture] - current selected lecture
-;; [:lecture :filter] - filter, {(msg/param :filter) {:key :value}}
 
-;; [:inbound :received] - Received inbound messages
-;; [:outbound :sent] - Sent outbound messages
-;; [:outbound :sending] - Pending message that effect looks to send
+;; current function. store current things, :parent, :child, :course, :lecture.
+;; [:current :parent|:child|:course|:lecture] - current things
+
+;; all function. list of all things. 
+;; [:all :parent|:child|:course|:lecture] - all things list
+
+;; filter type function. filter type of each things
+;; [:filter :parent|:child|:course|:lecture] - filter type of each thing
+
+;; filtered function. filtered list of  type for each type of things
+;; [:filtered :parent|:child|:course|:lecture] - filtered list of each thing
+
    
 ;; App Model Paths: represent div in template. linking UI action handle to 
-
 
 
 ; client app dataflow is a record that impls Receiver protocol.
@@ -252,11 +302,14 @@
                 ; transformer handles msg to change category
                 [:set-category [:category] set-category]
 
-
+                ; set current course and course filtered list
                 [:set-course [:course] course-transform]
                 [:set-course-filtered [:course :filtered] course-filtered-transform]
+
+                [:set-all [:all] all-transformer]
+                ;[:set-current [:current :*] current-thing-transform]
                 
-                ; sse data will be put into :received :inbound
+                ; request response and SSE will be put into :received :inbound
                 [:received [:inbound] receive-inbound]
                ]
 
@@ -280,7 +333,7 @@
            {:init init-sidebar-emitter}
 
            ; whenever value of [:category] changed, emit
-           {:in #{[:category]} :fn nav-cat-emitter :mode :always}
+           {:in #{[:category]} :fn category-emitter :mode :always}
 
            [#{[:parent :*]
               [:course :*]} (app/default-emitter [])]

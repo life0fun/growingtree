@@ -59,19 +59,19 @@
                :on-error on-error))
 
 
-; create a fn to handle query result, inject data into input-queue
-; we need to vary the input we inject to received inbound. If no change, no derived
-; function got called.
-(defn handle-query-response
-  "make query result handling fn, inject data into input-queue"
-  [input-queue]
+; create a fn to handle query response, inject data into input-queue
+; as json is more efficient than edn, we use json-response at server side.
+; we dispatch to corresponding 
+(defn response-handler
+  "request response handle, close over thing type and input queue to put json back "
+  [type input-queue]
   (fn [response]
     (let [body (:body response)
-          bodyjson (JSON/parse body)
-          bodymap (js->clj bodyjson :keywordize-keys true)
+          bodyjson (JSON/parse body)  ; parse json to js object.
+          bodymap (js->clj bodyjson :keywordize-keys true)  ; convert to cljs object
           title (aget bodyjson 0 "course/overview")
-          title2 (aget bodyjson 1 "course/overview")
-          ;title2 ((keyword "course/title") bodymap)
+          ;title2 (aget bodyjson 1 "course/overview")
+          title2 ((keyword "course/title") (first bodymap))
           ;thing-map (r/read-string body)  ; convert string into cljs.core.PersistentHashMap
           ; need cljs version of read-string
           ;title ((keyword "course/title") thing-map)
@@ -81,29 +81,29 @@
       ;(.log js/console (str "PersistentHashMap " thing-map))
       ;(.log js/console (str "app service handle query response title " title " " body))
       (p/put-message input-queue
-                     {msg/topic [:inbound]
-                      msg/type :received
-                      :text title   ; wrap json string to map
+                     {msg/topic [:all]  ; thing type
+                      msg/type :set-all      ; set all thing op type
+                      :data bodymap   ; wrap json string to map
                       :id (util/random-id)}))))
 
 ;
-; services-fn consume effect queue msg from app behavior and xhr post to
-; back-end server.
+; services-fn consume effect queue msg from app behavior and xhr post to server.
 ; pr-str is used to convert map data structure to json string for RESTFul.
 (defn services-fn
   "service fn takes msg out of effect queue and post to back-end"
   [message input-queue] ; input queue is where ret result should be injected to.
   ; ensure msg wrap/unwrap keys match.
   (when-let [msg (:out-message message)]  ; get only the out-message key
-    (let [req-body (pr-str msg)
-          qhandle (handle-query-response input-queue)]  ; send msg json string directly
-      (.log js/console (str "service-fn consume effect queue " req-body  " msg/type" (msg/type message)))
+    (let [req-body (pr-str msg)    ; string print msg
+          type (msg/type message)  ; msg type, the category user clicked on sidebar
+          resp-handle (response-handler type input-queue)]  ; json response handler
+      (.log js/console (str "service-fn consume effect queue msg/type" type " " req-body))
       ; dispatch on case
-      (case (msg/type message)
+      (case type
         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
         :category (xhr-request "/msgs" "POST" req-body xhr-log xhr-log)  ; log as callback
-        :parents (xhr-request "/api/parents" "GET" req-body qhandle xhr-log) 
-        :courses (xhr-request "/api/courses" "GET" req-body qhandle xhr-log) 
+        :parents (xhr-request "/api/parents" "GET" req-body resp-handle xhr-log) 
+        :courses (xhr-request "/api/courses" "GET" req-body resp-handle xhr-log) 
         "default")
       (str "Send to Server: " (pr-str message)) )))
 
@@ -113,7 +113,7 @@
   "recvd sse, put it into received inbound path node in app input queue"
   [app e]
   ; read event data with cljs reader, need cljs version of read-string
-  (let [data (r/read-string (.-data e))]  ; access cljs object attr with symbol
+  (let [data (r/read-string (.-data e))]  ; access cljs object attr by .-symbol
     (.log js/console e)  ; take a log
     (p/put-message (:input app)
                    {msg/topic [:inbound]
