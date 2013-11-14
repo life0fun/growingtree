@@ -64,73 +64,27 @@
     (templates/update-t r path {:lectures msg})))
 
 
-; associate sidebar click event to fill msg of set course filter msg to update data model.
-(defn course-filtered-transforms 
-  [r [_ path transfn msg] input-queue]
-  (let [m (msgs/fill :set-course-filter 
-                      msg {:filtered {:key :subject :value "function"}})]
-    (events/send-on :click (dom/by-id "sidenav-parents") input-queue m)))
 
-  
-; update the list of filtered course
-(defn render-course-filtered
-  [r [_ path old new] input-queue]
-  (let [id (render/new-id! r path)
-        html (templates/add-template r path (:toprow-node templates))
-        htmltext (html {:id id :text (:value new)})]  ; div field content:text
-    (templates/prepend-t r [:course] {:toprows htmltext})))
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+;; transform enable to hook up ui event to send msg to update data model nodes.
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-
-; wire click event on nav sidebar to send nav category path node
-(def category-transforms
+; sidebar click transform [:nav :type] value, trigger request to get list of things.
+(def all-things-transform
+  "wire sidebar click event to all things transform fn"
   (fn [r [_ p k message] input-queue]
     (let [sidebars ["parents" "children" "courses" "lectures" "homeworks"
                     "assignments" "topquestions" "topanswers" "ask" "answer"
                     "contributions" "knowledges" "activities" "locations"]]
       (doseq [k sidebars]
         (events/send-on :click (dom/by-id (str "sidenav-" k)) input-queue
-                        (msgs/fill :publish-category 
-                                    message {:category (keyword k)}))))))
+                        (msgs/fill :set-nav-type 
+                                    message 
+                                    {:type (keyword k)}))))))
 
 
-; when we change category, destroy the old category
-(defn destroy-nav-category-things
-  [r [_ path] d]  
-  (dom/destroy! (dom/by-id (render/get-id r path))))  ; find id for this path node
-
-
-; when user click nav sidebar, create new template attach to path node [:nav :category]
-; and attach to toprow-list dom 
-(defn create-nav-category-things
-  [r [_ path] d]
-  (let [title (str "this is " (name (last path)))
-        parent (render/get-parent-id r path) ; parent is used for dom/append to parent
-        id (render/new-id! r path)  ; gen id for this path node
-        html (templates/add-template r path (:thing templates)) ; added template to this path node
-        thumbhtml (templates/add-template r path (:thing-thumbnail templates))
-        entryhtml (templates/add-template r path (:thing-entry templates))
-       ]
-    (.log js/console "create and render nav-category thing " (pr-str path))
-    
-    ; [:nav] path node's template has been dom appended to root [] home page
-    (templates/append-t    ; append or prepend, the same here. prepend-t
-                r [:nav] 
-                ;{:topthings (html {:id id :href path :thing-entry-title title})})
-                {:topthings (html {:id id :thumbhref "thumbhref" :entryhref path
-                                   :thing-entry-title title})})
-
-    ; this will cause thumbhtml get appended to the list of templates at [:nav]
-    ; (templates/append-t    ; append or prepend, the same here. prepend-t
-    ;             r [:nav]
-    ;             {:topthings (thumbhtml {:thumbhref "thumbnail"})})
-
-    ; dom append will append to the main
-    ;(dom/append! (dom/by-id "topthings") (html {:id id :text title}))
-  ))
-
-
-; when user click nav sidebar, create new template attach to path node [:nav :category]
-; and attach to toprow-list dom 
+; when user click nav sidebar, create new template attach to path node 
+; [:nav :type] and attach to toprow-list dom 
 (defn create-all-things
   [r [_ path] d]
   (let [title (str " " (name (last path)))
@@ -166,7 +120,7 @@
   (dom/destroy! (dom/by-id (render/get-id r path))))  ; find id for this path node
 
 
-;; value change emitter
+;; show updated value in [:all :* ] upon value change emitter on the node.
 (defn update-all-courses
   "value change event contains the value in path node, use it to update"
   [r [_ path oldv newv] input-queue]
@@ -186,6 +140,26 @@
         ; (.log js/console "update all titles " t)    ; this logs html div
         (templates/append-t r [:nav] {:topthings t}))))
 
+(defn update-all-parents
+  "value change event contains the value in path node, use it to update"
+  [r [_ path oldv newv] input-queue]
+  (let [id (render/get-id r path)  ; get the div id of this node, or parent-node ?
+        html (templates/add-template r path (:thing templates)) ; added template to this path node
+        thumbhtml (templates/add-template r path (:thing-thumbnail templates))
+        entryhtml (templates/add-template r path (:thing-entry templates))
+
+        fname (map :parent/fname newv)  ; project all titles 
+        things (map #(html {:id id :thumbhref "thumbhref" :entryhref path 
+                            :thing-entry-title %}) fname)
+        ]
+    
+    (.log js/console "update all things path " path " oldv " oldv " newv " newv)
+    ;(.log js/console "update course " ((keyword "course/title") (first newv)) " - " (:course/title (first newv)))
+    (doseq [t things]
+        ; (.log js/console "update all titles " t)    ; this logs html div
+        (templates/append-t r [:nav] {:topthings t}))))
+
+
 
 ; render config dispatch app model delta to render fn.
 ; the render config is refed in config/config.edn
@@ -195,18 +169,12 @@
    [:node-destroy [:nav] auto/default-exit]
    ;[:node-create  [:course :*] create-course-node]
    
-   [:transform-enable [:course :filtered] course-filtered-transforms]
-   [:value [:course] render-course]
-   [:value [:course :filtered] render-course-filtered]
+   ; wire sidebar nav click to send this transform to change data model.
+   [:transform-enable [:nav :type] all-things-transform]
    
-   ; wire sidebar nav click to send this transform, and render value changed.
-   [:transform-enable [:nav :category] category-transforms]
-   ; create and render [:category] template
-   [:node-create [:category :*] create-nav-category-things]
-   [:node-destroy [:category :*] destroy-nav-category-things]
-
    ; node value taken from last segment of node path
-   [:node-create [:all :courses :*] create-all-things]
-   [:node-destroy [:all :courses :*] destroy-all-things]
+   [:node-create [:all :* :*] create-all-things]
+   [:node-destroy [:all :** ] destroy-all-things]
    [:value [:all :courses] update-all-courses]
+   [:value [:all :parents] update-all-parents]
   ])

@@ -174,10 +174,10 @@
   "get things by type, ret from peer a list of thing in a new line sep string"
   [req]
   ; path segment in req contains request params.
-  (let [cat (get-in req [:path-params :thing])  
-        things (peer/get-things (keyword cat))
+  (let [type (get-in req [:path-params :thing])
+        things (peer/get-things (keyword type))
         jsonresp (bootstrap/json-response things)] ; conver to keyword for query
-    (prn "server service get-all-things " cat things)
+    (prn "server service get-all-things " type things)
     jsonresp))
     ; (-> (ring-response/response things)
     ;     (ring-response/content-type "application/edn"))))

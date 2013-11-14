@@ -29,62 +29,27 @@
 ;; - - - - - - - - - - - - 
 
 ; extract the user clicked nav category from msg, and store it in [:nav :category] node
-(defn publish-category
+(defn set-nav-type
   [_ message]
-  (:category message))  ; value stored inside :category key
+  (.log js/console (str "set-nav-type " message))
+  (:type message))  ; value stored inside thing :type key
 
-(defn set-category
+; set thing type
+(defn set-thing-type
   [_ message]
-  (:category message))  ; value stored inside :category key
-
-(defn course-transform
-  [_ message]
-  (:text message))  ; ret :text key from course msg map to set state val.
-
-; set course filter value with the new value from message
-(defn course-filtered-transform
-  [old-value message]
-  (:filtered message))  ; render fills out value in :filtered msg
+  (:type message))  ; value stored inside :category key
 
 
-(defn parent-transform
-  [_ message]
-  (:text message))  ; ret :text key from course msg map to set state val.
 
-; set course filter value with the new value from message
-(defn parent-filtered-transform
-  [old-value message]
-  (:filtered message))  ; render fills out value in :filtered msg
-
-
-(defn set-value-transform 
-  [old-value message]
-  (:value message))
-
-(def sort-order
-  {[:course] 0
-   [:lecture] 1})
-
-
-; receive-inbound handle request response or SSE from server. msg injected by 
-; service response-handler. msg has thing type, and data is json string.
-(defn receive-inbound
-  [old-value message]
-  (let [type (:type message)  ; thing type
-        data (:data message)]  ; get json response data
-    (.log js/console "received inbound " data)
-    data))  ; return new received catgory
-
-
-; all transformers, store list of all things data structure into map.
+; all things transformers, store list of all things data structure into map.
 ; we store cljs.core.Vector data structure into path node. when clj get the ds out,
 ; no more parse needed. We only need one parse at response-handler.
-(defn all-transformer
+(defn all-things-transformer
+  "store list of all things vec in [:all :type] node under each type key"
   [oldv message]
   (let [type (:type message)    ; thing type 
-        things-vec (:data message)  ; cljs.core.PersistentVector [{thing1} {thing2}]
-        title ((keyword "course/title") (first things-vec))]
-    (.log js/console "all-transformer for " type title things-vec)
+        things-vec (:data message)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
+    (.log js/console "all-transformer for " type things-vec)
     (assoc-in oldv [type] things-vec)))  ; now vector is stored in [:all :type]
 
 
@@ -94,29 +59,19 @@
 ;; derive-fn gets 2 args, the old state of the output state, and inputs tracking map, or map, single-val
 ;; - - - - - - - - - - - - 
 
-(defn update-category
-  [oldv newcat]   ; input specifier is single-val, use it directly.
-  (.log js/console "derived from nav or inbound, update category " newcat)
-  newcat)
-
-
-
-(defn sse-fn
-  [oldv newv]  ; default input specifier is tracking map, here we use single-val
-  newv)
-
 
 ; derived fn to compute filtered things, illustration for now.
-(defn compute-filtered-course [_ inputs]
-  (let [filter-type (get-in inputs [:new-model :course :filter])
-        courses (get-in inputs [:new-model :course :tasks])]
+(defn compute-filtered-course
+  [_ inputs]
+  (let [filter-type (get-in inputs [:new-model :filter :course])
+        courses (get-in inputs [:new-model :filtered :course])]
     (if (= filter-type :any)
-      tasks
-      (into {} (filter (fn [[task-id task]]
+      courses
+      (into {} (filter (fn [[course-id course]]
                          (or
-                          (and (= filter-type :completed) (:completed task))
-                          (and (= filter-type :active) (not (:completed task)))))
-                       tasks)))))
+                          (and (= filter-type :completed) (:completed course))
+                          (and (= filter-type :active) (not (:completed course)))))
+                       courses)))))
 
 
 ;; - - - - - - - - - - - - 
@@ -128,97 +83,118 @@
 ;
 ; should use multimethod for dispatching.
 ;
-; inject msg to output queue of app, consumed by service-fn.
+; inject msg to output queue consumed by service-fn, which makes a xhr request for json data.
 ; input specifier is :single-val, so arg is single-value
-(defn send-server-category
+(defn request-all-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
-  [category]
-  (.log js/console "send-server-category upon sidebar click  " category)
+  [type]  ; request all things by type
+  (.log js/console "request things of type upon sidebar click  " type)
   ; set both msg/type and out-message to category
-  [{msg/topic [:server] msg/type category :out-message category}]
-  )
+  [{msg/topic [:server] msg/type type :body {:filter :all}}])
   
 
-(defn send-server-timeline
+; request timeline
+(defn request-timeline
   [timeline]
   [])
 
-;; - - - - - - - - - - - - 
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; emitter to report changes, and attach transforms to template events.
 ;; emitter-fn takes a single argument, a tracking map, or maps, or single-val
 ;; a delta map keyed by path, and val is a vec of entity map {[:all :courses] [{}]}
 ;;  {[:all :courses] [{:course/subject "course.subject/coding", ..}]
-;; - - - - - - - - - - - - 
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-; emit init app model emtter only once when app starts. emitter will emit to create all nodes.
+; emit init app model emtter only once when app starts to create all nodes.
 ; the most important things is to define transform fn that can be triggered
 ; by render upon UI events on this portion.
 (defn init-app-model [_]
-  [{:course
-      {:filtered  ; a map of filtered course
+  [{:nav
+      {:type  {}  ; a single val of current viewing thing type
+       :filtered  ; a list of filtered things of current viewing
         {:transforms   ; the node path is from top to here [:course :form :set-course]
-          {:set-course-filtered [{msg/topic [:course :filtered] 
+          {:set-things-filtered [{msg/topic [:filtered] 
                                  (msg/param :filtered) {}}]}}}}])
 
 
 ; user can interact with sidebar, so setup interaction on sidebar
 ; get use input click event into :outbound path node.
-(defn init-sidebar-emitter [inputs]
+(defn init-all-things-emitter 
+  [inputs]
   "set up message emitter for sidebar nav UI interaction"
-  [[:transform-enable [:nav :category] 
-                      :publish-category 
-                      [{msg/topic [:nav :category]
-                       (msg/param :category) {}}]]])
+  (.log js/console "init all things emitter")
+  [[:node-create [:nav]]
+   [:transform-enable [:nav :type] 
+                      :set-nav-type
+                      [{msg/topic [:nav :type]
+                       (msg/param :type) {}}]]])
 
 
 
 ; emit to create node upon all things
-(defn all-course-emitter
+(defn all-courses-emitter
   "emit upon all thing list created"
   [inputs]
   (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         oldthing (get-in inputs [:old-model :all :courses])  ; thing type should not be plural
         newthing (get-in inputs [:new-model :all :courses])
-        toptitle (:course/title (first newthing))
-        oldtitle (:course/title (first oldthing))]
-    (.log js/console (str "all course emitter " toptitle newthing))
+        topthing (:course/title (first newthing))
+        oldthing (:course/title (first oldthing))]
+    (.log js/console (str "all course emitter " topthing newthing))
     (vec (concat 
       ;((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
       (mapcat 
         (fn [[path] nval]  ; path is [:all :courses]
           (if oldthing
-            [[:node-destroy (conj path oldtitle)]
-             [:node-create (conj path toptitle) :map]
+            [[:node-destroy (conj path oldthing)]
+             [:node-create (conj path topthing) :map]
              [:value [:all :courses] newthing]]
-            [[:node-create (conj path toptitle) :map]
+            [[:node-create (conj path topthing) :map]
              [:value [:all :courses] newthing]]))
         deltamap)
       ))))
 
 
-; when set course, all transform actions in course form templates close over current course name.
-(defn set-course-delta
-  "emit a vector of vectors of transform deltas that render use to set the course"
-  [courses]
-  [[:value [:course] courses]
-   [:transform-enable [:course :filtered] ; click on any lecture under the course
-                       :set-course-filtered [{msg/topic [:course :filtered]
-                                            (msg/param :filtered) {}}]] ; render will fill
-  ])
-
-
-; upon any changes in *data model* in course node subtree, emit those deltas
-(defn course-emit
+(defn all-parents-emitter
+  "emit upon all thing list created"
   [inputs]
-  (reduce (fn [alldeltas [input-path new-value]]
-            (concat alldeltas     ; each is a vec, concat to top vector of vector
-              (case input-path
-                [:course] (set-course-delta new-value))))
-          []
-          (sort-by #(get sort-order (key %))
-                   ;; Alternatively this could be done by pulling
-                   ;; :added and :updated sets from inputs.
-                   (merge (d/added-inputs inputs) (d/updated-inputs inputs)))))
+  (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
+        oldthing (get-in inputs [:old-model :all :parents])  ; thing type should not be plural
+        newthing (get-in inputs [:new-model :all :parents])
+        topthing (:parent/fname (first newthing))
+        oldthing (:parent/fname (first oldthing))]
+    (.log js/console (str "all parent emitter " topthing newthing))
+    (vec (concat 
+      ;((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
+      (mapcat 
+        (fn [[path] nval]  ; path is [:all :parents]
+          (if oldthing
+            [[:node-destroy (conj path oldthing)]
+             [:node-create (conj path topthing) :map]
+             [:value [:all :parents] newthing]]
+            [[:node-create (conj path topthing) :map]
+             [:value [:all :parents] newthing]]))
+        deltamap)
+      ))))
+
+
+;;
+;; emitter when getting sse-data, dispatch by sse event type
+(defn sse-data-emitter
+  [inputs]  ; tracking map of data model
+  (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
+        oldcat (get-in inputs [:old-model :sse-data])
+        newcat (get-in inputs [:new-model :sse-data])]
+    (vec (concat 
+      ((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
+      (mapcat 
+        (fn [[path] nval]
+          (if oldcat
+            [[:node-destroy (conj path oldcat)]
+             [:node-create (conj path newcat) :map]]
+            [[:node-create (conj path newcat) :map]]))
+        deltamap)
+      ))))  
 
 
 ; emitter fn destructs the path of node [:todo :tasks task-id :completed]
@@ -255,43 +231,6 @@
         ))
 
 
-; emitter for when nav category value changes, emit node create of clicked category
-(defn category-emitter
-  "upon value change in [:category] node, ret a list of delta msg to be emit to push render"
-  [inputs]  ; tracking map of data model
-  (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
-        oldcat (get-in inputs [:old-model :category])
-        newcat (get-in inputs [:new-model :category])]
-    (vec (concat 
-      ;((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
-      (mapcat 
-        (fn [[path] nval]
-          (if oldcat
-            [[:node-destroy (conj path oldcat)]
-             [:node-create (conj path newcat) :map]]
-            [[:node-create (conj path newcat) :map]]))
-        deltamap)
-      ))))
-
-
-; emitter when getting sse-data
-(defn sse-data-emitter
-  [inputs]  ; tracking map of data model
-  (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
-        oldcat (get-in inputs [:old-model :sse-data])
-        newcat (get-in inputs [:new-model :sse-data])]
-    (vec (concat 
-      ((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
-      (mapcat 
-        (fn [[path] nval]
-          (if oldcat
-            [[:node-destroy (conj path oldcat)]
-             [:node-create (conj path newcat) :map]]
-            [[:node-create (conj path newcat) :map]]))
-        deltamap)
-      ))))  
-
-
 
 ;; Data Model
 ;;
@@ -309,11 +248,8 @@
 ;; all mutable type are clj maps. use (gensym prefix-string) to generate unique id as 
 ;; map key to nest a list of maps into outer big map !
 
-;; [:nav :category] - use click sidebar nav to show 
-;; [:category] - current category
-
-;; current function. store current things, :parent, :child, :course, :lecture.
-;; [:current :parent|:child|:course|:lecture] - current things
+;; nav function. store current nav things, :parent, :child, :course, :lecture.
+;; [:nav :parent|:child|:course|:lecture] - current things
 
 ;; all function. list of all things. 
 ;; [:all :parent|:child|:course|:lecture] - all things list
@@ -333,18 +269,11 @@
   {:version 2   ; use current version 2
     :debug true
     :transform [
-                ; UI event sent to outbound node, then derive to [:nav :category] node
-                [:publish-category [:nav :category] publish-category]
-                ; transformer handles msg to change category
-                [:set-category [:category] set-category]
-
-                ; set current course and course filtered list
-                [:set-course [:course] course-transform]
-                [:set-course-filtered [:course :filtered] course-filtered-transform]
+                ; UI event sent to outbound node, then derive to [:nav :type] node
+                [:set-nav-type [:nav :type] set-nav-type]
 
                 ; set-all to store all list of things in its map
-                [:set-all [:all] all-transformer]
-                ;[:set-current [:current :*] current-thing-transform]
+                [:set-all-things [:all] all-things-transformer]
                 
                 ; request response and SSE will be put into :received :inbound
                 [:received [:inbound] receive-inbound]
@@ -353,7 +282,7 @@
     :derive #{  ;; derive fn triggered by data change, not by inject data into node!!
 
              ; UI events triggers update of category path node
-             [#{[:nav :category]} [:category] update-category :single-val]
+             ;[#{[:nav :type]} [:type] set-thing-type :single-val]
 
              ; sse data put into inbound, and trigger update. 
              [#{[:inbound]} [:category] update-category :single-val]
@@ -361,26 +290,19 @@
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn, and xhr to back-end.
     :effect #{
-              ; user clicked nav, bcast.
-              [#{[:nav :category]} send-server-category :single-val]
+              ; user clicked nav, request all things by type
+              [#{[:nav :type]} request-all-things :single-val]
             }
 
     ; emitter
     :emit [;{:init init-app-model}
-           {:init init-sidebar-emitter}
-
-           ; whenever value of [:category] changed, emit
-           {:in #{[:category]} :fn category-emitter :mode :always}
+           {:init init-all-things-emitter}
 
            ; all things emitter
-           {:in #{[:all :courses]} :fn all-course-emitter :mode :always}
-
-           [#{[:parent :*]
-              [:course :*]} (app/default-emitter [])]
+           {:in #{[:all :courses]} :fn all-courses-emitter :mode :always}
+           {:in #{[:all :parents]} :fn all-parents-emitter :mode :always}
 
            {:in #{[:sse-data]} :fn sse-data-emitter :mode :always}
-
-           [#{[:course] [:course :filtered]} course-emit]
 
            [#{[:pedestal :debug :dataflow-time]
               [:pedestal :debug :dataflow-time-max]

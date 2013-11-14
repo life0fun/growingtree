@@ -26,12 +26,13 @@
 ;; for json processing, https://github.com/yogthos/cljs-ajax/blob/master/src/ajax/core.cljs
 ;; when response is json string, parse to cljs object.
 ;;    bodyjson (JSON/parse (:body response))
+;;
 ;; when response is edn, read-string to parse to cljs.core.PersistentHashMap
 ;; convert cljs object to cljs data structre, use js->cljs
-;;    (js-cljs (JSON/parse (:body response)) :keywordize-keys true)
+;;    (js->cljs (JSON/parse (:body response)) :keywordize-keys true)
 ;; 
 ;; access json object, (aget jsonobject "key-name")
-;; access cljs persistentMap, ((keyword "course/title") cljsPersistentHashMap)
+;; access cljs persistentMap, ((keyword "course/title") cljs.core.PersistentHashMap)
 ;;
 ;; for cljs map data structure, use (get-in data-map [attr nested-attr])
 ;; for cljs pure object, use variadic (aget object attr nested-attr)
@@ -61,56 +62,47 @@
                :on-error on-error))
 
 
-; create a fn to handle query response, inject data into input-queue
+; create a fn to handle query response, inject json array data into input-queue
 ; as json is more efficient than edn, we use json-response at server side.
 ; we will dispatch msg to path node accordingly.
-; server always sends map lazy list, becomes cljs.core.PersistentVector here.
+; server always sends list of things, parse to cljs.core.PersistentVector.
 (defn response-handler
-  "request response handle, close over thing type and input queue to put json back "
+  "handle RESTful json array response close over thing type and input queue"
   [type input-queue]
   (fn [response]
     (let [body (:body response)
           bodyjson (JSON/parse body)  ; parse json to js object.
           ; parse to cljs.core.Vector data structre. We only need one parse to data structure here.
-          things-vec (js->clj bodyjson :keywordize-keys true)  
-          title (aget bodyjson 0 "course/overview")
-          ;title2 (aget bodyjson 1 "course/overview")
-          title2 ((keyword "course/title") (first things-vec))
-          ;thing-map (r/read-string body)  ; convert string into cljs.core.PersistentHashMap
-          ; need cljs version of read-string
-          ;title ((keyword "course/title") thing-map)
+          things-vec (js->clj bodyjson :keywordize-keys true)
           ]
-      (.log js/console (str "response body " body))
-      (.log js/console "title " title title2 " js->clj " things-vec)
-      ;(.log js/console (str "PersistentHashMap " thing-map))
-      ;(.log js/console (str "app service handle query response title " title " " body))
+      (.log js/console (str "response body " bodyjson))
       (p/put-message input-queue
-                     {msg/topic [:all]  ; target function is all things.
-                      msg/type :set-all      ; set all thing target type
+                     {msg/topic [:all]  ; store data into [:all]
+                      msg/type :set-all-things    ; set all things msg type
                       :type type        ; set thing type
                       :data things-vec  ; store cljs.core.Vector into path node
                       :id (util/random-id)}))))
 
+
 ;
 ; services-fn consume effect queue msg from app behavior and xhr post to server.
-; pr-str is used to convert map data structure to json string for RESTFul.
+; pr-str is used to convert map data structure to edn string for RESTFul request.
 (defn services-fn
   "service fn takes msg out of effect queue and post to back-end"
   [message input-queue] ; input queue is where ret result should be injected to.
   ; ensure msg wrap/unwrap keys match.
-  (when-let [msg (:out-message message)]  ; get only the out-message key
-    (let [req-body (pr-str msg)    ; string print msg
-          type (msg/type message)  ; msg type, the category user clicked on sidebar
+  (when-let [body (pr-str (:body message))]
+    (let [type (msg/type message)  ; msg type, the type user clicked on sidebar
           resp-handle (response-handler type input-queue)]  ; json response handler
-      (.log js/console (str "service-fn consume effect queue msg/type" type " " req-body))
+      (.log js/console (str "service-fn consume effect queue type" type " " body))
       ; dispatch on case
       (case type
         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
-        :category (xhr-request "/msgs" "POST" req-body xhr-log xhr-log)  ; log as callback
-        :parents (xhr-request "/api/parents" "GET" req-body resp-handle xhr-log) 
-        :courses (xhr-request "/api/courses" "GET" req-body resp-handle xhr-log) 
+        :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)  ; log as callback
+        :parents (xhr-request "/api/parents" "GET" body resp-handle xhr-log) 
+        :courses (xhr-request "/api/courses" "GET" body resp-handle xhr-log) 
         "default")
-      (str "Send to Server: " (pr-str message)) )))
+      (str "Send to Server: " body))))
 
 
 ; received server send event 

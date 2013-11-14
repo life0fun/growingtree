@@ -203,7 +203,7 @@
   "find all parents with all children"
   []
   (let [pc (d/q '[:find ?p :where [?p :parent/child]] db)
-        entities (doall (map (comp get-entity first) pc))] ;?p parent who has children
+        entities (map (comp get-entity first) pc)] ;?p parent who has children
     (map (comp show-entity-by-id first) pc)
     entities))  ; ret pc
 

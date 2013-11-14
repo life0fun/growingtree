@@ -83,16 +83,18 @@
   "no filter, ret a list of all parent names str joined with new line"
   []
   (let [parents (dda/list-parent)
+        parentkey [:parent/fname :parent/lname :parent/age :parent/email]
+        data (map (partial entity->map parentkey) parents)
         names (str/join "\n" (map :parent/fname parents))]
-    (prn "get all parent name " names)
-    names))
+    (prn "get all parents entity " parents )
+    (prn "get all parents data " data)
+    data))
 
 
 ; need to convert datomic EntityMap to simple map string so we can stream text json.
 (defn get-all-courses
   "no filter, ret a list of all course titles str joined with new line"
   []
-  (add-encoder datomic.query.EntityMap encode-map)
   (let [courses (dda/find-course)
         topcourse (first courses)
         coursekeys [:course/title :course/overview :course/subject]

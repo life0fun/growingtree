@@ -29,7 +29,7 @@
 
 
 ; fake user clicked nav course side bar
-(defn bootstrap-click-event
+(defn bootstrap-homepage
   [app]
   (p/put-message (:input app) 
                  {msg/type :set-category
@@ -52,7 +52,7 @@
     ;(create-app app)
 
     ; send msg to bootstrap the app ! fake user clicked nav course
-    (bootstrap-click-event app)
+    (bootstrap-homepage app)
     
     {:app app :app-model app-model}))
 
