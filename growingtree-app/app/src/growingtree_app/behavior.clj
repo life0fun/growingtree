@@ -49,7 +49,7 @@
   [oldv message]
   (let [type (:type message)    ; thing type 
         things-vec (:data message)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
-    (.log js/console "all-transformer for " type things-vec)
+    (.log js/console "all-transformer set [:all :type] for " type things-vec)
     (assoc-in oldv [type] things-vec)))  ; now vector is stored in [:all :type]
 
 
@@ -285,8 +285,7 @@
              ; UI events triggers update of category path node
              ;[#{[:nav :type]} [:type] set-thing-type :single-val]
 
-             ; sse data put into inbound, and trigger update. 
-             [#{[:inbound]} [:category] update-category :single-val]
+             ; sse data put into sse, and trigger update. 
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn, and xhr to back-end.
