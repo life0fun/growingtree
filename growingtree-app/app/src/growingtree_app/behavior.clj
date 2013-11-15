@@ -147,9 +147,9 @@
         (fn [[path] nval]  ; path is [:all :courses]
           (if oldthing
             [[:node-destroy (conj path oldthing)]
-             [:node-create (conj path topthing) :map]
+             ;[:node-create (conj path topthing) :map]
              [:value [:all :courses] newthing]]
-            [[:node-create (conj path topthing) :map]
+            [;[:node-create (conj path topthing) :map]
              [:value [:all :courses] newthing]]))
         deltamap)
       ))))
@@ -164,15 +164,16 @@
         topthing (:parent/fname (first newthing))
         oldthing (:parent/fname (first oldthing))]
     (.log js/console (str "all parent emitter " topthing newthing))
+    ; if we emit value delta, we do not need to emit node-create.
     (vec (concat 
       ;((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
       (mapcat 
         (fn [[path] nval]  ; path is [:all :parents]
           (if oldthing
             [[:node-destroy (conj path oldthing)]
-             [:node-create (conj path topthing) :map]
+             ;[:node-create (conj path topthing) :map]
              [:value [:all :parents] newthing]]
-            [[:node-create (conj path topthing) :map]
+            [;[:node-create (conj path topthing) :map]
              [:value [:all :parents] newthing]]))
         deltamap)
       ))))

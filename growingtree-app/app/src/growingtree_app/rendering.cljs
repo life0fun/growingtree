@@ -31,7 +31,9 @@
 ; (defn enable-x [r [transform-enable path transform-name messages] d]
 ;
 ; new-id can be used to create the id for the new dom element.
-; add-template attaches dynamic template div subtree to dom.
+; add-template attaches dynamic template div subtree to a path node. [path ::template]
+;   (render/set-data! r (conj path ::template) template)
+
 (defn render-home-page 
   [r [_ path] input-queue]
   (let [parent (render/get-parent-id r path)  ; root of top level is [], maps to div id=content
@@ -65,6 +67,14 @@
 
 
 
+(defn remove-template
+  "remove the template attached to path node"
+  [r path]
+  (let [divid (dom/by-id (render/get-id r path))]
+    (.log js/console "removing template at " path " #id " divid)
+    (if-not divid
+      (dom/destroy! divid))))
+
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; transform enable to hook up ui event to send msg to update data model nodes.
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -96,8 +106,11 @@
         thing (html {:id id :thumbhref "thumbhref" :entryhref path
                      :thing-entry-title title})
        ]
-    (.log js/console "create and render all things " (pr-str path))
     
+    (.log js/console "create and render all things " (pr-str path))
+    ; first, destroy existing things
+    (remove-template r path)
+
     ; [:nav] path node's template has been dom appended to root [] home page
     (templates/append-t    ; append or prepend, the same here. prepend-t
                 r [:nav]   ; put the template under nav node, which has home page 
