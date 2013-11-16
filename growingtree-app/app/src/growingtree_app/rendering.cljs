@@ -6,8 +6,11 @@
             [io.pedestal.app.messages :as msgs]
             [io.pedestal.app.util.log :as log]
             [io.pedestal.app.render.push.handlers :as h]
-            [io.pedestal.app.render.push.handlers.automatic :as auto])
+            [io.pedestal.app.render.push.handlers.automatic :as auto]
+            ; entity view map
+            [growingtree-app.entity-view :as entity-view])
   (:require-macros [growingtree-app.html-templates :as html-templates]))
+
 
 ; Load templates.
 (def templates (html-templates/growingtree-app-templates))
@@ -20,6 +23,10 @@
          (pad (.getSeconds d)))))
 
 
+;
+; data structure in cljs are cljs.core.X data structure.
+;   [node path]  - cljs.core.PersistentVector.
+;   vals are cljs.core.PersistentHashMap.
 ;
 ; render converts node in nested map to dom element. The root node []
 ; is configured when we created the render.
@@ -197,6 +204,32 @@
     )))
 
 
+(defn update-all-things
+  "value change event contains the value in path node, use it to update"
+  [r [_ path oldv newv] input-queue]
+  (let [id (render/get-id r path)  ; get the div id of this node, or parent-node ?
+        html (templates/add-template r path (:thing templates)) ; added template to this path node
+        thumbhtml (templates/add-template r path (:thing-thumbnail templates))
+        entryhtml (templates/add-template r path (:thing-entry templates))
+
+        ; get entity view map
+        view-vec (entity-view/view-value path newv)
+        titles (:title view-vec)
+        things (map #(html {:id id :thumbhref "thumbhref" :entryhref path 
+                            :thing-entry-title %}) titles)
+        ]
+    
+    (.log js/console "update all things path " path " title " title " newv " newv)
+    ;(.log js/console "update course " ((keyword "course/title") (first newv)) " - " (:course/title (first newv)))
+
+    (dom/destroy-children! (dom/by-id "topthings"))
+
+    (doseq [t things]
+        ; (.log js/console "update all titles " t)    ; this logs html div
+        ;(templates/append-t r [:nav] {:topthings t})
+        (dom/append! (dom/by-id "topthings") t)
+    )))
+
 
 ; render config dispatch app model delta to render fn.
 ; the render config is refed in config/config.edn
@@ -210,8 +243,7 @@
    [:transform-enable [:nav :type] all-things-transform]
    
    ; node value taken from last segment of node path
-   ;[:node-create [:all :* :*] create-all-things]
-   ;[:node-destroy [:all :** ] destroy-all-things]
-   [:value [:all :courses] update-all-courses]
-   [:value [:all :parents] update-all-parents]
+   ;[:value [:all :courses] update-all-courses]
+   ;[:value [:all :parents] update-all-parents]
+   [:value [:all :*] update-all-things]
   ])

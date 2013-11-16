@@ -70,18 +70,19 @@
   "handle RESTful json array response close over thing type and input queue"
   [type input-queue]
   (fn [response]
-    (let [body (:body response)
-          bodyjson (JSON/parse body)  ; parse json to js object.
-          ; parse to cljs.core.Vector data structre. We only need one parse to data structure here.
-          things-vec (js->clj bodyjson :keywordize-keys true)
-          ]
-      (.log js/console (str "response body " bodyjson))
-      (p/put-message input-queue
-                     {msg/topic [:all]  ; store data into [:all]
-                      msg/type :set-all-things    ; set all things msg type
-                      :type type        ; set thing type
-                      :data things-vec  ; store cljs.core.Vector into path node
-                      :id (util/random-id)}))))
+    (when-let [body (:body response)] ; only when we have valid body
+      (.log js/console (str "response :body " body))
+      (let [bodyjson (JSON/parse body)  ; parse json to js object.
+            ; parse to cljs.core.Vector data structre. We only need one parse to data structure here.
+            things-vec (js->clj bodyjson :keywordize-keys true)
+            ]
+        (.log js/console (str "response body " bodyjson))
+        (p/put-message input-queue
+                       {msg/topic [:all]  ; store data into [:all]
+                        msg/type :set-all-things    ; set all things msg type
+                        :type type        ; set thing type
+                        :data things-vec  ; store cljs.core.Vector into path node
+                        :id (util/random-id)})))))
 
 
 ;
@@ -101,6 +102,7 @@
         :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)  ; log as callback
         :parents (xhr-request "/api/parents" "GET" body resp-handle xhr-log) 
         :courses (xhr-request "/api/courses" "GET" body resp-handle xhr-log) 
+        :children (xhr-request "/api/children" "GET" body resp-handle xhr-log)
         "default")
       (str "Send to Server: " body))))
 

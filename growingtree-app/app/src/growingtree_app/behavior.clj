@@ -66,7 +66,7 @@
   (:type message))  ; value stored inside :category key
 
 
-; all things transformers, store list of all things data structure into map.
+; called by xhr respond handler, store list of all things data structure into map.
 ; we store cljs.core.Vector data structure into path node. when clj get the ds out,
 ; no more parse needed. We only need one parse at response-handler.
 (defn all-things-transformer
@@ -103,13 +103,13 @@
 ; input specifier defines what inputs var is, i.e., what upstream inputs are
 (defn clear-all-things
   "remove stale list of things by type upon user click new thing type"
-  [oldv inputs]  ; inputs is single value of nav type.
+  [oldv inputs]  ; inputs is single value of upstream nav type.
   (let [type inputs]
     (.log js/console "clear all things inputs type " inputs oldv)
     (if oldv
       ; ret the new map to be stored in [:all] path node, which is oldv
       ;(.log js/console "clear things " (:all oldv)))))
-      (assoc oldv type {}))))   ; [:new-model :all type]))))
+      (assoc-in oldv [type] {}))))
 
 
 ;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
@@ -180,51 +180,30 @@
 
 
 
-; emit to create node upon all things
-(defn all-courses-emitter
+
+; generic emitter to all things, (case type ) to switch cases.
+(defn all-things-emitter
   "emit upon all thing list created"
   [inputs]
-  (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
-        oldthing (get-in inputs [:old-model :all :courses])  ; thing type should not be plural
-        newthing (get-in inputs [:new-model :all :courses])
-        topthing (:course/title (first newthing))
-        oldthing (:course/title (first oldthing))]
-    (.log js/console (str "all course emitter " topthing newthing))
-    (vec (concat 
-      ;((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
-      (mapcat 
-        (fn [[path] nval]  ; path is [:all :courses]
-          (if oldthing
-            [[:node-destroy (conj path oldthing)]
-             ;[:node-create (conj path topthing) :map]
-             [:value [:all :courses] newthing]]
-            [;[:node-create (conj path topthing) :map]
-             [:value [:all :courses] newthing]]))
-        deltamap)
-      ))))
-
-
-(defn all-parents-emitter
-  "emit upon all thing list created"
-  [inputs]
-  (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
-        oldthing (get-in inputs [:old-model :all :parents])  ; thing type should not be plural
-        newthing (get-in inputs [:new-model :all :parents])
-        topthing (:parent/fname (first newthing))
-        oldthing (:parent/fname (first oldthing))]
-    (.log js/console (str "all parent emitter " topthing newthing))
+  ; merge added and updated maps
+  (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))]
     ; if we emit value delta, we do not need to emit node-create.
     (vec (concat 
       ;((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
       (mapcat 
         (fn [[path] nval]  ; path is [:all :parents]
-          (if oldthing
-            [[:node-destroy (conj path oldthing)]
-             ;[:node-create (conj path topthing) :map]
-             [:value [:all :parents] newthing]]
-            [;[:node-create (conj path topthing) :map]
-             [:value [:all :parents] newthing]]))
-        deltamap)
+          (let [type (last path)
+                oldpath (concat [:old-model] path)
+                newpath (concat [:new-model] path)
+                oldthing (get-in inputs oldpath)
+                newthing (get-in inputs newpath)]
+            (.log js/console (str "all things emitter " type newthing))
+            (if oldthing
+              [;[:node-destroy (conj path oldthing)]
+               [:value path newthing]]
+              [
+               [:value path newthing]])))
+          deltamap)
       ))))
 
 
@@ -324,9 +303,7 @@
 
                 ; set-all to store all list of things in its map
                 [:set-all-things [:all] all-things-transformer]
-                
-                ; request response and SSE will be put into :received :inbound
-                [:received [:inbound] receive-inbound]
+
                ]
 
     :derive #{
@@ -335,8 +312,8 @@
             ;; the oldv to derive fn varies based on input specifier. 
             ;; can be old val or tracking map
 
-             ; upon user click new thing type, clear old lists
-             [#{[:nav :type]} [:all] clear-all-things :single-val]
+             ; upon user click new thing type, clear old thing list
+             [#{[:nav :type]} [:all] clear-all-things :single-val]  ; inputs type as single-val
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn, and xhr to back-end.
@@ -350,8 +327,7 @@
            {:init init-all-things-emitter}
 
            ; all things emitter
-           {:in #{[:all :courses]} :fn all-courses-emitter :mode :always}
-           {:in #{[:all :parents]} :fn all-parents-emitter :mode :always}
+           {:in #{[:all :*]} :fn all-things-emitter :mode :always}
 
            {:in #{[:sse-data]} :fn sse-data-emitter :mode :always}
 

@@ -22,6 +22,7 @@
 ;     "list-parent" (dda/list-parent)
 ;     "add-family" (dda/add-family)
 ;     "insert-child" (dda/insert-child (read-string (last args)))
+;     "find-children" (dda/find-children)
 ;     "find-parent" (dda/find-parent (second args) (last args))
 ;     "find-by-name" (dda/find-by-name (second args))
 ;     "timeline" (dda/timeline (read-string (second args)) (last args))
@@ -42,6 +43,14 @@
 ;     (doall (map prn help-info))))
 
 
+;; datomic EntityMap 
+; query result is datomic entity, we touch the entity to get all entity entries.
+; server route interceptor converts datomic entity to json string to sent to client.
+; when json-response coerce datomic entity to json string, it recursively resolve each
+; attribute. this will cause infinit loop when entity has bi-directional reference attributes.
+; to avoid that, we need to only project none circular ref entity attributes.
+
+
 ;
 ; after create db with uri, create schema first.
 (defn init-db
@@ -49,9 +58,10 @@
   (dda/create-schema))
 
 
-; convert datomic entityMap to simple map to serialize to json
-(defn entity->map [convert-data entity]
+; project non-circular ref attrs of datomic entityMap to simple map to avoid infinit loop in json stringify
+(defn entity->map 
   "given a list of attributes in convert-data, find their values from entity and put as map attr"
+  [entity-keys entity]
   (reduce (fn [m attr]
             (if (keyword? attr)
               (if-let [v (attr entity)]
@@ -62,16 +72,7 @@
                   (assoc m attr (conv-fn v))
                   m))))
           {}
-          convert-data))
-
-; usage
-; (def book-convert-data
-;   [:book/title
-;    :book/created_at
-;    [:book/created_by :author/id]
-;    [:book/comments (fn [comments] (map :comment/text comments))]])
-;
-; (entity->map book-convert-data a-book-entity)
+          entity-keys))
 
 
 (defn add-family
@@ -106,8 +107,18 @@
     (prn "all courses " courses)
     (prn "encoded data " data)
     data))
-    
-    
+
+
+; get all children
+(defn get-all-children
+  "no filter, ret all children that has parents"
+  []
+  (let [children (dda/find-children)
+        childrenkeys [:child/fname :child/lname :child/age ]
+        data (map (partial entity->map childrenkeys) children)
+        ]
+    (prn "get all children map " data)
+    data))
 
 
 (defn get-things
@@ -117,6 +128,7 @@
   (case type
     :parents (get-all-parents)
     :courses (get-all-courses)
+    :children (get-all-children)
     "default"))
 
 

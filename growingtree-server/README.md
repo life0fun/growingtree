@@ -125,6 +125,11 @@ Datomic database is persistent under /Volumes/Build/datomic/data/db/, You can us
     user=> (d/create-database uri)
 
 
+
+## Datomic EntityMap
+
+Datomic query result is datomic entity, we touch the entity to get all entity entries. Server route interceptor converts datomic entity to json string to sent to client. When json-response coerces datomic entity to json string, it recursively resolve each attribute. This will cause infinit loop when the attribute is a circular reference. We need to filter out bi-directional reference attributes and only project none circular ref entity attributes when giving data back to json-response interceptor.
+
 ## Usage
 
 Because Peer lib will try to establish connection to database upon start, we need to create database before hand using repl.

@@ -166,7 +166,7 @@
 
 
 (defn get-entity
-  "ret an entity attrs map from eid"
+  "ret an datomic EntityMap from eid"
   [eid]
   (d/touch (d/entity db eid)))
 
@@ -221,6 +221,15 @@
                       [:db/add pid :parent/child (:db/id newch)]])
     (prn pid pe ch newch)))
 
+
+; list all children, to find one entity with id, use (get-entity id)
+(defn find-children
+  "find all children who has parents"
+  []
+  (let [c (d/q '[:find ?c :where [?c :child/parent]] db)
+        entities (map (comp get-entity first) c)]
+    (map (comp show-entity-by-id first) c)
+    entities))
 
 ; [:db/add entity-id attribute value]
 (defn link-parent-child
