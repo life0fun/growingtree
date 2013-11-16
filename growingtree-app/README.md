@@ -118,7 +118,7 @@ Each transform-enable handler got 3 args, first is render, the second destructur
 
 
 
-Derive dataflow does not handle message directly. A derive dataflow is made up of 3 components, a set of upstream input path nodes, the output path node where updated value goes into, and the actual derive function. The derive function receives 2 args, the first item is the old value in the output path ndoe, the second item is a tracking map. Note that tracking map is passed only when input specifier is default.
+Derive dataflow does not handle message directly. A derive dataflow is made up of 3 components, a set of upstream input path nodes, the output path node where updated value goes into, and the actual derive function. The derive function receives 2 args, the first item is the old value in the output path node, the second item is a tracking map. Note that tracking map is passed only when input specifier is default.
 
 A tracking map is a special pedestal map that keeps track of changes in the data model. use (get-in tracking-map [:path :nested-key]) to get the value. A tracking map is made up of the following keys: :removed, :added, :updated, :input-paths, :old-model, :new-model, and :message. 
 

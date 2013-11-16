@@ -21,12 +21,38 @@
 ; response-handler. We store cljs ds into data model path node. 
 ; data model can directly use the data structure. We only need one time parse at response-handler.
 ;
+; From tracking map, you can always access data model using 
+;   (get-in input [:new-model :path])
+;   (get-in input [:old-model :path])
+;
+(comment
+  (defn example-transform [old-state message]
+    (returns new state))
 
+  (defn example-derive [old-state inputs]
+    (returns new state))
 
-;; - - - - - - - - - - - - 
+  (defn example-emit [inputs]
+    (returns rendering deltas))
+
+  (defn example-effect [inputs]
+    (returns a vector of messages which effect the outside world ))
+
+  (defn example-continue [inputs]
+    (returns a vector of msg that will be processed as part of this dataflow transaction))
+
+  ;; dataflow description reference
+  {:transform [[:op [:path] example-transform]]
+   :derive    #{[#{[:in]} [:path] example-derive]}
+   :effect    #{[#{[:in]} example-effect]}
+   :continue  #{[#{[:in]} example-continue]}
+   :emit      [[#{[:in]} example-emit]]}
+  )
+
+;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
 ;; transforms
 ;; transform-fn gets 2 args, old-value and message, ret value used to set new value.
-;; - - - - - - - - - - - - 
+;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
 
 ; extract the user clicked nav category from msg, and store it in [:nav :category] node
 (defn set-nav-type
@@ -38,7 +64,6 @@
 (defn set-thing-type
   [_ message]
   (:type message))  ; value stored inside :category key
-
 
 
 ; all things transformers, store list of all things data structure into map.
@@ -53,11 +78,11 @@
     (assoc-in oldv [type] things-vec)))  ; now vector is stored in [:all :type]
 
 
-;; - - - - - - - - - - - - 
+;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
 ;; derive dataflow, derive fn got 2 args, old value, and tracking map
 ;; [inputs output-path derive-fn input-spec] ;; input-spec is optional
-;; derive-fn gets 2 args, the old state of the output state, and inputs tracking map, or map, single-val
-;; - - - - - - - - - - - - 
+;; derive-fn gets the old state of the *output* state, and the tracking map, map, single-val
+;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
 
 
 ; derived fn to compute filtered things, illustration for now.
@@ -74,11 +99,35 @@
                        courses)))))
 
 
-;; - - - - - - - - - - - - 
+; clear all things by type upon nav type change, as we will restful request from service.
+; input specifier defines what inputs var is, i.e., what upstream inputs are
+(defn clear-all-things
+  "remove stale list of things by type upon user click new thing type"
+  [oldv inputs]  ; inputs is single value of nav type.
+  (let [type inputs]
+    (.log js/console "clear all things inputs type " inputs oldv)
+    (if oldv
+      ; ret the new map to be stored in [:all] path node, which is oldv
+      ;(.log js/console "clear things " (:all oldv)))))
+      (assoc oldv type {}))))   ; [:new-model :all type]))))
+
+
+;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
+;; continue flow allow you send a vector of msg within the same dataflow transaction
+;; so you can send transform msg to update model within the closure of upstream changes.
+;;  :continue  #{[#{[:in]} example-continue]}
+;;  (defn example-continue [inputs]
+;;    (returns a vector of msg that will be processed as part of this dataflow transaction))
+;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
+
+
+
+
+;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
 ;; effect flow, effec-fn gets arg by input specifier and ret a vector of msg,
 ;; msgs got enq to (:output app) where service-fn consumes them.
 ;; effect-fn gets single arg, the tracking map, or maps, or single-val.
-;; - - - - - - - - - - - - 
+;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
 
 ;
 ; should use multimethod for dispatching.
@@ -280,12 +329,14 @@
                 [:received [:inbound] receive-inbound]
                ]
 
-    :derive #{  ;; derive fn triggered by data change, not by inject data into node!!
+    :derive #{
+            ;; derive fn triggered by data change, not by inject data into node!!
+            ;; input specifier :single-val :map :default(tracking map)
+            ;; the oldv to derive fn varies based on input specifier. 
+            ;; can be old val or tracking map
 
-             ; UI events triggers update of category path node
-             ;[#{[:nav :type]} [:type] set-thing-type :single-val]
-
-             ; sse data put into sse, and trigger update. 
+             ; upon user click new thing type, clear old lists
+             [#{[:nav :type]} [:all] clear-all-things :single-val]
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn, and xhr to back-end.
@@ -311,56 +362,3 @@
              } (app/default-emitter [])]
           ]
     })
-
-
-;; Once this behavior works, run the Data UI and record
-;; rendering data which can be used while working on a custom
-;; renderer. Rendering involves making a template:
-;;
-;; app/templates/growingtree-app.html
-;;
-;; slicing the template into pieces you can use:
-;;
-;; app/src/growingtree_app/html_templates.cljs
-;;
-;; and then writing the rendering code:
-;;
-;; app/src/growingtree_app/rendering.cljs
-
-(comment
-  ;; The examples below show the signature of each type of function
-  ;; that is used to build a behavior dataflow.
-
-  ;; transform
-  (defn example-transform [old-state message]
-    ;; returns new state
-    )
-
-  ;; derive
-  (defn example-derive [old-state inputs]
-    ;; returns new state
-    )
-
-  ;; emit
-  (defn example-emit [inputs]
-    ;; returns rendering deltas
-    )
-
-  ;; effect
-  (defn example-effect [inputs]
-    ;; returns a vector of messages which effect the outside world
-    )
-
-  ;; continue
-  (defn example-continue [inputs]
-    ;; returns a vector of messages which will be processed as part of
-    ;; the same dataflow transaction
-    )
-
-  ;; dataflow description reference
-  {:transform [[:op [:path] example-transform]]
-   :derive    #{[#{[:in]} [:path] example-derive]}
-   :effect    #{[#{[:in]} example-effect]}
-   :continue  #{[#{[:in]} example-continue]}
-   :emit      [[#{[:in]} example-emit]]}
-  )
