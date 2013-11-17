@@ -71,7 +71,7 @@
   [type input-queue]
   (fn [response]
     (when-let [body (:body response)] ; only when we have valid body
-      (.log js/console (str "response :body " body))
+      (.log js/console (str "xhr response body " body))
       (let [bodyjson (JSON/parse body)  ; parse json to js object.
             ; parse to cljs.core.Vector data structre. We only need one parse to data structure here.
             things-vec (js->clj bodyjson :keywordize-keys true)
@@ -101,8 +101,11 @@
         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
         :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)  ; log as callback
         :parents (xhr-request "/api/parents" "GET" body resp-handle xhr-log) 
-        :courses (xhr-request "/api/courses" "GET" body resp-handle xhr-log) 
         :children (xhr-request "/api/children" "GET" body resp-handle xhr-log)
+        :courses (xhr-request "/api/courses" "GET" body resp-handle xhr-log) 
+        :lectures (xhr-request "/api/lectures" "GET" body resp-handle xhr-log)
+        :homeworks (xhr-request "/api/homeworks" "GET" body resp-handle xhr-log)
+        :assignments (xhr-request "/api/assignments" "GET" body resp-handle xhr-log) 
         "default")
       (str "Send to Server: " body))))
 

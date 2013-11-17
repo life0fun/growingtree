@@ -179,8 +179,6 @@
                        (msg/param :type) {}}]]])
 
 
-
-
 ; generic emitter to all things, (case type ) to switch cases.
 (defn all-things-emitter
   "emit upon all thing list created"

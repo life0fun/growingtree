@@ -52,7 +52,13 @@
 ; (dschema/build-parts) and (dschema/build-schema) turns all your defparts and defschemas 
 ; into a nice long list of datomic schema transactions. 
 ; To build specific schema, use (dschema/generate-schema group1 group2) 
-; 
+;
+
+;
+; as a restful service, everything should be json string. 
+; do not use URI. you can always URI.parse string to URI.
+;
+
 ; app partition
 (defpart app)
 

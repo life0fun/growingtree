@@ -18,11 +18,15 @@
 
 ;
 ; http://blog.datomic.com/2013/05/a-whirlwind-tour-of-datomic-query_16.html
-; query API results as a list of facts as list of tuples. [ [tuple1...] [tuple2...]]
+; query API results as a list of fact tuples. Fact tuple is a list of entity Ids.
+;   [ [tuple1...] [tuple2...] ]
+;
 ; the intermediate value for joining are :db/id, can be in both [entity attr val] pos
 ; to join, the attribute col in tuple is the join col, and val.
-; find ?e ret entity id, need to use (d/entity db ) to convert to lazy entity.
-;  (d/entity db (ffirst (d/q '[:find ?e :where [?e :parent/fname]] db))) ;find parents that have fname
+;
+; find ?e ret entity id, (d/touch(d/entity db) to convert to lazy entity.
+;   (d/touch (d/entity db (ffirst (d/q '[:find ?e :where [?e :parent/fname]] db)))
+;
 ;
 ; query stmt is a list, or a map, with :find :in :where seps query args.
 ;   [?a …]  collection   [ [?a ?b ] ]  relation
@@ -91,8 +95,6 @@
 ;
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
 
-;
-;
 
 ;; store database uri
 (defonce uri "datomic:free://localhost:4334/colorcloud")
@@ -383,6 +385,7 @@
   "find course by subject, ret a list of course entity"
   []
   (let [subject :course.subject/coding
+        ; get a vec of [[course-id lecture-id] [] ...]
         eids (d/q '[:find ?c ?l           ; ret both course id and lecture id
                     :in $ ?sub 
                     :where [?c :course/lectures ?l]    ; all courses that have lectures
@@ -395,14 +398,18 @@
     ; (prn "lids" lids)
     (show-entity-by-id (first cids))
     (show-entity-by-id (first lids))
-    (map (comp get-entity first) eids)))  ; [ [cid lid] [cid lid]], ret course entity map
+    ; [ [cid lid] [cid lid]], ret course entity map
+    (map (comp get-entity first) eids)))  
 
 
 (defn find-lecture
-  "find all lectures"
+  "find all lectures, ret a vector of lecture entities"
   []
-  (let [lid (d/q '[:find ?l :where [?l :lecture/course]] db)]
-    (map show-entity-by-id (first lid))))
+  (let [lids (d/q '[:find ?l :where [?l :lecture/course]] db)
+        entities (map (comp get-entity first) lids)]  ; eid is the first of result tuple
+    (map (comp show-entity-by-id first) lids)
+    entities))
+
 
 ; linking a lecture to a course, ref attr's val is numeric id value.
 (defn add-course-lecture
@@ -414,6 +421,7 @@
     (show-entity-by-id cid)
     (show-entity-by-id lid)))
 
+
 ; retract the lecture from a course
 (defn rm-course-lecture
   "remove a lecture from a course by setting ref attr with id numeric value"
@@ -423,6 +431,7 @@
     (d/transact conn [ccode])
     (show-entity-by-id cid)
     (show-entity-by-id lid)))
+
 
 ; create homework to be assigned
 (defn create-homework
@@ -434,6 +443,7 @@
     (case subject
       :math (create-homework-math)
       "default")))
+
 
 ; the enum must be fully qualified, :homework.subject/math
 (defn create-homework-math
@@ -455,15 +465,17 @@
   "find homework by subject"
   []
   (let [subject :homework.subject/math
-        hws (d/q '[:find ?e ?content :in $ ?sub 
+        hws (d/q '[:find ?e ?content 
+                   :in $ ?sub 
                    :where [?e :homework/content ?content]
                           [?e :homework/subject ?sub]]
                   db 
                   subject)
-        eids (map first hws)  ; always ret the first homework to assign.
+        eids (map first hws)  ; the first item of tuple is homework id
+        entities (map (comp get-entity first) hws)
         ]
-    (prn hws eids)
-    eids))
+    (prn entities)
+    entities))
 
 
 (defn inc-homework-popularity
@@ -491,13 +503,25 @@
     (prn pid cid hwid nowdt nowd duedt dued)
     (d/transact conn [assg])))
 
-; find assignment
+
+; find all assignment
 (defn find-assignment
-  "find an assignment by time, id, or anything"
+  "find all assignments "
   []
-  (let [assg (d/q '[:find ?e :where [?e :assignment/homework]] db)
-        assgid (ffirst assg)]
-    (show-entity-by-id assgid)))
+  (let [assig (d/q '[:find ?hwcontent ?from ?to ?start ?due 
+                    :where [?e :assignment/homework ?h]
+                           [?h :homework/content ?hwcontent]
+                           [?e :assignment/from ?p]
+                           [?p :parent/fname ?from]
+                           [?e :assignment/to ?c] 
+                           [?c :child/fname ?to] 
+                           [?e :assignment/start ?start]
+                           [?e :assignment/due ?due]
+                    ] db)
+        assignkeys [:assignment/homework :assignment/from :assignment/to :assignment/start :assignment/due]
+        entities (map (partial zipmap assignkeys) assig)]
+    (prn "assignment entities " entities)
+    entities))
 
 
 ; make a comment on any eid

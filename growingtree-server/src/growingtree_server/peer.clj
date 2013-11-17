@@ -81,43 +81,80 @@
 
 
 (defn get-all-parents
-  "no filter, ret a list of all parent names str joined with new line"
+  "no filter, ret a list of all parents entity maps"
   []
   (let [parents (dda/list-parent)
         parentkey [:parent/fname :parent/lname :parent/age :parent/email]
-        data (map (partial entity->map parentkey) parents)
-        names (str/join "\n" (map :parent/fname parents))]
+        ;data (map (partial entity->map parentkey) parents)
+        data (map #(-> % (select-keys parentkey)) parents)]
     (prn "get all parents entity " parents )
     (prn "get all parents data " data)
     data))
-
-
-; need to convert datomic EntityMap to simple map string so we can stream text json.
-(defn get-all-courses
-  "no filter, ret a list of all course titles str joined with new line"
-  []
-  (let [courses (dda/find-course)
-        topcourse (first courses)
-        coursekeys [:course/title :course/overview :course/subject]
-        ;data (entity->map coursekeys topcourse)
-        ; a lazy map list will result in cljs.core.PersistentVector
-        data (map (partial entity->map coursekeys) courses)
-        ]
-    (prn "get courses by subject topcourse" topcourse)
-    (prn "all courses " courses)
-    (prn "encoded data " data)
-    data))
-
 
 ; get all children
 (defn get-all-children
   "no filter, ret all children that has parents"
   []
   (let [children (dda/find-children)
-        childrenkeys [:child/fname :child/lname :child/age ]
-        data (map (partial entity->map childrenkeys) children)
+        childrenkeys [:child/fname :child/lname :child/age]
+        ;data (map (partial entity->map childrenkeys) children)
+        data (map #(-> % (select-keys childrenkeys)) children)
         ]
     (prn "get all children map " data)
+    data))
+
+
+; need to convert datomic EntityMap to simple map string so we can stream text json.
+(defn get-all-courses
+  "no filter, ret a list of all course titles"
+  []
+  (let [courses (dda/find-course)
+        coursekeys [:course/title :course/overview :course/subject]
+        ; a lazy map list will result in cljs.core.PersistentVector
+        ;data (map (partial entity->map coursekeys) courses)
+        data (map #(-> % (select-keys coursekeys)) courses)
+        ]
+    (prn "all courses " data)
+    data))
+
+
+; need to convert datomic EntityMap to simple map string so we can stream text json.
+(defn get-all-lectures
+  "no filter, ret a list of all lecture titles"
+  []
+  (let [lectures (dda/find-lecture)
+        lecturekeys [:lecture/topic :lecture/content]
+        ; a lazy map list will result in cljs.core.PersistentVector
+        ;data (map (partial entity->map lecturekeys) lectures)
+        data (map #(-> % (select-keys lecturekeys)) lectures)
+        ]
+    (prn "all lectures " data)
+    data))
+
+
+(defn get-all-homeworks
+  "no filter, ret a list of all homeworks"
+  []
+  (let [homeworks (dda/find-homework)
+        homeworkkeys [:homework/title :homework/content]
+        ; a lazy map list will result in cljs.core.PersistentVector
+        ;data (map (partial entity->map homeworkkeys) homeworks)
+        data (map #(-> % (select-keys homeworkkeys)) homeworks)
+        ]
+    (prn "all homeworks " data)
+    data))
+
+
+(defn get-all-assignments
+  "no filter, ret a list of all assignments"
+  []
+  (let [assignments (dda/find-assignment)
+        assignmentkeys [:assignment/homework :assignment/lecture]
+        ; a lazy map list will result in cljs.core.PersistentVector
+        ;data (map (partial entity->map assignmentkeys) assignments)
+        data (map #(-> % (select-keys assignmentkeys)) assignments)
+        ]
+    (prn "all assignments " (select-keys (first assignments) [:assignment/homework]) data)
     data))
 
 
@@ -127,8 +164,11 @@
   (prn "get things " type)
   (case type
     :parents (get-all-parents)
-    :courses (get-all-courses)
     :children (get-all-children)
+    :courses (get-all-courses)
+    :lectures (get-all-lectures)
+    :homeworks (get-all-homeworks)
+    :assignments (get-all-assignments)
     "default"))
 
 
