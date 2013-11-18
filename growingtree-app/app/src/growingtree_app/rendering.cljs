@@ -1,5 +1,7 @@
 (ns growingtree-app.rendering
   (:require [domina :as dom]
+            [domina.css :as dc]
+            [domina.events :as de]
             [io.pedestal.app.render.push :as render]
             [io.pedestal.app.render.events :as events]
             [io.pedestal.app.render.push.templates :as templates]
@@ -73,28 +75,6 @@
   ))
 
 
-; gen a dom render id for this newly created node and append it as the child of
-; top level [:course] path node.
-(defn append-list-thing-node 
-  [r [_ path] d]
-  (let [parent (render/get-parent-id r path)
-        id (render/new-id! r path)  ; gen a domRender id for this 
-        html (templates/add-template r path (:toprow-node templates))
-        ]
-    ;(templates/prepend-t r [:course] 
-    ;                     {:toprows (html {:id id :text "learning clojure is fun"})})
-    (dom/append! (dom/by-id "toprow-list") (html {:id id :text "learning clojure from dom"}))
-  ))
-
-
-(defn remove-template
-  "remove the template attached to path node"
-  [r path]
-  (let [divid (dom/by-id (render/get-id r path))
-        topthings (dom/by-id "topthings")]
-    (.log js/console "removing template at " path " #id " divid)
-    (if-not topthings
-      (dom/destroy! topthings))))
 
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; transform enable to hook up ui event to send msg to update data model nodes.
@@ -114,121 +94,38 @@
                                     {:type (keyword k)}))))))
 
 
-; when user click nav sidebar, create new template attach to path node 
-; [:nav :type] and attach to toprow-list dom 
-(defn create-all-things
-  [r [_ path] d]
-  (let [title (str " " (name (last path)))
-        parent (render/get-parent-id r path) ; parent is used for dom/append to parent
-        id (render/new-id! r path)  ; gen id for this path node
-        html (templates/add-template r path (:thing templates)) ; added template to this path node
-        thumbhtml (templates/add-template r path (:thing-thumbnail templates))
-        entryhtml (templates/add-template r path (:thing-entry templates))
-        thing (html {:id id :thumbhref "thumbhref" :entryhref path
-                     :thing-entry-title title})
-       ]
-    
-    (.log js/console "create and render all things " (pr-str path))
-    ; first, destroy existing things
-    (remove-template r path)
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+;; create template for each path node and append to topthings div
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-    ; [:nav] path node's template has been dom appended to root [] home page
-    (templates/append-t    ; append or prepend, the same here. prepend-t
-                r [:nav]   ; put the template into nav node, which has home page 
-                ;{:topthings (html {:id id :href path :thing-entry-title title})})
-                {:topthings thing})
-
-    ; this will cause thumbhtml get appended to the list of templates at [:nav]
-    ; (templates/append-t    ; append or prepend, the same here. prepend-t
-    ;             r [:nav]
-    ;             {:topthings (thumbhtml {:thumbhref "thumbnail"})})
-
-    ; dom append will append to the main
-    ;(dom/append! (dom/by-id "topthings") (html {:id id :text title}))
-  ))
-
-
-; when we change category, destroy the old category
-(defn destroy-all-things
-  [r [_ path] d]  
-  (dom/destroy! (dom/by-id (render/get-id r path))))  ; find id for this path node
-
-
-
-;; show updated value in [:all :* ] upon value change emitter on the node.
-(defn update-all-courses
-  "value change event contains the value in path node, use it to update"
+; clear all things
+(defn clear-all-things
+  "upon nav type change, clear all things divs under topthings div"
   [r [_ path oldv newv] input-queue]
-  (let [id (render/get-id r path)  ; get the div id of this node, or parent-node ?
+  (.log js/console (str "clear all things upon nav type change " path))
+  (dom/destroy-children! (dom/by-id "topthings")))
+
+(defn add-new-thing-node
+  [r [op path] input-queue]
+  (let [thingid (last path)
+        ; make a template attached to this node
         html (templates/add-template r path (:thing templates)) ; added template to this path node
-        thumbhtml (templates/add-template r path (:thing-thumbnail templates))
-        entryhtml (templates/add-template r path (:thing-entry templates))
-
-        titles (map :course/title newv)  ; project all titles 
-        things (map #(html {:id id :thumbhref "thumbhref" :entryhref path 
-                            :thing-entry-title %}) titles)
+        thing (html {:id thingid})  ; render thing with only id
         ]
-    
-    (dom/destroy-children! (dom/by-id "topthings"))
-
-    (.log js/console "update all things path " path " oldv " oldv " newv " newv)
-    ;(.log js/console "update course " ((keyword "course/title") (first newv)) " - " (:course/title (first newv)))
-    (doseq [t things]
-        ; (.log js/console "update all titles " t)    ; this logs html div
-        ;(templates/append-t r [:nav] {:topthings t})
-        (dom/append! (dom/by-id "topthings") t)
-        )))
-
-(defn update-all-parents
-  "value change event contains the value in path node, use it to update"
-  [r [_ path oldv newv] input-queue]
-  (let [id (render/get-id r path)  ; get the div id of this node, or parent-node ?
-        html (templates/add-template r path (:thing templates)) ; added template to this path node
-        thumbhtml (templates/add-template r path (:thing-thumbnail templates))
-        entryhtml (templates/add-template r path (:thing-entry templates))
-
-        fname (map :parent/fname newv)  ; project all titles 
-        things (map #(html {:id id :thumbhref "thumbhref" :entryhref path 
-                            :thing-entry-title %}) fname)
-        ]
-    
-    (.log js/console "update all things path " path " oldv " oldv " newv " newv)
-    ;(.log js/console "update course " ((keyword "course/title") (first newv)) " - " (:course/title (first newv)))
-
-    (dom/destroy-children! (dom/by-id "topthings"))
-
-    (doseq [t things]
-        ; (.log js/console "update all titles " t)    ; this logs html div
-        ;(templates/append-t r [:nav] {:topthings t})
-        (dom/append! (dom/by-id "topthings") t)
-    )))
+    ; append the div to 
+    (.log js/console "adding new thing node " thingid)
+    (dom/append! (dom/by-id "topthings") thing)))
 
 
-(defn update-all-things
-  "value change event contains the value in path node, use it to update"
-  [r [_ path oldv newv] input-queue]
-  (let [id (render/get-id r path)  ; get the div id of this node, or parent-node ?
-        html (templates/add-template r path (:thing templates)) ; added template to this path node
-        thumbhtml (templates/add-template r path (:thing-thumbnail templates))
-        entryhtml (templates/add-template r path (:thing-entry templates))
-
-        ; get entity view map
-        view-vec (entity-view/view-value path newv)
-        titles (:title view-vec)
-        things (map #(html {:id id :thumbhref "thumbhref" :entryhref path 
-                            :thing-entry-title %}) titles)
-        ]
-    
-    (.log js/console "update all things path " path " title " title " newv " newv)
-    ;(.log js/console "update course " ((keyword "course/title") (first newv)) " - " (:course/title (first newv)))
-
-    (dom/destroy-children! (dom/by-id "topthings"))
-
-    (doseq [t things]
-        ; (.log js/console "update all titles " t)    ; this logs html div
-        ;(templates/append-t r [:nav] {:topthings t})
-        (dom/append! (dom/by-id "topthings") t)
-    )))
+(defn update-new-thing-value
+  [r [op path oldv newv] input-queue]
+  (let [id (render/get-id r path)
+        type-path (butlast path)
+        view-vec (entity-view/view-value type-path newv)
+        title (:title view-vec)
+        thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
+    (.log js/console (str "updating new thing value " path type-path id))
+    (templates/update-t r path thing-map)))
 
 
 ; render config dispatch app model delta to render fn.
@@ -237,13 +134,15 @@
 (defn render-config []
   [[:node-create  [:nav] render-home-page]
    [:node-destroy [:nav] auto/default-exit]
-   ;[:node-create  [:course :*] create-course-node]
+   ; upon nav type change, clear all things
+   [:value [:nav :type] clear-all-things]
    
    ; wire sidebar nav click to send this transform to change data model.
    [:transform-enable [:nav :type] all-things-transform]
    
-   ; node value taken from last segment of node path
-   ;[:value [:all :courses] update-all-courses]
-   ;[:value [:all :parents] update-all-parents]
-   [:value [:all :*] update-all-things]
+
+   ; all things type div node creation
+   [:node-create [:all :* :*] add-new-thing-node]
+   [:value [:all :* :*] update-new-thing-value]
+
   ])

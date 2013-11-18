@@ -18,60 +18,67 @@
 
 
 ; ret a view map for parent entity
+
 (defn parent-view-value
   "ret a view map for parent entity"
-  [value-vec]
-  (hash-map :title (map :parent/fname value-vec)
-            :gender (map :parent/gender value-vec)
-            :popularity (map :parent/popularity value-vec)))
+  [value-map]
+  (hash-map :id (:db/id value-map)
+            :title (:parent/fname value-map)
+            :gender (:parent/gender value-map)
+            :popularity (:parent/popularity value-map)))
 
 (defn child-view-value
   "ret a view map for child entity"
-  [value-vec]
-  (hash-map :title (map :child/fname value-vec)
-            :gender (map :child/gender value-vec)
-            :popularity (map :child/popularity value-vec)))
+  [value-map]
+  (hash-map :id (:db/id value-map)
+            :title (:child/fname value-map)
+            :gender (:child/gender value-map)
+            :popularity (:child/popularity value-map)))
 
 (defn course-view-value
   "ret a view map for course entity"
-  [value-vec]
-  (hash-map :title (map :course/title value-vec)
-            :popularity (map :course/popularity value-vec)))
+  [value-map]
+  (hash-map :id (:db/id value-map)
+            :title (:course/title value-map)
+            :popularity (:course/popularity value-map)))
 
 
 (defn lecture-view-value
   "ret a view map for lecture entity"
-  [value-vec]
-  (hash-map :title (map :lecture/topic value-vec)
-            :uri (map :lecture/videouri value-vec)
-            :popularity (map :lecture/popularity value-vec)))
+  [value-map]
+  (hash-map :id (:db/id value-map)
+            :title (:lecture/topic value-map)
+            :uri (:lecture/videouri value-map)
+            :popularity (:lecture/popularity value-map)))
 
 
 (defn homework-view-value
   "ret a view map for lecture entity"
-  [value-vec]
-  (hash-map :title (map :homework/content value-vec)
-            :content (map :homework/content value-vec)
-            :popularity (map :homework/popularity value-vec)))
+  [value-map]
+  (hash-map :id (:db/id value-map)
+            :title (:homework/content value-map)
+            :content (:homework/content value-map)
+            :popularity (:homework/popularity value-map)))
 
 
 (defn assignment-view-value
   "ret a view map for lecture entity"
-  [value-vec]
-  (hash-map :title (map :assignment/homework value-vec)
-            :content (map :assignment/lecture value-vec)
-            :popularity (map :assignment/popularity value-vec)))
+  [value-map]
+  (hash-map :id (:db/id value-map)
+            :title (:assignment/homework value-map)
+            :content (:assignment/lecture value-map)
+            :popularity (:assignment/popularity value-map)))
 
 
 (defn view-value
   "map entity value vectors to view value vector based on thing type"
-  [path value-vec]
+  [path value-map]
   (let [type (last path)]  ; nav type is plural, db schema is singular
     (case type
-      :parents (parent-view-value value-vec)
-      :children (child-view-value value-vec)
-      :courses (course-view-value value-vec)
-      :lectures (lecture-view-value value-vec)
-      :homeworks (homework-view-value value-vec)
-      :assignments (assignment-view-value value-vec)
+      :parents (parent-view-value value-map)
+      :children (child-view-value value-map)
+      :courses (course-view-value value-map)
+      :lectures (lecture-view-value value-map)
+      :homeworks (homework-view-value value-map)
+      :assignments (assignment-view-value value-map)
       "default"))) 

@@ -21,4 +21,5 @@
    :thing-entry (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})
    :toprow (dtfn (tnodes "growingtree-app.html" "toprow") #{:id})
    :sublist-entry (dtfn (tnodes "growingtree-app.html" "sublistentry") #{})
+   :assignment-for (dtfn (tnodes "growingtree-app.html" "assignment-form") #{})
   })

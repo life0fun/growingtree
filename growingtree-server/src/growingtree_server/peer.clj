@@ -75,16 +75,17 @@
           entity-keys))
 
 
+;; -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
 (defn add-family
   []
   (dda/add-family))
-
 
 (defn get-all-parents
   "no filter, ret a list of all parents entity maps"
   []
   (let [parents (dda/list-parent)
-        parentkey [:parent/fname :parent/lname :parent/age :parent/email]
+        parentkey [:db/id :parent/fname :parent/lname :parent/age :parent/email]
         ;data (map (partial entity->map parentkey) parents)
         data (map #(-> % (select-keys parentkey)) parents)]
     (prn "get all parents entity " parents )
@@ -96,7 +97,7 @@
   "no filter, ret all children that has parents"
   []
   (let [children (dda/find-children)
-        childrenkeys [:child/fname :child/lname :child/age]
+        childrenkeys [:db/id :child/fname :child/lname :child/age]
         ;data (map (partial entity->map childrenkeys) children)
         data (map #(-> % (select-keys childrenkeys)) children)
         ]
@@ -109,7 +110,7 @@
   "no filter, ret a list of all course titles"
   []
   (let [courses (dda/find-course)
-        coursekeys [:course/title :course/overview :course/subject]
+        coursekeys [:db/id :course/title :course/overview :course/subject]
         ; a lazy map list will result in cljs.core.PersistentVector
         ;data (map (partial entity->map coursekeys) courses)
         data (map #(-> % (select-keys coursekeys)) courses)
@@ -123,7 +124,7 @@
   "no filter, ret a list of all lecture titles"
   []
   (let [lectures (dda/find-lecture)
-        lecturekeys [:lecture/topic :lecture/content]
+        lecturekeys [:db/id :lecture/topic :lecture/content]
         ; a lazy map list will result in cljs.core.PersistentVector
         ;data (map (partial entity->map lecturekeys) lectures)
         data (map #(-> % (select-keys lecturekeys)) lectures)
@@ -136,7 +137,7 @@
   "no filter, ret a list of all homeworks"
   []
   (let [homeworks (dda/find-homework)
-        homeworkkeys [:homework/title :homework/content]
+        homeworkkeys [:db/id :homework/title :homework/content]
         ; a lazy map list will result in cljs.core.PersistentVector
         ;data (map (partial entity->map homeworkkeys) homeworks)
         data (map #(-> % (select-keys homeworkkeys)) homeworks)
@@ -149,7 +150,7 @@
   "no filter, ret a list of all assignments"
   []
   (let [assignments (dda/find-assignment)
-        assignmentkeys [:assignment/homework :assignment/lecture]
+        assignmentkeys [:db/id :assignment/homework :assignment/lecture]
         ; a lazy map list will result in cljs.core.PersistentVector
         ;data (map (partial entity->map assignmentkeys) assignments)
         data (map #(-> % (select-keys assignmentkeys)) assignments)

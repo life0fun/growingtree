@@ -80,7 +80,8 @@
           <!-- top things, reddit style, div template content from map value -->
           <div class="topthings" field="content:topthings">
           </div>
-          <!-- container for a list of top level nodes -->
+
+          <!-- container for a list of things [:all :course "course1"] -->
           <div id="topthings"> </div>
         </div>  <!-- end of span9 -->
       </div> <!-- end of row fluid -->
@@ -129,29 +130,18 @@
       </div>
     </div>
 
-    <!-- deprecated for test only -->
-    <div class="offset0 row-top" template="toprow" field="id:id">
-      <div class="gutter"></div>
-      <div class="body">
-        <div class="header">
-          <span class="name" field="content:text">anonymous</span>
-          <span class="time" field="content:time">10:23 PM</span>
+    <!-- the action div with assignment form, no field needs to render it -->
+    <div class='action-bar' template="assignment-form">
+      <form class='assignment'>
+        <div class='right'>
+          <i class='assignment-icon'></i>
+          <button class='assign-button' id="assignment-button" type="submit">Assign</button>
         </div>
-        <div class="content" field="content:text">
-          Master cleanse vice bushwick lomo literally Austin.  Pour-over wayfarers brunch portland literally Austin.
-        </div>
-      </div>
-
-      <ul id="offset4 sub-list">
-        <li template="sublistentry" field="id:id">
-          <div class="view">
-            <input class="toggle" type="checkbox">
-            <label field="content:text"></label>
-            <button class="destroy"></button>
-          </div>
-          <input class="edit" value="Datomic Rule the web">
-        </li>
-      </ul>
+        <div class='tooltip'>assign this homework to your kid, with hints</div>
+        <i class='assign-to-icon focused'></i>
+        <input id="assign-to-input" type="text" placeholder='assign to '>
+        <input id="assign-hint-input" type="text" placeholder='hints'>
+      </form>
     </div>
 
     <!--

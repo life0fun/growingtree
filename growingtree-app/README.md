@@ -149,7 +149,7 @@ The push renderer creates an internal DOM structure that is useful for creating 
 
 The idea is that these functions take a path from an application delta and map it to an object in the DOM. When creating render function, we say use render-config and browser DOM root is div id="content".
 
-    `render-fn (push-render/renderer "content" render-config render/log-fn)`
+    render-fn (push-render/renderer "content" render-config render/log-fn)
 
 so when emitter [:node-create [:todo :task] :map], render handler will find parent node, create a new node, set node's html from template, and append new node to parent.
 For :node-create delta, render fn gets 2 args, type, and path.
@@ -253,20 +253,33 @@ We are using Bootstrap 2.2 style our UI.
 
 UIs are defined in templates. Each template has two attributes, template and field. template is the name and field defines how to map clojure map to template variables.
 
-All templates can be sliced out from the file 
-`app/src/growingtree_app/html_templates.clj` by calling
-    
-    (def template-fn (tfn (tnodes "growingtree-app.html" "temp-name")))
+    <div class="topthings" template="thing" field="content:things,href:link"> </div>
 
-template-fn is a function which, when called with a map of values, will return a string of HTML with filled-in values.
+Push template uses template-fn to make template html string. The template-fn for each template is a macro defined inside `app/src/growingtree_app/html_templates.clj`.
+    
+    (def template-fn (dtfn (tnodes "growingtree-app.html" "thing")))
+    
+    :thing (dtfn (tnodes "growingtree-app.html" "thing") #{:id})
+
+You slice out certain template with its template-fn from app htmp-templates macro.
+
+    html (templates/add-template r path (:thing templates)) ; added template path node
+
+After getting template-fn for the template, you can gen the html code for the template by invoking it with field value map. The value map contains the attribute key value for the dom element. 
 
     (template-fn {:id 42 :message "Hello"})
+
+    (html {:id id :thumbhref "thumbhref" :entryhref path :thing-entry-title %})
 
 The field attribute takes a comma delimited list of
 
     html-element-attribute-name:map-key
 
-content is a special case which means that the content (innerHTML) of the element will be set to this value.
+To set the value of dom element content, not element attributes, use filed="content:innerhtml". it means that the content (innerHTML) of the element will be set to the value of the innterhtml key of the passing map.
+
+    (templates/append-t 
+              r [:nav]     ; put the template into nav node
+              {:topthings (html {:id id :href path :thing-entry-title title})})
 
 
 To verify template working, need to restart to reload app.
