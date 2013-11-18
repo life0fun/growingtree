@@ -80,6 +80,18 @@
     (assoc-in oldv [type] things-vec)))  ; now vector is stored in [:all :type]
 
 
+; UI fill in assignment details msg, store the assignment details
+(defn assignment-transformer
+  "store UI assignment details, message :details contains assignment info"
+  [oldv message]
+  (let [details (:details message)
+        hwid (:hwid details)
+        toid (:toid details)
+        hint (:hint details)]
+    (.log js/console "assignment details " details)
+    details))
+
+
 ;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
 ;; derive dataflow, derive fn got 2 args, old value, and tracking map
 ;; [inputs output-path derive-fn input-spec] ;; input-spec is optional
@@ -95,9 +107,9 @@
     (if (= filter-type :any)
       courses
       (into {} (filter (fn [[course-id course]]
-                         (or
-                          (and (= filter-type :completed) (:completed course))
-                          (and (= filter-type :active) (not (:completed course)))))
+                          (or
+                            (and (= filter-type :completed) (:completed course))
+                            (and (= filter-type :active) (not (:completed course)))))
                        courses)))))
 
 
@@ -164,7 +176,9 @@
        :filtered  ; a list of filtered things of current viewing
         {:transforms   ; the node path is from top to here [:course :form :set-course]
           {:set-things-filtered [{msg/topic [:filtered] 
-                                 (msg/param :filtered) {}}]}}}}])
+                                 (msg/param :filtered) {}}]}}}
+    :assignment
+      {}}])
 
 
 ; user can interact with sidebar, so setup interaction on sidebar
@@ -220,8 +234,18 @@
         (.log js/console (str "new delta path " newpath " id " id))
         ; ret a vec of delta tuples, 
         [ [:node-create newpath :map]
-          [:value newpath entity-map]]))
+          [:value newpath entity-map]
+          ; ask UI to send back assignment details
+          [:transform-enable newpath
+                      :assign
+                      [{msg/topic (vec (concat [:assign] (rest newpath)))
+                       (msg/param :details) {}}]] ]))
     value-vec))
+
+(defn- removed-deltas
+  "the removed path node from removed-inputs, arg is node path"
+  [input-path]
+  (.log js/console (str "removed path " input-path)))
 
 
 ; generic emitter to all things, (case type ) to switch cases.
@@ -231,8 +255,10 @@
 (defn all-things-node-emitter
   "emit node-create and value delta for list of things from xhr response"
   [inputs]
-  (let [changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))]
+  (let [changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
+        removed (d/removed-inputs inputs)]
     ; each change tuple consists of node-path and a vector of values
+    (.log js/console (str "removed path " removed))
     (reduce (fn [alldeltas [input-path newvals]] ;input-path, [:all :course] is a vec
               ; concat is vec de-pack and re-pack
               (concat alldeltas (new-deltas input-path newvals)))
@@ -334,6 +360,9 @@
 
                 ; set-all to store all type things list into all type map
                 [:set-all-things [:all] all-things-transformer]
+
+                ; assignment details to make assignment transform
+                [:assign [:assign :homework :*] assignment-transformer]
 
                ]
 

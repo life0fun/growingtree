@@ -83,16 +83,32 @@
 ; sidebar click transform [:nav :type] value, trigger request to get list of things.
 (def all-things-transform
   "wire sidebar click event to all things transform fn"
-  (fn [r [_ p k message] input-queue]
+  (fn [r [_ p transform-name message] input-queue]
     (let [sidebars ["parents" "children" "courses" "lectures" "homeworks"
                     "assignments" "topquestions" "topanswers" "ask" "answer"
                     "contributions" "knowledges" "activities" "locations"]]
-      (doseq [k sidebars]
-        (events/send-on :click (dom/by-id (str "sidenav-" k)) input-queue
-                        (msgs/fill :set-nav-type 
-                                    message 
-                                    {:type (keyword k)}))))))
+      (doseq [type sidebars]
+        (events/send-on :click (dom/by-id (str "sidenav-" type)) input-queue
+                        (msgs/fill :set-nav-type
+                                    message
+                                    {:type (keyword type)}))))))
 
+
+; user clicked submit button of assignment form
+(def on-assignment-transform
+  "wire submit button click on assignment form to fill assign message"
+  (fn [r [_ path transform-name message] input-queue]
+    (let [form (dom/by-class "assignment-form")
+          hwid (last path)  ; last of path is hwid
+          tonode (dom/by-id "assign-to")
+          toid (.-value tonode)
+          hintnode (dom/by-id "assign-hint")
+          hint (.-value hintnode)
+          details {:hwid hwid :toid toid :hint hint}]
+      (events/send-on :submit form input-queue
+                      (msg/fill :assign
+                                message
+                                {:details details})))))
 
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; create template for each path node and append to topthings div
@@ -105,6 +121,20 @@
   (.log js/console (str "clear all things upon nav type change " path))
   (dom/destroy-children! (dom/by-id "topthings")))
 
+(defn- enable-assignment
+  [thingid]
+  (let [
+        ;html (templates/add-template r [:assignment thingid] 
+         ;                            (:assignment-form templates))
+       ]
+  
+    ; append to parent div
+    ;(dom/append! (dom/by-id thingid) (html))
+    (dom/listen! (dom/by-class "active") :click 
+                 (fn [_]
+                    (.log js/console "share or assignment button clicked")))
+  ))
+
 (defn add-new-thing-node
   [r [op path] input-queue]
   (let [thingid (last path)
@@ -115,7 +145,7 @@
     ; append the div to 
     (.log js/console "adding new thing node " thingid)
     (dom/append! (dom/by-id "topthings") thing)))
-
+    
 
 (defn update-new-thing-value
   [r [op path oldv newv] input-queue]
@@ -125,7 +155,9 @@
         title (:title view-vec)
         thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
     (.log js/console (str "updating new thing value " path type-path id))
-    (templates/update-t r path thing-map)))
+    (templates/update-t r path thing-map)
+    ;(enable-assignment (last path))
+    ))
 
 
 ; render config dispatch app model delta to render fn.
@@ -143,6 +175,10 @@
 
    ; all things type div node creation
    [:node-create [:all :* :*] add-new-thing-node]
+   [:node-destroy [:all :* :*] auto/default-exit]
    [:value [:all :* :*] update-new-thing-value]
+
+   ; assignment details, only for homeworks type so far
+   [:transform-enable [:all :homeworks :*] on-assignment-transform]
 
   ])
