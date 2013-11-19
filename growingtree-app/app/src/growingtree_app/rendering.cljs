@@ -97,7 +97,8 @@
 ; user clicked submit button of assignment form
 (def on-assignment-transform
   "wire submit button click on assignment form to fill assign message"
-  (fn [r [_ path transform-name message] input-queue]
+  (fn [r [_ path transname message] input-queue]
+    (.log js/console (str "on assignment transform " path transname message))
     (let [form (dom/by-class "assignment-form")
           hwid (last path)  ; last of path is hwid
           tonode (dom/by-id "assign-to")
@@ -122,17 +123,19 @@
   (dom/destroy-children! (dom/by-id "topthings")))
 
 (defn- enable-assignment
-  [thingid]
+  [r path thingid]
   (let [
-        ;html (templates/add-template r [:assignment thingid] 
-         ;                            (:assignment-form templates))
+        html (templates/add-template r path 
+                                     (:assignment-form templates))
+        divcode (html)
        ]
-  
+    (.log js/console (str "enable assignment " thingid divcode))
     ; append to parent div
-    ;(dom/append! (dom/by-id thingid) (html))
-    (dom/listen! (dom/by-class "active") :click 
-                 (fn [_]
-                    (.log js/console "share or assignment button clicked")))
+    (dom/append! (dom/by-id thingid) divcode)
+    
+    ; (dom/listen! (dom/by-class "active") :click 
+    ;              (fn [_]
+    ;                 (.log js/console "share or assignment button clicked")))
   ))
 
 (defn add-new-thing-node
@@ -156,7 +159,7 @@
         thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
     (.log js/console (str "updating new thing value " path type-path id))
     (templates/update-t r path thing-map)
-    ;(enable-assignment (last path))
+    (enable-assignment r path (last path))
     ))
 
 
@@ -180,6 +183,6 @@
    [:value [:all :* :*] update-new-thing-value]
 
    ; assignment details, only for homeworks type so far
-   [:transform-enable [:all :homeworks :*] on-assignment-transform]
+   [:transform-enable [:all :* :*] on-assignment-transform]
 
   ])

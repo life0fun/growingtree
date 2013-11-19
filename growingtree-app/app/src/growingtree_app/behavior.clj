@@ -240,8 +240,8 @@
           [:value newpath entity-map]
           ; ask UI to send back assignment details
           [:transform-enable newpath
-                      :assign
-                      [{msg/topic (vec (concat [:assign] (rest newpath)))
+                      :assign  ;  tranform-name
+                      [{msg/topic (vec (concat [:assign] (rest newpath))) ; [:all :type id]
                        (msg/param :details) {}}]] ]))
     value-vec))
 
@@ -321,18 +321,6 @@
         deltamap)
       ))))
 
-;; Data Model
-;;
-;; which one? 
-;;   [:parent :all] [:parent :filtered]  
-;; Each type knows all, easy to add new type, However, boilerplate, we only have limited types.
-;;
-;;   [:all :parent] [:filtered :parent]  
-;; Each fn knows all types. Easy to add new fn. [:fn-X :parent]. Hard to add new type.
-;; 
-;; As we only have limited know types. We choose functional way for easy add function.
-;;
-
 
 ;; all mutable type are clj maps. use (gensym prefix-string) to generate unique id as 
 ;; map key to nest a list of maps into outer big map !
@@ -351,7 +339,6 @@
 
    
 ;; App Model Paths: represent div in template. linking UI action handle to 
-
 
 ; client app dataflow is a record that impls Receiver protocol.
 (def growingtree-app
@@ -403,4 +390,4 @@
               [:pedestal :debug :dataflow-time-avg]
              } (app/default-emitter [])]
           ]
-    })
+  })
