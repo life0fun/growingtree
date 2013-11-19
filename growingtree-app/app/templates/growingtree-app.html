@@ -119,7 +119,7 @@
               <a class="option active" href="#">share</a>
             </span>
           </li>
-          <li class="share">
+          <li class="share" field="id:aid">
             <span class="share-button toggle" style>
               <a class="option active" href="#">assign to</a>
             </span>
@@ -133,14 +133,14 @@
     <!-- the action div with assignment form, no field needs to render it -->
     <div class='action-bar' template="assignment-form">
       <form class='assignment'>
+        <div class='tooltip'>assign this homework to your kid, with hints</div>
+        <i class='assign-to-icon focused'></i>
+        <input id="assign-to" type="text" placeholder='assign to'>
+        <input id="assign-hint" type="text" placeholder='hints'>
         <div class='right'>
           <i class='assignment-icon'></i>
           <button class='assign-button' id="assignment-button" type="submit">Assign</button>
         </div>
-        <div class='tooltip'>assign this homework to your kid, with hints</div>
-        <i class='assign-to-icon focused'></i>
-        <input id="assign-to-input" type="text" placeholder='assign to '>
-        <input id="assign-hint-input" type="text" placeholder='hints'>
       </form>
     </div>
 

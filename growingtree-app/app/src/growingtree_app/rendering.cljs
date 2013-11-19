@@ -122,28 +122,31 @@
   (.log js/console (str "clear all things upon nav type change " path))
   (dom/destroy-children! (dom/by-id "topthings")))
 
-(defn- enable-assignment
+
+; note that listen is on dom.event namespace.
+(defn- assign-to-listener
+  "add click listener to assign to link"
   [r path thingid]
-  (let [
-        html (templates/add-template r path 
+  (let [html (templates/add-template r path  ; append div to current path node
                                      (:assignment-form templates))
-        divcode (html)
-       ]
-    (.log js/console (str "enable assignment " thingid divcode))
+        divcode (html)]
+    (.log js/console (str "assign to listener " path thingid))
     ; append to parent div
-    (dom/append! (dom/by-id thingid) divcode)
+    ;(dom/append! (dom/by-id (str thingid)) divcode)
     
-    ; (dom/listen! (dom/by-class "active") :click 
-    ;              (fn [_]
-    ;                 (.log js/console "share or assignment button clicked")))
+    (de/listen! (dom/by-class "share") :click 
+                 (fn [evt]
+                    (.log js/console (str "assign button clicked " thingid (:target evt)))
+                    (dom/append! (dom/by-id (str thingid)) divcode)))
   ))
+
 
 (defn add-new-thing-node
   [r [op path] input-queue]
   (let [thingid (last path)
         ; make a template attached to this node
         html (templates/add-template r path (:thing templates)) ; added template to this path node
-        thing (html {:id thingid})  ; render thing with only id
+        thing (html {:id thingid :aid (str "assign-" thingid)})  ; render thing with only id
         ]
     ; append the div to 
     (.log js/console "adding new thing node " thingid)
@@ -159,7 +162,7 @@
         thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
     (.log js/console (str "updating new thing value " path type-path id))
     (templates/update-t r path thing-map)
-    (enable-assignment r path (last path))
+    (assign-to-listener r path (last path))
     ))
 
 
@@ -183,6 +186,6 @@
    [:value [:all :* :*] update-new-thing-value]
 
    ; assignment details, only for homeworks type so far
-   [:transform-enable [:all :* :*] on-assignment-transform]
+   ;[:transform-enable [:all :* :*] on-assignment-transform]
 
   ])
