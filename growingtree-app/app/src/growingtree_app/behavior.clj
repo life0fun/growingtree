@@ -118,11 +118,12 @@
 (defn refresh-all-things
   "remove stale list of things by type upon user click new thing type"
   [oldv inputs]  ; inputs is single value of upstream nav type.
-  (let [type inputs]
-    (.log js/console "all things refresh upon change " inputs)
+  (let [oldtype (get-in inputs [:old-model :nav :type])
+        newtype (get-in inputs [:new-model :nav :type])]
+    (.log js/console (str "all things refresh from " oldtype " to " newtype " val " oldv))
     (if oldv
       ; ret the new map to be stored in [:all] path node, which is oldv
-      (assoc-in oldv [type] {}))))
+      (assoc-in oldv [oldtype] []))))
 
 
 ;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
@@ -194,32 +195,34 @@
                        (msg/param :type) {}}]]])
 
 
-; Deprecated value generic emitter to all things.
-; this version pass entire value vector as value of [:all :course] template to render
-; and render iterates each entity in the vector and create thing div. 
-; with this approach, each div template is not associated to a path node. Bad.
-; (defn all-things-emitter
-;   "emit upon all thing list created"
-;   [inputs]
-;   ; merge added and updated maps
-;   (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))]
-;     ; if we emit value delta, we do not need to emit node-create.
-;     (vec (concat 
-;       ;((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :courses]
-;       (mapcat 
-;         (fn [[path] nval]  ; path is [:all :parents], thing type
-;           (let [type (last path)
-;                 oldpath (concat [:old-model] path)
-;                 newpath (concat [:new-model] path)
-;                 oldthing (get-in inputs oldpath)
-;                 newthing (get-in inputs newpath)]
-;             (.log js/console (str "all things emitter " type newthing))
-;             (if oldthing
-;               [[:value path newthing]]
-;               [[:value path newthing]])))
-;           deltamap)
-;       ))))
+; when nav type changed, emit node destroy for old list
+(defn nav-type-emitter
+  [inputs]
+  (let [oldtype (get-in inputs [:old-model :nav :type])
+        newtype (get-in inputs [:new-model :nav :type])
+        allpath (conj [:all] (keyword oldtype))
+        oldlist (get-in inputs [:old-model :all (keyword oldtype)])]
+    (.log js/console (str "nav type from " oldtype " to " newtype " all things " oldlist))
+    (vec (concat 
+        ((app/default-emitter nil) inputs)
+        (mapcat (fn [entity]
+                  ; concat list mean peel off and re package, so ret a vec of tuples.
+                  [[:node-destroy (conj allpath (:db/id entity))]])
+                oldlist)))))
 
+
+; nav type changed, we clear out stale thing list in top [:all] node {:type []}
+(defn all-things-emitter
+  "emit destroy upon all thing list created"
+  [inputs oldv]
+  ; merge added and updated maps
+  (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
+        updated (d/updated-inputs inputs)]
+    (.log js/console (str "all node thing type updated " updated oldv))
+    (.log js/console (str "old nav type " (get-in inputs [:old-model :nav :type])))
+    (.log js/console (str "new nav type " (get-in inputs [:new-model :nav :type])))
+    (app/default-emitter) inputs))
+    
 
 ; ret a vector of delta tuples of node-create and value delat from a vector of new things value
 ; value is a vector of entity tuples, mapcat vec is de-pack vec and re-pack vec.
@@ -244,8 +247,8 @@
 
 (defn- removed-deltas
   "the removed path node from removed-inputs, arg is node path"
-  [input-path]
-  (.log js/console (str "removed path " input-path)))
+  [input-path oldvals]
+  (.log js/console (str "removed path " input-path " oldvals " oldvals)))
 
 
 ; generic emitter to all things, (case type ) to switch cases.
@@ -258,7 +261,7 @@
   (let [changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         removed (d/removed-inputs inputs)]
     ; each change tuple consists of node-path and a vector of values
-    (.log js/console (str "removed path " removed))
+    (removed-deltas removed)
     (reduce (fn [alldeltas [input-path newvals]] ;input-path, [:all :course] is a vec
               ; concat is vec de-pack and re-pack
               (concat alldeltas (new-deltas input-path newvals)))
@@ -373,7 +376,7 @@
             ;; can be old val or tracking map
 
              ; upon user click new thing type, clear old thing list
-             [#{[:nav :type]} [:all] refresh-all-things :single-val]  ; inputs type as single-val
+             [#{[:nav :type]} [:all] refresh-all-things]  ; inputs type as single-val
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn, and xhr to back-end.
@@ -386,10 +389,10 @@
     :emit [;{:init init-app-model}
            {:init init-all-things-emitter}
             
-           ; upon nav type changes, clear the topthings div
-           {:in #{[:nav :type]} :fn (app/default-emitter nil) :mode :always}
+           ; upon nav type changes, clear the topthings div and destroy path nodes.
+           {:in #{[:nav :type]} :fn nav-type-emitter :mode :always}
 
-           ; all things emitter
+           ; when getting things from server, created map entry, cause node here.
            {:in #{[:all :*]} :fn all-things-node-emitter :mode :always}
 
            {:in #{[:sse-data]} :fn sse-data-emitter :mode :always}

@@ -175,6 +175,7 @@
 
    ; all things type div node creation
    [:node-create [:all :* :*] add-new-thing-node]
+   [:node-destroy [:all :*] auto/default-exit]
    [:node-destroy [:all :* :*] auto/default-exit]
    [:value [:all :* :*] update-new-thing-value]
 
