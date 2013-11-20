@@ -134,7 +134,7 @@
     ; append to parent div
     ;(dom/append! (dom/by-id (str thingid)) divcode)
     
-    (de/listen! (dom/by-class "share") :click 
+    (de/listen! (dom/by-class (str "assign-" thingid)) :click 
                  (fn [evt]
                     (.log js/console (str "assign button clicked " thingid (:target evt)))
                     (dom/append! (dom/by-id (str thingid)) divcode)))
@@ -146,7 +146,7 @@
   (let [thingid (last path)
         ; make a template attached to this node
         html (templates/add-template r path (:thing templates)) ; added template to this path node
-        thing (html {:id thingid :aid (str "assign-" thingid)})  ; render thing with only id
+        thing (html {:id thingid :assign-id (str "assign-" thingid)})  ; render thing with only id
         ]
     ; append the div to 
     (.log js/console "adding new thing node " thingid)
