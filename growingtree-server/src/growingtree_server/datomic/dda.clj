@@ -508,7 +508,7 @@
 (defn find-assignment
   "find all assignments "
   []
-  (let [assig (d/q '[:find ?hwcontent ?from ?to ?start ?due 
+  (let [assig (d/q '[:find ?e ?hwcontent ?from ?to ?start ?due 
                     :where [?e :assignment/homework ?h]
                            [?h :homework/content ?hwcontent]
                            [?e :assignment/from ?p]
@@ -518,7 +518,7 @@
                            [?e :assignment/start ?start]
                            [?e :assignment/due ?due]
                     ] db)
-        assignkeys [:assignment/homework :assignment/from :assignment/to :assignment/start :assignment/due]
+        assignkeys [:db/id :assignment/homework :assignment/from :assignment/to :assignment/start :assignment/due]
         entities (map (partial zipmap assignkeys) assig)]
     (prn "assignment entities " entities)
     entities))

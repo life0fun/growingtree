@@ -233,15 +233,16 @@
   (mapcat
     (fn [entity-map]
       (let [id (:db/id entity-map)
-            newpath (conj path id)]
+            newpath (conj path id)
+            actionpath (vec (concat [:action :setup] (rest newpath)))]
         (.log js/console (str "new delta path " newpath " id " id))
         ; ret a vec of delta tuples, 
         [ [:node-create newpath :map]
           [:value newpath entity-map]
           ; ask UI to send back assignment details
-          [:transform-enable newpath
-                      :assign  ;  tranform-name
-                      [{msg/topic (vec (concat [:assign] (rest newpath))) ; [:all :type id]
+          [:transform-enable actionpath
+                      :assign  ;  tranform-key
+                      [{msg/topic (vec (concat [:assign :setup] (rest actionpath))) ; [:all :type id]
                        (msg/param :details) {}}]] ]))
     value-vec))
 
@@ -352,7 +353,7 @@
                 [:set-all-things [:all] all-things-transformer]
 
                 ; assignment details to make assignment transform
-                [:assign [:assign :homework :*] assignment-transformer]
+                [:assign [:action :setup :* :*] action-setup-transformer]
 
                ]
 

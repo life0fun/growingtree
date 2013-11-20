@@ -94,23 +94,65 @@
                                     {:type (keyword type)}))))))
 
 
-; user clicked submit button of assignment form
-(def on-assignment-transform
-  "wire submit button click on assignment form to fill assign message"
-  (fn [r [_ path transname message] input-queue]
-    (.log js/console (str "on assignment transform " path transname message))
-    (let [form (dom/by-class "assignment-form")
-          hwid (last path)  ; last of path is hwid
-          tonode (dom/by-id "assign-to")
-          toid (.-value tonode)
-          hintnode (dom/by-id "assign-hint")
-          hint (.-value hintnode)
-          details {:hwid hwid :toid toid :hint hint}]
-      (events/send-on :submit form input-queue
-                      (msg/fill :assign
-                                message
-                                {:details details})))))
+; -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+; multimethod polymorph.  It dispatches on the key of the transform-enable
+(defmulti setup-action-transforms 
+  (fn [render [target path transkey messages] input-queue]
+    transkey))
 
+; on assign to link clicked
+(defmethod setup-action-transforms :assign 
+  [r [t p k messages] input-queue]
+  (.log js/console (str "thing action trans target " t " path " p " key " k))
+  (let [thingid (last p)   ; last segment of path is thingid
+        html (templates/add-template r p 
+                                     (:assignment-form templates))
+        divcode (html)
+        parent-thing-node (dom/by-id (str thingid))
+        assign-sel (str "assign-" thingid)
+        assign-div (dom/by-class assign-sel)]
+    
+    ; wrap assign link with div and use class selector
+    (de/listen! assign-div 
+                :click 
+                (fn [evt]
+                  (.log js/console (str "assign button clicked " thingid (:target evt)))
+                  (dom/append! parent-thing-node divcode)
+                  (msgs/fill :assign 
+                             messsage
+                             {:details {:id thingid}})))
+  ))
+
+    
+;; Handle add-tasks 
+(defmethod setup-action-transforms :share 
+  [r [t p k messages] input-queue]            
+  (.log js/console (str "share clicked " t p k)))
+
+
+; -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+; multimethod polymorph.  It dispatches on the key of the transform-enable
+(defmulti on-action-transforms 
+  (fn [render [target path transkey messages] input-queue]
+    transkey))
+
+; wire submit button click on assignment form to fill assign message
+(defmethod on-action-transforms :assign
+  [r [t p k messages] input-queue]
+  (.log js/console (str "on assignment transform " p k message))
+  (let [form (dom/by-class "assignment-form")
+        hwid (last path)  ; last of path is hwid
+        tonode (dom/by-id "assign-to")
+        toid (.-value tonode)
+        hintnode (dom/by-id "assign-hint")
+        hint (.-value hintnode)
+        details {:hwid hwid :toid toid :hint hint}]
+    (events/send-on :submit form input-queue
+                    (msg/fill :assign
+                              message
+                              {:details details}))))
+
+    
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; create template for each path node and append to topthings div
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -129,15 +171,18 @@
   [r path thingid]
   (let [html (templates/add-template r path  ; append div to current path node
                                      (:assignment-form templates))
-        divcode (html)]
+        divcode (html)
+        parent-thing-node (dom/by-id (str thingid))
+        assign-sel (str "assign-" thingid)
+        assign-div (dom/by-class assign-sel)]
     (.log js/console (str "assign to listener " path thingid))
-    ; append to parent div
-    ;(dom/append! (dom/by-id (str thingid)) divcode)
     
-    (de/listen! (dom/by-class (str "assign-" thingid)) :click 
-                 (fn [evt]
-                    (.log js/console (str "assign button clicked " thingid (:target evt)))
-                    (dom/append! (dom/by-id (str thingid)) divcode)))
+    ; wrap assign link with div and use class selector
+    (de/listen! assign-div 
+                :click 
+                (fn [evt]
+                  (.log js/console (str "assign button clicked " thingid (:target evt)))
+                  (dom/append! parent-thing-node divcode)))
   ))
 
 
@@ -146,9 +191,10 @@
   (let [thingid (last path)
         ; make a template attached to this node
         html (templates/add-template r path (:thing templates)) ; added template to this path node
-        thing (html {:id thingid :assign-id (str "assign-" thingid)})  ; render thing with only id
+        assignid (str "assign-" thingid)
+        shareid (str "share-" thingid)
+        thing (html {:id thingid :assign-id assignid :share-id shareid})
         ]
-    ; append the div to 
     (.log js/console "adding new thing node " thingid)
     (dom/append! (dom/by-id "topthings") thing)))
     
@@ -162,7 +208,7 @@
         thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
     (.log js/console (str "updating new thing value " path type-path id))
     (templates/update-t r path thing-map)
-    (assign-to-listener r path (last path))
+    ;(assign-to-listener r path (last path))
     ))
 
 
@@ -187,5 +233,6 @@
 
    ; assignment details, only for homeworks type so far
    ;[:transform-enable [:all :* :*] on-assignment-transform]
+   [:transform-enable [:action :setup :* :*] setup-action-transforms]
 
   ])
