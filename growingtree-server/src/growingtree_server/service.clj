@@ -186,12 +186,14 @@
 (defn add-thing
   "add a thing upon post request, request contains all info of a http post req"
   [{msg-data :edn-params :as request}]
-  (log/info :message "received message"
-            :request request
-            :msg-data msg-data)
-  (prn "add thing " (:value msg-data) (get-in request [:edn-params :value]))
-  (peer/add-family)
-  (ring-response/response (str "msg inserted " msg-data)))
+  (let [resp (bootstrap/json-print {:result msg-data})
+        jsonresp (bootstrap/json-response {:result msg-data})]
+    (log/info :message "received message"
+              :request request
+              :msg-data msg-data)
+    (prn "adding thing " msg-data " resp " resp)
+    ;(peer/add-family)
+    jsonresp))
 
 
 

@@ -105,20 +105,20 @@
 ; on assign to link clicked
 (defmethod setup-action-transforms :assign 
   [r [t p k messages] input-queue]
-  (.log js/console (str "setup action transform " t " path " p " key " k))
   (let [thingid (last p)   ; last segment of path is thingid
         html (templates/add-template r p (:assignment-form templates))
         divcode (html)
         parent-thing-node (dom/by-id (str thingid))
         assign-sel (str "assign-" thingid)
         assign-div (dom/by-class assign-sel)]
-    
+  
+    ;(.log js/console (str "setup action transform " t " path " p " key " k))  
     ; wrap assign link with div and use class selector
     (de/listen! assign-div 
                 :click 
                 (fn [evt]
                   (dom/append! parent-thing-node divcode)
-                  (let [details {:action :assign :id thingid}  ; close over action key
+                  (let [details {:action :create-assignment :id thingid}  ; close over action key
                         new-msgs (msgs/fill :assign messages {:details details})]
                     (.log js/console (str "assign button clicked " messages))
                     (doseq [m new-msgs]
@@ -134,12 +134,12 @@
 
 ; -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 ; multimethod polymorph.  It dispatches on the key of the transform-enable
-(defmulti on-action-transforms 
+(defmulti submit-action-transforms 
   (fn [render [target path transkey messages] input-queue]
     transkey))
 
 ; wire submit button click on assignment form to fill assign message
-(defmethod on-action-transforms :assign
+(defmethod submit-action-transforms :assign
   [r [target path transkey messages] input-queue]
   (let [form (dom/by-class "assignment-form")   ; submit button of this form
         hwid (last path)  ; last of path is hwid
@@ -148,11 +148,12 @@
         submit-fn (fn [_]   ; form submit handler, fill msg and ret the msg
                    (let [toid-val (.-value to-node)
                          hint-val (.-value hint-node)
-                         details {:hwid hwid :toid toid-val :hint hint-val}]
+                         details {:action :create-assignment 
+                                  :hwid hwid :toid toid-val :hint hint-val}]
                     (.log js/console (str "assign submitted " details))
                     (msgs/fill :assign messages {:details details})))]
 
-    (.log js/console (str "on assignment transform " path transkey messages))
+    (.log js/console (str "submit assign transform " path transkey messages))
     (events/send-on :submit form input-queue submit-fn)))
 
     
@@ -236,6 +237,6 @@
    ; assignment details, only for homeworks type so far
    ;[:transform-enable [:all :* :*] on-assignment-transform]
    [:transform-enable [:action :setup :* :*] setup-action-transforms]
-   [:transform-enable [:action :submit :* :*] on-action-transforms]
+   [:transform-enable [:action :submit :* :*] submit-action-transforms]
 
   ])

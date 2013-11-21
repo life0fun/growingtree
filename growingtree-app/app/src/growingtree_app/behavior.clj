@@ -85,16 +85,16 @@
 (defn assign-action-setup
   "after displaying actionbar, store at [:action :setup :type id] the detail map"
   [oldv message]
-  (let [details (:details message)]  ; details is {:action :assign :id 12}
-    (.log js/console (str "assign action setup, details map " details))
+  (let [details (:details message)]  ; details is {:action :create-assignment :id 12}
+    (.log js/console (str "assign setup transform details " details))
     details))
 
 ; Path is [:action :submit :thing-type thingid], stores details map {:action :assign :id 12}
 (defn assign-action-submit
   "actionbar form submitted, store and write to effect queue"
   [oldv message]
-  (let [details (:details message)]
-    (.log js/console (str "assign action submitted details map " details))
+  (let [details (:details message)] ; details is {:action :create-assignment :id xx}
+    (.log js/console (str "assign submitted transform details " details))
     details))
 
 
@@ -158,7 +158,7 @@
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [type]  ; request all things by type
   (.log js/console "request things of type upon sidebar click  " type)
-  [{msgs/topic [:server] msgs/type type :body {:filter :all}}])
+  [{msgs/topic [:server] msgs/type type (msgs/param :body) {:filter :all}}])
   
 
 ; request timeline
@@ -171,14 +171,21 @@
 ; inputs contains {:mesage {topic [] :details} :new-model {} :old-model {}}
 ; note that the first time node-create [:action :submit :*] will trigger this fn
 ; we need to filter out that.
+; details {:action :assign, :hwid 17592186045487, :toid "foo", :hint "bar"} 
 (defn post-action-thing
   [inputs] 
   "after form submitted, post create thing with user data"
   (let [msg (:message inputs)
-        action (get-in msg [:details :action])]
-    ;(.log js/console (str "post action thing " msg action))
-    (if (= :submit action)
-      (.log js/console (str "post action thing data " msg action)))))
+        topic (msgs/topic msg)
+        phase (second topic)
+        action (get-in msg [:details :action])
+        details (:details msg)]
+    ;(.log js/console (str "post action topic " topic " phase " phase action msg))
+    (if (= :submit phase)
+      (do
+        (.log js/console (str "post submit action " action " body " details))
+        [{msgs/topic [:server] msgs/type action :body details}]))))
+
 
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; emitter to report changes, and attach transforms to template events.
@@ -297,10 +304,10 @@
   (let [changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         removemap (d/removed-inputs inputs)]
     ; each change tuple consists of node-path and a vector of values
-    (doseq [[path oldv] changemap]
-      (.log js/console (str "action changemap " path " old-value " oldv)))
-    (doseq [[path oldv] removemap]
-      (.log js/console (str "action removemap " path " old-value " oldv)))
+    ; (doseq [[path oldv] changemap]
+    ;   (.log js/console (str "action changemap " path " old-value " oldv)))
+    ; (doseq [[path oldv] removemap]
+    ;   (.log js/console (str "action removemap " path " old-value " oldv)))
 
     (reduce (fn [alldeltas [path newv]]
               (let [thingnode (nnext path)
@@ -420,7 +427,7 @@
               [#{[:nav :type]} request-all-things :single-val]
 
               ; action submitted, write to db
-              {:in #{[:action :submit :* :*]} :fn post-action-thing}
+              {:in #{[:action :submit :* :*]} :fn post-action-thing :mode :always}
             }
 
     ; emitter

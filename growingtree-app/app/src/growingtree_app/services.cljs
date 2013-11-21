@@ -3,7 +3,7 @@
             [cljs.reader :as r]
             [io.pedestal.app.net.xhr :as xhr]
             [io.pedestal.app.protocols :as p]
-            [io.pedestal.app.messages :as msg]
+            [io.pedestal.app.messages :as msgs]
             [io.pedestal.app.util.log :as log]
             [growingtree-app.util :as util]))
 
@@ -64,7 +64,7 @@
 
 ; create a fn to handle query response, inject json array data into input-queue
 ; as json is more efficient than edn, we use json-response at server side.
-; we will dispatch msg to path node accordingly.
+; we will dispatch msgs to path node accordingly.
 ; server always sends list of things, parse to cljs.core.PersistentVector.
 (defn response-handler
   "handle RESTful json array response close over thing type and input queue"
@@ -78,22 +78,22 @@
             ]
         (.log js/console (str "response body " bodyjson))
         (p/put-message input-queue
-                       {msg/topic [:all]  ; store data into [:all]
-                        msg/type :set-all-things    ; set all things msg type
+                       {msgs/topic [:all]  ; store data into [:all]
+                        msgs/type :set-all-things    ; set all things msgs type
                         :type type        ; set thing type
                         :data things-vec  ; store cljs.core.Vector into path node
                         :id (util/random-id)})))))
 
 
 ;
-; services-fn consume effect queue msg from app behavior and xhr post to server.
+; services-fn consume effect queue msgs from app behavior and xhr post to server.
 ; pr-str is used to convert map data structure to edn string for RESTFul request.
 (defn services-fn
-  "service fn takes msg out of effect queue and post to back-end"
+  "service fn takes msgs out of effect queue and post to back-end"
   [message input-queue] ; input queue is where ret result should be injected to.
-  ; ensure msg wrap/unwrap keys match.
+  ; ensure msgs wrap/unwrap keys match.
   (when-let [body (pr-str (:body message))]
-    (let [type (msg/type message)  ; msg type, the type user clicked on sidebar
+    (let [type (msgs/type message)  ; msgs type, the type user clicked on sidebar
           resp-handle (response-handler type input-queue)]  ; json response handler
       (.log js/console (str "service-fn consume effect queue type" type " " body))
       ; dispatch on case
@@ -106,6 +106,9 @@
         :lectures (xhr-request "/api/lectures" "GET" body resp-handle xhr-log)
         :homeworks (xhr-request "/api/homeworks" "GET" body resp-handle xhr-log)
         :assignments (xhr-request "/api/assignments" "GET" body resp-handle xhr-log) 
+
+        ;; post data to create thing
+        :create-assignment (xhr-request "/api/assignments" "POST" body resp-handle xhr-log)
         "default")
       (str "Send to Server: " body))))
 
@@ -118,15 +121,15 @@
   (let [data (r/read-string (.-data e))]  ; access cljs object attr by .-symbol
     (.log js/console e)  ; take a log
     (p/put-message (:input app)
-                   {msg/topic [:inbound]
-                    msg/type :received
+                   {msgs/topic [:inbound]
+                    msgs/type :received
                     :text data   ; wrap json string to map
                     :id (util/random-id)})))
 
 
 ; Service type is the interface that receives back-end SSE event. 
 ; The /msgs endpoint is channel to receive SSE. After receiving SSE data,
-; convert data into [:inbound] :received msg into (:input app) queue.
+; convert data into [:inbound] :received msgs into (:input app) queue.
 (defrecord Services 
   [app]
   p/Activity
