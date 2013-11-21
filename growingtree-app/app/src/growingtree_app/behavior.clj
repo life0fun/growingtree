@@ -4,7 +4,7 @@
               [io.pedestal.app.dataflow :as d]
               [io.pedestal.app.util.platform :as platform]
               [io.pedestal.app.util.log :as log]
-              [io.pedestal.app.messages :as msg]
+              [io.pedestal.app.messages :as msgs]
               [clojure.set :as set]
               ; map EntityMap to view map
               [growingtree-app.entity-view :as entity-view]))
@@ -13,7 +13,7 @@
 ;; correct. For examples of various kinds of tests, see
 ;; test/growingtree_app/behavior-test.clj.
 
-; first, top level data path. Data path location is for msg/topic.
+; first, top level data path. Data path location is for msgs/topic.
 ; Each path location is a ref mutable. If design data model to have only one root,
 ; all updates to nested attrs will need to use (assoc todo :task (assoc (:tasks todos)))
 ; msg is always a map contains all keys. Each key value can be another map.
@@ -80,15 +80,21 @@
     (assoc-in oldv [type] things-vec)))  ; now vector is stored in [:all :type]
 
 
-; UI fill in assignment details msg, store the assignment details
-(defn assignment-transformer
-  "store UI assignment details, message :details contains assignment info"
+; Path is [:action :setup :thing-type thingid], stores details map {:action :assign :id 12}
+; user clicked assign link, show assign action bar, enable transform for content
+(defn assign-action-setup
+  "after displaying actionbar, store at [:action :setup :type id] the detail map"
   [oldv message]
-  (let [details (:details message)
-        hwid (:hwid details)
-        toid (:toid details)
-        hint (:hint details)]
-    (.log js/console "assignment details " details)
+  (let [details (:details message)]  ; details is {:action :assign :id 12}
+    (.log js/console (str "assign action setup, details map " details))
+    details))
+
+; Path is [:action :submit :thing-type thingid], stores details map {:action :assign :id 12}
+(defn assign-action-submit
+  "actionbar form submitted, store and write to effect queue"
+  [oldv message]
+  (let [details (:details message)]
+    (.log js/console (str "assign action submitted details map " details))
     details))
 
 
@@ -152,14 +158,27 @@
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [type]  ; request all things by type
   (.log js/console "request things of type upon sidebar click  " type)
-  ; set both msg/type and out-message to category
-  [{msg/topic [:server] msg/type type :body {:filter :all}}])
+  [{msgs/topic [:server] msgs/type type :body {:filter :all}}])
   
 
 ; request timeline
 (defn request-timeline
   [timeline]
   [])
+
+
+; when user submit action, post action data to db
+; inputs contains {:mesage {topic [] :details} :new-model {} :old-model {}}
+; note that the first time node-create [:action :submit :*] will trigger this fn
+; we need to filter out that.
+(defn post-action-thing
+  [inputs] 
+  "after form submitted, post create thing with user data"
+  (let [msg (:message inputs)
+        action (get-in msg [:details :action])]
+    ;(.log js/console (str "post action thing " msg action))
+    (if (= :submit action)
+      (.log js/console (str "post action thing data " msg action)))))
 
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; emitter to report changes, and attach transforms to template events.
@@ -176,10 +195,10 @@
       {:type  {}  ; a single val of current viewing thing type
        :filtered  ; a list of filtered things of current viewing
         {:transforms   ; the node path is from top to here [:course :form :set-course]
-          {:set-things-filtered [{msg/topic [:filtered] 
-                                 (msg/param :filtered) {}}]}}}
-    :assignment
-      {}}])
+          {:set-things-filtered [{msgs/topic [:filtered] 
+                                 (msgs/param :filtered) {}}]}}}
+    :action
+      {:setup {}}}])
 
 
 ; user can interact with sidebar, so setup interaction on sidebar
@@ -191,8 +210,8 @@
   [[:node-create [:nav]]
    [:transform-enable [:nav :type] 
                       :set-nav-type
-                      [{msg/topic [:nav :type]
-                       (msg/param :type) {}}]]])
+                      [{msgs/topic [:nav :type]
+                       (msgs/param :type) {}}]]])
 
 
 ; when nav type changed, emit node destroy for old list
@@ -212,16 +231,17 @@
 
 
 ; nav type changed, we clear out stale thing list in top [:all] node {:type []}
-(defn all-things-emitter
-  "emit destroy upon all thing list created"
-  [inputs oldv]
-  ; merge added and updated maps
-  (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
-        updated (d/updated-inputs inputs)]
-    (.log js/console (str "all node thing type updated " updated oldv))
-    (.log js/console (str "old nav type " (get-in inputs [:old-model :nav :type])))
-    (.log js/console (str "new nav type " (get-in inputs [:new-model :nav :type])))
-    (app/default-emitter) inputs))
+; deprecated code 
+; (defn all-things-emitter
+;   "emit destroy upon all thing list created"
+;   [inputs oldv]
+;   ; merge added and updated maps
+;   (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
+;         updated (d/updated-inputs inputs)]
+;     (.log js/console (str "all node thing type updated " updated oldv))
+;     (.log js/console (str "old nav type " (get-in inputs [:old-model :nav :type])))
+;     (.log js/console (str "new nav type " (get-in inputs [:new-model :nav :type])))
+;     (app/default-emitter) inputs))
     
 
 ; ret a vector of delta tuples of node-create and value delat from a vector of new things value
@@ -242,8 +262,8 @@
           ; ask UI to send back assignment details
           [:transform-enable actionpath
                       :assign  ;  tranform-key
-                      [{msg/topic (vec (concat [:assign :setup] (rest actionpath))) ; [:all :type id]
-                       (msg/param :details) {}}]] ]))
+                      [{msgs/topic actionpath ; [:all :type id]
+                       (msgs/param :details) {}}]] ]))
     value-vec))
 
 (defn- removed-deltas
@@ -262,7 +282,7 @@
   (let [changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         removed (d/removed-inputs inputs)]
     ; each change tuple consists of node-path and a vector of values
-    (removed-deltas removed)
+    ;(removed-deltas removed)
     (reduce (fn [alldeltas [input-path newvals]] ;input-path, [:all :course] is a vec
               ; concat is vec de-pack and re-pack
               (concat alldeltas (new-deltas input-path newvals)))
@@ -270,6 +290,32 @@
             changemap)))
 
 
+; actionbar displayed, now trans enable UI event data come back
+(defn action-emitter
+  "emit trans enable for action bar element"
+  [inputs]
+  (let [changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
+        removemap (d/removed-inputs inputs)]
+    ; each change tuple consists of node-path and a vector of values
+    (doseq [[path oldv] changemap]
+      (.log js/console (str "action changemap " path " old-value " oldv)))
+    (doseq [[path oldv] removemap]
+      (.log js/console (str "action removemap " path " old-value " oldv)))
+
+    (reduce (fn [alldeltas [path newv]]
+              (let [thingnode (nnext path)
+                    newpath (concat [:action :submit] thingnode)
+                    messages {msgs/topic newpath 
+                              msgs/type :assign    ; make 
+                              (msgs/param :details) {}}]
+                ; concat 
+                (concat alldeltas
+                  [[:transform-enable newpath :assign [messages]]])))
+            []
+            changemap)
+    ))
+
+    
 ; emitter fn destructs the path of node [:todo :tasks task-id :completed]
 ; when adding task, (assoc todo :tasks (assoc (:tasks todo) id tasks)
 (defn todo-emitter 
@@ -284,8 +330,8 @@
                   ;; When a new task is added, it needs to have transform-enables associated with it
                   ;; It needs to be able to be toggled, and it should be removed.
                   (when (symbol? task)
-                    [[:transform-enable [:todo :filtered-tasks task] :toggle-task [{msg/topic [:todo] msg/type :toggle-task :id task}]]
-                     [:transform-enable [:todo :filtered-tasks task] :remove-task [{msg/topic [:todo] msg/type :remove-task :id task}]]]))
+                    [[:transform-enable [:todo :filtered-tasks task] :toggle-task [{msgs/topic [:todo] msgs/type :toggle-task :id task}]]
+                     [:transform-enable [:todo :filtered-tasks task] :remove-task [{msgs/topic [:todo] msgs/type :remove-task :id task}]]]))
                 (:added inputs))  ; the added-map from inputs
         ; 
         (mapcat (fn [[_ _ task completed :as path]] ; updated a task, path is [:todo :tasks task-id :filter-type]
@@ -352,8 +398,9 @@
                 ; set-all to store all type things list into all type map
                 [:set-all-things [:all] all-things-transformer]
 
-                ; assignment details to make assignment transform
-                [:assign [:action :setup :* :*] action-setup-transformer]
+                ; assign action setup transform
+                [:assign [:action :setup :* :*] assign-action-setup]
+                [:assign [:action :submit :* :*] assign-action-submit]
 
                ]
 
@@ -367,10 +414,13 @@
              [#{[:nav :type]} [:all] refresh-all-things]  ; inputs type as single-val
             }
 
-    ; effect fn takes msg and ret a vec of msg consumed by services-fn, and xhr to back-end.
+    ; effect fn takes msg and ret a vec of msg consumed by services-fn to xhr to back-end.
     :effect #{
               ; user clicked nav, request all things by type
               [#{[:nav :type]} request-all-things :single-val]
+
+              ; action submitted, write to db
+              {:in #{[:action :submit :* :*]} :fn post-action-thing}
             }
 
     ; emitter
@@ -382,6 +432,9 @@
 
            ; when getting things from server, created map entry, cause node here.
            {:in #{[:all :*]} :fn all-things-node-emitter :mode :always}
+
+           ; when actionbar displayed, enable transform
+           {:in #{[:action :setup :* :*]} :fn action-emitter :mode :always}
 
            {:in #{[:sse-data]} :fn sse-data-emitter :mode :always}
 

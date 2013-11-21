@@ -5,6 +5,7 @@
             [io.pedestal.app.render.push :as render]
             [io.pedestal.app.render.events :as events]
             [io.pedestal.app.render.push.templates :as templates]
+            [io.pedestal.app.protocols :as p]
             [io.pedestal.app.messages :as msgs]
             [io.pedestal.app.util.log :as log]
             [io.pedestal.app.render.push.handlers :as h]
@@ -100,13 +101,13 @@
   (fn [render [target path transkey messages] input-queue]
     transkey))
 
+
 ; on assign to link clicked
 (defmethod setup-action-transforms :assign 
   [r [t p k messages] input-queue]
-  (.log js/console (str "thing action trans target " t " path " p " key " k))
+  (.log js/console (str "setup action transform " t " path " p " key " k))
   (let [thingid (last p)   ; last segment of path is thingid
-        html (templates/add-template r p 
-                                     (:assignment-form templates))
+        html (templates/add-template r p (:assignment-form templates))
         divcode (html)
         parent-thing-node (dom/by-id (str thingid))
         assign-sel (str "assign-" thingid)
@@ -116,11 +117,12 @@
     (de/listen! assign-div 
                 :click 
                 (fn [evt]
-                  (.log js/console (str "assign button clicked " thingid (:target evt)))
                   (dom/append! parent-thing-node divcode)
-                  (msgs/fill :assign 
-                             messsage
-                             {:details {:id thingid}})))
+                  (let [details {:action :assign :id thingid}  ; close over action key
+                        new-msgs (msgs/fill :assign messages {:details details})]
+                    (.log js/console (str "assign button clicked " messages))
+                    (doseq [m new-msgs]
+                      (p/put-message input-queue m)))))
   ))
 
     
@@ -138,19 +140,20 @@
 
 ; wire submit button click on assignment form to fill assign message
 (defmethod on-action-transforms :assign
-  [r [t p k messages] input-queue]
-  (.log js/console (str "on assignment transform " p k message))
-  (let [form (dom/by-class "assignment-form")
+  [r [target path transkey messages] input-queue]
+  (let [form (dom/by-class "assignment-form")   ; submit button of this form
         hwid (last path)  ; last of path is hwid
-        tonode (dom/by-id "assign-to")
-        toid (.-value tonode)
-        hintnode (dom/by-id "assign-hint")
-        hint (.-value hintnode)
-        details {:hwid hwid :toid toid :hint hint}]
-    (events/send-on :submit form input-queue
-                    (msg/fill :assign
-                              message
-                              {:details details}))))
+        to-node (dom/by-id "assign-to")
+        hint-node (dom/by-id "assign-hint")
+        submit-fn (fn [_]   ; form submit handler, fill msg and ret the msg
+                   (let [toid-val (.-value to-node)
+                         hint-val (.-value hint-node)
+                         details {:hwid hwid :toid toid-val :hint hint-val}]
+                    (.log js/console (str "assign submitted " details))
+                    (msgs/fill :assign messages {:details details})))]
+
+    (.log js/console (str "on assignment transform " path transkey messages))
+    (events/send-on :submit form input-queue submit-fn)))
 
     
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -224,7 +227,6 @@
    ; wire sidebar nav click to send this transform to change data model.
    [:transform-enable [:nav :type] all-things-transform]
    
-
    ; all things type div node creation
    [:node-create [:all :* :*] add-new-thing-node]
    [:node-destroy [:all :*] auto/default-exit]
@@ -234,5 +236,6 @@
    ; assignment details, only for homeworks type so far
    ;[:transform-enable [:all :* :*] on-assignment-transform]
    [:transform-enable [:action :setup :* :*] setup-action-transforms]
+   [:transform-enable [:action :submit :* :*] on-action-transforms]
 
   ])
