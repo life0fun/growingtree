@@ -64,6 +64,38 @@
 ;   (dom/destroy-children! (dom/by-id "xx"))
 ;
 
+
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+;; render login and setup login transformer
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+(defn add-login-template 
+  [renderer [_ path :as delta] input-queue]
+  (let [parent (render/get-parent-id renderer path)
+        id (render/new-id! renderer path)
+        html (:login-page templates)]
+    (dom/append! (dom/by-id parent) (html {:id id}))))
+
+
+; events collect and sent, input map, link dom ele id to msg param key
+; pass value from dom key to msg map key thru input map {:dom-ele-id :msg-param-key}
+(defn add-submit-login-handler 
+  [_ [_ path transform-name messages] input-queue]
+  (events/collect-and-send :click 
+                           "login-button" 
+                           input-queue 
+                           transform-name 
+                           messages
+                           {"login-name" :login-name  "login-pass" :login-pass}))
+
+
+(defn remove-submit-login-event 
+  [_ _ _]
+  (events/remove-click-event "login-button"))
+
+
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+;; render home page sidebar and setup sidebar click transforme
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; home page template includes sidebar, leaderboard and topthings. 
 (defn render-home-page 
   "homepage template is attached to [:nav], dom append to root"
@@ -71,15 +103,12 @@
   (let [parent (render/get-parent-id r path)  ; root of top level is [], maps to div id=content
         id (render/new-id! r path)  ; gen a new id to the path.
         html (templates/add-template r path (:home-page templates))] ; [:nav] node contains homepage template
+
+    (dom/destroy-children! (dom/by-id parent))
     ; invoke reted html fn to gen html and attach to dom using domina.
     (dom/append! (dom/by-id parent) (html))   ; homepage no data val map
   ))
 
-
-
-;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-;; transform enable to hook up ui event to send msg to update data model nodes.
-;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 ; sidebar click transform [:nav :type] value, trigger request to get list of things.
 (def all-things-transform
@@ -94,9 +123,44 @@
                                     message
                                     {:type (keyword type)}))))))
 
+; clear all things
+(defn clear-all-things
+  "upon nav type change, clear all things divs under topthings div"
+  [r [_ path oldv newv] input-queue]
+  (.log js/console (str "clear all things upon nav type change " path))
+  (dom/destroy-children! (dom/by-id "topthings")))
+
+
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+;; render each thing list node, and setup action bar transformer in each node.
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+(defn add-new-thing-node
+  [r [op path] input-queue]
+  (let [thingid (last path)
+        ; make a template attached to this node
+        html (templates/add-template r path (:thing templates)) ; added template to this path node
+        assignid (str "assign-" thingid)
+        shareid (str "share-" thingid)
+        thing (html {:id thingid :assign-id assignid :share-id shareid})
+        ]
+    (.log js/console "adding new thing node " thingid)
+    (dom/append! (dom/by-id "topthings") thing)))
+    
+
+(defn update-new-thing-value
+  [r [op path oldv newv] input-queue]
+  (let [id (render/get-id r path)
+        type-path (butlast path)
+        view-vec (entity-view/view-value type-path newv)
+        title (:title view-vec)
+        thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
+    (.log js/console (str "updating new thing value " path type-path id))
+    (templates/update-t r path thing-map)
+    ;(assign-to-listener r path (last path))
+    ))
 
 ; -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-; multimethod polymorph.  It dispatches on the key of the transform-enable
+; multimethod polymorph to dispatch action phase bar key
 (defmulti setup-action-transforms 
   (fn [render [target path transkey messages] input-queue]
     transkey))
@@ -158,77 +222,31 @@
 
     
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-;; create template for each path node and append to topthings div
+;; 
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-; clear all things
-(defn clear-all-things
-  "upon nav type change, clear all things divs under topthings div"
-  [r [_ path oldv newv] input-queue]
-  (.log js/console (str "clear all things upon nav type change " path))
-  (dom/destroy-children! (dom/by-id "topthings")))
-
-
-; note that listen is on dom.event namespace.
-(defn- assign-to-listener
-  "add click listener to assign to link"
-  [r path thingid]
-  (let [html (templates/add-template r path  ; append div to current path node
-                                     (:assignment-form templates))
-        divcode (html)
-        parent-thing-node (dom/by-id (str thingid))
-        assign-sel (str "assign-" thingid)
-        assign-div (dom/by-class assign-sel)]
-    (.log js/console (str "assign to listener " path thingid))
-    
-    ; wrap assign link with div and use class selector
-    (de/listen! assign-div 
-                :click 
-                (fn [evt]
-                  (.log js/console (str "assign button clicked " thingid (:target evt)))
-                  (dom/append! parent-thing-node divcode)))
-  ))
-
-
-(defn add-new-thing-node
-  [r [op path] input-queue]
-  (let [thingid (last path)
-        ; make a template attached to this node
-        html (templates/add-template r path (:thing templates)) ; added template to this path node
-        assignid (str "assign-" thingid)
-        shareid (str "share-" thingid)
-        thing (html {:id thingid :assign-id assignid :share-id shareid})
-        ]
-    (.log js/console "adding new thing node " thingid)
-    (dom/append! (dom/by-id "topthings") thing)))
-    
-
-(defn update-new-thing-value
-  [r [op path oldv newv] input-queue]
-  (let [id (render/get-id r path)
-        type-path (butlast path)
-        view-vec (entity-view/view-value type-path newv)
-        title (:title view-vec)
-        thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
-    (.log js/console (str "updating new thing value " path type-path id))
-    (templates/update-t r path thing-map)
-    ;(assign-to-listener r path (last path))
-    ))
 
 
 ; render config dispatch app model delta to render fn.
 ; the render config is refed in config/config.edn
 ; wildcard :* means exactly one segment with any value, :** means 0+ more.
 (defn render-config []
-  [[:node-create  [:nav] render-home-page]
+  [; render login screen first.
+   [:node-create  [:login] add-login-template]
+   [:node-destroy [:login] h/default-destroy]
+   [:transform-enable [:login :name] add-submit-login-handler]
+   [:transform-disable [:login :name] remove-submit-login-event]
+
+
+   [:node-create  [:nav] render-home-page]
    [:node-destroy [:nav] auto/default-exit]
    ; upon nav type change, clear all things
    [:value [:nav :type] clear-all-things]
-   
    ; wire sidebar nav click to send this transform to change data model.
    [:transform-enable [:nav :type] all-things-transform]
+
    
-   ; all things type div node creation
+   ; create all thing list consist of each thing node
    [:node-create [:all :* :*] add-new-thing-node]
    [:node-destroy [:all :*] auto/default-exit]
    [:node-destroy [:all :* :*] auto/default-exit]
@@ -238,5 +256,6 @@
    ;[:transform-enable [:all :* :*] on-assignment-transform]
    [:transform-enable [:action :setup :* :*] setup-action-transforms]
    [:transform-enable [:action :submit :* :*] submit-action-transforms]
+
 
   ])

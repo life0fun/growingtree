@@ -29,12 +29,12 @@
 
 
 ; fake user clicked nav course side bar
-(defn bootstrap-homepage
+(defn bootstrap-login
   [app]
   (p/put-message (:input app) 
-                 {msg/type :set-category
-                  msg/topic [:category]
-                  :category :courses}))
+                 {msg/type :login
+                  msg/topic [:login :name]
+                  (msgs/param :details) {}}))
 
 
 ; create app with render-fn to consume app model msg delta.
@@ -52,7 +52,7 @@
     ;(create-app app)
 
     ; send msg to bootstrap the app ! fake user clicked nav course
-    (bootstrap-homepage app)
+    ;(bootstrap-login app)
     
     {:app app :app-model app-model}))
 

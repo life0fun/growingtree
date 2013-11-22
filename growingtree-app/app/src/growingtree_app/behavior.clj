@@ -56,7 +56,17 @@
 ;; transform-fn gets 2 args, old-value and message, ret value used to set new value.
 ;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
 
-; extract the user clicked nav category from msg, and store it in [:nav :category] node
+
+; user login, store user name into [:login :name]
+(defn set-login
+  [oldv messages]
+  (let [login-name (:login-name messages)
+        login-pass (:login-pass messages)]
+    (.log js/console "user logged in " login-name " pass " login-pass)
+    login-name))
+
+
+; extract the user clicked nav type from msg, and store it in [:nav :type] node
 (defn set-nav-type
   [_ message]
   (.log js/console (str "set-nav-type " message))
@@ -214,12 +224,32 @@
   [inputs]
   "set up message emitter for sidebar nav UI interaction"
   (.log js/console "init all things emitter")
-  [[:node-create [:nav]]
-   [:transform-enable [:nav :type] 
-                      :set-nav-type
-                      [{msgs/topic [:nav :type]
-                       (msgs/param :type) {}}]]])
+  [
+    ; login name pass
+    [:node-create [:login :name]]
+    [:transform-enable [:login :name]
+                       :login 
+                       [{msgs/topic [:login :name]
+                        (msgs/param :login-name) nil
+                        (msgs/param :login-pass) nil}]]
+   ])
 
+
+; user logged in, display homepage
+(defn login-emitter
+  [inputs]
+  (let [oldv (get-in inputs [:old-model :login :name])
+        newv (get-in inputs [:new-model :login :name])]
+    (.log js/console "login emitter " oldv " -> " newv)
+    (if (not= oldv newv)
+      [
+        [:node-create [:nav]]
+        [:transform-enable [:nav :type] 
+                           :set-nav-type
+                           [{msgs/topic [:nav :type]
+                            (msgs/param :type) {}}]]
+
+      ])))
 
 ; when nav type changed, emit node destroy for old list
 (defn nav-type-emitter
@@ -399,6 +429,8 @@
   {:version 2   ; use current version 2
     :debug true
     :transform [
+                [:login [:login :name] set-login]
+
                 ; UI event sent to outbound node, then derive to [:nav :type] node
                 [:set-nav-type [:nav :type] set-nav-type]
 
@@ -433,6 +465,9 @@
     ; emitter
     :emit [;{:init init-app-model}
            {:init init-all-things-emitter}
+
+           ; after user logged in, create homepage
+           {:in #{[:login :name]} :fn login-emitter :mode :always}
             
            ; upon nav type changes, clear the topthings div and destroy path nodes.
            {:in #{[:nav :type]} :fn nav-type-emitter :mode :always}
