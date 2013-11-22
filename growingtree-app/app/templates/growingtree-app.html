@@ -10,7 +10,7 @@
 <_within file="application.html">
 
   <div id="content">
-  
+
     <div template="homepage" id="root">
 
       <div class="navbar navbar-static-top">
@@ -35,85 +35,84 @@
         </div>
       </div> <!-- static top nav bar -->
 
-      <div class="container-fluid" >
-     
-          <!-- sidebar nav is static, and common to all -->
-          <div class="row-fluid">
-            <div class="span3">
-              <div class="well sidebar-nav">
-                <ul class="nav nav-list">
-                  <li class="nav-header"> Family </li>
-                  <li>
-                    <a class="sidenav-selected" id="sidenav-parents"> Parents</a> 
-                  </li>
-                  <li>
-                    <a id="sidenav-children"> Children</a> 
-                  </li>
+      <div class="container-fluid">
+        <!-- sidebar nav is static, and common to all -->
+        <div class="row-fluid">
+          <div class="span3">
+            <div class="well sidebar-nav">
+              <ul class="nav nav-list">
+                <li class="nav-header"> Family </li>
+                <li>
+                  <a class="sidenav-selected" id="sidenav-parents"> Parents</a> 
+                </li>
+                <li>
+                  <a id="sidenav-children"> Children</a> 
+                </li>
 
-                  <li class="nav-header"> Learning </li>
-                  <li>
-                    <a id="sidenav-courses"> Courses </a>
-                  </li>
-                  <li>
-                    <a id="sidenav-lectures"> Lectures </a>
-                  </li>
-                  
-                  <li class="nav-header"> Practice </li>
-                  <li> 
-                    <a id="sidenav-homeworks"> Homeworks </a> 
-                  </li>
-                  <li>
-                    <a id="sidenav-assignments"> Assignments </a>
-                  </li>
-                  
-                  <li class="nav-header"> Social </li>
-                  <li> 
-                    <a id="sidenav-topquestions">Top Questions </a>
-                  </li>
-                  <li> 
-                    <a id="sidenav-topanswers"> Top Answers </a>
-                  </li>
-                  <li> 
-                    <a id="sidenav-ask"> Ask Question </a>
-                  </li>
-                  <li>
-                    <a id="sidenav-answer"> Answer Question </a>
-                  </li>
-                  
-                  <li class="nav-header"> Time Line </li>
-                  <li> 
-                    <a id="sidenav-contributions"> Contributions </a>
-                  </li>
-                  <li> 
-                    <a id="sidenav-knowledges"> Knowledge </a>
-                  </li>
-                  <li> 
-                    <a id="sidenav-activities"> Activities </a>
-                  </li>
-                  <li> 
-                    <a id="sidenav-locations"> Locations </a>
-                  </li>
-                </ul>
-              </div> <!-- well sidebar-->
-            </div> <!-- span 3 -->
-           
-            <div class="span9">
-              <div class="leaderboard">
-                  <h1> Learn, Practice, Develop -- Together ! </h1>
-                  <h4> Hello Parents, this is the social learning management system for your kids !</h4>
-              </div>
+                <li class="nav-header"> Learning </li>
+                <li>
+                  <a id="sidenav-courses"> Courses </a>
+                </li>
+                <li>
+                  <a id="sidenav-lectures"> Lectures </a>
+                </li>
+                
+                <li class="nav-header"> Practice </li>
+                <li> 
+                  <a id="sidenav-homeworks"> Homeworks </a> 
+                </li>
+                <li>
+                  <a id="sidenav-assignments"> Assignments </a>
+                </li>
+                
+                <li class="nav-header"> Social </li>
+                <li> 
+                  <a id="sidenav-topquestions">Top Questions </a>
+                </li>
+                <li> 
+                  <a id="sidenav-topanswers"> Top Answers </a>
+                </li>
+                <li> 
+                  <a id="sidenav-ask"> Ask Question </a>
+                </li>
+                <li>
+                  <a id="sidenav-answer"> Answer Question </a>
+                </li>
+                
+                <li class="nav-header"> Time Line </li>
+                <li> 
+                  <a id="sidenav-contributions"> Contributions </a>
+                </li>
+                <li> 
+                  <a id="sidenav-knowledges"> Knowledge </a>
+                </li>
+                <li> 
+                  <a id="sidenav-activities"> Activities </a>
+                </li>
+                <li> 
+                  <a id="sidenav-locations"> Locations </a>
+                </li>
+              </ul>
+            </div> <!-- well sidebar-->
+          </div> <!-- span 3 -->
+         
+          <div class="span9">
+            <div class="leaderboard">
+                <h1> Learn, Practice, Develop -- Together ! </h1>
+                <h4> Hello Parents, this is the social learning management system for your kids !</h4>
+            </div>
 
-              <!-- top things, reddit style, div template content from map value -->
-              <div class="topthings" field="content:topthings">
-              </div>
+            <!-- top things, reddit style, div template content from map value -->
+            <div class="topthings" field="content:topthings">
+            </div>
 
-              <!-- container for a list of things [:all :course "course1"] -->
-              <div id="topthings"> </div>
-            </div>  <!-- end of span9 -->
-          </div> <!-- end of row fluid -->
+            <!-- container for a list of things [:all :course "course1"] -->
+            <div id="topthings"> </div>
+          </div>  <!-- end of span9 -->
+        </div> <!-- end of row fluid -->
       </div> <!-- end of container fluid, end of homepage-->
-
-    </div>  <!-- end of homepage -->
+    
+    </div>
 
     <!-- thing node div section. fill with parents, courses, lectures, things -->
     <div class="offset0 thing link" template="thing" field="id:id">
@@ -174,6 +173,6 @@
       # Whenever we add a new message, make sure to fire this:
       $('.chat-frame').scrollTop($('.chat-frame').height());
      -->
-  </div>  <!-- end content div -->
+  </div>
 
 </_within>
