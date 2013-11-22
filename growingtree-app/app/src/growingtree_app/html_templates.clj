@@ -15,7 +15,9 @@
 
   ; dtfn stands for dynamic template fn. tnodes is template nodes.
   ; dtfn creates template that can be udpated even after attached to DOM.
-  {:home-page (dtfn (tnodes "growingtree-app.html" "homepage") #{})
+  {
+   :login-page (tfn (tnodes "login.html" "login"))
+   :home-page (dtfn (tnodes "growingtree-app.html" "homepage") #{})
    :thing (dtfn (tnodes "growingtree-app.html" "thing") #{:id})
    :thing-thumbnail (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})
    :thing-entry (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})
