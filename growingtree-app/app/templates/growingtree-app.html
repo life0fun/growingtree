@@ -10,8 +10,8 @@
 <_within file="application.html">
 
   <div id="content">
-
-    <div template="homepage" id="root">
+ 
+    <div template="homepage" class="homepage" field="id:id">
 
       <div class="navbar navbar-static-top">
         <div class="navbar-inner">
@@ -23,8 +23,8 @@
             <a href="#" class="brand"> GrowingTree </a>
             <div class="nav-collapse collapse">
               <ul class="nav pull-right">
-                <li class="active"><a href="#">Create</a></li>
-                <li class="active"><a href="#">Login</a></li>
+                <li id="create" class="active"><a href="#">Create</a></li>
+                <li id="login" class="active"><a href="#">Login</a></li>
                 <form class="navbar-form" role="search" style="float:left;">
                   <input type="text" class="form-control" placeholder="Search">
                   <button type="submit" class="btn btn-default">Submit</button>
@@ -33,8 +33,8 @@
             </div>
           </div>
         </div>
-      </div> <!-- static top nav bar -->
-
+      </div>
+ 
       <div class="container-fluid">
         <!-- sidebar nav is static, and common to all -->
         <div class="row-fluid">
@@ -97,13 +97,13 @@
           </div> <!-- span 3 -->
          
           <div class="span9">
-            <div class="leaderboard">
+            <div class="leaderboard" field="content:leaderboard">
                 <h1> Learn, Practice, Develop -- Together ! </h1>
                 <h4> Hello Parents, this is the social learning management system for your kids !</h4>
             </div>
 
             <!-- top things, reddit style, div template content from map value -->
-            <div class="topthings" field="content:topthings">
+            <div class="topthings" field="content:myassignment">
             </div>
 
             <!-- container for a list of things [:all :course "course1"] -->

@@ -283,8 +283,12 @@ To set the value of dom element content, not element attributes, use filed="cont
 
 
 To verify template working, need to restart to reload app.
+
   => (use 'growingtree-app.html-templates)
   => (def t (growingtree-app-templates))
+  => (def homepage (:home-page t))
+  => (homepage)
+  => (let [[_ ctor] (homepage)] (ctor {:id "root"}))
 
 
 ## Template and CSS

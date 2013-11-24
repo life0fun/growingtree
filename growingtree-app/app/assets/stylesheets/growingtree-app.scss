@@ -43,6 +43,17 @@ textarea {
     top: -1000px;
     left: -1000px;
 }
+
+/* login form */
+.login{
+    padding-top: 65px;
+}
+.center{
+    float: none; 
+    margin-left: auto; 
+    margin-right: auto;
+}
+
 /*UI stuff*/
 .newbutton {
     @include appearance(none);

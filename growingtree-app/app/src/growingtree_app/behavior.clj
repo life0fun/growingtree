@@ -56,7 +56,6 @@
 ;; transform-fn gets 2 args, old-value and message, ret value used to set new value.
 ;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
 
-
 ; user login, store user name into [:login :name]
 (defn set-login
   [oldv messages]
@@ -64,6 +63,14 @@
         login-pass (:login-pass messages)]
     (.log js/console "user logged in " login-name " pass " login-pass)
     login-name))
+
+
+(defn set-login-modal
+  [oldv messages]
+  (let [login-name (:login-name messages)
+        login-pass (:login-pass messages)]
+    (.log js/console "set nav login " login-name " pass " login-pass)
+    login-name))    
 
 
 ; extract the user clicked nav type from msg, and store it in [:nav :type] node
@@ -220,7 +227,7 @@
 
 ; user can interact with sidebar, so setup interaction on sidebar
 ; get use input click event into :outbound path node.
-(defn init-all-things-emitter 
+(defn login-emitter
   [inputs]
   "set up message emitter for sidebar nav UI interaction"
   (.log js/console "init all things emitter")
@@ -230,13 +237,14 @@
     [:transform-enable [:login :name]
                        :login 
                        [{msgs/topic [:login :name]
-                        (msgs/param :login-name) nil
-                        (msgs/param :login-pass) nil}]]
-   ])
+                        (msgs/param :login-name) ""
+                        (msgs/param :login-pass) ""}]]
+
+  ])
 
 
 ; user logged in, display homepage
-(defn login-emitter
+(defn init-nav-emitter
   [inputs]
   (let [oldv (get-in inputs [:old-model :login :name])
         newv (get-in inputs [:new-model :login :name])]
@@ -248,6 +256,15 @@
                            :set-nav-type
                            [{msgs/topic [:nav :type]
                             (msgs/param :type) {}}]]
+
+        ; enable login modal, experimenting
+        [:transform-enable [:nav] 
+                           :login-modal
+                           [{msgs/topic [:nav]
+                            :login-name ""
+                            :login-pass ""}]]
+                            ; (msgs/param :login-name) nil
+                            ; (msgs/param :login-pass) nil}]]
 
       ])))
 
@@ -430,6 +447,7 @@
     :debug true
     :transform [
                 [:login [:login :name] set-login]
+                [:login-modal [:nav] set-login-modal]
 
                 ; UI event sent to outbound node, then derive to [:nav :type] node
                 [:set-nav-type [:nav :type] set-nav-type]
@@ -464,10 +482,10 @@
 
     ; emitter
     :emit [;{:init init-app-model}
-           {:init init-all-things-emitter}
+           {:init login-emitter}
 
            ; after user logged in, create homepage
-           {:in #{[:login :name]} :fn login-emitter :mode :always}
+           {:in #{[:login :name]} :fn init-nav-emitter :mode :always}
             
            ; upon nav type changes, clear the topthings div and destroy path nodes.
            {:in #{[:nav :type]} :fn nav-type-emitter :mode :always}

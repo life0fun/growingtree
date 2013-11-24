@@ -68,11 +68,13 @@
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; render login and setup login transformer
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-(defn add-login-template 
+(defn add-login-template
+  "add template to top template tree root."
   [renderer [_ path :as delta] input-queue]
   (let [parent (render/get-parent-id renderer path)
         id (render/new-id! renderer path)
         html (:login-page templates)]
+    (.log js/console (str "login template " path " parent " parent))
     (dom/append! (dom/by-id parent) (html {:id id}))))
 
 
@@ -98,15 +100,18 @@
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; home page template includes sidebar, leaderboard and topthings. 
 (defn render-home-page 
-  "homepage template is attached to [:nav], dom append to root"
+  "homepage template is attached to [:nav], div homepage with id stored in [:nav] node"
   [r [_ path] input-queue]
   (let [parent (render/get-parent-id r path)  ; root of top level is [], maps to div id=content
         id (render/new-id! r path)  ; gen a new id to the path.
-        html (templates/add-template r path (:home-page templates))] ; [:nav] node contains homepage template
+        html (templates/add-template r path (:homepage templates)) ; stores homepage div at [:nav] 
+        divcode (html {:id id})]
 
+    (.log js/console (str "render home template at " path " id " (render/get-id r path) 
+                          " parent id " (render/get-parent-id r path) parent))
     (dom/destroy-children! (dom/by-id parent))
-    ; invoke reted html fn to gen html and attach to dom using domina.
-    (dom/append! (dom/by-id parent) (html))   ; homepage no data val map
+    ; attach to dom using domina.
+    (dom/append! (dom/by-id parent) divcode)   ; homepage no data val map
   ))
 
 
@@ -121,7 +126,24 @@
         (events/send-on :click (dom/by-id (str "sidenav-" type)) input-queue
                         (msgs/fill :set-nav-type
                                     message
-                                    {:type (keyword type)}))))))
+                                    {:type (keyword type)})))
+    )))
+
+
+;
+; add listener for upper right login btn and show login modal
+; path is login modal, transkey is login-modal, msg has 2 keys, login-name and pass
+(def login-modal-handler
+  (fn [r [_ path transkey messages] input-queue]
+    (let [login-btn (dom/by-id "login")
+          modal-evt 
+            (fn [evt]
+              (.log js/console (str "login modal clicked " path messages))
+              (auto/modal-collect-input r input-queue path transkey messages))
+          ]
+      (.log js/console (str "setup login modal path " path (render/get-id r path)))
+      (de/listen! login-btn :click modal-evt))))  
+
 
 ; clear all things
 (defn clear-all-things
@@ -156,7 +178,6 @@
         thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
     (.log js/console (str "updating new thing value " path type-path id))
     (templates/update-t r path thing-map)
-    ;(assign-to-listener r path (last path))
     ))
 
 ; -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -226,7 +247,6 @@
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 
-
 ; render config dispatch app model delta to render fn.
 ; the render config is refed in config/config.edn
 ; wildcard :* means exactly one segment with any value, :** means 0+ more.
@@ -236,20 +256,23 @@
    [:node-destroy [:login] h/default-destroy]
    [:transform-enable [:login :name] add-submit-login-handler]
    [:transform-disable [:login :name] remove-submit-login-event]
-
+   
 
    [:node-create  [:nav] render-home-page]
-   [:node-destroy [:nav] auto/default-exit]
+   [:node-destroy [:nav] h/default-destroy]
    ; upon nav type change, clear all things
    [:value [:nav :type] clear-all-things]
    ; wire sidebar nav click to send this transform to change data model.
    [:transform-enable [:nav :type] all-things-transform]
-
+   
+   ; login modal
+   [:transform-enable [:nav] login-modal-handler]
+   ;[:transform-enable [:nav :login] auto/render-event-enter]
    
    ; create all thing list consist of each thing node
    [:node-create [:all :* :*] add-new-thing-node]
-   [:node-destroy [:all :*] auto/default-exit]
-   [:node-destroy [:all :* :*] auto/default-exit]
+   [:node-destroy [:all :*] h/default-destroy]
+   [:node-destroy [:all :* :*] h/default-destroy]
    [:value [:all :* :*] update-new-thing-value]
 
    ; assignment details, only for homeworks type so far
