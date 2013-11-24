@@ -70,12 +70,14 @@
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 (defn add-login-template
   "add template to top template tree root."
-  [renderer [_ path :as delta] input-queue]
-  (let [parent (render/get-parent-id renderer path)
-        id (render/new-id! renderer path)
-        html (:login-page templates)]
+  [r [_ path :as delta] input-queue]
+  (let [parent (render/get-parent-id r path)
+        id (render/new-id! r path)
+        html (templates/add-template r path (:login templates))
+        divcode (html {:id id :name "user" :pass "pass"})]
     (.log js/console (str "login template " path " parent " parent))
-    (dom/append! (dom/by-id parent) (html {:id id}))))
+    (dom/append! (dom/by-id parent) divcode)
+  ))
 
 
 ; events collect and sent, input map, link dom ele id to msg param key
@@ -253,6 +255,7 @@
 (defn render-config []
   [; render login screen first.
    [:node-create  [:login] add-login-template]
+   ;[:node-create  [:login] render-home-page]
    [:node-destroy [:login] h/default-destroy]
    [:transform-enable [:login :name] add-submit-login-handler]
    [:transform-disable [:login :name] remove-submit-login-event]
@@ -279,6 +282,5 @@
    ;[:transform-enable [:all :* :*] on-assignment-transform]
    [:transform-enable [:action :setup :* :*] setup-action-transforms]
    [:transform-enable [:action :submit :* :*] submit-action-transforms]
-
 
   ])

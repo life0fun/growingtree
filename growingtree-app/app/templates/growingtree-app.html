@@ -169,6 +169,35 @@
       </form>
     </div>
 
+
+    <!-- login template, should use _include -->
+    <div class="container login" template="login" field="id:id">
+      <div class="row">
+        <div class="center span4 well">
+          <h3> Welcome to GrowingTree</h3>
+         
+          <div class="alert alert-error">
+              <a class="close" data-dismiss="alert" href="#">x</a>Incorrect Username or Password!
+          </div>
+
+          <form method="POST" action="" accept-charset="UTF-8">
+            <input type="text" id="login-name" class="span4" placeholder="Username" />
+
+            <input type="password" id="login-pass" class="span4"  placeholder="Password" />
+            
+            <label class="checkbox">
+              <input type="checkbox" name="remember" value="1" /> Remember Me
+            </label>
+          
+            <button id="login-button" type="submit" name="submit" class="btn btn-primary btn-block">Sign in</button>
+          </form>
+        </div>
+      </div>
+
+      <p class="text-center"> Copyright 2013 - GrowingTree </p>
+    </div>
+
+
     <!--
       # Whenever we add a new message, make sure to fire this:
       $('.chat-frame').scrollTop($('.chat-frame').height());

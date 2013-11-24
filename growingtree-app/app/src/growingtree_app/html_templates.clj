@@ -2,6 +2,8 @@
   (:use [io.pedestal.app.templates :only [render tfn dtfn tnodes template-children]])
   (:require [net.cgrand.enlive-html :as html]))
 
+;; upon any change on this file, we need to lein repl to retart the server
+;; in order for the change to loaded.
 
 (defmacro growingtree-app-templates
   []
@@ -18,7 +20,7 @@
 
   ; note that keyword :homepage, must match tnode name "homepage", for id to take effect.
   {
-   :login-page (tfn (tnodes "login.html" "login"))
+   :login (dtfn (tnodes "growingtree-app.html" "login") #{:id})
    :homepage (dtfn (tnodes "growingtree-app.html" "homepage") #{:id})
    :thing     (dtfn (tnodes "growingtree-app.html" "thing") #{:id})
    :thing-thumbnail (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})
