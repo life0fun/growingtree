@@ -72,25 +72,26 @@
 
 
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-;; render login and setup login transformer
+;; node create login and render login and enable setup login
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-(defn add-login-template
+(defn create-login-template
   "node-create of [:login], add template to top template tree root."
   [r [_ path :as delta] input-queue]
   (let [parent (render/get-parent-id r path)
         id (render/new-id! r path)
         html (templates/add-template r path (:login templates))
         divcode (html {:id id :name "user" :pass "pass"})]
-    (.log js/console (str "login template " path " parent " parent))
+    (.log js/console (str "adding login template " path " parent " parent))
     (dom/append! (dom/by-id parent) divcode)
   ))
 
 
 ; events collect and sent, input map, link dom ele id to msg param key
 ; pass value from dom key to msg map key thru input map {:dom-ele-id :msg-param-key}
-(defn add-submit-login-handler
+(defn enable-login-submit
   "listen login btn event and sent transform msgs back to behavior"
   [_ [_ path transform-name messages] input-queue]
+  (.log js/console (str ""))
   (events/collect-and-send :click 
                            "login-button" 
                            input-queue 
@@ -125,7 +126,7 @@
 
 
 ; sidebar click transform [:nav :type] value, trigger request to get list of things.
-(def all-things-transform
+(def enable-type-all-things
   "wire sidebar click event to all things transform fn"
   (fn [r [_ p transform-name message] input-queue]
     (let [sidebars ["parents" "children" "courses" "lectures" "homeworks"
@@ -144,7 +145,7 @@
 ;
 ; add listener for upper right login btn and show login modal
 ; path is login modal, transkey is login-modal, msg has 2 keys, login-name and pass
-(def login-modal-handler
+(def enable-login-modal
   (fn [r [_ path transkey messages] input-queue]
     (let [login-btn (dom/by-id "login")
           modal-evt 
@@ -182,7 +183,7 @@
     
 
 ; info model value transformed, update template attached to node path.
-(defn update-new-thing-value
+(defn value-update-new-thing
   [r [op path oldv newv] input-queue]
   (let [id (render/get-id r path)
         type-path (butlast path)
@@ -195,16 +196,16 @@
 
 
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-;; action setup multimethod. It dispatches on transkey 
+;; setup action multimethod. It dispatches by transkey, the second item in path [:setup :transkey]
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-(defmulti setup-action-transforms
+(defmulti enable-setup-action
   (fn [render [target path transkey messages] input-queue]
     transkey))
 
 
 ; setup assignment link event listen, when link clicked, fill all messages
 ; with details contains thingid clicked.
-(defmethod setup-action-transforms 
+(defmethod enable-setup-action 
   :assign 
   [r [t p k messages] input-queue]
   (let [thingid (last p)   ; last segment of path is thingid
@@ -214,7 +215,7 @@
         assign-sel (str "assign-" thingid)
         assign-div (dom/by-class assign-sel)]
   
-    ;(.log js/console (str "setup action transform " t " path " p " key " k))  
+    (.log js/console (str "enable setup action " t " path " p " key " k))  
     ; wrap assign link with div and use class selector
     (de/listen! assign-div 
                 :click 
@@ -230,7 +231,7 @@
 
 ; create new thing btn event listen, when clicked, display input newthing template
 ; under main div. messages is cljs PersistentVector, hence doseq to process each.
-(defmethod setup-action-transforms 
+(defmethod enable-setup-action 
   :newthing
   [r [t path transkey messages] input-queue]  ; for newthing, only one msg in vector.
   (let [newthing-sel (str "newthing")
@@ -253,29 +254,29 @@
                 (p/put-message input-queue m))))
         ]
   
-    (.log js/console (str "setup newthing " path " details " ((msgs/param :details) (first messages))))
+    (.log js/console (str "enable setup newthing " path " details " ((msgs/param :details) (first messages))))
     ; wrap assign link with div and use class selector
     (de/listen! newthing-li :click click-fn)
   ))
     
 
 ;; Handle add-tasks 
-(defmethod setup-action-transforms 
+(defmethod enable-setup-action 
   :share 
   [r [t p k messages] input-queue]            
   (.log js/console (str "share clicked " t p k)))
 
 
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-;; action submit multimethod. It dispatches on transkey.
+;; submit action multimethod. It dispatches on transkey. the second item [:submit :transkey]
 ;; message is a list of message map. behavior sends [{topic [] (param)} {}]
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-(defmulti submit-action-transforms 
+(defmulti enable-submit-action
   (fn [render [target path transkey messages] input-queue]
     transkey))
 
 ; wire submit button click on assignment form to fill assign message
-(defmethod submit-action-transforms 
+(defmethod enable-submit-action 
   :assign
   [r [target path transkey messages] input-queue]
   (let [form (dom/by-class "assignment-form")   ; submit button of this form
@@ -290,12 +291,12 @@
                     (.log js/console (str "assign submitted " details))
                     (msgs/fill :assign messages {:details details})))]
 
-    (.log js/console (str "submit assign transform " path transkey messages))
+    (.log js/console (str "enable assign submit " path transkey messages))
     (events/send-on :submit form input-queue submit-fn)))
 
 
 ; wire submit button click on new thing to fill newthing message
-(defmethod submit-action-transforms 
+(defmethod enable-submit-action 
   :newthing
   [r [target path transkey messages] input-queue]
   (let [form (dom/by-id "newthing-form")   ; submit button of this form
@@ -312,7 +313,7 @@
                     (.log js/console (str "newthing submitted " details))
                     (msgs/fill :newthing messages {:details details})))]
 
-    (.log js/console (str "newthing submit transform " path transkey messages))
+    (.log js/console (str "enable newthing submit " path transkey messages))
     (events/send-on :submit form input-queue submit-fn)))
     
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -325,11 +326,11 @@
 ; wildcard :* means exactly one segment with any value, :** means 0+ more.
 (defn render-config []
   [; render login screen first.
-    [:node-create  [:login] add-login-template]
+    [:node-create  [:login] create-login-template]
     ;[:node-create  [:login] render-home-page]
     [:node-destroy [:login] h/default-destroy]
-    [:transform-enable [:login :name] add-submit-login-handler]
-    [:transform-disable [:login :name] remove-submit-login-event]
+    [:transform-enable [:login :name] enable-login-submit]
+    [:transform-disable [:login :name] disable-login-submit]
 
     ; side bar nav type
     [:node-create  [:nav] render-home-page]
@@ -337,24 +338,25 @@
     ; upon nav type change, clear all things
     [:value [:nav :type] clear-all-things]
     ; wire sidebar nav click to send this transform to change data model.
-    [:transform-enable [:nav :type] all-things-transform]
+    [:transform-enable [:nav :type] enable-type-all-things]
 
     ; login modal
-    [:transform-enable [:nav] login-modal-handler]
+    [:transform-enable [:nav] enable-login-modal]
 
 
     ; create all thing list consist of each thing node
     [:node-create [:all :* :*] add-new-thing-node]
     [:node-destroy [:all :*] h/default-destroy]
     [:node-destroy [:all :* :*] h/default-destroy]
-    [:value [:all :* :*] update-new-thing-value]
+    [:value [:all :* :*] value-update-new-thing]
 
-    ; action setup and submit handler, multi-method
-    [:transform-enable [:action :setup :* :*] setup-action-transforms]
-    [:transform-enable [:action :submit :* :*] submit-action-transforms]
+    ; setup and submit action handler, path [:setup :assign :homework id] multi-method, 
+    ; we can match anything, mutlimethod dispatch based on transkey
+    [:transform-enable [:setup :**] enable-setup-action]
+    [:transform-enable [:submit :**] enable-submit-action]
 
-    ; for newthing setup
-    [:transform-enable [:action :setup :newthing] setup-action-transforms]
-    [:transform-enable [:action :submit :newthing] submit-action-transforms]
+    ; newthing, path is [:setup :newthing ]
+    ;[:transform-enable [:setup :newthing] setup-action-transforms]
+    ;[:transform-enable [:submit :newthing] submit-action-transforms]
 
   ])

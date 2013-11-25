@@ -82,18 +82,18 @@
   (.log js/console (str "set-nav-type " messages))
   (:type messages))  ; value stored inside thing :type key
 
-; set thing type
+; set thing type after nav to new type upon sidebar click
 (defn set-thing-type
   [_ messages]
   (:type messages))  ; value stored inside :category key
 
 
 ; create new thing transformer
-(defn create-new-thing
-  [oldv messages]
-  (let [newthing (:details messages)]
-    (.log js/console "create new thing details " newthing)
-    newthing))
+; (defn create-new-thing
+;   [oldv messages]
+;   (let [newthing (:details messages)]
+;     (.log js/console "create new thing details " newthing)
+;     newthing))
 
 
 ; called by xhr respond handler, store list of all things data structure into map.
@@ -127,14 +127,15 @@
 
 
 ; newthing btn clicked, transform action setup newthing node in info model
-(defn newthing-action-setup
+; each key val in details value map will create a new node under action setup newthing.
+(defn setup-newthing
   "create new thing btn clicked, details should contains :user"
   [oldv messages]
   (let [details (:details messages)]
     (.log js/console (str "newthing btn clicked " details))
     details))
 
-(defn newthing-action-submit
+(defn submit-newthing
   "create new thing btn clicked "
   [oldv messages]
   (let [details (:details messages)]
@@ -216,7 +217,7 @@
 ; note that the first time node-create [:action :submit :*] will trigger this fn
 ; we need to filter out that.
 ; details {:action :assign, :hwid 17592186045487, :toid "foo", :hint "bar"} 
-(defn post-action-thing
+(defn post-submit-thing
   [inputs] 
   "after form submitted, post create thing with user data"
   (let [msg (:message inputs)
@@ -233,7 +234,7 @@
 
 ; when new thing created, post data to db to create new thing
 ; inputs contains {:mesage {topic [] :details} :new-model {} :old-model {}}
-(defn post-newthing
+(defn post-submit-newthing
   "after use created new thing, post them to database"
   [inputs]
   (let [msg (:message inputs)
@@ -258,8 +259,9 @@
         {:transforms   ; the node path is from top to here [:course :form :set-course]
           {:set-things-filtered [{msgs/topic [:filtered] 
                                  (msgs/param :filtered) {}}]}}}
-    :action
-      {:setup {}}}])
+    :setup {}
+    :submit {}
+  }])
 
 
 ; user can interact with sidebar, so setup interaction on sidebar
@@ -302,10 +304,10 @@
                             :login-name ""
                             :login-pass ""}]]
 
-        ; enable new thing button with transform key :newthing
-        [:transform-enable [:action :setup :newthing] 
+        ; enable setup newthing button with transform key :newthing
+        [:transform-enable [:setup :newthing] 
                            :newthing
-                           [{msgs/topic [:action :setup :newthing]
+                           [{msgs/topic [:setup :newthing]
                             (msgs/param :details) {:user newv}}]]
                             
       ])))
@@ -342,22 +344,24 @@
 
 ; ret a vector of delta tuples of node-create and value delat from a vector of 
 ; new things value. value is a vector of entity tuples, mapcat vec is de-pack and re-pack vec.
+; action type corresponds to each clickable btn, for now, we enable :assign btn only.
 (defn- new-thing-deltas 
   "ret a vector of delta tuples of node-create and value delta from a vec of new things"
-  [path value-vec]  ; path is [:all :homework] and a list of new thing ids
+  [action path value-vec]  ; path is [:all :homework] and a list of new thing ids
   ; ret a vector of delta tuples. concat vector of tuples from apply fn on each entity map.
+  ; for now, we only enable assign btn, for othe btns, iterate
   (mapcat
     (fn [entity-map]
       (let [id (:db/id entity-map)
             newpath (conj path id)  ; [:all :homework 123]
-            actionpath (vec (concat [:action :setup] (rest newpath)))]
+            actionpath (vec (concat [:setup action] (rest newpath)))]
         (.log js/console (str "new thing delta " newpath " id " id))
         ; ret a vec of delta tuples, 
         [ [:node-create newpath :map]
           [:value newpath entity-map]
           ; ask UI to send back assignment details
           [:transform-enable actionpath   ; [:action :setup :]
-                      :assign  ;  tranform-key
+                      action
                       [{msgs/topic actionpath ; [:action :setup :homework 123]
                        (msgs/param :details) {}}]] ]))
     value-vec))
@@ -380,14 +384,14 @@
     ; each change tuple consists of node-path and a vector of values
     ;(removed-thing-deltas removed)
     (reduce (fn [alldeltas [input-path newvals]] ;input-path, [:all :course] is a vec
-              ; concat is vec de-pack and re-pack
-              (concat alldeltas (new-thing-deltas input-path newvals)))
+              ; concat is vec de-pack and re-pack, enable :assign action for now
+              (concat alldeltas (new-thing-deltas :assign input-path newvals)))
             []
             changemap)))
 
 
 ; actionbar displayed, now trans enable UI event data come back
-(defn action-emitter
+(defn assign-emitter
   "emit trans enable for action bar element"
   [inputs]
   (let [changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
@@ -398,13 +402,15 @@
     ; (doseq [[path oldv] removemap]
     ;   (.log js/console (str "action removemap " path " old-value " oldv)))
 
+
     (reduce (fn [alldeltas [path newv]]
               (let [thingnode (nnext path)  ; [:action :setup :assign thing]
-                    newpath (concat [:action :submit] thingnode)
+                    newpath (concat [:submit :assign] thingnode)
                     messages {msgs/topic newpath 
                               msgs/type :assign
                               (msgs/param :details) {}}]
-                ; concat 
+                (.log js/console (str "action emitter " path " " newv))
+                ; concat this thing node delta
                 (concat alldeltas
                   [[:transform-enable newpath :assign [messages]]])))
             []
@@ -425,7 +431,7 @@
     ;   (.log js/console (str "action removemap " path " old-value " oldv)))
 
     (reduce (fn [alldeltas [path newv]]
-              (let [newpath (conj [:action :submit] :newthing)
+              (let [newpath (conj [:submit] :newthing)
                     messages {msgs/topic newpath 
                               msgs/type :newthing
                               (msgs/param :details) newv}]
@@ -523,12 +529,12 @@
                 [:set-all-things [:all] all-things-transformer]
 
                 ; assign action setup transform
-                [:assign [:action :setup :* :*] assign-action-setup]
-                [:assign [:action :submit :* :*] assign-action-submit]
+                [:assign [:setup :assign :*] setup-assign]
+                [:assign [:submit :assign :*] submit-assign]
 
-                ; for newthing setup
-                [:newthing [:action :setup :newthing] newthing-action-setup]
-                [:newthing [:action :submit :newthing] newthing-action-submit]
+                ; new thing setup, each key in the value map will create a new node.
+                [:newthing [:setup :newthing] setup-newthing]
+                [:newthing [:submit :newthing] submit-newthing]
                ]
 
     :derive #{
@@ -547,10 +553,10 @@
               [#{[:nav :type]} request-all-things :single-val]
 
               ; action submitted, write to db
-              {:in #{[:action :submit :* :*]} :fn post-action-thing :mode :always}
+              {:in #{[:submit :assign :*]} :fn post-assign-thing :mode :always}
 
               ; action submit new thing, write to db
-              {:in #{[:action :submit :newthing]} :fn post-newthing :mode :always}
+              {:in #{[:submit :newthing]} :fn post-submit-newthing :mode :always}
 
               ; new thing created, save to db
               {:in #{[:new]} :fn post-create-thing :mode :always}
@@ -569,11 +575,11 @@
            ; when getting things from server, created map entry, cause node here.
            {:in #{[:all :*]} :fn all-things-node-emitter :mode :always}
 
-           ; when create new thing setup, emit 
-           {:in #{[:action :setup :newthing]} :fn newthing-emitter :mode :always}
-
            ; when actionbar displayed, action, setup, assign, thing enable transform
-           {:in #{[:action :setup :* :*]} :fn action-emitter :mode :always}
+           {:in #{[:setup :assign :*]} :fn assign-emitter :mode :always}
+
+           ; when create new thing setup, emit 
+           {:in #{[:setup :newthing]} :fn newthing-emitter :mode :always}
 
 
            {:in #{[:sse-data]} :fn sse-data-emitter :mode :always}
