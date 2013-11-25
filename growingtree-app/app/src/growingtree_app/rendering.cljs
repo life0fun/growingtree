@@ -10,20 +10,11 @@
             [io.pedestal.app.util.log :as log]
             [io.pedestal.app.render.push.handlers :as h]
             [io.pedestal.app.render.push.handlers.automatic :as auto]
+            ; util namespace
+            [growingtree-app.util :as util]
             ; entity view map
             [growingtree-app.entity-view :as entity-view])
   (:require-macros [growingtree-app.html-templates :as html-templates]))
-
-
-; Load templates.
-(def templates (html-templates/growingtree-app-templates))
-
-; pad time with leading 0 for single digit.
-(defn- format-time [d]
-  (let [pad (fn [n] (if (< n 10) (str "0" n) (str n)))]
-    (str (pad (.getHours d)) ":"
-         (pad (.getMinutes d)) ":"
-         (pad (.getSeconds d)))))
 
 
 ;
@@ -65,11 +56,26 @@
 ;
 
 
+; node-create, 
+;  handle fn got message type as node-create and path in message itself.
+
+; transform message
+; transform-enable messages sent from behavior clj, is PersistentArrayMap. It is a Map.
+; when come to cljs code, PersistentArrayMap changed to PersistentVector.
+; on cljs world, there are only PersistentVector and PersistentMap.
+; when sending back to clj, messages converted back to PersistentArrayMap.
+; note that when accessing msg params here, need to use (msgs/param :details)
+
+
+; Load templates macro.
+(def templates (html-templates/growingtree-app-templates))
+
+
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; render login and setup login transformer
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 (defn add-login-template
-  "add template to top template tree root."
+  "node-create of [:login], add template to top template tree root."
   [r [_ path :as delta] input-queue]
   (let [parent (render/get-parent-id r path)
         id (render/new-id! r path)
@@ -82,7 +88,8 @@
 
 ; events collect and sent, input map, link dom ele id to msg param key
 ; pass value from dom key to msg map key thru input map {:dom-ele-id :msg-param-key}
-(defn add-submit-login-handler 
+(defn add-submit-login-handler
+  "listen login btn event and sent transform msgs back to behavior"
   [_ [_ path transform-name messages] input-queue]
   (events/collect-and-send :click 
                            "login-button" 
@@ -125,7 +132,9 @@
                     "assignments" "topquestions" "topanswers" "ask" "answer"
                     "contributions" "knowledges" "activities" "locations"]]
       (doseq [type sidebars]
-        (events/send-on :click (dom/by-id (str "sidenav-" type)) input-queue
+        (events/send-on :click 
+                        (dom/by-id (str "sidenav-" type)) 
+                        input-queue
                         (msgs/fill :set-nav-type
                                     message
                                     {:type (keyword type)})))
@@ -158,6 +167,7 @@
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; render each thing list node, and setup action bar transformer in each node.
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+; info model added a new node, create a new thing node, append it to topthings div.
 (defn add-new-thing-node
   [r [op path] input-queue]
   (let [thingid (last path)
@@ -171,6 +181,7 @@
     (dom/append! (dom/by-id "topthings") thing)))
     
 
+; info model value transformed, update template attached to node path.
 (defn update-new-thing-value
   [r [op path oldv newv] input-queue]
   (let [id (render/get-id r path)
@@ -182,15 +193,19 @@
     (templates/update-t r path thing-map)
     ))
 
-; -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-; multimethod polymorph to dispatch action phase bar key
-(defmulti setup-action-transforms 
+
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+;; action setup multimethod. It dispatches on transkey 
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+(defmulti setup-action-transforms
   (fn [render [target path transkey messages] input-queue]
     transkey))
 
 
-; on assign to link clicked
-(defmethod setup-action-transforms :assign 
+; setup assignment link event listen, when link clicked, fill all messages
+; with details contains thingid clicked.
+(defmethod setup-action-transforms 
+  :assign 
   [r [t p k messages] input-queue]
   (let [thingid (last p)   ; last segment of path is thingid
         html (templates/add-template r p (:assignment-form templates))
@@ -212,21 +227,56 @@
                       (p/put-message input-queue m)))))
   ))
 
+
+; create new thing btn event listen, when clicked, display input newthing template
+; under main div. messages is cljs PersistentVector, hence doseq to process each.
+(defmethod setup-action-transforms 
+  :newthing
+  [r [t path transkey messages] input-queue]  ; for newthing, only one msg in vector.
+  (let [newthing-sel (str "newthing")
+        newthing-li (dom/by-id newthing-sel)  ; newthing btn id in top nav bar
+        ; when clicked, closure user id.
+        click-fn
+          (fn [evt]
+            (let [id (render/new-id! r path)   ; new id for [:action :setup :newthing]
+                  parent (dom/by-id "main")    ; put the template  
+                  html (templates/add-template r path (:newthing templates))
+                  divcode (html {:id id})
+                  details-orig ((msgs/param :details) (first messages))
+                  details (assoc details-orig :action :newthing) ; :time (.unix js/moment)) ; ensure new
+                  new-msgs (msgs/fill :newthing messages {:details details})]
+              (.log js/console (str "render newthing at " path " id " id " " (render/get-id r path)))
+              
+              (dom/destroy-children! parent)
+              (dom/append! parent divcode)
+              (doseq [m new-msgs]
+                (p/put-message input-queue m))))
+        ]
+  
+    (.log js/console (str "setup newthing " path " details " ((msgs/param :details) (first messages))))
+    ; wrap assign link with div and use class selector
+    (de/listen! newthing-li :click click-fn)
+  ))
     
+
 ;; Handle add-tasks 
-(defmethod setup-action-transforms :share 
+(defmethod setup-action-transforms 
+  :share 
   [r [t p k messages] input-queue]            
   (.log js/console (str "share clicked " t p k)))
 
 
-; -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-; multimethod polymorph.  It dispatches on the key of the transform-enable
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+;; action submit multimethod. It dispatches on transkey.
+;; message is a list of message map. behavior sends [{topic [] (param)} {}]
+;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 (defmulti submit-action-transforms 
   (fn [render [target path transkey messages] input-queue]
     transkey))
 
 ; wire submit button click on assignment form to fill assign message
-(defmethod submit-action-transforms :assign
+(defmethod submit-action-transforms 
+  :assign
   [r [target path transkey messages] input-queue]
   (let [form (dom/by-class "assignment-form")   ; submit button of this form
         hwid (last path)  ; last of path is hwid
@@ -243,6 +293,27 @@
     (.log js/console (str "submit assign transform " path transkey messages))
     (events/send-on :submit form input-queue submit-fn)))
 
+
+; wire submit button click on new thing to fill newthing message
+(defmethod submit-action-transforms 
+  :newthing
+  [r [target path transkey messages] input-queue]
+  (let [form (dom/by-id "newthing-form")   ; submit button of this form
+        type (dom/by-id "newthing-type")
+        title (dom/by-id "newthing-title")
+        content (dom/by-id "newthing-content")
+        submit-fn (fn [_]   ; form submit handler, fill msg and ret the msg
+                   (let [type-val (.-value type)
+                         title-val (.-value title)
+                         content-val (.-value content)
+                         details {:action :newthing
+                                  :type :type-val :title title-val :content content-val
+                                  }]
+                    (.log js/console (str "newthing submitted " details))
+                    (msgs/fill :newthing messages {:details details})))]
+
+    (.log js/console (str "newthing submit transform " path transkey messages))
+    (events/send-on :submit form input-queue submit-fn)))
     
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; 
@@ -254,33 +325,36 @@
 ; wildcard :* means exactly one segment with any value, :** means 0+ more.
 (defn render-config []
   [; render login screen first.
-   [:node-create  [:login] add-login-template]
-   ;[:node-create  [:login] render-home-page]
-   [:node-destroy [:login] h/default-destroy]
-   [:transform-enable [:login :name] add-submit-login-handler]
-   [:transform-disable [:login :name] remove-submit-login-event]
-   
+    [:node-create  [:login] add-login-template]
+    ;[:node-create  [:login] render-home-page]
+    [:node-destroy [:login] h/default-destroy]
+    [:transform-enable [:login :name] add-submit-login-handler]
+    [:transform-disable [:login :name] remove-submit-login-event]
 
-   [:node-create  [:nav] render-home-page]
-   [:node-destroy [:nav] h/default-destroy]
-   ; upon nav type change, clear all things
-   [:value [:nav :type] clear-all-things]
-   ; wire sidebar nav click to send this transform to change data model.
-   [:transform-enable [:nav :type] all-things-transform]
-   
-   ; login modal
-   [:transform-enable [:nav] login-modal-handler]
-   ;[:transform-enable [:nav :login] auto/render-event-enter]
-   
-   ; create all thing list consist of each thing node
-   [:node-create [:all :* :*] add-new-thing-node]
-   [:node-destroy [:all :*] h/default-destroy]
-   [:node-destroy [:all :* :*] h/default-destroy]
-   [:value [:all :* :*] update-new-thing-value]
+    ; side bar nav type
+    [:node-create  [:nav] render-home-page]
+    [:node-destroy [:nav] h/default-destroy]
+    ; upon nav type change, clear all things
+    [:value [:nav :type] clear-all-things]
+    ; wire sidebar nav click to send this transform to change data model.
+    [:transform-enable [:nav :type] all-things-transform]
 
-   ; assignment details, only for homeworks type so far
-   ;[:transform-enable [:all :* :*] on-assignment-transform]
-   [:transform-enable [:action :setup :* :*] setup-action-transforms]
-   [:transform-enable [:action :submit :* :*] submit-action-transforms]
+    ; login modal
+    [:transform-enable [:nav] login-modal-handler]
+
+
+    ; create all thing list consist of each thing node
+    [:node-create [:all :* :*] add-new-thing-node]
+    [:node-destroy [:all :*] h/default-destroy]
+    [:node-destroy [:all :* :*] h/default-destroy]
+    [:value [:all :* :*] update-new-thing-value]
+
+    ; action setup and submit handler, multi-method
+    [:transform-enable [:action :setup :* :*] setup-action-transforms]
+    [:transform-enable [:action :submit :* :*] submit-action-transforms]
+
+    ; for newthing setup
+    [:transform-enable [:action :setup :newthing] setup-action-transforms]
+    [:transform-enable [:action :submit :newthing] submit-action-transforms]
 
   ])

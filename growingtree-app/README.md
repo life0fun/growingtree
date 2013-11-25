@@ -284,11 +284,15 @@ To set the value of dom element content, not element attributes, use filed="cont
 
 To verify template working, need to restart to reload app.
 
-  => (use 'growingtree-app.html-templates)
-  => (def t (growingtree-app-templates))
-  => (def homepage (:home-page t))
-  => (homepage)
-  => (let [[_ ctor] (homepage)] (ctor {:id "root"}))
+    (use 'growingtree-app.html-templates)
+    (def t (growingtree-app-templates))
+    (def homepage (:home-page t))
+    (homepage)
+    (let [[_ ctor] (homepage)] (ctor {:id "root"}))
+
+Note that template name must be the same as the keywords in html-template for enlive nodes connect to dom nodes.
+
+Note that when you add new template `html' into templates directory, add the li line to tools/public/design.html. Otherwise, you got NPE when generating pedestal landing page.
 
 
 ## Template and CSS
@@ -299,6 +303,7 @@ When trying to pass both attributes and content to a template with field="conten
 
 We use bootstrap 2.x as our base css. We borrow some styles from reddit for each thing in the category.
 We use sass for css compilation. config.rb specifies how compass compile should find and compile scss file.
+
 After (watch :development), just `compass compile` will generate css. 
 Note that though you place all images under assets/images, inside scss file you need to refer them under top root /, this is because all assets are compiled and put directly under out/public where server refer all through link resources/public.
 

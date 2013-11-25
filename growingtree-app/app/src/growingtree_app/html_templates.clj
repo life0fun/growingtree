@@ -28,4 +28,5 @@
    :toprow (dtfn (tnodes "growingtree-app.html" "toprow") #{:id})
    :sublist-entry (dtfn (tnodes "growingtree-app.html" "sublistentry") #{})
    :assignment-form (dtfn (tnodes "growingtree-app.html" "assignment-form") #{})
+   :newthing (dtfn (tnodes "newthing.html" "newthing") #{:id})
   })

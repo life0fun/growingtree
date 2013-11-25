@@ -54,14 +54,17 @@
 ;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
 ;; transforms
 ;; transform-fn gets 2 args, old-value and message, ret value used to set new value.
+;; message is PersistentArrayMap, which echoed back from transform-enabled [topic, params]
+;; when messages sent to cljs, it becomes PersistentVector, when sending back, becomes
+;; PersistentArrayMap again. Hence you can do (:details messages) here.
 ;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
 
 ; user login, store user name into [:login :name]
 (defn set-login
-  [oldv messages]
+  [oldv messages]  ; messages is PersistentArrayMap, an array of map
   (let [login-name (:login-name messages)
         login-pass (:login-pass messages)]
-    (.log js/console "user logged in " login-name " pass " login-pass)
+    (.log js/console "user logged in " login-name " pass " login-pass messages)
     login-name))
 
 
@@ -75,14 +78,22 @@
 
 ; extract the user clicked nav type from msg, and store it in [:nav :type] node
 (defn set-nav-type
-  [_ message]
-  (.log js/console (str "set-nav-type " message))
-  (:type message))  ; value stored inside thing :type key
+  [_ messages]
+  (.log js/console (str "set-nav-type " messages))
+  (:type messages))  ; value stored inside thing :type key
 
 ; set thing type
 (defn set-thing-type
-  [_ message]
-  (:type message))  ; value stored inside :category key
+  [_ messages]
+  (:type messages))  ; value stored inside :category key
+
+
+; create new thing transformer
+(defn create-new-thing
+  [oldv messages]
+  (let [newthing (:details messages)]
+    (.log js/console "create new thing details " newthing)
+    newthing))
 
 
 ; called by xhr respond handler, store list of all things data structure into map.
@@ -90,9 +101,9 @@
 ; no more parse needed. We only need one parse at response-handler.
 (defn all-things-transformer
   "store list of all things vec in [:all :type] node under each type key"
-  [oldv message]
-  (let [type (:type message)    ; thing type 
-        things-vec (:data message)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
+  [oldv messages]
+  (let [type (:type messages)    ; thing type 
+        things-vec (:data messages)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
     (.log js/console "all-transformer set [:all :type] for " type things-vec)
     (assoc-in oldv [type] things-vec)))  ; now vector is stored in [:all :type]
 
@@ -101,17 +112,33 @@
 ; user clicked assign link, show assign action bar, enable transform for content
 (defn assign-action-setup
   "after displaying actionbar, store at [:action :setup :type id] the detail map"
-  [oldv message]
-  (let [details (:details message)]  ; details is {:action :create-assignment :id 12}
+  [oldv messages]
+  (let [details (:details messages)]  ; details is {:action :create-assignment :id 12}
     (.log js/console (str "assign setup transform details " details))
     details))
 
 ; Path is [:action :submit :thing-type thingid], stores details map {:action :assign :id 12}
 (defn assign-action-submit
   "actionbar form submitted, store and write to effect queue"
-  [oldv message]
-  (let [details (:details message)] ; details is {:action :create-assignment :id xx}
+  [oldv messages]
+  (let [details (:details messages)] ; details is {:action :create-assignment :id xx}
     (.log js/console (str "assign submitted transform details " details))
+    details))
+
+
+; newthing btn clicked, transform action setup newthing node in info model
+(defn newthing-action-setup
+  "create new thing btn clicked, details should contains :user"
+  [oldv messages]
+  (let [details (:details messages)]
+    (.log js/console (str "newthing btn clicked " details))
+    details))
+
+(defn newthing-action-submit
+  "create new thing btn clicked "
+  [oldv messages]
+  (let [details (:details messages)]
+    (.log js/console (str "newthing btn clicked" details))
     details))
 
 
@@ -204,6 +231,16 @@
         [{msgs/topic [:server] msgs/type action :body details}]))))
 
 
+; when new thing created, post data to db to create new thing
+; inputs contains {:mesage {topic [] :details} :new-model {} :old-model {}}
+(defn post-newthing
+  "after use created new thing, post them to database"
+  [inputs]
+  (let [msg (:message inputs)
+        details (:details msg)]
+    (.log js/console (str "post new thing " msg details))
+    [{msgs/topic [:server] msgs/type :newthing :body details}]))
+
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; emitter to report changes, and attach transforms to template events.
 ;; emitter-fn takes a single argument, a tracking map, or maps, or single-val
@@ -243,7 +280,8 @@
   ])
 
 
-; user logged in, display homepage
+; user logged in, display homepage, enable all action btn and pass current
+; user to message
 (defn init-nav-emitter
   [inputs]
   (let [oldv (get-in inputs [:old-model :login :name])
@@ -263,9 +301,13 @@
                            [{msgs/topic [:nav]
                             :login-name ""
                             :login-pass ""}]]
-                            ; (msgs/param :login-name) nil
-                            ; (msgs/param :login-pass) nil}]]
 
+        ; enable new thing button with transform key :newthing
+        [:transform-enable [:action :setup :newthing] 
+                           :newthing
+                           [{msgs/topic [:action :setup :newthing]
+                            (msgs/param :details) {:user newv}}]]
+                            
       ])))
 
 ; when nav type changed, emit node destroy for old list
@@ -298,29 +340,29 @@
 ;     (app/default-emitter) inputs))
     
 
-; ret a vector of delta tuples of node-create and value delat from a vector of new things value
-; value is a vector of entity tuples, mapcat vec is de-pack vec and re-pack vec.
-(defn- new-deltas 
+; ret a vector of delta tuples of node-create and value delat from a vector of 
+; new things value. value is a vector of entity tuples, mapcat vec is de-pack and re-pack vec.
+(defn- new-thing-deltas 
   "ret a vector of delta tuples of node-create and value delta from a vec of new things"
-  [path value-vec]
+  [path value-vec]  ; path is [:all :homework] and a list of new thing ids
   ; ret a vector of delta tuples. concat vector of tuples from apply fn on each entity map.
   (mapcat
     (fn [entity-map]
       (let [id (:db/id entity-map)
-            newpath (conj path id)
+            newpath (conj path id)  ; [:all :homework 123]
             actionpath (vec (concat [:action :setup] (rest newpath)))]
-        (.log js/console (str "new delta path " newpath " id " id))
+        (.log js/console (str "new thing delta " newpath " id " id))
         ; ret a vec of delta tuples, 
         [ [:node-create newpath :map]
           [:value newpath entity-map]
           ; ask UI to send back assignment details
-          [:transform-enable actionpath
+          [:transform-enable actionpath   ; [:action :setup :]
                       :assign  ;  tranform-key
-                      [{msgs/topic actionpath ; [:all :type id]
+                      [{msgs/topic actionpath ; [:action :setup :homework 123]
                        (msgs/param :details) {}}]] ]))
     value-vec))
 
-(defn- removed-deltas
+(defn- removed-thing-deltas
   "the removed path node from removed-inputs, arg is node path"
   [input-path oldvals]
   (.log js/console (str "removed path " input-path " oldvals " oldvals)))
@@ -336,10 +378,10 @@
   (let [changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         removed (d/removed-inputs inputs)]
     ; each change tuple consists of node-path and a vector of values
-    ;(removed-deltas removed)
+    ;(removed-thing-deltas removed)
     (reduce (fn [alldeltas [input-path newvals]] ;input-path, [:all :course] is a vec
               ; concat is vec de-pack and re-pack
-              (concat alldeltas (new-deltas input-path newvals)))
+              (concat alldeltas (new-thing-deltas input-path newvals)))
             []
             changemap)))
 
@@ -357,14 +399,39 @@
     ;   (.log js/console (str "action removemap " path " old-value " oldv)))
 
     (reduce (fn [alldeltas [path newv]]
-              (let [thingnode (nnext path)
+              (let [thingnode (nnext path)  ; [:action :setup :assign thing]
                     newpath (concat [:action :submit] thingnode)
                     messages {msgs/topic newpath 
-                              msgs/type :assign    ; make 
+                              msgs/type :assign
                               (msgs/param :details) {}}]
                 ; concat 
                 (concat alldeltas
                   [[:transform-enable newpath :assign [messages]]])))
+            []
+            changemap)
+    ))
+
+
+; after displaying new thing input page, hook up save new thing button
+(defn newthing-emitter
+  "action setup newthing transformed, emit trans enable for newthing save btn"
+  [inputs]
+  (let [changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
+        removemap (d/removed-inputs inputs)]
+    ; each change tuple consists of node-path and a vector of values
+    ; (doseq [[path oldv] changemap]
+    ;   (.log js/console (str "action changemap " path " old-value " oldv)))
+    ; (doseq [[path oldv] removemap]
+    ;   (.log js/console (str "action removemap " path " old-value " oldv)))
+
+    (reduce (fn [alldeltas [path newv]]
+              (let [newpath (conj [:action :submit] :newthing)
+                    messages {msgs/topic newpath 
+                              msgs/type :newthing
+                              (msgs/param :details) newv}]
+                ; concat 
+                (concat alldeltas
+                  [[:transform-enable newpath :newthing [messages]]])))
             []
             changemap)
     ))
@@ -459,6 +526,9 @@
                 [:assign [:action :setup :* :*] assign-action-setup]
                 [:assign [:action :submit :* :*] assign-action-submit]
 
+                ; for newthing setup
+                [:newthing [:action :setup :newthing] newthing-action-setup]
+                [:newthing [:action :submit :newthing] newthing-action-submit]
                ]
 
     :derive #{
@@ -478,6 +548,12 @@
 
               ; action submitted, write to db
               {:in #{[:action :submit :* :*]} :fn post-action-thing :mode :always}
+
+              ; action submit new thing, write to db
+              {:in #{[:action :submit :newthing]} :fn post-newthing :mode :always}
+
+              ; new thing created, save to db
+              {:in #{[:new]} :fn post-create-thing :mode :always}
             }
 
     ; emitter
@@ -493,8 +569,12 @@
            ; when getting things from server, created map entry, cause node here.
            {:in #{[:all :*]} :fn all-things-node-emitter :mode :always}
 
-           ; when actionbar displayed, enable transform
+           ; when create new thing setup, emit 
+           {:in #{[:action :setup :newthing]} :fn newthing-emitter :mode :always}
+
+           ; when actionbar displayed, action, setup, assign, thing enable transform
            {:in #{[:action :setup :* :*]} :fn action-emitter :mode :always}
+
 
            {:in #{[:sse-data]} :fn sse-data-emitter :mode :always}
 

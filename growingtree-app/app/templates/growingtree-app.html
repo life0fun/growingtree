@@ -11,8 +11,10 @@
 
   <div id="content">
  
+    <!-- the landing homepage, include nav bar, sigde bar, and main div -->
     <div template="homepage" class="homepage" field="id:id">
 
+      <!-- nav bar -->
       <div class="navbar navbar-static-top">
         <div class="navbar-inner">
           <div class="container">
@@ -23,7 +25,7 @@
             <a href="#" class="brand"> GrowingTree </a>
             <div class="nav-collapse collapse">
               <ul class="nav pull-right">
-                <li id="create" class="active"><a href="#">Create</a></li>
+                <li id="newthing" class="active"><a href="#">Create</a></li>
                 <li id="login" class="active"><a href="#">Login</a></li>
                 <form class="navbar-form" role="search" style="float:left;">
                   <input type="text" class="form-control" placeholder="Search">
@@ -35,9 +37,12 @@
         </div>
       </div>
  
+      <!-- body include side bar and main body -->
       <div class="container-fluid">
         <!-- sidebar nav is static, and common to all -->
         <div class="row-fluid">
+
+          <!-- side bar span3  -->
           <div class="span3">
             <div class="well sidebar-nav">
               <ul class="nav nav-list">
@@ -96,7 +101,8 @@
             </div> <!-- well sidebar-->
           </div> <!-- span 3 -->
          
-          <div class="span9">
+          <!-- this is the main container  -->
+          <div id="main" class="span9">
             <div class="leaderboard" field="content:leaderboard">
                 <h1> Learn, Practice, Develop -- Together ! </h1>
                 <h4> Hello Parents, this is the social learning management system for your kids !</h4>
@@ -108,6 +114,7 @@
 
             <!-- container for a list of things [:all :course "course1"] -->
             <div id="topthings"> </div>
+
           </div>  <!-- end of span9 -->
         </div> <!-- end of row fluid -->
       </div> <!-- end of container fluid, end of homepage-->
@@ -181,20 +188,23 @@
           </div>
 
           <form method="POST" action="" accept-charset="UTF-8">
-            <input type="text" id="login-name" class="span4" placeholder="Username" />
+            <input type="text" id="login-name" value="rich" class="span4" placeholder="Username" />
 
-            <input type="password" id="login-pass" class="span4"  placeholder="Password" />
+            <input type="password" id="login-pass" value="rich" class="span4" placeholder="Password" />
             
             <label class="checkbox">
               <input type="checkbox" name="remember" value="1" /> Remember Me
             </label>
           
             <button id="login-button" type="submit" name="submit" class="btn btn-primary btn-block">Sign in</button>
+
+            <br>
+            <p class="text-center center"> Copyright 2013 - GrowingTree </p>
           </form>
         </div>
       </div>
 
-      <p class="text-center"> Copyright 2013 - GrowingTree </p>
+      
     </div>
 
 

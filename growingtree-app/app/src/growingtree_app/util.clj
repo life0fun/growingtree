@@ -14,3 +14,13 @@
 
 (defn random-id []
   (str (.getTime (platform/date)) "-" (rand-int 1E6)))
+
+
+; pad time with leading 0 upon single digit.
+(defn format-time 
+  "pad time with leading 0 upon single digit"
+  [d]
+  (let [pad (fn [n] (if (< n 10) (str "0" n) (str n)))]
+    (str (pad (.getHours d)) ":"
+         (pad (.getMinutes d)) ":"
+         (pad (.getSeconds d)))))
