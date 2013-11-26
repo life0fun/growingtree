@@ -83,18 +83,12 @@
   (.log js/console (str "set-nav-type " messages))
   (:type messages))  ; value stored inside thing :type key
 
+
 ; set thing type after nav to new type upon sidebar click
 (defn set-thing-type
   [_ messages]
   (:type messages))  ; value stored inside :category key
 
-
-; create new thing transformer
-; (defn create-new-thing
-;   [oldv messages]
-;   (let [newthing (:details messages)]
-;     (.log js/console "create new thing details " newthing)
-;     newthing))
 
 
 ; called by xhr respond handler, store list of all things data structure into map.
@@ -123,7 +117,7 @@
   "actionbar form submitted, store and write to effect queue"
   [oldv messages]
   (let [details (:details messages)] ; details is {:action :create-assignment :id xx}
-    (.log js/console (str "submit assign details " details))
+    (.log js/console (str "submitted assign details " details))
     details))
 
 
@@ -140,7 +134,7 @@
   "create new thing btn clicked "
   [oldv messages]
   (let [details (:details messages)]
-    (.log js/console (str "newthing btn clicked" details))
+    (.log js/console (str "submit newthing " details))
     details))
 
 
@@ -217,30 +211,29 @@
 ; note that the first time node-create [:action :submit :*] will trigger this fn
 ; we need to filter out that.
 ; details {:action :assign, :hwid 17592186045487, :toid "foo", :hint "bar"} 
-(defn post-assign-thing
-  [inputs] 
-  "after form submitted, post create thing with user data"
-  (let [msg (:message inputs)
-        topic (msgs/topic msg)
-        phase (second topic)
-        action (get-in msg [:details :action])
-        details (:details msg)]
-    ;(.log js/console (str "post action topic " topic " phase " phase action msg))
-    (if (= :submit phase)
-      (do
-        (.log js/console (str "post assign thing " action " body " details))
-        [{msgs/topic [:server] msgs/type action :body details}]))))
+; (defn post-assign-thing
+;   [inputs] 
+;   "after form submitted, post create thing with user data"
+;   (let [msg (:message inputs)
+;         topic (msgs/topic msg)
+;         details (:details msg)]
+;     (.log js/console (str "post assign thing details " details))
+;     [{msgs/topic [:server] msgs/type :assign :body details}]))
 
 
-; when new thing created, post data to db to create new thing
+; effect
 ; inputs contains {:mesage {topic [] :details} :new-model {} :old-model {}}
-(defn post-submit-newthing
+(defn post-submit-thing
   "after use created new thing, post them to database"
   [inputs]
   (let [msg (:message inputs)
+        topic (msgs/topic msg)
+        action (second topic)
+        thingid (last topic)
         details (:details msg)]
-    (.log js/console (str "post new thing " msg details))
-    [{msgs/topic [:server] msgs/type :newthing :body details}]))
+    (.log js/console (str "post submit thing " topic " action " action 
+                          " thingid " thingid "  details " details))
+    [{msgs/topic [:server] msgs/type action :body details}]))
 
 
 ;;==================================================================================
@@ -363,9 +356,9 @@
           [:value newpath entity-map]
           ; ask UI to send back assignment details
           [:transform-enable actionpath   ; [:action :setup :]
-                      action
-                      [{msgs/topic actionpath ; [:action :setup :homework 123]
-                       (msgs/param :details) {}}]] ]))
+                             action
+                             [{msgs/topic actionpath ; [:action :setup :homework 123]
+                              (msgs/param :details) {}}]] ]))
     value-vec))
 
 (defn- removed-thing-deltas
@@ -530,8 +523,8 @@
                 [:set-all-things [:all] set-all-things]
 
                 ; assign action setup transform
-                [:assign [:setup :assign :**] setup-assign]
-                [:assign [:submit :assign :**] submit-assign]
+                [:assign [:setup :assign :* :*] setup-assign]
+                [:assign [:submit :assign :* :*] submit-assign]
 
                 ; new thing setup, each key in the value map will create a new node.
                 [:newthing [:setup :newthing] setup-newthing]
@@ -549,18 +542,13 @@
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn to xhr to back-end.
+    ; the input path node for effect is recursively match from top. 
     :effect #{
               ; user clicked nav, request all things by type
               [#{[:nav :type]} request-all-things :single-val]
-
-              ; action submitted, write to db
-              {:in #{[:submit :assign :*]} :fn post-assign-thing :mode :always}
-
-              ; action submit new thing, write to db
-              {:in #{[:submit :newthing]} :fn post-submit-newthing :mode :always}
-
-              ; new thing created, save to db
-              {:in #{[:new]} :fn post-create-thing :mode :always}
+              
+              ; submit action effect, action is from topic and send details to backend.
+              [#{[:submit]} post-submit-thing :mode :always]
             }
 
     ; emitter
@@ -577,7 +565,7 @@
            {:in #{[:all :*]} :fn all-things-node-emitter :mode :always}
 
            ; when actionbar displayed, action, setup, assign, thing enable transform
-           {:in #{[:setup :assign :*]} :fn assign-emitter :mode :always}
+           {:in #{[:setup :assign :* :*]} :fn assign-emitter :mode :always}
 
            ; when create new thing setup, emit 
            {:in #{[:setup :newthing]} :fn newthing-emitter :mode :always}

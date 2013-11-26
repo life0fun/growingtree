@@ -218,15 +218,15 @@
 ; with details contains thingid clicked.
 (defmethod enable-setup-action 
   :assign 
-  [r [t p k messages] input-queue]
-  (let [thingid (last p)   ; last segment of path is thingid
-        html (templates/add-template r p (:assignment-form templates))
+  [r [t path k messages] input-queue]
+  (let [thingid (last path)   ; last segment of path is thingid
+        html (templates/add-template r path (:assignment-form templates))
         divcode (html)
         parent-thing-node (dom/by-id (str thingid))
         assign-sel (str "assign-" thingid)
         assign-div (dom/by-class assign-sel)]
   
-    (.log js/console (str "enable setup action " t " path " p " key " k))  
+    (.log js/console (str "enable setup assign form to path " path " key " k))  
     ; wrap assign link with div and use class selector
     (de/listen! assign-div 
                 :click 
@@ -234,7 +234,7 @@
                   (dom/append! parent-thing-node divcode)
                   (let [details {:action :create-assignment :id thingid}  ; close over action key
                         new-msgs (msgs/fill :assign messages {:details details})]
-                    (.log js/console (str "assign button clicked " new-msgs))
+                    (.log js/console (str "assign link clicked " new-msgs))
                     (doseq [m new-msgs]
                       (p/put-message input-queue m)))))
   ))
@@ -301,6 +301,7 @@
                           details {:action :create-assignment 
                                    :hwid hwid :toid toid-val :hint hint-val}]
                       (.log js/console (str "assign submitted " details))
+                      (h/destroy! r path)
                       (msgs/fill :assign messages {:details details})))]
 
     (.log js/console (str "enable assign submit " path transkey messages))
@@ -319,9 +320,8 @@
                     (let [type-val (.-value type)
                           title-val (.-value title)
                           content-val (.-value content)
-                          details {:action :newthing
-                                   :type :type-val :title title-val :content content-val
-                                  }]
+                          details {:action :newthing :type type-val 
+                                   :title title-val :content content-val}]
                       (.log js/console (str "newthing submitted " details))
                       (msgs/fill :newthing messages {:details details})))]
 
@@ -365,7 +365,10 @@
     ; setup and submit action handler, path [:setup :assign :homework id] multi-method, 
     ; we can match anything, mutlimethod dispatch based on transkey
     [:transform-enable [:setup :**] enable-setup-action]
+    [:transform-disable [:setup :**] disable-setup-action]
+
     [:transform-enable [:submit :**] enable-submit-action]
+    [:transform-disable [:submit :**] disable-submit-action]
 
     ; newthing, path is [:setup :newthing ]
     ;[:transform-enable [:setup :newthing] setup-action-transforms]
