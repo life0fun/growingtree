@@ -51,13 +51,14 @@
    :emit      [[#{[:in]} example-emit]]}
   )
 
-;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
+
+;;==================================================================================
 ;; transforms
 ;; transform-fn gets 2 args, old-value and message, ret value used to set new value.
 ;; message is PersistentArrayMap, which echoed back from transform-enabled [topic, params]
 ;; when messages sent to cljs, it becomes PersistentVector, when sending back, becomes
 ;; PersistentArrayMap again. Hence you can do (:details messages) here.
-;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
+;;==================================================================================
 
 ; user login, store user name into [:login :name]
 (defn set-login
@@ -99,7 +100,7 @@
 ; called by xhr respond handler, store list of all things data structure into map.
 ; we store cljs.core.Vector data structure into path node. when clj get the ds out,
 ; no more parse needed. We only need one parse at response-handler.
-(defn all-things-transformer
+(defn set-all-things
   "store list of all things vec in [:all :type] node under each type key"
   [oldv messages]
   (let [type (:type messages)    ; thing type 
@@ -110,19 +111,19 @@
 
 ; Path is [:action :setup :thing-type thingid], stores details map {:action :assign :id 12}
 ; user clicked assign link, show assign action bar, enable transform for content
-(defn assign-action-setup
+(defn setup-assign
   "after displaying actionbar, store at [:action :setup :type id] the detail map"
   [oldv messages]
   (let [details (:details messages)]  ; details is {:action :create-assignment :id 12}
-    (.log js/console (str "assign setup transform details " details))
+    (.log js/console (str "setup assign details " details))
     details))
 
 ; Path is [:action :submit :thing-type thingid], stores details map {:action :assign :id 12}
-(defn assign-action-submit
+(defn submit-assign
   "actionbar form submitted, store and write to effect queue"
   [oldv messages]
   (let [details (:details messages)] ; details is {:action :create-assignment :id xx}
-    (.log js/console (str "assign submitted transform details " details))
+    (.log js/console (str "submit assign details " details))
     details))
 
 
@@ -143,11 +144,11 @@
     details))
 
 
-;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
+;;==================================================================================
 ;; derive dataflow, derive fn got 2 args, old value, and tracking map
 ;; [inputs output-path derive-fn input-spec] ;; input-spec is optional
 ;; derive-fn gets the old state of the *output* state, and the tracking map, map, single-val
-;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
+;;==================================================================================
 
 
 ; derived fn to compute filtered things, illustration for now.
@@ -177,26 +178,25 @@
       (assoc-in oldv [oldtype] []))))
 
 
-;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
+
+;;==================================================================================
 ;; continue flow allow you send a vector of msg within the same dataflow transaction
 ;; so you can send transform msg to update model within the closure of upstream changes.
 ;;  :continue  #{[#{[:in]} example-continue]}
 ;;  (defn example-continue [inputs]
 ;;    (returns a vector of msg that will be processed as part of this dataflow transaction))
-;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
+;;==================================================================================
 
 
 
 
-;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
+
+;;==================================================================================
 ;; effect flow, effec-fn gets arg by input specifier and ret a vector of msg,
 ;; msgs got enq to (:output app) where service-fn consumes them.
 ;; effect-fn gets single arg, the tracking map, or maps, or single-val.
-;; -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- --  -- -- -- -- -- -- -- 
+;;==================================================================================
 
-;
-; should use multimethod for dispatching.
-;
 ; inject msg to output queue consumed by service-fn, which makes a xhr request for json data.
 ; input specifier is :single-val, so arg is single-value
 (defn request-all-things
@@ -217,7 +217,7 @@
 ; note that the first time node-create [:action :submit :*] will trigger this fn
 ; we need to filter out that.
 ; details {:action :assign, :hwid 17592186045487, :toid "foo", :hint "bar"} 
-(defn post-submit-thing
+(defn post-assign-thing
   [inputs] 
   "after form submitted, post create thing with user data"
   (let [msg (:message inputs)
@@ -228,7 +228,7 @@
     ;(.log js/console (str "post action topic " topic " phase " phase action msg))
     (if (= :submit phase)
       (do
-        (.log js/console (str "post submit action " action " body " details))
+        (.log js/console (str "post assign thing " action " body " details))
         [{msgs/topic [:server] msgs/type action :body details}]))))
 
 
@@ -242,12 +242,14 @@
     (.log js/console (str "post new thing " msg details))
     [{msgs/topic [:server] msgs/type :newthing :body details}]))
 
-;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+;;==================================================================================
 ;; emitter to report changes, and attach transforms to template events.
 ;; emitter-fn takes a single argument, a tracking map, or maps, or single-val
 ;; a delta map keyed by path, and val is a vec of entity map {[:all :courses] [{}]}
 ;;  {[:all :courses] [{:course/subject "course.subject/coding", ..}]
-;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+;;==================================================================================
+
 
 ; emit init app model emtter only once when app starts to create all nodes.
 ; the most important things is to define transform fn that can be triggered
@@ -300,9 +302,9 @@
         ; enable login modal, experimenting
         [:transform-enable [:nav] 
                            :login-modal
-                           [{msgs/topic [:nav]
-                            :login-name ""
-                            :login-pass ""}]]
+                           [{msgs/topic [:nav :login]
+                            (msgs/param :login-name) ""
+                            (msgs/param :login-pass) ""}]]
 
         ; enable setup newthing button with transform key :newthing
         [:transform-enable [:setup :newthing] 
@@ -402,14 +404,13 @@
     ; (doseq [[path oldv] removemap]
     ;   (.log js/console (str "action removemap " path " old-value " oldv)))
 
-
     (reduce (fn [alldeltas [path newv]]
               (let [thingnode (nnext path)  ; [:action :setup :assign thing]
                     newpath (concat [:submit :assign] thingnode)
                     messages {msgs/topic newpath 
                               msgs/type :assign
                               (msgs/param :details) {}}]
-                (.log js/console (str "action emitter " path " " newv))
+                (.log js/console (str "assign emitter " path " " newv))
                 ; concat this thing node delta
                 (concat alldeltas
                   [[:transform-enable newpath :assign [messages]]])))
@@ -526,11 +527,11 @@
                 [:set-nav-type [:nav :type] set-nav-type]
 
                 ; set-all to store all type things list into all type map
-                [:set-all-things [:all] all-things-transformer]
+                [:set-all-things [:all] set-all-things]
 
                 ; assign action setup transform
-                [:assign [:setup :assign :*] setup-assign]
-                [:assign [:submit :assign :*] submit-assign]
+                [:assign [:setup :assign :**] setup-assign]
+                [:assign [:submit :assign :**] submit-assign]
 
                 ; new thing setup, each key in the value map will create a new node.
                 [:newthing [:setup :newthing] setup-newthing]

@@ -142,16 +142,27 @@
     )))
 
 
-;
+;;================================================================================
+;; add multimethod dispatcher to over-write modal title, awesome !
+;; over-write any auto namespace mutlimethod to map transkey to modal title.
+;;================================================================================
+(defmethod auto/modal-title :login-modal [transform-name _]
+  (pr-str "Welcome to GrowingTree")
+  "Welcome to GrowingTree")
+
 ; add listener for upper right login btn and show login modal
 ; path is login modal, transkey is login-modal, msg has 2 keys, login-name and pass
 (def enable-login-modal
   (fn [r [_ path transkey messages] input-queue]
     (let [login-btn (dom/by-id "login")
-          modal-evt 
+          modal-evt
             (fn [evt]
-              (.log js/console (str "login modal clicked " path messages))
-              (auto/modal-collect-input r input-queue path transkey messages))
+              (let [parent-id (render/get-parent-id r path)]
+                (.log js/console (str "login modal clicked " path " parent-id " parent-id)
+                
+                ; (dom/append! (dom/by-id parent-id) modal-html)
+                ; (js/showModal (auto/modal-id id transkey))
+                (auto/modal-collect-input r input-queue path transkey messages))))
           ]
       (.log js/console (str "setup login modal path " path (render/get-id r path)))
       (de/listen! login-btn :click modal-evt))))  
@@ -162,7 +173,7 @@
   "upon nav type change, clear all things divs under topthings div"
   [r [_ path oldv newv] input-queue]
   (.log js/console (str "clear all things upon nav type change " path))
-  (dom/destroy-children! (dom/by-id "topthings")))
+  (dom/destroy-children! (dom/by-id "main")))
 
 
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -179,7 +190,7 @@
         thing (html {:id thingid :assign-id assignid :share-id shareid})
         ]
     (.log js/console "adding new thing node " thingid)
-    (dom/append! (dom/by-id "topthings") thing)))
+    (dom/append! (dom/by-id "main") thing)))
     
 
 ; info model value transformed, update template attached to node path.
@@ -223,7 +234,7 @@
                   (dom/append! parent-thing-node divcode)
                   (let [details {:action :create-assignment :id thingid}  ; close over action key
                         new-msgs (msgs/fill :assign messages {:details details})]
-                    (.log js/console (str "assign button clicked " messages))
+                    (.log js/console (str "assign button clicked " new-msgs))
                     (doseq [m new-msgs]
                       (p/put-message input-queue m)))))
   ))
@@ -275,21 +286,22 @@
   (fn [render [target path transkey messages] input-queue]
     transkey))
 
+
 ; wire submit button click on assignment form to fill assign message
 (defmethod enable-submit-action 
   :assign
   [r [target path transkey messages] input-queue]
-  (let [form (dom/by-class "assignment-form")   ; submit button of this form
+  (let [form (dom/by-class "assignment-form")  ; must use dom by-class to select form ?!
         hwid (last path)  ; last of path is hwid
         to-node (dom/by-id "assign-to")
         hint-node (dom/by-id "assign-hint")
         submit-fn (fn [_]   ; form submit handler, fill msg and ret the msg
-                   (let [toid-val (.-value to-node)
-                         hint-val (.-value hint-node)
-                         details {:action :create-assignment 
-                                  :hwid hwid :toid toid-val :hint hint-val}]
-                    (.log js/console (str "assign submitted " details))
-                    (msgs/fill :assign messages {:details details})))]
+                    (let [toid-val (.-value to-node)
+                          hint-val (.-value hint-node)
+                          details {:action :create-assignment 
+                                   :hwid hwid :toid toid-val :hint hint-val}]
+                      (.log js/console (str "assign submitted " details))
+                      (msgs/fill :assign messages {:details details})))]
 
     (.log js/console (str "enable assign submit " path transkey messages))
     (events/send-on :submit form input-queue submit-fn)))
@@ -299,21 +311,21 @@
 (defmethod enable-submit-action 
   :newthing
   [r [target path transkey messages] input-queue]
-  (let [form (dom/by-id "newthing-form")   ; submit button of this form
+  (let [form (dom/by-class "newthing-form") ; must use dom by-class to select form ?!
         type (dom/by-id "newthing-type")
         title (dom/by-id "newthing-title")
         content (dom/by-id "newthing-content")
         submit-fn (fn [_]   ; form submit handler, fill msg and ret the msg
-                   (let [type-val (.-value type)
-                         title-val (.-value title)
-                         content-val (.-value content)
-                         details {:action :newthing
-                                  :type :type-val :title title-val :content content-val
+                    (let [type-val (.-value type)
+                          title-val (.-value title)
+                          content-val (.-value content)
+                          details {:action :newthing
+                                   :type :type-val :title title-val :content content-val
                                   }]
-                    (.log js/console (str "newthing submitted " details))
-                    (msgs/fill :newthing messages {:details details})))]
+                      (.log js/console (str "newthing submitted " details))
+                      (msgs/fill :newthing messages {:details details})))]
 
-    (.log js/console (str "enable newthing submit " path transkey messages))
+    (.log js/console (str "enable newthing submit " path transkey messages form))
     (events/send-on :submit form input-queue submit-fn)))
     
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
