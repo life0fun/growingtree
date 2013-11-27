@@ -22,7 +22,7 @@
               <span class="icon-th-list"></span>
             </a>
 
-            <a href="#" class="brand"> GrowingTree </a>
+            <a href="#" class="brand"> GrowingTrees </a>
             <div class="nav-collapse collapse">
               <ul class="nav pull-right">
                 <li id="newthing" class="active"><a href="#">Create</a></li>
@@ -142,20 +142,23 @@
           <a class="title" field="content:thing-entry-title,href:entryhref"></a>
           <span class="domain"></span>
         </p>
-        <p class="tagline">submitted to this subject by <a href="#">growingtree.com</a> </p>
+        <p class="tagline">submitted by <a href="#">growingtree.com</a> </p>
+
         <ul class="flat-list buttons">
           <li class="first">
             <a class="comments" href="#">403 comments</a>
           </li>
+
           <li class="share">
-            <div field="class:share-id">
+            <div field="class:share-link-class">
               <span class="share-button toggle" style>
                 <a class="option active" href="#">share</a>
               </span>
             </div>
           </li>
+          
           <li class="share">
-            <div field="class:assign-id">
+            <div field="class:assign-link-class">
               <span class="share-button toggle" style>
                 <a class="option active" href="#">assign to</a>
               </span>
@@ -167,12 +170,12 @@
       </div>
     </div>
 
-    <!-- the action div with assignment form, no field needs to render it -->
-    <div template="assignment-form" field="class:actionbar-class">
-      <form class='assignment-form' style="float:left;">
-        <input id="assign-to" type="text" placeholder='assign to'>
-        <input id="assign-hint" type="text" placeholder='hints'>
-        <button class='assign-button' id="assignment-button" type="submit"> Assign </button>
+    <!-- the action div with assign form, no field needs to render it -->
+    <div template="assign-form" field="class:assign-form-class">
+      <form class="assign-form action-bar" style="float:left;">
+        <input id="assign-to" type="text" placeholder="assign to">
+        <input id="assign-hint" type="text" placeholder="hints">
+        <button class="assign-button" type="submit"> Assign </button>
       </form>
     </div>
 
@@ -181,7 +184,7 @@
     <div class="container login" template="login" field="id:id">
       <div class="row">
         <div class="center span4 well">
-          <h3> Welcome to GrowingTree</h3>
+          <h3>Welcome GrowingTrees</h3>
          
           <div class="alert alert-error">
               <a class="close" data-dismiss="alert" href="#">x</a>Incorrect Username or Password!
@@ -199,7 +202,7 @@
             <button id="login-button" type="submit" name="submit" class="btn btn-primary btn-block">Sign in</button>
 
             <br>
-            <p class="text-center center"> Copyright 2013 - GrowingTree </p>
+            <p class="text-center center"> Copyright 2013 - GrowingTrees </p>
           </form>
         </div>
       </div>

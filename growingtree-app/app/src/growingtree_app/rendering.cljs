@@ -13,7 +13,8 @@
             ; util namespace
             [growingtree-app.util :as util]
             ; entity view map
-            [growingtree-app.entity-view :as entity-view])
+            [growingtree-app.entity-view :as entity-view]
+            [growingtree-app.selector :as sel])
   (:require-macros [growingtree-app.html-templates :as html-templates]))
 
 
@@ -176,18 +177,19 @@
   (dom/destroy-children! (dom/by-id "main")))
 
 
-;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+;;==================================================================================
 ;; render each thing list node, and setup action bar transformer in each node.
-;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+;;==================================================================================
 ; info model added a new node, create a new thing node, append it to topthings div.
 (defn add-new-thing-node
   [r [op path] input-queue]
   (let [thingid (last path)
         ; make a template attached to this node
         html (templates/add-template r path (:thing templates)) ; added template to this path node
-        assignid (str "assign-" thingid)
-        shareid (str "share-" thingid)
-        thing (html {:id thingid :assign-id assignid :share-id shareid})
+        assign-link (sel/assign-link thingid)
+        share-link (sel/share-link thingid)
+        thing (html {:id thingid :assign-link-class assign-link :share-link-class share-link})
         ]
     (.log js/console "adding new thing node " thingid)
     (dom/append! (dom/by-id "main") thing)))
@@ -214,27 +216,25 @@
     transkey))
 
 
-; setup assignment link event listen, when link clicked, render actionbar and attach
-; it to thing node div. Thing node div id is thing id. fill details msg.
+; setup assign link event listen, when link clicked, render assign form actionbar 
+; and attach it to thing node div. Thing node div id is thing id. fill details msg.
 (defmethod enable-setup-action 
   :assign
   [r [t path k messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid
-        assignbar-path (conj path :assignbar)  ; create a node for assignbar
-        html (templates/add-template r assignbar-path (:assignment-form templates))
-        divclass (str "action-bar assignment-form-" thingid)
-        divcode (html {:actionbar-class divclass})
-        parent-thing-node (dom/by-id (str thingid))
-        assign-sel (str "assign-" thingid)
-        assign-div (dom/by-class assign-sel)]
+        html (templates/add-template r path (:assign-form templates))
+        div (html {:assign-form-class (sel/assign-form thingid)})
+
+        thing-node (dom/by-id (str thingid))
+        assign-link (dom/by-class (sel/assign-link thingid))]
   
-    (.log js/console (str "enable setup assign form to path " path " action-bar " assignbar-path))  
+    (.log js/console (str "enable setup assign " path))
     ; wrap assign link with div and use class selector
-    (de/listen! assign-div 
+    (de/listen! assign-link
                 :click 
                 (fn [evt]
-                  (dom/append! parent-thing-node divcode)
-                  (let [details {:action :create-assignment :id thingid}  ; close over action key
+                  (dom/append! thing-node div)
+                  (let [details {:action :create-assign :id thingid}  ; close over action key
                         new-msgs (msgs/fill :assign messages {:details details})]
                     (.log js/console (str "assign link clicked " new-msgs))
                     (doseq [m new-msgs]
@@ -294,21 +294,18 @@
 (defmethod enable-submit-action 
   :assign
   [r [target path transkey messages] input-queue]
-  (let [form (dom/by-class "assignment-form")  ; must use dom by-class to select form ?!
-        thingid (last path)
-        assignbar-path (cons :setup (conj (vec (rest path)) :assignbar))
-        actionbar (dom/by-class (str "assignment-form-" thingid))
-        hwid (last path)  ; last of path is hwid
+  (let [thingid (last path)
+        form (dom/by-class (sel/assign-form thingid))  ; must use dom by-class to select form ?!
+
         to-node (dom/by-id "assign-to")
         hint-node (dom/by-id "assign-hint")
         submit-fn (fn [_]   ; form submit handler, fill msg and ret the msg
                     (let [toid-val (.-value to-node)
                           hint-val (.-value hint-node)
                           details {:action :create-assignment 
-                                   :hwid hwid :toid toid-val :hint hint-val}]
-                      (.log js/console (str "assign submitted " details assignbar-path))
-                      ;(dom/destroy! actionbar)
-                      (h/destroy! r assignbar-path)
+                                   :hwid thingid :toid toid-val :hint hint-val}]
+                      (.log js/console (str "assign submitted " details))
+                      (dom/destroy! form)
                       (msgs/fill :assign messages {:details details})))]
 
     (.log js/console (str "enable assign submit " path  messages))
@@ -330,6 +327,7 @@
                           details {:action :newthing :type type-val 
                                    :title title-val :content content-val}]
                       (.log js/console (str "newthing submitted " details))
+                      (dom/destroy! form)
                       (msgs/fill :newthing messages {:details details})))]
 
     (.log js/console (str "enable newthing submit " path transkey messages form))
@@ -346,7 +344,6 @@
 (defn render-config []
   [; render login screen first.
     [:node-create  [:login] create-login-template]
-    ;[:node-create  [:login] render-home-page]
     [:node-destroy [:login] h/default-destroy]
     [:transform-enable [:login :name] enable-login-submit]
     [:transform-disable [:login :name] disable-login-submit]
