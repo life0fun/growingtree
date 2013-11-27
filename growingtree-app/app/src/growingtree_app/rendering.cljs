@@ -214,19 +214,21 @@
     transkey))
 
 
-; setup assignment link event listen, when link clicked, fill all messages
-; with details contains thingid clicked.
+; setup assignment link event listen, when link clicked, render actionbar and attach
+; it to thing node div. Thing node div id is thing id. fill details msg.
 (defmethod enable-setup-action 
-  :assign 
+  :assign
   [r [t path k messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid
-        html (templates/add-template r path (:assignment-form templates))
-        divcode (html)
+        assignbar-path (conj path :assignbar)  ; create a node for assignbar
+        html (templates/add-template r assignbar-path (:assignment-form templates))
+        divclass (str "action-bar assignment-form-" thingid)
+        divcode (html {:actionbar-class divclass})
         parent-thing-node (dom/by-id (str thingid))
         assign-sel (str "assign-" thingid)
         assign-div (dom/by-class assign-sel)]
   
-    (.log js/console (str "enable setup assign form to path " path " key " k))  
+    (.log js/console (str "enable setup assign form to path " path " action-bar " assignbar-path))  
     ; wrap assign link with div and use class selector
     (de/listen! assign-div 
                 :click 
@@ -288,10 +290,14 @@
 
 
 ; wire submit button click on assignment form to fill assign message
+; dispatch on transkey, :assign
 (defmethod enable-submit-action 
   :assign
   [r [target path transkey messages] input-queue]
   (let [form (dom/by-class "assignment-form")  ; must use dom by-class to select form ?!
+        thingid (last path)
+        assignbar-path (cons :setup (conj (vec (rest path)) :assignbar))
+        actionbar (dom/by-class (str "assignment-form-" thingid))
         hwid (last path)  ; last of path is hwid
         to-node (dom/by-id "assign-to")
         hint-node (dom/by-id "assign-hint")
@@ -300,11 +306,12 @@
                           hint-val (.-value hint-node)
                           details {:action :create-assignment 
                                    :hwid hwid :toid toid-val :hint hint-val}]
-                      (.log js/console (str "assign submitted " details))
-                      (h/destroy! r path)
+                      (.log js/console (str "assign submitted " details assignbar-path))
+                      ;(dom/destroy! actionbar)
+                      (h/destroy! r assignbar-path)
                       (msgs/fill :assign messages {:details details})))]
 
-    (.log js/console (str "enable assign submit " path transkey messages))
+    (.log js/console (str "enable assign submit " path  messages))
     (events/send-on :submit form input-queue submit-fn)))
 
 
