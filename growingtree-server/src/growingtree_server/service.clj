@@ -18,7 +18,7 @@
             [ring.util.mime-type :as ring-mime]
             [ring.middleware.session.cookie :as cookie])
   ; load peer lib to access to datomic db layer
-  (:require [growingtree-server.peer :as peer :refer :all]))
+  (:require [growingtree-server.peer :as peer]))
 
 
 ;
@@ -176,25 +176,44 @@
   ; path segment in req contains request params.
   (let [type (get-in req [:path-params :thing])
         things (peer/get-things (keyword type))
-        jsonresp (bootstrap/json-response things)] ; conver to keyword for query
+        result {:status 200 :data things}
+        jsonresp (bootstrap/json-response result)] ; conver to keyword for query
     (prn "server service get-all-things " type things)
     jsonresp))
     ; (-> (ring-response/response things)
     ;     (ring-response/content-type "application/edn"))))
 
 
-(defn add-thing
-  "add a thing upon post request, request contains all info of a http post req"
-  [{msg-data :edn-params :as request}]
-  (let [resp (bootstrap/json-print {:result msg-data})
-        jsonresp (bootstrap/json-response {:result msg-data})]
+; destruct edn-params as request params and post body data is a clj map. frame does json transcoding.
+  ; :request-method :post,
+  ; :query-string nil,
+  ; :content-type "application/edn",
+  ; :edn-params
+  ; {:action :create-assignment,
+  ;  :hwid 17592186045483,
+  ;  :toid "jerry",
+  ;  :hint "use fraction",
+  ;  :user "rich"},
+  ; :path-info "/api/assignments",
+  ; :uri "/api/assignments",
+(defn add-things
+  "add a thing upon post request, request contains http post data"
+  [{postdata :edn-params :as request}]
+  (let [;resp (bootstrap/json-print {:result msg-data})
+        type (get-in request [:path-params :thing])  ; /api/thing-type
+        action (:action postdata)
+        user (:user postdata)
+        added-things (peer/add-things (keyword type) postdata)
+        result {:status 200 :data added-things}
+        jsonresp (bootstrap/json-response result)
+        ]
+
     (log/info :message "received message"
               :request request
-              :msg-data msg-data)
-    (prn "adding thing " msg-data " resp " resp)
-    ;(peer/add-family)
-    jsonresp))
+              :msg-data postdata)
 
+    (prn "adding thing " postdata " type " type " action " action " resp " added-things)
+    jsonresp))
 
 
 ;; - - - - - routing table - - - - - - - -
@@ -206,7 +225,7 @@
      ["/msgs" {:get subscribe :post publish}
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
      ["/about" {:get about-page}]
-     ["/api/:thing" {:get get-all-things :post add-thing}]
+     ["/api/:thing" {:get get-all-things :post add-things}]
     ]]])
 
 

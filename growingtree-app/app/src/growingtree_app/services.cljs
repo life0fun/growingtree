@@ -71,12 +71,16 @@
   [type input-queue]
   (fn [response]
     (when-let [body (:body response)] ; only when we have valid body
-      (.log js/console (str "xhr response body " body))
-      (let [bodyjson (JSON/parse body)  ; parse json to js object.
-            ; parse to cljs.core.Vector data structre. We only need one parse to data structure here.
-            things-vec (js->clj bodyjson :keywordize-keys true)
+      (.log js/console "xhr response body " body)
+      (let [; parse json strig to js object.
+            bodyjson (JSON/parse body)  
+            ; parse js json object to cljs.core.Vector data structre.
+            result (js->clj bodyjson :keywordize-keys true)
+            status (:status result)
+            things-vec (:data result)
+            ;things-vec (js->clj data :keywordize-keys true)
             ]
-        (.log js/console (str "response body " bodyjson))
+        (.log js/console "response things tuples " things-vec)
         (p/put-message input-queue
                        {msgs/topic [:all]  ; store data into [:all]
                         msgs/type :set-all-things    ; set all things msgs type
@@ -108,7 +112,7 @@
         :assignments (xhr-request "/api/assignments" "GET" body resp-handle xhr-log) 
 
         ;; post data to create thing
-        :create-assignment (xhr-request "/api/assignments" "POST" body resp-handle xhr-log)
+        :assign (xhr-request "/api/assignments" "POST" body resp-handle xhr-log)
         "default")
       (str "Send to Server: " body))))
 

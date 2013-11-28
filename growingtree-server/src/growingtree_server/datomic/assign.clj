@@ -118,13 +118,14 @@
 ; form assignment attr map
 (defn assignment-attr
   "basic assignment attr map"
-  [pid cid hwid start due]
+  [pid cid hwid start due hint]
   (let [m {:db/id (d/tempid :db.part/user)
           :assignment/homework hwid
           :assignment/from pid
           :assignment/to cid
           :assignment/start start
-          :assignment/due due}]
+          :assignment/due due
+          :assignment/hint hint}]
     (prn m)
     m))
 
@@ -141,42 +142,6 @@
     (prn m)
     m))
 
-; create an assignment for any homework that 
-(defn create-assignment
-  "create an assignment from a homework to a child"
-  [hwid]
-  (let [pid (ffirst (d/q '[:find ?e :where [?e :parent/child]] db))
-        cid (:db/id (first (:parent/child (d/entity db pid))))  ; from entity, you got map-entry
-        ;hwid (first (find-homework))
-        nowdt (clj-time/now)
-        nowd (.toDate nowdt)
-        duedt (clj-time/plus nowdt (clj-time/hours 1))
-        dued (.toDate duedt)
-        assg (assignment-attr pid cid hwid nowd dued)
-        ]
-    (prn pid cid hwid nowdt nowd duedt dued)
-    (submit-transact [assg])))
-
-
-; find all assignment
-(defn find-assignment
-  "find all assignments "
-  []
-  (let [assig (d/q '[:find ?e ?hwcontent ?from ?to ?start ?due 
-                    :where [?e :assignment/homework ?h]
-                           [?h :homework/content ?hwcontent]
-                           [?e :assignment/from ?p]
-                           [?p :parent/fname ?from]
-                           [?e :assignment/to ?c] 
-                           [?c :child/fname ?to] 
-                           [?e :assignment/start ?start]
-                           [?e :assignment/due ?due]
-                    ] 
-                    db)
-        assignkeys [:db/id :assignment/homework :assignment/from :assignment/to :assignment/start :assignment/due]
-        entities (map (partial zipmap assignkeys) assig)]
-    (prn "assignment entities " entities)
-    entities))
 
 
 ; the enum must be fully qualified, :homework.subject/math
@@ -208,7 +173,7 @@
         eids (map first hws)  ; the first item of tuple is homework id
         entities (map (comp get-entity first) hws)
         ]
-    (prn "find-homework " entities)
+    (prn "find-homework " (first eids) entities)
     entities))
 
  
@@ -220,6 +185,63 @@
     (prn incstmt)
     (submit-transact (vec incstmt))))
  
+
+; create an assignment for any homework that 
+(defn create-assignment
+  "create an assignment from a homework to a child"
+  ([]
+    (let [hw (first (find-homework))
+          hwid (:db/id hw)]
+      (create-assignment hwid {:hint "fraction"})))
+
+  ; destructure json data map into a list of args {:keys [k1 k2]}
+  ; when key is missing, the corresponding val got nil as value.
+  ([hwid {:keys [user to hint duedt]}]
+    (let [pid (if user 
+                  user 
+                  (ffirst (d/q '[:find ?e :where [?e :parent/child]] db)))
+          ; the ref attr of entity is a list of map-entries with [{:db/id xx} {:db/id zz}]
+          cid (if to 
+                  to 
+                  (:db/id (first (:parent/child (d/entity db pid)))))
+          
+          nowdt (clj-time/now)
+          nowd (.toDate nowdt)
+
+          duedt (if duedt 
+                    duedt 
+                    (clj-time/plus nowdt (clj-time/hours 1)))
+          dued (.toDate duedt)
+
+          hint (if hint hint "use your brain")
+          assig (assignment-attr pid cid hwid nowd dued hint)
+          ]
+      (prn "create-assignment " hwid assig)
+      (prn "trans result " (submit-transact [assig]))
+      assig)))  ; ret the newly added thing map
+
+
+; find all assignment
+(defn find-assignment
+  "find all assignments "
+  []
+  (let [assig (d/q '[:find ?e ?hwcontent ?from ?to ?start ?due ?hint
+                    :where [?e :assignment/homework ?h]
+                           [?h :homework/content ?hwcontent]
+                           [?e :assignment/from ?p]
+                           [?p :parent/fname ?from]
+                           [?e :assignment/to ?c] 
+                           [?c :child/fname ?to] 
+                           [?e :assignment/start ?start]
+                           [?e :assignment/due ?due]
+                           [?e :assignment/hint ?hint]
+                    ] 
+                    db)
+        assignkeys [:db/id :assignment/homework :assignment/from :assignment/to :assignment/start :assignment/due :assignment/hint]
+        entities (map (partial zipmap assignkeys) assig)]
+    (prn "assignment entities " entities)
+    entities))
+
 
 ; submit an answer to an assignment
 (defn submit-answer

@@ -64,10 +64,14 @@
 (defn assignment-view-value
   "ret a view map for lecture entity"
   [value-map]
-  (hash-map :id (:db/id value-map)
-            :title (:assignment/homework value-map)
-            :content (:assignment/lecture value-map)
-            :popularity (:assignment/popularity value-map)))
+  (let [title (:assignment/homework value-map)
+        hint (:assignment/hint value-map)
+        title (str title "   " hint)]
+        
+    (hash-map :id (:db/id value-map)
+              :title title
+              :content (:assignment/lecture value-map)
+              :popularity (:assignment/popularity value-map))))
 
 
 (defn view-value

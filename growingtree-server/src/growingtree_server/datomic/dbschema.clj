@@ -4,8 +4,7 @@
             [clojure.pprint :as pprint]
             [clojure.data.json :as json])
   (:require [datomic.api :as d]
-            [datomic-schema.schema :as dschema]
-            [growingtree-server.datomic.dbconn :as dbconn :refer :all]))
+            [datomic-schema.schema :refer :all :as dschema]))
 
 ; The data model in datomic is represented by entity. Everything is entity.
 ; A table is an entity, each column is an entity, and each tuple row is an entity.
@@ -232,12 +231,12 @@
 
 
 
-(defn create-schema
-  "create schema using datomic-schema in db connection"
-  []
-  ; turn all defparts macro statement into schema transaction
-  (submit-transact (dschema/build-parts d/tempid))
-  ; turn all defschema macro statement into schema transaction
-  (submit-transact (dschema/build-schema d/tempid)))
+; (defn create-schema
+;   "create schema using datomic-schema in db connection"
+;   []
+;   ; turn all defparts macro statement into schema transaction
+;   (submit-transact (dschema/build-parts d/tempid))
+;   ; turn all defschema macro statement into schema transaction
+;   (submit-transact (dschema/build-schema d/tempid)))
 
 

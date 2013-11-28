@@ -53,6 +53,14 @@
 
 
 ;;==================================================================================
+;; get data from nodes in information model
+;;==================================================================================
+(defn get-login-name
+  [inputs]
+  ;(.log js/console "get login " inputs)
+  (get-in inputs [:new-model :login :name]))
+
+;;==================================================================================
 ;; transforms
 ;; transform-fn gets 2 args, old-value and message, ret value used to set new value.
 ;; message is PersistentArrayMap, which echoed back from transform-enabled [topic, params]
@@ -88,7 +96,6 @@
 (defn set-thing-type
   [_ messages]
   (:type messages))  ; value stored inside :category key
-
 
 
 ; called by xhr respond handler, store list of all things data structure into map.
@@ -206,34 +213,23 @@
   [])
 
 
-; when user submit action, post action data to db
+; effect processing. assign submit btn clicked.
 ; inputs contains {:mesage {topic [] :details} :new-model {} :old-model {}}
-; note that the first time node-create [:action :submit :*] will trigger this fn
-; we need to filter out that.
-; details {:action :assign, :hwid 17592186045487, :toid "foo", :hint "bar"} 
-; (defn post-assign-thing
-;   [inputs] 
-;   "after form submitted, post create thing with user data"
-;   (let [msg (:message inputs)
-;         topic (msgs/topic msg)
-;         details (:details msg)]
-;     (.log js/console (str "post assign thing details " details))
-;     [{msgs/topic [:server] msgs/type :assign :body details}]))
-
-
-; effect
-; inputs contains {:mesage {topic [] :details} :new-model {} :old-model {}}
+; details {:action :create-assignment, :hwid 17592186045485, :toid "a", :hint "b"}
 (defn post-submit-thing
   "after use created new thing, post them to database"
   [inputs]
-  (let [msg (:message inputs)
-        topic (msgs/topic msg)
-        action (second topic)
+  (let [user (get-login-name inputs)
+        msg (:message inputs)  ; the msg sent when assign clicked
+        topic (msgs/topic msg)   ;[:submit :assign :homeworks 17592186045485]
+        action (second topic)    ; :assign is msg type
         thingid (last topic)
-        details (:details msg)]
-    (.log js/console (str "post submit thing " topic " action " action 
-                          " thingid " thingid "  details " details))
-    [{msgs/topic [:server] msgs/type action :body details}]))
+        details (:details msg)
+        body (assoc details :user user)]  ; homework id and :toid and hint
+    (.log js/console (str user " post submit thing " topic " action " action 
+                          " thingid " thingid " body " body))
+    ; msg type :assign
+    [{msgs/topic [:server] msgs/type action :body body}]))
 
 
 ;;==================================================================================
@@ -371,7 +367,7 @@
 
 
 ; generic emitter to all things, (case type ) to switch cases.
-; we need to comprehense list of things and create path node for each thing and 
+; we need to comprehense list of things and create path node for each thing and
 ; gen thing template and attached to the path node. This way, when event happens in 
 ; template, we have path node stores all template transforms and data.
 (defn all-things-node-emitter

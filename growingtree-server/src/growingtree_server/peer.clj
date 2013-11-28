@@ -148,12 +148,13 @@
   "no filter, ret a list of all assignments"
   []
   (let [assignments (dda/find-assignment)
-        assignmentkeys [:db/id :assignment/homework :assignment/lecture]
+        assignmentkeys [:db/id :assignment/homework :assignment/lecture :assignment/hint :assignment/answer]
         ; a lazy map list will result in cljs.core.PersistentVector
         ;data (map (partial entity->map assignmentkeys) assignments)
         data (map #(-> % (select-keys assignmentkeys)) assignments)
         ]
-    (prn "all assignments " (select-keys (first assignments) [:assignment/homework]) data)
+    ;(prn "all assignments " (select-keys (first assignments) [:assignment/homework]) data)
+    (prn "all assignments " data)
     data))
 
 
@@ -169,6 +170,23 @@
     :homeworks (get-all-homeworks)
     :assignments (get-all-assignments)
     "default"))
+
+
+;;======================================================
+;; add new things
+(defmulti add-things 
+  (fn [type data]
+    type))
+
+; watch non ref-ed attr entity. :transact/bad-data Unable to resolve entity: rich
+(defmethod add-things
+  :assignments
+  [type data]
+  (let [;user (:user data)
+        ;to (:toid data)
+        hwid (:hwid data)
+        hint (:hint data)]
+    (dda/create-assignment hwid {:hint hint})))
 
 
 

@@ -11,7 +11,8 @@
             [clj-time.format :refer [parse unparse formatter]]
             [clj-time.coerce :refer [to-long from-long]])
   (:require [datomic.api :as d])
-  (:require [growingtree-server.datomic.dbschema :as dbschema]))
+  (:require [datomic-schema.schema :as dschema]
+            [growingtree-server.datomic.dbschema :refer :all]))
 
 ;
 ; http://blog.datomic.com/2013/05/a-whirlwind-tour-of-datomic-query_16.html
@@ -136,12 +137,20 @@
 ; the macro to stringify a form
 (defmacro stringify [question] (str question))
 
+; fn declaration
+(declare submit-transact)
+
+
 
 ; create attr schema thru conn
 (defn create-schema
   "create schema with connection to db"
   []
-  (dbschema/create-schema conn))
+  (do
+    ; turn all defparts macro statement into schema transaction
+    (submit-transact (dschema/build-parts d/tempid))
+    ; turn all defschema macro statement into schema transaction
+    (submit-transact (dschema/build-schema d/tempid))))
 
 
 ; to use the reted write op tuple inside a transact, wrap inside (vec code)
@@ -170,23 +179,6 @@
     code))
 
 
-; get attr details by attr ident. 
-; {:db/id :db/ident :community/url :db/valueType :db.type/string }
-(defn list-attr
-  "list all attributes for ident, if no ident, list all"
-  ([]  ; db is (d/db conn)
-    (let [eid (d/q '[:find ?attr :where [_ :db.install/attribute ?attr]] db)]
-      (prn "list all attr " eid)
-      (map (partial entity-attr db) eid)))
-
-  ([attr-ident]
-    (let [eid (d/q '[:find ?e :in $ ?attr 
-                     :where [?e :db/ident ?attr]] 
-                    db 
-                    attr-ident)]
-      (map (partial entity-attr db) eid))))
-
-
 (defn get-entity
   "ret an datomic EntityMap from eid"
   [eid]
@@ -213,6 +205,24 @@
       (prn a  (a e)))))
 
 
+; get attr details by attr ident. 
+; {:db/id :db/ident :community/url :db/valueType :db.type/string }
+(defn list-attr
+  "list all attributes for ident, if no ident, list all"
+  ([]  ; db is (d/db conn)
+    (let [eid (d/q '[:find ?attr :where [_ :db.install/attribute ?attr]] db)]
+      (prn "list all attr " eid)
+      (map (partial entity-attr db) eid)))
+
+  ([attr-ident]
+    (let [eid (d/q '[:find ?e :in $ ?attr 
+                     :where [?e :db/ident ?attr]] 
+                    db 
+                    attr-ident)]
+      (map (partial entity-attr db) eid))))
+
+
+
 ;; submit transaction (transact connection tx-data)
 ; tx-data is a list of lists, each of which specifies a write
 ; operation, either an assertion, a retraction or the invocation of
@@ -222,6 +232,7 @@
 (defn submit-transact
   "submit a transaction"
   [tx-data]
+  (prn "submit trans " tx-data)
   (d/transact conn tx-data))
 
 

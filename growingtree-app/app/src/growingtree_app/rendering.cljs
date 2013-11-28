@@ -92,7 +92,7 @@
 (defn enable-login-submit
   "listen login btn event and sent transform msgs back to behavior"
   [_ [_ path transform-name messages] input-queue]
-  (.log js/console (str ""))
+  (.log js/console (str "enable login submit " path messages))
   (events/collect-and-send :click 
                            "login-button" 
                            input-queue 

@@ -49,8 +49,10 @@
 ; knowing entity id, query with (d/entity db eid). otherwise, [:find $t :where []]
 ; (d/entity db eid) rets the entity. entity is LAZY. attr only availabe when touch.
 ; To add data to a new entity, build a transaction using :db/add implicitly 
-; with the map structure (or explicitly with the list structure), a temporary id, 
-; and the attributes and values being added.
+; with the map structure, which will be conver to [:db/add eid att val], 
+; or explicitly with the list structure.
+; note that clj nil is an illegal value for db attribute. Need to convert it.
+;
 ;
 ; #db/id[partition-name value*] : value is an optional negative number.
 ; all instances of the same temp id are mapped to the same actual entity id in a given transaction, 
@@ -111,7 +113,7 @@
 (defn create-schema
   "create schema with connection to db"
   []
-  (dbschema/create-schema))
+  (dbconn/create-schema))
 
 
 ; list all install-ed attrs in db
@@ -296,8 +298,12 @@
 ; create an assignment for any homework that 
 (defn create-assignment
   "create an assignment from a homework to a child"
-  []
-  (assign/create-assignment))
+  ([]
+    (assign/create-assignment))
+
+  ([hwid data]
+    (assign/create-assignment hwid data)))
+
 
 
 ; find all assignment
