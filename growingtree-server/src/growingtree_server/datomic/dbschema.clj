@@ -4,7 +4,15 @@
             [clojure.pprint :as pprint]
             [clojure.data.json :as json])
   (:require [datomic.api :as d]
-            [datomic-schema.schema :refer :all :as dschema]))
+            [datomic-schema.schema :as dschema]
+            [growingtree-server.datomic.dbconn :as dbconn :refer :all]))
+
+; The data model in datomic is represented by entity. Everything is entity.
+; A table is an entity, each column is an entity, and each tuple row is an entity.
+
+; For parent table, it is a parent entity with many attributes.
+; The name attribute of parent, or name column, is an entity. it has its own id and its attribute identifier is :parent/name. The type of the attr is string. so primitive string text is stored. and it cardi is one.
+; For children attribute of parent, it has its own id and iden is :parent/children. The type of the attr is ref, so a list of children ids are stored here, and the cardi is many.
 
 ;
 ; datomic db stores are repr by datoms. Each datom is an addition or retraction
@@ -223,33 +231,13 @@
     [end :instant "end time of activity"]))
 
 
-(defn entity-attr
-  "display all attributes of an entity by its id, passed in eid is in a list [eid]"
-  [db eid]
-  (let [e (d/entity db (first eid))
-        attrs (keys e)
-        tostr (reduce (fn [o c] (str o " " c "=" (c e))) (str (first eid) " = ") attrs)]
-    ;(pprint/pprint tostr)
-    tostr))
-
 
 (defn create-schema
   "create schema using datomic-schema in db connection"
-  [dbconn]
+  []
   ; turn all defparts macro statement into schema transaction
-  (d/transact dbconn (build-parts d/tempid))
+  (submit-transact (dschema/build-parts d/tempid))
   ; turn all defschema macro statement into schema transaction
-  (d/transact dbconn (build-schema d/tempid)))
-
-
-(defn list-attr
-  "list all attributes for ident, if no ident, list all"
-  ([db]  ; db is (d/db conn)
-    (let [eid (d/q '[:find ?attr :where [_ :db.install/attribute ?attr]] db)]
-      (prn "list all attr " eid)
-      (map (partial entity-attr db) eid)))
-  ([db ident]
-    (let [eid (d/q '[:find ?e :in $ ?attr :where [?e :db/ident ?attr]] db ident)]
-      (map (partial entity-attr db) eid))))
+  (submit-transact (dschema/build-schema d/tempid)))
 
 

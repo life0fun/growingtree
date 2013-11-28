@@ -350,14 +350,17 @@
       (let [id (:db/id entity-map)
             newpath (conj path id)  ; [:all :homework 123]
             actionpath (vec (concat [:setup action] (rest newpath)))]
-        (.log js/console (str "new thing delta " newpath " id " id))
+        (.log js/console (str "new thing delta path " newpath " actionpath " actionpath 
+                              " action " action))
         ; ret a vec of delta tuples, 
         [ [:node-create newpath :map]
           [:value newpath entity-map]
+          ; destroy the existing action path, otherwise transform-enable wont work.
+          [:node-destroy actionpath]
           ; ask UI to send back assignment details
-          [:transform-enable actionpath   ; [:action :setup :]
-                             action
-                             [{msgs/topic actionpath ; [:action :setup :homework 123]
+          [:transform-enable actionpath   ;[:setup :assign :courses 17592186045476]
+                             action       ; :assign
+                             [{msgs/topic actionpath ; [:setup :assign :homework 123]
                               (msgs/param :details) {}}]] ]))
     value-vec))
 
@@ -378,11 +381,15 @@
         removed (d/removed-inputs inputs)]
     ; each change tuple consists of node-path and a vector of values
     ;(removed-thing-deltas removed)
-    (reduce (fn [alldeltas [input-path newvals]] ;input-path, [:all :course] is a vec
+    (vec 
+      (concat
+        ; with this, will emit [:value [:all :courses] old-value new-val]
+        ((app/default-emitter) inputs) 
+        (reduce (fn [alldeltas [input-path newvals]] ;input-path, [:all :course] is a vec
               ; concat is vec de-pack and re-pack, enable :assign action for now
               (concat alldeltas (new-thing-deltas :assign input-path newvals)))
             []
-            changemap)))
+            changemap)))))
 
 
 ; actionbar displayed, now trans enable UI event data come back

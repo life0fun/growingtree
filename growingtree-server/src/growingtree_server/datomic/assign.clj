@@ -1,5 +1,5 @@
 ;; datomic data accessor
-(ns growingtree-server.datomic.timeline
+(ns growingtree-server.datomic.assign
   (:import [java.io FileReader]
            [java.net URI]
            [java.util Map Map$Entry List ArrayList Collection Iterator HashMap])
@@ -95,37 +95,150 @@
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
 
 
+;; this module contains database operations for task and assignment.
 
-; list an entity attribute's timeline
-(defn timeline
-  "list an entity's attribute's timeline "
-  [eid attr]
-  (let [txhist (entity-attr-timeline eid attr)]
-    (doseq [t txhist]
-      (show-entity-by-id (first t))
-      (show-entity-by-id (second t)))))
+(declare inc-homework-popularity)
+(declare create-homework-math)
 
 
-; list all transaction of a person
-(defn- person-activities
-  "list a person's all activities with a time range"
-  [pid]
-  (let [attrs [:parent/child :child/parent :homework/author :course/author
-               :assignment/by :assignment/to :comments/autho
-               :answer/child :comments/author :activities/child]
-        all (clojure.set/union (map #(timeline pid %) attrs))]
-    (prn all)))
+;
+; homework for course lecture, or random questions from anybody
+(defn homework-attr
+  "compose a map of attrs for a homework entity"
+  [subject title content uri]
+  (let [m {:db/id (d/tempid :db.part/user)
+          :homework/subject subject
+          :homework/title title
+          :homework/content content
+          :homework/uri uri}]
+    (prn m)
+    m))
 
 
-; list a person's all transaction timeline
-(defn person-timeline
-  "list a person's transaction timeline"
-  [eid]
-  (let [txhist (person-activities eid)]
-    (doseq [t txhist]
-      (prn t)
-      (show-entity-by-id (first t)))))
+; form assignment attr map
+(defn assignment-attr
+  "basic assignment attr map"
+  [pid cid hwid start due]
+  (let [m {:db/id (d/tempid :db.part/user)
+          :assignment/homework hwid
+          :assignment/from pid
+          :assignment/to cid
+          :assignment/start start
+          :assignment/due due}]
+    (prn m)
+    m))
 
 
+; answer attr
+(defn answer-attr
+  "basic answer attr map"
+  [assid authorid answer completetime]
+  (let [m {:db/id (d/tempid :db.part/user)
+          :answer/assignment assid
+          :answer/author authorid
+          :answer/answer answer
+          :answer/completetime completetime}]
+    (prn m)
+    m))
+
+; create an assignment for any homework that 
+(defn create-assignment
+  "create an assignment from a homework to a child"
+  [hwid]
+  (let [pid (ffirst (d/q '[:find ?e :where [?e :parent/child]] db))
+        cid (:db/id (first (:parent/child (d/entity db pid))))  ; from entity, you got map-entry
+        ;hwid (first (find-homework))
+        nowdt (clj-time/now)
+        nowd (.toDate nowdt)
+        duedt (clj-time/plus nowdt (clj-time/hours 1))
+        dued (.toDate duedt)
+        assg (assignment-attr pid cid hwid nowd dued)
+        ]
+    (prn pid cid hwid nowdt nowd duedt dued)
+    (submit-transact [assg])))
 
 
+; find all assignment
+(defn find-assignment
+  "find all assignments "
+  []
+  (let [assig (d/q '[:find ?e ?hwcontent ?from ?to ?start ?due 
+                    :where [?e :assignment/homework ?h]
+                           [?h :homework/content ?hwcontent]
+                           [?e :assignment/from ?p]
+                           [?p :parent/fname ?from]
+                           [?e :assignment/to ?c] 
+                           [?c :child/fname ?to] 
+                           [?e :assignment/start ?start]
+                           [?e :assignment/due ?due]
+                    ] 
+                    db)
+        assignkeys [:db/id :assignment/homework :assignment/from :assignment/to :assignment/start :assignment/due]
+        entities (map (partial zipmap assignkeys) assig)]
+    (prn "assignment entities " entities)
+    entities))
+
+
+; the enum must be fully qualified, :homework.subject/math
+(defn create-homework
+  "create a simple math homework"
+  [subject]  
+  (let [lhs (rand-int 100)
+        rhs (rand-int 100)
+        op (rand-nth (map str ['+ '- '* '/]))
+        content (str lhs " " op " " rhs " = ?")
+        title "simple add sub mul div"
+        subject :homework.subject/math
+        uri (URI. "http://www.growingtree.com/math")
+        hwmap (homework-attr subject title content uri)]
+    (prn "the math question is " hwmap)
+    (submit-transact [hwmap])))
+
+
+(defn find-homework
+  "find homework by subject"
+  []
+  (let [subject :homework.subject/math
+        hws (d/q '[:find ?e ?content
+                   :in $ ?sub
+                   :where [?e :homework/content ?content]
+                          [?e :homework/subject ?sub]]
+                  db
+                  subject)
+        eids (map first hws)  ; the first item of tuple is homework id
+        entities (map (comp get-entity first) hws)
+        ]
+    (prn "find-homework " entities)
+    entities))
+
+ 
+(defn inc-homework-popularity
+  "increase homework popularity"
+  []
+  (let [hwids (find-homework)
+        incstmt (map #(incby-stmt % :homework/popularity 1) hwids)]
+    (prn incstmt)
+    (submit-transact (vec incstmt))))
+ 
+
+; submit an answer to an assignment
+(defn submit-answer
+  "submit an answer to an assignment"
+  [assid authorid]
+  (let [asse (d/entity db assid)   ; reify ass entity
+        hwe (->> asse :assignment/homework :db/id (d/entity db))
+        answ (str (:homework/content hwe) " == " (rand-int 100))
+        nowd (.toDate (clj-time/now))
+        answmap (answer-attr assid authorid answ nowd)]
+    (prn (d/touch asse))
+    (prn (d/touch hwe))
+    (prn answmap)
+    (submit-transact [answmap])))
+
+
+; find all answers
+(defn find-answer
+  "find all answers"
+  []
+  (let [ansid (d/q '[:find ?e :where [?e :answer/answer]] db)]
+    (map (comp show-entity-by-id first) ansid)))

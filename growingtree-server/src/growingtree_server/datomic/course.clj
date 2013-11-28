@@ -1,5 +1,5 @@
 ;; datomic data accessor
-(ns growingtree-server.datomic.timeline
+(ns growingtree-server.datomic.course
   (:import [java.io FileReader]
            [java.net URI]
            [java.util Map Map$Entry List ArrayList Collection Iterator HashMap])
@@ -13,7 +13,6 @@
   (:require [datomic.api :as d])
   (:require [growingtree-server.datomic.dbschema :as dbschema]
             [growingtree-server.datomic.dbconn :as dbconn :refer :all]))
-
 
 ;
 ; http://blog.datomic.com/2013/05/a-whirlwind-tour-of-datomic-query_16.html
@@ -95,37 +94,140 @@
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
 
 
-
-; list an entity attribute's timeline
-(defn timeline
-  "list an entity's attribute's timeline "
-  [eid attr]
-  (let [txhist (entity-attr-timeline eid attr)]
-    (doseq [t txhist]
-      (show-entity-by-id (first t))
-      (show-entity-by-id (second t)))))
+(declare create-lecture)
+(declare create-course-coding)
 
 
-; list all transaction of a person
-(defn- person-activities
-  "list a person's all activities with a time range"
-  [pid]
-  (let [attrs [:parent/child :child/parent :homework/author :course/author
-               :assignment/by :assignment/to :comments/autho
-               :answer/child :comments/author :activities/child]
-        all (clojure.set/union (map #(timeline pid %) attrs))]
-    (prn all)))
+; for course and lectures
+(defn course-attr
+  "compose a map of attrs for a course entity"
+  [subject title overview materials contenturi]
+  (let [m {:db/id (d/tempid :db.part/user)
+          :course/subject subject
+          :course/title title
+          :course/overview overview
+          :course/materials materials
+          :course/contenturi contenturi}]
+    (prn m)
+    m))
+
+(defn lecture-attr
+  "compose a map of attrs for a course lecture"
+  [course seqno date topic content videouri]
+  (let [m {:db/id (d/tempid :db.part/user)
+          :lecture/course course
+          :lecture/seqno seqno
+          :lecture/date date
+          :lecture/topic topic
+          :lecture/content content
+          :lecture/videouri videouri}]
+    (prn m)
+    m))
 
 
-; list a person's all transaction timeline
-(defn person-timeline
-  "list a person's transaction timeline"
-  [eid]
-  (let [txhist (person-activities eid)]
-    (doseq [t txhist]
-      (prn t)
-      (show-entity-by-id (first t)))))
+; create homework to be assigned
+(defn create-course
+  "create a course "
+  ([]
+    (create-course :coding))
+
+  ([subject]
+    (case subject
+      :coding (create-course-coding)
+      "default")))
 
 
+; create course and lecture together
+(defn create-course-and-lecture
+  "create a course, and a batch of lecture in one transaction"
+  []
+  (let [cm (create-course)
+        cid (:db/id cm)
+        lecm (create-lecture cid)
+        lid (:db/id lecm)
+        clm (assoc cm :course/lectures [lid])]  ; for :many field, add with [lid] or lid, db will handle it.
+    (prn clm)
+    (prn lecm)
+    (submit-transact [clm lecm])))
 
 
+; the enum must be fully qualified, :homework.subject/math
+(defn create-course-coding
+  "create a simple math course and lectures"
+  []
+  (let [subject :course.subject/coding
+        title "learning datomic"
+        credit 3
+        overview (str "datomic is a database as value based on clojure, awesome !")
+        materials (str "http://docs.datomic.com/tutorial.html")
+        contenturi (URI. "http://docs.datomic.com/")
+        coursem (course-attr subject title overview materials contenturi)]
+    ;(d/transact conn [coursem])
+    coursem))
+
+
+; create an online course
+(defn create-lecture
+  "create a course lecture for certain course id"
+  [cid]
+  (let [lectseq (str "1b")
+        lecdate (.toDate (clj-time/date-time 2013 11 25 10 20))
+        topic (str "The day of datomic")
+        content (str "The Day of Datomic project is a collection of samples and tutorials for learning Datomic")
+        videouri (URI. "https://github.com/Datomic/day-of-datomic")
+        lecturem (lecture-attr cid lectseq lecdate topic content videouri)]
+    ;(d/transact conn [lecturem])
+    lecturem)) ; tx-data is a list of write datoms
+
+
+; find a course
+(defn find-course
+  "find course by subject, ret a list of course entity"
+  []
+  (let [subject :course.subject/coding
+        ; get a vec of [[course-id lecture-id] [] ...]
+        eids (d/q '[:find ?c ?l           ; ret both course id and lecture id
+                    :in $ ?sub 
+                    :where [?c :course/lectures ?l]    ; all courses that have lectures
+                    ] ; all lectures of the course
+                db 
+                subject)
+        cids (map first eids)  ; always ret the first homework to assign.
+        lids (map second eids)]
+    ; (prn "cids" cids)
+    ; (prn "lids" lids)
+    (show-entity-by-id (first cids))
+    (show-entity-by-id (first lids))
+    ; [ [cid lid] [cid lid]], ret course entity map
+    (map (comp get-entity first) eids)))  
+
+
+(defn find-lecture
+  "find all lectures, ret a vector of lecture entities"
+  []
+  (let [lids (d/q '[:find ?l :where [?l :lecture/course]] db)
+        entities (map (comp get-entity first) lids)]  ; eid is the first of result tuple
+    (map (comp show-entity-by-id first) lids)
+    entities))
+
+
+; linking a lecture to a course, ref attr's val is numeric id value.
+(defn add-course-lecture
+  "adding a lecture to a course by setting ref attr with id numeric value"
+  [cid lid]
+  (let [ccode [:db/add cid :course/lectures lid]
+        lcode [:db/add lid :lecture/course cid]]
+    (submit-transact [ccode lcode])
+    (show-entity-by-id cid)
+    (show-entity-by-id lid)))
+
+
+; retract the lecture from a course
+(defn rm-course-lecture
+  "remove a lecture from a course by setting ref attr with id numeric value"
+  [cid lid]
+  (let [ccode [:db/retract cid :course/lectures lid]
+        lcode [:db/retract lid :lecture/curse cid]]
+    (submit-transact [ccode])
+    (show-entity-by-id cid)
+    (show-entity-by-id lid)))

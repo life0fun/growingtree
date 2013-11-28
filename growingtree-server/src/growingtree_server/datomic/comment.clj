@@ -1,5 +1,5 @@
 ;; datomic data accessor
-(ns growingtree-server.datomic.timeline
+(ns growingtree-server.datomic.comment
   (:import [java.io FileReader]
            [java.net URI]
            [java.util Map Map$Entry List ArrayList Collection Iterator HashMap])
@@ -13,7 +13,6 @@
   (:require [datomic.api :as d])
   (:require [growingtree-server.datomic.dbschema :as dbschema]
             [growingtree-server.datomic.dbconn :as dbconn :refer :all]))
-
 
 ;
 ; http://blog.datomic.com/2013/05/a-whirlwind-tour-of-datomic-query_16.html
@@ -95,37 +94,42 @@
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
 
 
-
-; list an entity attribute's timeline
-(defn timeline
-  "list an entity's attribute's timeline "
-  [eid attr]
-  (let [txhist (entity-attr-timeline eid attr)]
-    (doseq [t txhist]
-      (show-entity-by-id (first t))
-      (show-entity-by-id (second t)))))
-
-
-; list all transaction of a person
-(defn- person-activities
-  "list a person's all activities with a time range"
-  [pid]
-  (let [attrs [:parent/child :child/parent :homework/author :course/author
-               :assignment/by :assignment/to :comments/autho
-               :answer/child :comments/author :activities/child]
-        all (clojure.set/union (map #(timeline pid %) attrs))]
-    (prn all)))
+; comment attr, subject is the id
+(defn comment-attr
+  "basic comment attr map"
+  [subid authorid content]
+  (let [m {:db/id (d/tempid :db.part/user)
+          :comments/author authorid
+          :comments/content content
+          :comments/subject subid
+          :comments/upvotes 1}]
+    (prn m)
+    m))
 
 
-; list a person's all transaction timeline
-(defn person-timeline
-  "list a person's transaction timeline"
-  [eid]
-  (let [txhist (person-activities eid)]
-    (doseq [t txhist]
-      (prn t)
-      (show-entity-by-id (first t)))))
+; make a comment on any eid
+(defn fake-comment
+  "fake a comment on an assignment"
+  []
+  (letfn [(commdata [[subid authorid content]]
+            (let [text (str content " is too hard !")]
+              (comment-attr subid authorid text)))]
 
+    (let [assgns (d/q '[:find ?e ?to ?content
+                        :where [?e :assignment/homework]
+                               [?e :assignment/to ?to]
+                               [?e :assignment/homework ?hwid]
+                               [?hwid :homework/content ?content]] 
+                    db)
+        comments (map commdata assgns)
+        ]
+      (prn assgns)
+      (prn comments)
+      (submit-transact (vec comments)))))
 
-
-
+; list all comments
+(defn find-comment
+  "find a comment"
+  []
+  (let [cids (d/q '[:find ?e :where [?e :comments/author]] db)]
+    (map (comp show-entity-by-id first) cids)))

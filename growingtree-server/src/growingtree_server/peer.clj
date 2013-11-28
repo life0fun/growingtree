@@ -7,8 +7,6 @@
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format]
             [clj-time.local])
-  (:require [cheshire.core :refer :all]
-            [cheshire.generate :refer [add-encoder encode-map]])
   (:require [growingtree-server.datomic.dda :as dda])  ; datomic data accessor
   )
 

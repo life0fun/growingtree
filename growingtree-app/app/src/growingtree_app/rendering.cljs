@@ -196,17 +196,27 @@
     
 
 ; info model value transformed, update template attached to node path.
+; oldv contains old value map and newv contains new value map.
 (defn value-update-new-thing
   [r [op path oldv newv] input-queue]
-  (let [id (render/get-id r path)
+  (.log js/console (str "updating new thing value " path newv))
+  (let [id (render/get-id r path)    ; node destroy, get-id will blow off
         type-path (butlast path)
         view-vec (entity-view/view-value type-path newv)
         title (:title view-vec)
         thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
-    (.log js/console (str "updating new thing value " path type-path id))
     (templates/update-t r path thing-map)
     ))
 
+
+(defn del-new-thing-node
+  [r [op path] input-queue]
+  (let [thingid (last path)
+        div (dom/by-id (str thingid))]
+    (.log js/console "del thing node " thingid)
+    (h/destroy! r path)
+    (dom/destroy! div)))
+    
 
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ;; setup action multimethod. It dispatches by transkey, the second item in path [:setup :transkey]
@@ -352,7 +362,7 @@
     [:node-create  [:nav] render-home-page]
     [:node-destroy [:nav] h/default-destroy]
     ; upon nav type change, clear all things
-    [:value [:nav :type] clear-all-things]
+    ;[:value [:nav :type] clear-all-things]
     ; wire sidebar nav click to send this transform to change data model.
     [:transform-enable [:nav :type] enable-type-all-things]
 
@@ -362,17 +372,18 @@
 
     ; create all thing list consist of each thing node
     [:node-create [:all :* :*] add-new-thing-node]
-    [:node-destroy [:all :*] h/default-destroy]
-    [:node-destroy [:all :* :*] h/default-destroy]
     [:value [:all :* :*] value-update-new-thing]
+    [:node-destroy [:all :*] h/default-destroy]
+    [:node-destroy [:all :* :*] del-new-thing-node]
+    
 
     ; setup and submit action handler, path [:setup :assign :homework id] multi-method, 
     ; we can match anything, mutlimethod dispatch based on transkey
     [:transform-enable [:setup :**] enable-setup-action]
-    [:transform-disable [:setup :**] disable-setup-action]
+    ;[:transform-disable [:setup :**] disable-setup-action]
 
     [:transform-enable [:submit :**] enable-submit-action]
-    [:transform-disable [:submit :**] disable-submit-action]
+    ;[:transform-disable [:submit :**] disable-submit-action]
 
     ; newthing, path is [:setup :newthing ]
     ;[:transform-enable [:setup :newthing] setup-action-transforms]

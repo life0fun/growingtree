@@ -105,7 +105,7 @@ When client connects, server intercepts the session and store its session id in 
 Before we have web UI to input data, we need some command line tool to populate the databases. We will use my colorcloud project as the tool for database interact. Here we set our database uri point to 
 `datomic:free://localhost:4334/colorcloud`.
 
-We alos put the schema file under resources/growingtree/schema.edn.
+We can put the schema file under resources/growingtree/schema.edn.
 
 The peer.clj wraps datomic peer lib for all datomic ORM functions. It is the interface to all database operations in datomic namespace.
 
@@ -129,6 +129,42 @@ Datomic database is persistent under /Volumes/Build/datomic/data/db/, You can us
 ## Datomic EntityMap
 
 Datomic query result is datomic entity, we touch the entity to get all entity entries. Server route interceptor converts datomic entity to json string to sent to client. When json-response coerces datomic entity to json string, it recursively resolve each attribute. This will cause infinit loop when the attribute is a circular reference. We need to filter out bi-directional reference attributes and only project none circular ref entity attributes when giving data back to json-response interceptor.
+
+
+## Datomic schema
+
+The data model in datomic is represented by entity. Everything is entity.
+A table is an entity, each column is an entity, and each tuple row is an entity.
+
+For parent table, it is a parent entity with many attributes.
+The name attribute of parent, or name column, is an entity. it has its own id and its attribute identifier is :parent/name. The type of the attr is string. so primitive string text is stored. and it cardi is one.
+For children attribute of parent, it has its own id and iden is :parent/children. The type of the attr is ref, so a list of children id map entries are stored here, and the cardi is many.
+
+    :parent/child #{{:db/id 17592186045467} {:db/id 17592186045466}}
+    :parent/email #{"P-fname-lname-1384071314828@email.com"}
+
+
+For enum, it just keywords. define enum constant at the begining of schema. Refer to it from schema attributes.
+    
+    (def subject [:math :science :reading])
+
+    [subject :enum subject "homework subject, math, art, etc"]
+    
+when creating entity, should give fully qualified value for enum.
+
+    (let [subject :homework.subject/math] ...)
+
+the value stored in db is keyword with fully qualified name.
+
+    {:homework/subject :homework.subject/math }
+
+    ({:course/subject :course.subject/coding, 
+      :course/overview "datomic is a fact store, awesome !", 
+      :course/title "learning datomic", 
+      :db/id 17592186045476})
+
+We use datomic-schema to define our database schema.
+
 
 ## Usage
 
