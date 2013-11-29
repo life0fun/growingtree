@@ -178,7 +178,8 @@
         things (peer/get-things (keyword type))
         result {:status 200 :data things}
         jsonresp (bootstrap/json-response result)] ; conver to keyword for query
-    (prn "server service get-all-things " type things)
+    (newline)
+    (println "server service get-all-things " type things)
     jsonresp))
     ; (-> (ring-response/response things)
     ;     (ring-response/content-type "application/edn"))))
@@ -200,7 +201,7 @@
   "add a thing upon post request, request contains http post data"
   [{postdata :edn-params :as request}]
   (let [;resp (bootstrap/json-print {:result msg-data})
-        type (get-in request [:path-params :thing])  ; /api/thing-type
+        type (get-in request [:path-params :thing])  ; /api/:thing
         action (:action postdata)
         user (:user postdata)
         added-things (peer/add-things (keyword type) postdata)
@@ -212,7 +213,8 @@
               :request request
               :msg-data postdata)
 
-    (prn "adding thing " postdata " type " type " action " action " resp " added-things)
+    (prn "adding thing done " postdata " type " type " action " action 
+          " resp " added-things)
     jsonresp))
 
 

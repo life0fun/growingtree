@@ -94,6 +94,15 @@
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
 
 
+; parent record example
+; {:db/id 17592186045498 :parent/status :parent.status/active, 
+;  :parent/name "rich-dad", :parent/lname "rich-dad", 
+;  :parent/phone #{"1385741609164"}, :parent/gender :M, 
+;  :parent/address "addr-rich-dad", :parent/email #{"rich-dad@email.com"},
+;  :parent/children #{{:db/id 17592186045497} {:db/id 17592186045496}}, 
+;  :parent/age 32, :parent/popularity 6}
+
+
 (declare find-parent-by-cid)
 (declare find-parent-by-cname)
 
@@ -113,102 +122,100 @@
 
 ; rules to find all parent or child with the name, using rules for OR logic
 (def nameruleset '[[[byname ?e ?n] 
-                   [?e :parent/fname ?n]]  ; multiple tuples within a rule are AND.
+                   [?e :parent/name ?n]]  ; multiple tuples within a rule are AND.
                   [[byname ?e ?n]
                    [?e :parent/lname ?n]]
                   [[byname ?e ?n]
-                   [?e :child/fname ?n]]
+                   [?e :child/name ?n]]
                   [[byname ?e ?n]
                    [?e :child/lname ?n]]])
-
-
-(defn parent-attr
-  "compose a map of for attributes of parent"
-  [fname lname age addr gender email phone]
-  (let [m {:db/id (d/tempid :db.part/user)
-          :parent/fname fname
-          :parent/lname lname
-          :parent/age age
-          :parent/address addr
-          :parent/gender gender
-          :parent/email email
-          :parent/phone phone
-          :parent/status :parent.status/active}]
-    (prn m)
-    m))
-
-
-(defn child-attr
-  "compose a map of for attributes of children"
-  [fname lname age addr gender email phone]
-  (let [m {:db/id (d/tempid :db.part/user)
-          :child/fname fname
-          :child/lname lname
-          :child/age age
-          :child/address addr
-          :child/gender gender
-          :child/email email
-          :child/phone phone}]
-    (prn m)
-    m))
 
 
 ; create a parent entity, does not link child yet
 (defn create-parent
   "create a parent entity, id is random"
-  []
+  [name]
   (let [pid (getPersonId)
-        pfname (str "P-fname-" pid)
-        plname (str "P-lname-" pid)
-        page (+ 30 (rand-int 20))
-        paddr (str "addr-" pid)
-        pgender (rand-nth [:M :F])
-        pemail (str "P-fname-lname-" pid "@email.com")
-        pphone (str "500-000-" pid)
-        parent (parent-attr pfname plname page paddr pgender pemail pphone)]
-    parent))
+        m {:db/id (d/tempid :db.part/user)
+           :parent/name name
+           :parent/lname name
+           :parent/age (+ 30 (rand-int 20))
+           :parent/address (str "addr-" name)
+           :parent/gender (rand-nth [:M :F])
+           :parent/email (str name "@email.com")
+           :parent/phone (str pid)
+           :parent/status :parent.status/active
+           :parent/popularity (rand-int 10)}]
+    m))
 
+; convert a parent entity to map
+(defn parent-entity-map
+  "convert a parent entity to map"
+  [entity]
+  (let [children (map :db/id (:parent/children entity))]
+    {:id (:db/id entity)
+     :name (:parent/name entity)
+     :lname (:parent/lname entity)
+     :children children
+     :age (:parent/age entity)
+     :address (:parent/address entity)
+     :email (vec (:parent/email entity))  ; convert set to string
+     :phone (vec (:parent/phone entity))
+     :popularity (:parent/popularity entity)
+    }))
 
-; create a child entity, does not link parent yet
+; create a parent entity, does not link child yet
 (defn create-child
-  "create a child entity, id is random"
-  []
-  (let [cid (getPersonId)
-        cfname (str "C-fname-" cid)
-        clname (str "C-lname-" cid)
-        cage (+ 5 (rand-int 15))
-        caddr (str "addr-" cid)
-        cgender (rand-nth [:M :F])
-        cemail (str "C-fname-lname-" cid "@email.com")
-        cphone (str "100-000-" cid)
-        child (child-attr cfname clname cage caddr cgender cemail cphone)]
-    child))
+  "create a parent entity, id is random"
+  [name]
+  (let [pid (getPersonId)
+        m {:db/id (d/tempid :db.part/user)
+           :child/name name
+           :child/lname name
+           :child/age (+ 5 (rand-int 15))
+           :child/address (str "addr-" name)
+           :child/gender (rand-nth [:M :F])
+           :child/email (str name "@email.com")
+           :child/phone (str pid)
+           :child/status :child.status/active
+           :child/popularity (rand-int 10)}]
+    m))
 
-
+; add a family with two parents and two kids
 (defn add-family
   "insert two parents with two children"
-  []
-  (let [tmplparent (create-parent)
-        tmprparent (create-parent)
-        tmplch (create-child)
-        tmprch (create-child)
-        lch (assoc tmplch :child/parent [(:db/id tmplparent) (:db/id tmprparent)])
-        rch (assoc tmprch :child/parent [(:db/id tmplparent) (:db/id tmprparent)])
-        lparent (assoc tmplparent :parent/child [(:db/id lch) (:db/id rch)])
-        rparent (assoc tmprparent :parent/child [(:db/id lch) (:db/id rch)])
+  [name]
+  (let [dname (str name "-dad")
+        mname (str name "-mom")
+        clname (str name "-kid1")
+        crname (str name "-kid2")
+
+        tmplparent (create-parent dname)
+        tmprparent (create-parent mname)
+        tmplch (create-child clname)
+        tmprch (create-child crname)
+        lch (assoc tmplch :child/parents [(:db/id tmplparent) (:db/id tmprparent)])
+        rch (assoc tmprch :child/parents [(:db/id tmplparent) (:db/id tmprparent)])
+        lparent (assoc tmplparent :parent/children [(:db/id lch) (:db/id rch)])
+        rparent (assoc tmprparent :parent/children [(:db/id lch) (:db/id rch)])
+        trans (submit-transact [lch rch lparent rparent])
         ]
-    (prn "inserting " lch rch lparent rparent)
-    (submit-transact [lch rch lparent rparent])))
+    (prn "inserting " lch rch lparent rparent trans)
+    lparent))
 
 
 ; :find rets entity id, find all parent's pid and name.
 (defn list-parent
   "find all parents with all children"
   []
-  (let [pc (d/q '[:find ?p :where [?p :parent/child]] db)
-        entities (map (comp get-entity first) pc)] ;?p parent who has children
-    (map (comp show-entity-by-id first) pc)
-    entities))  ; ret pc
+  (let [pc (d/q '[:find ?p :where [?p :parent/children]] db)
+        entities (map (comp get-entity first) pc)
+        parents (map parent-entity-map entities)] ;?p parent who has children
+    ;(map (comp show-entity-by-id first) pc)
+    ;(prn "list parent entities " parents)
+    (doseq [p parents]
+      (prn " parent --> " p))
+    parents))
 
 
 ; use :db/add to upsert child attr to parent. find parent eid by list-parent.
@@ -218,10 +225,10 @@
   "insert a children to parent by parent id, pid must be num, not string"
   [pid]  ; passed in pid is a num
   (let [pe (d/entity db pid)   ; get the lazy entity by id
-        ch (:parent/child pe)
-        newch (assoc (create-child) :child/parent pid)]
+        ch (:parent/children pe)
+        newch (assoc (create-child) :child/parents pid)]
     (submit-transact [newch
-                      [:db/add pid :parent/child (:db/id newch)]])
+                      [:db/add pid :parent/children (:db/id newch)]])
     (prn pid pe ch newch)))
 
 
@@ -229,7 +236,7 @@
 (defn find-children
   "find all children who has parents"
   []
-  (let [c (d/q '[:find ?c :where [?c :child/parent]] db)
+  (let [c (d/q '[:find ?c :where [?c :child/parents]] db)
         entities (map (comp get-entity first) c)]
     (map (comp show-entity-by-id first) c)
     entities))
@@ -240,8 +247,8 @@
   [pid cid]
   (let [parent (d/entity db pid)
         child (d/entity db cid)]
-    (submit-transact [[:db/add pid :parent/child cid]
-                      [:db/add cid :child/parent pid]])))
+    (submit-transact [[:db/add pid :parent/children cid]
+                      [:db/add cid :child/parents pid]])))
 
 
 (defn find-parent
@@ -260,7 +267,7 @@
   [cid]
   (let [ce (d/entity db cid)
         ;parent (-> ce (:parent/_child))   ; inbound(who refed me) might be slow.
-        parent (:child/parent ce)  ; :ref :many rets a map, each tuple is a  clojure.lang.MapEntry.
+        parent (:child/parents ce)  ; :ref :many rets a map, each tuple is a  clojure.lang.MapEntry.
         ]
     (prn parent)
     (map (comp show-entity-by-id :db/id) parent)))  ; eid is the 1st in a ret tuple.
@@ -273,8 +280,8 @@
   (let [fname (first cfname)
         ; args needs to bind to ?var to pass into query
         rset (d/q '[:find ?p :in $ % ?n
-                    :where [?p :parent/child ?e]  ; join parent entity that child entity equals
-                           [?e :child/parent]  ; for child entity that has parent
+                    :where [?p :parent/children ?e]  ; join parent entity that child entity equals
+                           [?e :child/parents]  ; for child entity that has parent
                            (byname ?e ?n)]     ; its fname or lname mateches ?
                 db
                 nameruleset
@@ -290,13 +297,13 @@
   "find a person by either first name or last name"
   [pname]
   (let [parent (d/q '[:find ?e :in $ % ?n
-                      :where [?e :parent/child]
+                      :where [?e :parent/children]
                              (byname ?e ?n)]
                     db
                     nameruleset
                     pname)
         child (d/q '[:find ?e :in $ % ?n
-                     :where [?e :child/parent]  ; query child
+                     :where [?e :child/parents]  ; query child
                              (byname ?e ?n)]
                     db
                     nameruleset

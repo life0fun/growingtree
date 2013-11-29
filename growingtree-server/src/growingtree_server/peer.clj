@@ -57,6 +57,7 @@
 
 
 ; project non-circular ref attrs of datomic entityMap to simple map to avoid infinit loop in json stringify
+; usage: data (map (partial entity->map coursekeys) courses)
 (defn entity->map 
   "given a list of attributes in convert-data, find their values from entity and put as map attr"
   [entity-keys entity]
@@ -79,16 +80,14 @@
   []
   (dda/add-family))
 
+; can ot de-ref children link, as it will cause infinite circular de-ref !
 (defn get-all-parents
   "no filter, ret a list of all parents entity maps"
   []
-  (let [parents (dda/list-parent)
-        parentkey [:db/id :parent/fname :parent/lname :parent/age :parent/email]
-        ;data (map (partial entity->map parentkey) parents)
-        data (map #(-> % (select-keys parentkey)) parents)]
-    (prn "get all parents entity " parents )
-    (prn "get all parents data " data)
-    data))
+  (let [parents (dda/list-parent)]
+    (prn "peer get all parents " parents )
+    ;(prn "get all parents data " data)
+    parents))
 
 ; get all children
 (defn get-all-children
@@ -96,10 +95,9 @@
   []
   (let [children (dda/find-children)
         childrenkeys [:db/id :child/fname :child/lname :child/age]
-        ;data (map (partial entity->map childrenkeys) children)
         data (map #(-> % (select-keys childrenkeys)) children)
         ]
-    (prn "get all children map " data)
+    (prn "peer get all children " data)
     data))
 
 
@@ -110,7 +108,7 @@
   (let [courses (dda/find-course)
         coursekeys [:db/id :course/title :course/overview :course/subject]
         ; a lazy map list will result in cljs.core.PersistentVector
-        ;data (map (partial entity->map coursekeys) courses)
+        
         data (map #(-> % (select-keys coursekeys)) courses)
         ]
     (prn "all courses " data)
@@ -150,7 +148,6 @@
   (let [assignments (dda/find-assignment)
         assignmentkeys [:db/id :assignment/homework :assignment/lecture :assignment/hint :assignment/answer]
         ; a lazy map list will result in cljs.core.PersistentVector
-        ;data (map (partial entity->map assignmentkeys) assignments)
         data (map #(-> % (select-keys assignmentkeys)) assignments)
         ]
     ;(prn "all assignments " (select-keys (first assignments) [:assignment/homework]) data)
@@ -161,7 +158,7 @@
 (defn get-things
   "get a list of things based thing type"
   [type]  ; type must be keyword when calling.
-  (prn "get things " type)
+  (prn "peer get things " type)
   (case type
     :parents (get-all-parents)
     :children (get-all-children)
@@ -173,7 +170,22 @@
 
 
 ;;======================================================
-;; add new things
+; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
+; add new things, subtype, eventually, should merge with add-things
+(defmulti add-new-things
+  (fn [new-thing-type details]
+    new-thing-type))
+
+(defmethod add-new-things
+  :course
+  [type details]
+  (let [user (:user details)
+        result (dda/add-family user)]
+    (prn "adding new family " user " transact " result)
+    result))
+
+
+;; add things
 (defmulti add-things 
   (fn [type data]
     type))
@@ -189,6 +201,13 @@
     (dda/create-assignment hwid {:hint hint})))
 
 
+;; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
+(defmethod add-things
+  :newthing
+  [type data]
+  (let [thing-type (keyword (:type data))  ; thing-type value is json string.
+       ]
+    (add-new-things thing-type data)))
 
 
 

@@ -22,10 +22,7 @@
 (defn parent-view-value
   "ret a view map for parent entity"
   [value-map]
-  (hash-map :id (:db/id value-map)
-            :title (:parent/fname value-map)
-            :gender (:parent/gender value-map)
-            :popularity (:parent/popularity value-map)))
+  (assoc value-map :title (:name value-map)))
 
 (defn child-view-value
   "ret a view map for child entity"

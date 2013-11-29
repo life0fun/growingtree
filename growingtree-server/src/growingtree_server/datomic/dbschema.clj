@@ -70,105 +70,129 @@
 (defpart app)
 
 ; for enum value in datomic is represented as entity with :db/ident attribute.
-; :db/ident :homework/subject == :db/ident :homework.subject/math
+; :db/ident :homework/type == :db/ident :homework.type/math
 (def person-status [:pending :active :inactive :cancelled])
 (def child-grade [:first :second :third :fourth :fifth :sixth :seventh :freshman :junior :senior])
-(def subject [:math :science :reading :coding :art :gym :reporting :game])
+(def thing-type [:math :science :reading :coding :art :gym :reporting :game :sports])
 (def course-schedule [:M :T :W :TH :F :SA :S])
 (def assignment-type [:homework :course])
 (def assignment-status [:pending :active :overdue :cancelled])
-(def activity-type [:call :sms :mms :app :url :download :lock])
+(def digit-type [:call :sms :mms :app :browse :game :stream :download :lock :study])
 
 (defschema parent
   (part app)
   (fields
-    [fname :string :indexed :fulltext]
+    [name :string :indexed :fulltext "user name, default as first name"]
     [lname :string :indexed :fulltext]
+    [children :ref :many "a list of parent's children"]
     [status :enum person-status "person status, pending, active, etc"]
     [age :long]
     [address :string :fulltext]
-    [gender :keyword "use M and F repr gender string"]
+    [gender :keyword "use :M and :F repr gender string"]
+    [openid :string :many :fulltext " facebook url, linkedin url, im ids"]
+    [groups :ref :many " social groups the user is in "]
     [email :string :many :indexed :fulltext]
     [phone :string :many :indexed :fulltext]
     [contacts :ref :many "contact list of the peroson"]
     [location :ref :many "location list of a person, most recent"]
     [popularity :long "persons popularity"]
     [followers :ref :many "the follower of the parent"]
-    [child :ref :many "a list of parent's children"]
-    [assignment :ref :many "all assignments this parent created to children"]
+    [friends :ref :many "a list of friends"]  ; the friends of parents
+    [assignments :ref :many "all assignments this parent created to children"]
     [likes :ref :many "what homework the parent liked"]
-    [friends :ref :many "a list of friends of parents"]  ; the friends of parents
     [comments :ref :many "can not personal attack on parent"]))
 
 ; children namespace with all attributes
 (defschema child
   (part app)
   (fields
-    [fname :string :indexed :fulltext]
+    [name :string :indexed :fulltext "user name, default as first name"]
     [lname :string :indexed :fulltext]
+    [parents :ref :many "a list of kids parents"] ;
     [status :enum person-status "person status, pending, active, etc"]
     [age :long]
     [address :string :fulltext]
     [gender :keyword "use :M and :F repr gender string"]
+    [openid :string :many :fulltext " facebook url, linkedin url, im ids"]
+    [groups :ref :many " social groups the user is in "]
     [email :string :many :indexed :fulltext]
     [phone :string :many :indexed :fulltext]
     [contacts :ref :many "list of contact of the peroson"]
     [location :ref :many "location list of a person, most recent"]
     [popularity :long "persons popularity"]
-    [parent :ref :many "a list of kids parents"] ;
+    [followers :ref :many "the follower"]
     [friends :ref :many "a list of kids friends, as followers"]
-    [classmates :ref :many "classmate of the kid"]
-    [grade :enum child-grade "the grade the kid is in"]
-    [activities :ref :many "kids digital activities, ref to activity entity "]
     [assignments :ref :many "list of assignments to child"]
     [likes :ref :many "what homework the kid liked"]
+    [classmates :ref :many "classmate of the kid"]
+    [activities :ref :many "kids digital activities, ref to activity entity "]
+    [grade :enum child-grade "the grade the kid is in"]
     [comments :ref :many "can we comment child's performance by authorities ?"]))
+
+
+(defschema group
+  (part app)
+  (fields
+    [title :string :fulltext " the title "]
+    [author :ref :many "the admin, organizer of the group"]
+    [type :enum thing-type "learning type of the group"]
+    [likes :long "who likes"]
+    [url :string "url of the group"]
+    [wiki :string]
+    [activities :ref :many "all activities the group has done"]
+    [comments :ref :many "course comments"]))
 
 
 ; online streaming a course, each course repr one section of 
 (defschema course
   (part app)
   (fields
-    [subject :enum subject "course subject, math, art, reading, etc"]
-    [title :string :fulltext " the title "]
-    [credit :long "the credit of the course"]
-    [overview :string :fulltext "overview of the course, what it covers"]
-    [materials :string :fulltext "materials, brief content"]
-    [contenturi :uri "content uri of the course, can be video, audio, weburl"]
+    [title :string :fulltext]
     [author :ref :many "the author, teacher of the course"]
-    [grading :string "how the grading policy"]
+    [type :enum thing-type "course type, math, art, reading, etc"]
+    [content :string :fulltext "content of the course, what it covers"]
+    [references :string :fulltext "references, brief content"]
     [lectures :ref :many "all the lectures on this course"]
+    [likes :long "who likes"]
+    [url :string "content url of the course, can be video, audio, weburl"]
+    [wiki :string "the discussion group, wiki and url"]
+    [email :string :many "group email"]
+    [credit :long "the credit of the course"]
+    [grading :string "how the grading policy"]
     [comments :ref :many "course comments"]))
 
 ; lectures for a course, each course must have 1+ lectures
 (defschema lecture
   (part app)
   (fields
+    [title :string :fulltext "the title of the lecture"]
+    [author :ref :many "the author, teacher of the course"]
+    [type :enum thing-type "course type, math, art, reading, etc"]
+    [content :string :fulltext "all related content"]
+    [references :string :fulltext "references, brief content"]
     [course :ref :one "the course of this lecture"]
     [seqno :string :one "lecture sequence number, 1a, 1b, 2a, 2b, etc"]
     [date :instant :one "the date time the lecture scheduled"]
-    [topic :string :fulltext "the topic of the lecture"]
-    [content :string :fulltext "all related content"]
-    [contenturi :uri "the content uri, include slides, handouts"]
-    [deliverable :string "which homework to due, any labs"]
-    [videouri :uri "the video uri"]
-    [wiki :uri "the discussion group, wiki and uri"]
-    [readings :uri "the reading assignment for the topic"]
+    [likes :long "who likes"]
+    [url :string "the content url, include slides, handouts"]
     [homework :ref :many "the homework of the lecture"]
+    [video :string "the video url"]
+    [wiki :string "the discussion group, wiki and url"]
+    [deliverable :string "which homework to due, any labs"]
     [comments :ref :many "feedback comments to the lecture"]))
 
 ; so questions or github project or online streaming course lecture
 (defschema homework
   (part app)
   (fields
-    [subject :enum subject "homework subject, math, art, reading, etc"]
     [title :string :indexed :fulltext]
-    [content :string :fulltext]
     [author :ref :many "the author of the homework"]
-    [uri :uri "uri of the homework, if any"]
+    [type :enum thing-type "homework type, math, art, reading, etc"]
+    [content :string :fulltext]
     [lecture :ref :many "which course lecture this homework related to"]
+    [likes :long "who likes"]
+    [url :string "url of the homework, if any"]
     [difficulty :long "difficulty level, 5 star"]
-    [popularity :long "how many people like this assignment "]
     [solved :long "how many kids solved the problem in total"]
     [topanswers :ref :many "a list of top answers"]
     [comments :ref :many "comments for the homework"]))  ; a list of answers with 
@@ -177,12 +201,12 @@
 (defschema assignment
   (part app)
   (fields
-    [homework :ref :one "one assignment to one child at a time. batch assignment later"]
-    [lecture :ref :one "one assignment to one child to take the course"]
-    [type :enum assignment-type "solve a homework or take a course"]
-    [from :ref :one "assignment created from who"]
-    [to :ref :many "make one assignment to one child, or many children ?"]
+    [author :ref :one "assignment created from who"]
+    [homework :ref :one "assignment always comes from homework"]
+    [priority :long :one "the priority of the assignment"]
+    [assignee :ref :many "make one assignment to one child, or many children ?"]
     [status :enum assignment-status "status of assignment"]
+    [tag :string :many "the tag to the assignment"]
     [hint :string :many "hints to the assignment"]
     [related :ref :many "similar or related assignment"]
     [watcher :ref :many "watchers of the assignment"]
@@ -195,11 +219,13 @@
 (defschema answer
   (part app)
   (fields
-    [assignment :ref :one "one answer to one child assignment"]
+    [title :string :fulltext " the answer to the assignment"]
     [author :ref :one "the author of this answer"]
-    [answer :string :fulltext " the answer to the assignment"]
+    [assignment :ref :one "one answer to one child assignment"]
+    [homework :ref :one "can answer a homework without being assigned"]
     [score :long "score of the answer"]
-    [completetime :instant "the submit time"]
+    [likes :long "who likes"]
+    [submittime :instant "the submit time"]
     [comments :ref :many "the comments tree for the answer"]))
 
 
@@ -207,28 +233,30 @@
 (defschema comments
   (part app)
   (fields
+    [title :string :fulltext "the title of the comment"] 
     [author :ref :one "the author of the comments"]
-    [content :string :fulltext "the body of a comment"]
-    [comments :ref :one "which comments this comment is to, ref to comments itself"]
-    [subject :ref :one "the subject comments made to, ref to person, homework, course, lecture entity"]
-    [upvotes :long "how many upvotes"]))
+    [thingid :ref :one "the thing id this comment made to"]
+    [likes :long "how many likes"]))
 
 
 ; activity, links two entity
 (defschema activity
   (part app)
   (fields
+    [title :string :one "activity content"]
     [author :ref :indexed :one "who created the activity"]
-    [name :string :one "activity name"]
-    [type :enum activity-type "activity type"]
-    [url :string :many "the url downloaded"]
+    [type :enum thing-type "the type of the activity"]
+    [content :string :fulltext]
+    [likes :long "how many likes"]
+    [members :ref :many "member of this activity"]
+    [tag :string :many :fulltext]
+    [digittype :enum digit-type "digit activity type"]
     [appname :string :one "the app name"]
     [message :string :many "message content"]
-    [from :ref :one "origin entity"]
-    [to :ref :many "target entity"]
+    [origin :ref :one "origin entity"]
+    [target :ref :many "target entity"]
     [start :instant "start time of activity"]
     [end :instant "end time of activity"]))
-
 
 
 ; (defn create-schema

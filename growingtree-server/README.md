@@ -103,7 +103,7 @@ When client connects, server intercepts the session and store its session id in 
 ## Connecting to Datomic
 
 Before we have web UI to input data, we need some command line tool to populate the databases. We will use my colorcloud project as the tool for database interact. Here we set our database uri point to 
-`datomic:free://localhost:4334/colorcloud`.
+`datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic`.
 
 We can put the schema file under resources/growingtree/schema.edn.
 
@@ -117,13 +117,12 @@ Create url and route interceptors to get request from app and send back response
 Datomic database is persistent under /Volumes/Build/datomic/data/db/, You can use lein repl to clean up and re-create databases.
 
     lein repl
-    user=> (require '[datomic.api :as d])
-    user=> (def uri "datomic:free://localhost:4334/colorcloud")
-    user=> (def conn (d/connect uri))
-    user=> (def db (d/db conn))
-    user=> (d/delete-database uri)
-    user=> (d/create-database uri)
-
+    (require '[datomic.api :as d])
+    (def uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
+    (def conn (d/connect uri))
+    (def db (d/db conn))
+    (d/delete-database uri)
+    (d/create-database uri)
 
 
 ## Datomic EntityMap
@@ -202,7 +201,7 @@ First, start datomic
     lein datomic start & 
     lein repl     ;; to delete and re-create database if needed
       (require '[datomic.api :as d])
-      (def uri "datomic:free://localhost:4334/colorcloud")
+      (def uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
       (d/create-database uri)         ;; see above command
 
 then lein run-dev

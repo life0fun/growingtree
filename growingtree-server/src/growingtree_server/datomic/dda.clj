@@ -132,8 +132,8 @@
 ;;==============================================================
 (defn add-family
   "insert two parents with two children"
-  []
-  (family/add-family))
+  [name]
+  (family/add-family name))
 
 
 ; :find rets entity id, find all parent's pid and name.

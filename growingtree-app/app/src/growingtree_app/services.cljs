@@ -70,22 +70,21 @@
   "handle RESTful json array response close over thing type and input queue"
   [type input-queue]
   (fn [response]
+    ; parse response body into json and convert json to cljs PersistentVector
     (when-let [body (:body response)] ; only when we have valid body
       (.log js/console "xhr response body " body)
-      (let [; parse json strig to js object.
-            bodyjson (JSON/parse body)  
-            ; parse js json object to cljs.core.Vector data structre.
+      (let [bodyjson (JSON/parse body)  
+            ; parse js json object to cljs.core.PersisitentVector data structre.
             result (js->clj bodyjson :keywordize-keys true)
             status (:status result)
             things-vec (:data result)
-            ;things-vec (js->clj data :keywordize-keys true)
             ]
         (.log js/console "response things tuples " things-vec)
         (p/put-message input-queue
                        {msgs/topic [:all]  ; store data into [:all]
                         msgs/type :set-all-things    ; set all things msgs type
                         :type type        ; set thing type
-                        :data things-vec  ; store cljs.core.Vector into path node
+                        :data things-vec  ; store cljs.core.PersistVector into path node
                         :id (util/random-id)})))))
 
 
@@ -96,6 +95,7 @@
   "service fn takes msgs out of effect queue and post to back-end"
   [message input-queue] ; input queue is where ret result should be injected to.
   ; ensure msgs wrap/unwrap keys match.
+  ;; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
   (when-let [body (pr-str (:body message))]
     (let [type (msgs/type message)  ; msgs type, the type user clicked on sidebar
           resp-handle (response-handler type input-queue)]  ; json response handler
@@ -111,8 +111,11 @@
         :homeworks (xhr-request "/api/homeworks" "GET" body resp-handle xhr-log)
         :assignments (xhr-request "/api/assignments" "GET" body resp-handle xhr-log) 
 
-        ;; post data to create thing
+        ;; msg type for actionbar assignment is :assign, post data to create-assignment
         :assign (xhr-request "/api/assignments" "POST" body resp-handle xhr-log)
+        ;; msg type for create new thing is newthing
+        ;; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
+        :newthing (xhr-request "/api/newthing" "POST" body resp-handle xhr-log)
         "default")
       (str "Send to Server: " body))))
 
