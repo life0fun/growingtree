@@ -102,13 +102,6 @@
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
 
 
-;; store database uri
-; (defonce uri "datomic:free://localhost:4334/colorcloud")
-; ;; connect to database and the db
-; (def conn (d/connect uri))
-; (def db (d/db conn))
-
-
 ; create attr schema thru conn
 (defn create-schema
   "create schema with connection to db"
@@ -119,8 +112,12 @@
 ; list all install-ed attrs in db
 (defn list-attr
   "list attibutes in db"
-  [attr]
-  (dbconn/list-attr attr))
+  ([]
+    (dbconn/list-attr))
+  ([attr]
+    (if attr
+      (dbconn/list-attr attr)
+      (dbconn/list-attr))))
 
 
 ; show entity by id

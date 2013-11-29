@@ -30,21 +30,28 @@ To create a connection string, simply replace DB-NAME with your db name.
 
 You can use repl to verify database is initialized properly. Note datomic db schema, config and db-uri are defined inside project.clj.
 
+java console, remember to end the command with ;
+
+    uri = "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic";
+    Peer.createDatabase(uri);
+    conn = Peer.connect(uri);
+
 
     lein repl
-    user=> (require '[datomic.api :as d])
-    user=> (def uri "datomic:free://localhost:4334/colorcloud")
-    user=> (d/delete-database uri)
-    user=> (d/create-database uri)
-    user=> (def conn (d/connect uri))
-    user=> (def db (d/db conn))
+    (require '[datomic.api :as d])
+    (def uri "datomic:free://localhost:4334/colorcloud")
+             "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic"
+    (d/delete-database uri)
+    (d/create-database uri)
+    (def conn (d/connect uri))
+    (def db (d/db conn))
 
-    user=> (def results (q '[:find ?c :where [?c :community/name]] db))
-    user=> results
-    user=> (d/delete-database uri)
-    user=> (d/create-database uri)
+    (def results (q '[:find ?c :where [?c :community/name]] db))
+    results
+    (d/delete-database uri)
+    (d/create-database uri)
 
-    user=> (d/q '[:find ?atn :where [?ref ?attr] [?attr :db/ident ?atn]] db)
+    (d/q '[:find ?atn :where [?ref ?attr] [?attr :db/ident ?atn]] db)
 
 ## Entity model
 

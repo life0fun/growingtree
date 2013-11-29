@@ -128,7 +128,8 @@
 
 
 ;; store database uri
-(defonce uri "datomic:free://localhost:4334/colorcloud")
+;(defonce uri "datomic:free://localhost:4334/colorcloud")
+(defonce uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
 ;; connect to database and the db
 (defonce conn (d/connect uri))
 (defonce db (d/db conn))
@@ -210,17 +211,18 @@
 (defn list-attr
   "list all attributes for ident, if no ident, list all"
   ([]  ; db is (d/db conn)
-    (let [eid (d/q '[:find ?attr :where [_ :db.install/attribute ?attr]] db)]
+    (let [eid (d/q '[:find ?attr 
+                     :where [_ :db.install/attribute ?attr]] 
+                    db)]
       (prn "list all attr " eid)
-      (map (partial entity-attr db) eid)))
+      (map entity-attr eid)))
 
   ([attr-ident]
     (let [eid (d/q '[:find ?e :in $ ?attr 
                      :where [?e :db/ident ?attr]] 
                     db 
                     attr-ident)]
-      (map (partial entity-attr db) eid))))
-
+      (map entity-attr eid))))
 
 
 ;; submit transaction (transact connection tx-data)

@@ -18,19 +18,22 @@
                  [org.slf4j/log4j-over-slf4j "1.7.2"]
 
                  ; datamoc !
-                 [com.datomic/datomic-free "0.8.4215"]
+                 ;[com.datomic/datomic-free "0.8.4215"]
+                 [org.clojure/java.jdbc "0.0.6"]
+                 [mysql/mysql-connector-java "5.1.6"]
+                 [com.datomic/datomic-pro "0.9.4324"]
+                 
                  [datomic-schema "1.0.2"]  ; macro for db schema
                  [clj-redis "0.0.12"]
                  [org.clojure/data.json "0.2.2"]    ; json package]
                  [clj-time "0.5.1"]       ; clj-time wraps Joda time
-                 [cheshire "5.2.0"]       ; json string encode/decode
                 ]
   :profiles {
     :dev {
       :source-paths ["dev"]
       :datomic {
-        :config "resources/growingtree/free-transactor-template.properties"
-        :db-uri "datomic:free://localhost:4334/colorcloud"}}}
+        :config "config/sql-transactor-template.properties"
+        :db-uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic"}}}
 
   :min-lein-version "2.0.0"
   :resource-paths ["config", "resources"]
