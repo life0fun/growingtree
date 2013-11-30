@@ -179,7 +179,7 @@
         result {:status 200 :data things}
         jsonresp (bootstrap/json-response result)] ; conver to keyword for query
     (newline)
-    (println "server service get-all-things " type things)
+    (println "server service get-all-things " (count things) type things)
     jsonresp))
     ; (-> (ring-response/response things)
     ;     (ring-response/content-type "application/edn"))))

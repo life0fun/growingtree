@@ -116,18 +116,19 @@
                            [{msgs/topic [:nav :type]
                             (msgs/param :type) {}}]]
 
-        ; enable login modal, experimenting
-        [:transform-enable [:nav] 
+        ; enable login modal, for modal, msg must be 
+        [:transform-enable [:nav :login-modal]
                            :login-modal
-                           [{msgs/topic [:nav :login]
+                           [{msgs/type :login-modal
+                             msgs/topic [:nav :login-modal]
                             (msgs/param :login-name) ""
                             (msgs/param :login-pass) ""}]]
 
-        ; enable setup newthing button with transform key :newthing
-        [:transform-enable [:setup :newthing] 
-                           :newthing
-                           [{msgs/topic [:setup :newthing]
-                            (msgs/param :details) {:user newv}}]]
+        [:transform-enable [:nav :create-modal] ; op
+                           :create-modal   ; transkey
+                           [{msgs/type :create-modal
+                             msgs/topic [:nav :create-modal]
+                            (msgs/param :type) ""}]]
                             
       ])))
 
@@ -146,7 +147,28 @@
                   [[:node-destroy (conj allpath (:id entity))]])
                 oldlist)))))
 
-    
+
+; user wants to create new thing of type
+(defn create-modal-emitter
+  [inputs]
+  (let [user (get-in inputs [:new-model :login :name])
+        thing-type (keyword (get-in inputs [:new-model :nav :create-modal]))
+        path [:create thing-type]]
+    (.log js/console (str "create modal emitter " user thing-type))
+    [
+      ;enable setup newthing create button with transform key :newthing
+      [:node-create path]
+      [:transform-enable path
+                         :creatething  ; can be :submit
+                         [{msgs/topic path
+                           msgs/type :creatething
+                          (msgs/param :details) {:user user}}]]
+
+   ]))
+
+
+
+
 ;;==================================================================================
 ;; all new things, triggered by [:all], include sub-type [:all :parent]
 ;;==================================================================================

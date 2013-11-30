@@ -12,58 +12,36 @@
             [io.pedestal.app.render.push.handlers.automatic :as auto]
             [growingtree-app.util :as util]
             [growingtree-app.entity-view :as entity-view]
-            [growingtree-app.selector :as sel])
+            ;[growingtree-app.selector :as sel]
+            )
   (:require-macros [growingtree-app.html-templates :as html-templates]))
 
 
+;; It costs me entire afternoon !
+;; the message pass to modal continue btn must contains both msg type and msg topic.
+;; the msg params must be create by (msgs/param )
+;;
+;; the input-queue is a AppMessageQueue record that extends protocol with PutMessage.
+;; putMessage just swap state with update-in [:queues]
+;;
 ;
-; data structure in cljs are cljs.core.X data structure.
-;   [node path]  - cljs.core.PersistentVector.
-;   vals are cljs.core.PersistentHashMap.
-;
-; render converts node in nested map to dom element. The root node []
-; is configured when we created the render.
-;
-; render fn has 3 args, render, render op and a input-queue to sends
-; data back to app. 
-; Render op is specified by transforms in emitter.
-; input-queue is used for transform-enable to send back user click event.
-; transforms say part of UI should do X and render trigger X on events.
-; (defn enable-x [r [transform-enable path transform-name messages] d]
-;
-; new-id can be used to create the id for the path node, and use that id 
-; as div id for the template that attached to the path node.
-;     (render/new-id! r path)
-;     (render/get-id r path)
-;
-; add-template attaches template div subtree to a path node. [path ::template]
-;   (render/set-data! r (conj path ::template) template)
-;
-; once template is attached to [:path :node ::template], use update-t to update
-; the content of the node with new data map
-;   (template/update-t r path {:key new-value})
-;
-; prepend-t and append-t add div section with data map value to existing 
-; template in the node path.
-;   (template/prepend-t render path data-map)
-;
-; when changing template, always gives data map.
-;
-; the other way is use dom append by-id and dom destroy-children!
-;   (dom/append! (dom/by-id "topthings") t)
-;   (dom/destroy-children! (dom/by-id "xx"))
-;
-
-
-; node-create, 
-;  handle fn got message type as node-create and path in message itself.
-
-; transform message
-; transform-enable messages sent from behavior clj, is PersistentArrayMap. It is a Map.
-; when come to cljs code, PersistentArrayMap changed to PersistentVector.
-; on cljs world, there are only PersistentVector and PersistentMap.
-; when sending back to clj, messages converted back to PersistentArrayMap.
-; note that when accessing msg params here, need to use (msgs/param :details)
+; (defrecord AppMessageQueue [state]
+;   p/PutMessage
+;   (put-message [this message]
+;     (let [priority (if (= (msg/priority message) :high) :high :low)
+;           queues (:queues (swap! state update-in [:queues priority] conj message))]
+;       (count-queues queues)))
+;   p/TakeMessage
+;   (pop-message [this]
+;     (:item (swap! state pop-message-internal)))
+;   (take-message [this f]
+;     (process-next-item state f)))
+;;
+;; You can reify the p/PutMessage to over-write PutMessage to check what msg has been sent.
+;; (auto/generic-modal-collect-input "content" (gensym) 
+                    ; (reify p/PutMessage
+                    ;   (put-message [q message]
+                    ;     (.log js/console (str "sending msg " message q))))
 
 
 ; Load templates macro.
@@ -85,13 +63,48 @@
     (let [login-btn (dom/by-id "login")
           modal-evt
             (fn [evt]
-              (let [parent-id (render/get-parent-id r path)]
-                (.log js/console (str "login modal clicked " path " parent-id " parent-id)
-                
-                ; (dom/append! (dom/by-id parent-id) modal-html)
-                ; (js/showModal (auto/modal-id id transkey))
-                (auto/modal-collect-input r input-queue path transkey messages))))
+              (.log js/console (str "login modal clicked " path " parent-id " parent-id))
+              
+              ; (dom/append! (dom/by-id parent-id) modal-html)
+              ; (js/showModal (auto/modal-id id transkey))
+              ; attach modal to div content.
+              (auto/generic-modal-collect-input "content" (gensym) 
+                  ; (reify p/PutMessage
+                  ;   (put-message [q message]
+                  ;     (.log js/console (str "sending msg " message q))
+                  ;     (p/put-message q message)))
+                  input-queue
+                  transkey 
+                  messages))
           ]
-      (.log js/console (str "setup login modal path " path (render/get-id r path)))
-      (de/listen! login-btn :click modal-evt)))) 
+      (.log js/console (str "setup login modal path " path transkey messages))
+      (de/listen! login-btn :click modal-evt))))
+
+
+;;================================================================================
+;; add multimethod dispatcher to over-write modal title, awesome !
+;; over-write any auto namespace mutlimethod to map transkey to modal title.
+;;================================================================================
+(defmethod auto/modal-title :create-modal [transform-name _]
+  "What thing you want to create ?")
+
+; add listener for upper right login btn and show login modal
+; path is login modal, transkey is login-modal, msg has 2 keys, login-name and pass
+(def enable-create-modal
+  (fn [r [_ path transkey messages] input-queue]
+    (let [create-btn (dom/by-id "newthing")
+          modal-evt
+            (fn [evt]
+                (.log js/console (str "create modal clicked " path " parent-id " parent-id))
+                (auto/generic-modal-collect-input "content" (gensym) 
+                  ; (reify p/PutMessage
+                  ;   (put-message [q message]
+                  ;     (.log js/console (str "sending msg " message q))
+                  ;     (p/put-message q message)))
+                  input-queue
+                  transkey 
+                  messages))
+          ]
+      (.log js/console (str "setup create-modal path " path (render/get-id r path)))
+      (de/listen! create-btn :click modal-evt))))
 

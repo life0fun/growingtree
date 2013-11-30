@@ -83,8 +83,15 @@
   [oldv messages]
   (let [login-name (:login-name messages)
         login-pass (:login-pass messages)]
-    (.log js/console "set nav login " login-name " pass " login-pass)
+    (.log js/console "set nav login modal " login-name " pass " login-pass)
     login-name))    
+
+
+(defn set-create-modal
+  [oldv messages]
+  (let [newthing-type (:type messages)]
+    (.log js/console "set create newthing modal " newthing-type)
+    newthing-type))
 
 
 ; extract the user clicked nav type from msg, and store it in [:nav :type] node
@@ -146,6 +153,13 @@
     (.log js/console (str "submit newthing " details))
     details))
 
+; create thing by type
+(defn create-thing-type
+  "create thing by type submitted"
+  [oldv messages]
+  (let [details (:details messages)]
+    (.log js/console (str "create thing type " details))
+    details))
 
 ;;==================================================================================
 ;; derive dataflow, derive fn got 2 args, old value, and tracking map
@@ -215,14 +229,18 @@
     :debug true
     :transform [
                 [:login [:login :name] set-login]
-                [:login-modal [:nav] set-login-modal]
-
+                
                 ; UI event sent to outbound node, then derive to [:nav :type] node
                 [:set-nav-type [:nav :type] set-nav-type]
 
                 ; set-all to store all type things list into all type map
                 [:set-all-things [:all] set-all-things]
 
+                ; modal handling
+                [:login-modal [:nav :login-modal] set-login-modal]
+                [:create-modal [:nav :create-modal] set-create-modal]
+
+                
                 ; assign action setup transform
                 [:assign [:setup :assign :* :*] setup-assign]
                 [:assign [:submit :assign :* :*] submit-assign]
@@ -230,6 +248,9 @@
                 ; new thing setup, each key in the value map will create a new node.
                 [:newthing [:setup :newthing] setup-newthing]
                 [:newthing [:submit :newthing] submit-newthing]
+
+                ; create thing page handler
+                [:creatething [:create :*] create-thing-type]
                ]
 
     :derive #{
@@ -261,6 +282,8 @@
             
            ; upon nav type changes, clear the topthings div and destroy path nodes.
            {:in #{[:nav :type]} :fn emitter/nav-type-emitter :mode :always}
+
+           {:in #{[:nav :create-modal]} :fn emitter/create-modal-emitter :mode :always}
 
            ; when getting things from server, created map entry, cause node here.
            {:in #{[:all :*]} :fn emitter/all-things-node-emitter :mode :always}

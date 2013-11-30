@@ -93,12 +93,9 @@
 (defn get-all-children
   "no filter, ret all children that has parents"
   []
-  (let [children (dda/find-children)
-        childrenkeys [:db/id :child/fname :child/lname :child/age]
-        data (map #(-> % (select-keys childrenkeys)) children)
-        ]
-    (prn "peer get all children " data)
-    data))
+  (let [children (dda/find-children)]
+    (prn "peer get all children " children )
+    children))
 
 
 ; need to convert datomic EntityMap to simple map string so we can stream text json.

@@ -27,35 +27,24 @@
 (defn child-view-value
   "ret a view map for child entity"
   [value-map]
-  (hash-map :id (:db/id value-map)
-            :title (:child/fname value-map)
-            :gender (:child/gender value-map)
-            :popularity (:child/popularity value-map)))
+  (assoc value-map :title (:name value-map)))
 
 (defn course-view-value
   "ret a view map for course entity"
   [value-map]
-  (hash-map :id (:db/id value-map)
-            :title (:course/title value-map)
-            :popularity (:course/popularity value-map)))
+  value-map)
 
 
 (defn lecture-view-value
   "ret a view map for lecture entity"
   [value-map]
-  (hash-map :id (:db/id value-map)
-            :title (:lecture/topic value-map)
-            :uri (:lecture/videouri value-map)
-            :popularity (:lecture/popularity value-map)))
+  value-map)
 
 
 (defn homework-view-value
   "ret a view map for lecture entity"
   [value-map]
-  (hash-map :id (:db/id value-map)
-            :title (:homework/content value-map)
-            :content (:homework/content value-map)
-            :popularity (:homework/popularity value-map)))
+  value-map)
 
 
 (defn assignment-view-value
@@ -82,4 +71,4 @@
       :lectures (lecture-view-value value-map)
       :homeworks (homework-view-value value-map)
       :assignments (assignment-view-value value-map)
-      "default"))) 
+      "default")))

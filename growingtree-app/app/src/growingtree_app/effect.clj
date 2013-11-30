@@ -40,7 +40,9 @@
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [type]  ; request all things by type
   (.log js/console "request things of type upon sidebar click  " type)
-  [{msgs/topic [:server] msgs/type type (msgs/param :body) {:filter :all}}])
+  ; only request when nav type sidebar clicked !
+  (if type
+    [{msgs/topic [:server] msgs/type type (msgs/param :body) {:filter :all}}]))
   
 
 ; request timeline

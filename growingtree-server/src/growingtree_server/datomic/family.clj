@@ -164,6 +164,21 @@
      :popularity (:parent/popularity entity)
     }))
 
+
+; :find rets entity id, find all parent's pid and name.
+(defn list-parent
+  "find all parents with all children"
+  []
+  (let [pc (d/q '[:find ?p :where [?p :parent/children]] db)
+        entities (map (comp get-entity first) pc)
+        parents (map parent-entity-map entities)] ;?p parent who has children
+    ;(map (comp show-entity-by-id first) pc)
+    ;(prn "list parent entities " parents)
+    (doseq [p parents]
+      (prn " parent --> " p))
+    parents))
+
+
 ; create a parent entity, does not link child yet
 (defn create-child
   "create a parent entity, id is random"
@@ -180,6 +195,60 @@
            :child/status :child.status/active
            :child/popularity (rand-int 10)}]
     m))
+
+
+; convert a parent entity to map
+(defn child-entity-map
+  "convert a child entity to map"
+  [entity]
+  (let [parents (map :db/id (:child/parents entity))]
+    {:id (:db/id entity)
+     :name (:child/name entity)
+     :lname (:child/lname entity)
+     :parents parents
+     :age (:child/age entity)
+     :address (:child/address entity)
+     :email (vec (:child/email entity))  ; convert set to string
+     :phone (vec (:child/phone entity))
+     :popularity (:child/popularity entity)
+    }))
+
+
+; list all children, to find one entity with id, use (get-entity id)
+(defn find-children
+  "find all children who has parents"
+  []
+  (let [c (d/q '[:find ?c :where [?c :child/parents]] db)
+        entities (map (comp get-entity first) c)
+        children (map child-entity-map entities)]
+    (doseq [c children]
+      (prn " child --> " c))
+    children))
+
+
+; use :db/add to upsert child attr to parent. find parent eid by list-parent.
+; entity is a map of attributes. insert ref attr, must use refed entity id.
+; [:db/add entity-id attribute value]
+(defn insert-child
+  "insert a children to parent by parent id, pid must be num, not string"
+  [pid]  ; passed in pid is a num
+  (let [pe (d/entity db pid)   ; get the lazy entity by id
+        ch (:parent/children pe)
+        newch (assoc (create-child) :child/parents pid)]
+    (submit-transact [newch
+                      [:db/add pid :parent/children (:db/id newch)]])
+    (prn pid pe ch newch)))
+
+
+; [:db/add entity-id attribute value]
+(defn link-parent-child
+  "link child to parent by parent id and child id"
+  [pid cid]
+  (let [parent (d/entity db pid)
+        child (d/entity db cid)]
+    (submit-transact [[:db/add pid :parent/children cid]
+                      [:db/add cid :child/parents pid]])))
+
 
 ; add a family with two parents and two kids
 (defn add-family
@@ -202,53 +271,6 @@
         ]
     (prn "inserting " lch rch lparent rparent trans)
     lparent))
-
-
-; :find rets entity id, find all parent's pid and name.
-(defn list-parent
-  "find all parents with all children"
-  []
-  (let [pc (d/q '[:find ?p :where [?p :parent/children]] db)
-        entities (map (comp get-entity first) pc)
-        parents (map parent-entity-map entities)] ;?p parent who has children
-    ;(map (comp show-entity-by-id first) pc)
-    ;(prn "list parent entities " parents)
-    (doseq [p parents]
-      (prn " parent --> " p))
-    parents))
-
-
-; use :db/add to upsert child attr to parent. find parent eid by list-parent.
-; entity is a map of attributes. insert ref attr, must use refed entity id.
-; [:db/add entity-id attribute value]
-(defn insert-child
-  "insert a children to parent by parent id, pid must be num, not string"
-  [pid]  ; passed in pid is a num
-  (let [pe (d/entity db pid)   ; get the lazy entity by id
-        ch (:parent/children pe)
-        newch (assoc (create-child) :child/parents pid)]
-    (submit-transact [newch
-                      [:db/add pid :parent/children (:db/id newch)]])
-    (prn pid pe ch newch)))
-
-
-; list all children, to find one entity with id, use (get-entity id)
-(defn find-children
-  "find all children who has parents"
-  []
-  (let [c (d/q '[:find ?c :where [?c :child/parents]] db)
-        entities (map (comp get-entity first) c)]
-    (map (comp show-entity-by-id first) c)
-    entities))
-
-; [:db/add entity-id attribute value]
-(defn link-parent-child
-  "link child to parent by parent id and child id"
-  [pid cid]
-  (let [parent (d/entity db pid)
-        child (d/entity db cid)]
-    (submit-transact [[:db/add pid :parent/children cid]
-                      [:db/add cid :child/parents pid]])))
 
 
 (defn find-parent

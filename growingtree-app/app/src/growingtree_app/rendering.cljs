@@ -159,6 +159,24 @@
     
 
 ;;================================================================================
+;; rendering create thing template
+;;================================================================================
+; the last ele of the path is the thing type
+(defn create-thing-node
+  [r [op path] input-queue]
+  (let [thing-type (last path)
+        id (render/new-id! r path)   ; new id for [::create :course]
+        parent (dom/by-id "main")    ; put the template  
+        html (templates/add-template r path (:newthing templates))
+        divcode (html {:id id})]
+    (.log js/console (str "render create thing at " path " id " id " " (render/get-id r path)))
+    (dom/destroy-children! parent)
+    (dom/append! parent divcode)))
+
+
+
+;;================================================================================
+;;
 ;;================================================================================
 ; render config dispatch app model delta to render fn.
 ; the render config is refed in config/config.edn
@@ -179,7 +197,9 @@
     [:transform-enable [:nav :type] transforms/enable-nav-type]
 
     ; login modal
-    [:transform-enable [:nav] modals/enable-login-modal]
+    [:transform-enable [:nav :login-modal] modals/enable-login-modal]
+    ; create modal
+    [:transform-enable [:nav :create-modal] modals/enable-create-modal]
 
 
     ; create all thing list consist of each thing node
@@ -188,7 +208,6 @@
     [:node-destroy [:all :*] h/default-destroy]
     [:node-destroy [:all :* :*] del-new-thing-node]
     
-
     ; setup and submit action handler, path [:setup :assign :homework id] multi-method, 
     ; we can match anything, mutlimethod dispatch based on transkey
     [:transform-enable [:setup :**] transforms/enable-setup-action]
@@ -197,8 +216,8 @@
     [:transform-enable [:submit :**] transforms/enable-submit-action]
     ;[:transform-disable [:submit :**] disable-submit-action]
 
-    ; newthing, path is [:setup :newthing ]
-    ;[:transform-enable [:setup :newthing] setup-action-transforms]
-    ;[:transform-enable [:submit :newthing] submit-action-transforms]
+    ; create new thing 
+    [:node-create [:create :*] create-thing-node]
+    [:transform-enable [:create :*] transforms/enable-submit-action]
 
   ])
