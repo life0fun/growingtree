@@ -2,77 +2,78 @@
 
 <div id="content">
 
-  <div template="newthing" field="id:id">
-    <form class="form-horizontal newthing-form">
+  <!-- family -->
+  <div template="user" field="id:id">
+    <form class="form-horizontal user-form">
       <fieldset>
-        <legend filed="content:newtype"></legend>
+        <legend>Create User</legend>
+        
+        <div class="control-group">
+          <label class="control-label" for="user-name">Name</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="user-name">
+            <p class="help-block">First Name</p>
+          </div>
+        </div>
 
         <div class="control-group">
-          <label class="control-label" for="newthingp-type">Type</label>
+          <label class="control-label" for="user-lname">Last Name</label>
           <div class="controls">
-            <select id="newthing-type">
-              <option>course</option>
-              <option>lecture</option>
-              <option>homework</option>
-              <option>assignment</option>
+            <input type="text" class="input-xlarge" id="user-lname">
+            <p class="help-block">Last Name</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="user-type">Type</label>
+          <div class="controls">
+            <select id="user-type">
+              <option>Dad</option>
+              <option>Mom</option>
+              <option>Son</option>
+              <option>Daughter</option>
             </select>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="newthing-subject">Subject</label>
+          <label class="control-label" for="user-address">Address</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="newthing-subject">
-            <p class="help-block">The subject, math science reading coding art gym reporting game</p>
+            <input type="text" class="input-xlarge" id="user-address">
+            <p class="help-block">The Address</p>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="newthing-title">Title</label>
+          <label class="control-label" for="user-email">Email</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="newthing-title">
-            <p class="help-block">The title of the new thing</p>
+            <input type="text" class="input-xlarge" id="user-email">
+            <p class="help-block">Email</p>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="newthing-topic">Topic</label>
+          <label class="control-label" for="user-phone">Phone</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="newthing-topic">
-            <p class="help-block">The topic of the lecture</p>
+            <input type="text" class="input-xlarge" id="user-phone">
+            <p class="help-block">Phone </p>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="newthing-content">Content</label>
-          <div class="controls">
-            <input type="text" class="input-xlarge" id="newthing-content">
-            <p class="help-block">The content of the new thing</p>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label class="control-label" for="newthing-byme">Create By Me</label>
+          <label class="control-label" for="user-status">Active</label>
           <div class="controls">
             <label class="checkbox">
-              <input type="checkbox" id="newthing-byme">Mark Me as the author>
+              <input type="checkbox" id="user-status">Mark as Active
             </label>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="newthing-uri">Content Link</label>
+          <label class="control-label" for="user-url">Home Page</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="newthing-uri">
-            <p class="help-block">The content link of the new thing</p>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label class="control-label" for="newthing-videouri">Video Link</label>
-          <div class="controls">
-            <input type="text" class="input-xlarge" id="newthing-videouri">
-            <p class="help-block">The video link of the new thing</p>
+            <input type="text" class="input-xlarge" id="user-url">
+            <p class="help-block">Home page or social network url</p>
           </div>
         </div>
 
@@ -84,7 +85,226 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">  Save  </button>
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button class="btn">Cancel</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
+  <!-- course -->
+  <div template="course" field="id:id">
+    <form class="form-horizontal course-form">
+      <fieldset>
+
+        <legend>Create Course</legend>
+
+        <div class="control-group">
+          <label class="control-label" for="course-title">Title</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="course-title">
+            <p class="help-block">The title of the course</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="course-author">Author</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="course-author">
+            <p class="help-block">The author of the course</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="course-type">Type</label>
+          <div class="controls">
+            <select id="course-type">
+              <option>Math</option>
+              <option>Science</option>
+              <option>Reading/Writing</option>
+              <option>Art</option>
+              <option>Sports</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="course-content">Content</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="course-content">
+            <p class="help-block">The brief content of the course</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="course-url">Url</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="course-url">
+            <p class="help-block">The url of the course</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="course-email">Course Group Email</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="course-email">
+            <p class="help-block">The group email of the course</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="textarea">Comments</label>
+          <div class="controls">
+            <textarea class="input-xlarge" id="textarea" rows="2"></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button class="btn">Cancel</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
+  <!-- homework -->
+  <div template="homework" field="id:id">
+    <form class="form-horizontal homework-form">
+      <fieldset>
+
+        <legend>Create Homework</legend>
+
+        <div class="control-group">
+          <label class="control-label" for="homework-title">Title</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="homework-title">
+            <p class="help-block">The title of the homework</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="homework-author">Author</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="homework-author">
+            <p class="help-block">The author of the homework</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="homework-type">Type</label>
+          <div class="controls">
+            <select id="homework-type">
+              <option>Math</option>
+              <option>Science</option>
+              <option>Reading/Writing</option>
+              <option>Art</option>
+              <option>Sports</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="homework-content">Content</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="homework-content">
+            <p class="help-block">The brief content of the homework</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="homework-url">Url</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="homework-url">
+            <p class="help-block">The url of the homework</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="homework-difficulty">Difficulty</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="homework-difficulty">
+            <p class="help-block">The difficulty of the homework</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="textarea">Comments</label>
+          <div class="controls">
+            <textarea class="input-xlarge" id="textarea" rows="2"></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button class="btn">Cancel</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
+  <!-- group -->
+  <div template="group" field="id:id">
+    <form class="form-horizontal group-form">
+      <fieldset>
+
+        <legend>Create Group</legend>
+
+        <div class="control-group">
+          <label class="control-label" for="group-title">Title</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="group-title">
+            <p class="help-block">The title of the group</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="group-author">Admin</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="group-author">
+            <p class="help-block">The admin of the group</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="group-type">Type</label>
+          <div class="controls">
+            <select id="group-type">
+              <option>Math</option>
+              <option>Science</option>
+              <option>Reading/Writing</option>
+              <option>Art</option>
+              <option>Game</option>
+              <option>Sports</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="group-url">Url</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="group-url">
+            <p class="help-block">The url of the group</p>
+          </div>
+        </div>
+
+
+        <div class="control-group">
+          <label class="control-label" for="group-wiki">Wiki</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="group-wiki">
+            <p class="help-block">The wiki of the group</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="textarea">Comments</label>
+          <div class="controls">
+            <textarea class="input-xlarge" id="textarea" rows="2"></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
           <button class="btn">Cancel</button>
         </div>
       </fieldset>

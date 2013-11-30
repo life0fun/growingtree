@@ -52,7 +52,8 @@
 ;; add multimethod dispatcher to over-write modal title, awesome !
 ;; over-write any auto namespace mutlimethod to map transkey to modal title.
 ;;================================================================================
-(defmethod auto/modal-title :login-modal [transform-name _]
+(defmethod auto/modal-title :login-modal 
+  [transform-name _]
   (pr-str "Welcome to GrowingTree")
   "Welcome to GrowingTree")
 
@@ -85,8 +86,25 @@
 ;; add multimethod dispatcher to over-write modal title, awesome !
 ;; over-write any auto namespace mutlimethod to map transkey to modal title.
 ;;================================================================================
-(defmethod auto/modal-title :create-modal [transform-name _]
-  "What thing you want to create ?")
+(defmethod auto/modal-title :create-modal 
+  [transform-name _]
+  "What you want to create ?")
+
+
+(defmethod auto/modal-field [:create-modal "type"]
+  [_ field-name]
+  {:field-name (str "Enter " field-name)
+   :placeholder (str field-name " can be user, course, homework, group")
+   :input-class "input-xlarge"
+   :default nil
+   :validation-fn 
+    (fn [x] (not 
+              (or (nil? x) 
+                  (= x "") 
+                  (not (contains? #{"user" "course" "homework" "group"} x)))))
+   :inline-help "You can create user, course, homework, group"
+   :inline-help-error (str field-name " is required")
+  })
 
 ; add listener for upper right login btn and show login modal
 ; path is login modal, transkey is login-modal, msg has 2 keys, login-name and pass

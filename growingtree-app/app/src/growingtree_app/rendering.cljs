@@ -119,10 +119,10 @@
 
 
 ;;==================================================================================
-;; render each thing list node, and setup action bar transformer in each node.
+;; add each thing list node, and setup action bar transformer in each node.
 ;;==================================================================================
 ; info model added a new node, create a new thing node, append it to topthings div.
-(defn add-new-thing-node
+(defn add-thing-node
   [r [op path] input-queue]
   (let [thingid (last path)
         ; make a template attached to this node
@@ -137,7 +137,7 @@
 
 ; info model value transformed, update template attached to node path.
 ; oldv contains old value map and newv contains new value map.
-(defn value-update-new-thing
+(defn value-thing-node
   [r [op path oldv newv] input-queue]
   (.log js/console (str "updating new thing value " path newv))
   (let [id (render/get-id r path)    ; node destroy, get-id will blow off
@@ -149,7 +149,7 @@
     ))
 
 
-(defn del-new-thing-node
+(defn del-thing-node
   [r [op path] input-queue]
   (let [thingid (last path)
         div (dom/by-id (str thingid))]
@@ -159,20 +159,21 @@
     
 
 ;;================================================================================
-;; rendering create thing template
+;; create thing page template
 ;;================================================================================
 ; the last ele of the path is the thing type
-(defn create-thing-node
+(defn create-thing-page
   [r [op path] input-queue]
   (let [thing-type (last path)
         id (render/new-id! r path)   ; new id for [::create :course]
-        parent (dom/by-id "main")    ; put the template  
-        html (templates/add-template r path (:newthing templates))
+        parent (dom/by-id "main")    ; put the template
+        templ (thing-type templates)
+        html (templates/add-template r path templ)
         divcode (html {:id id})]
-    (.log js/console (str "render create thing at " path " id " id " " (render/get-id r path)))
+    (.log js/console (str "render create thing page at " path " type " thing-type
+                          " id " id " " (render/get-id r path)))
     (dom/destroy-children! parent)
     (dom/append! parent divcode)))
-
 
 
 ;;================================================================================
@@ -203,10 +204,10 @@
 
 
     ; create all thing list consist of each thing node
-    [:node-create [:all :* :*] add-new-thing-node]
-    [:value [:all :* :*] value-update-new-thing]
+    [:node-create [:all :* :*] add-thing-node]
+    [:value [:all :* :*] value-thing-node]
     [:node-destroy [:all :*] h/default-destroy]
-    [:node-destroy [:all :* :*] del-new-thing-node]
+    [:node-destroy [:all :* :*] del-thing-node]
     
     ; setup and submit action handler, path [:setup :assign :homework id] multi-method, 
     ; we can match anything, mutlimethod dispatch based on transkey
@@ -217,7 +218,7 @@
     ;[:transform-disable [:submit :**] disable-submit-action]
 
     ; create new thing 
-    [:node-create [:create :*] create-thing-node]
+    [:node-create [:create :*] create-thing-page]
     [:transform-enable [:create :*] transforms/enable-submit-action]
 
   ])

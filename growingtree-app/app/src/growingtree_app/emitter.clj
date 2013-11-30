@@ -77,6 +77,7 @@
                                  (msgs/param :filtered) {}}]}}}
     :setup {}
     :submit {}
+    :create {}
   }])
 
 
@@ -141,7 +142,7 @@
         oldlist (get-in inputs [:old-model :all (keyword oldtype)])]
     (.log js/console (str "nav type from " oldtype " to " newtype " all things " oldlist))
     (vec (concat 
-        ((app/default-emitter nil) inputs)
+        ;((app/default-emitter nil) inputs)
         (mapcat (fn [entity]
                   ; concat list mean peel off and re package, so ret a vec of tuples.
                   [[:node-destroy (conj allpath (:id entity))]])
@@ -151,20 +152,21 @@
 ; user wants to create new thing of type
 (defn create-modal-emitter
   [inputs]
-  (let [user (get-in inputs [:new-model :login :name])
-        thing-type (keyword (get-in inputs [:new-model :nav :create-modal]))
-        path [:create thing-type]]
-    (.log js/console (str "create modal emitter " user thing-type))
-    [
-      ;enable setup newthing create button with transform key :newthing
-      [:node-create path]
-      [:transform-enable path
-                         :creatething  ; can be :submit
-                         [{msgs/topic path
-                           msgs/type :creatething
-                          (msgs/param :details) {:user user}}]]
+  (when-let [thing-type (get-in inputs [:new-model :nav :create-modal])]
+    (.log js/console "create modal emitter type " thing-type)
+    (let [user (get-in inputs [:new-model :login :name])
+          path (conj [:create] (keyword thing-type))]
+      (.log js/console (str "create modal emitter " user thing-type))
+      [
+        ;enable setup newthing create button with transform key :newthing
+        [:node-create path]
+        [:transform-enable path
+                           :creatething  ; can be :submit
+                           [{msgs/topic path
+                             msgs/type :creatething
+                            (msgs/param :details) {:user user}}]]
 
-   ]))
+     ])))
 
 
 

@@ -283,7 +283,7 @@
            ; upon nav type changes, clear the topthings div and destroy path nodes.
            {:in #{[:nav :type]} :fn emitter/nav-type-emitter :mode :always}
 
-           {:in #{[:nav :create-modal]} :fn emitter/create-modal-emitter :mode :always}
+           {:in #{[:nav :create-modal]} :fn emitter/create-modal-emitter}
 
            ; when getting things from server, created map entry, cause node here.
            {:in #{[:all :*]} :fn emitter/all-things-node-emitter :mode :always}
@@ -293,7 +293,6 @@
 
            ; when create new thing setup, emit 
            {:in #{[:setup :newthing]} :fn emitter/newthing-emitter :mode :always}
-
 
            {:in #{[:sse-data]} :fn emitter/sse-data-emitter :mode :always}
 
