@@ -100,10 +100,13 @@
     (let [type (msgs/type message)  ; msgs type, the type user clicked on sidebar
           resp-handle (response-handler type input-queue)]  ; json response handler
       (.log js/console (str "service-fn consume effect queue type" type " " body))
-      ; dispatch on case
+      ; dispatch on case, 
       (case type
+        ;; sse subscribe and publish
         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
         :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)  ; log as callback
+
+        ; plural keyword for GET request
         :parents (xhr-request "/api/parents" "GET" body resp-handle xhr-log) 
         :children (xhr-request "/api/children" "GET" body resp-handle xhr-log)
         :courses (xhr-request "/api/courses" "GET" body resp-handle xhr-log) 
@@ -111,11 +114,13 @@
         :homeworks (xhr-request "/api/homeworks" "GET" body resp-handle xhr-log)
         :assignments (xhr-request "/api/assignments" "GET" body resp-handle xhr-log) 
 
+
         ;; msg type for actionbar assignment is :assign, post data to create-assignment
-        :assign (xhr-request "/api/assignments" "POST" body resp-handle xhr-log)
-        ;; msg type for create new thing is newthing
-        ;; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
-        :newthing (xhr-request "/api/newthing" "POST" body resp-handle xhr-log)
+        :assign (xhr-request "/api/assignment" "POST" body resp-handle xhr-log)
+        
+        ; type:course {:user "rich" :title "aa", :author "bb", :type "Math", :content "cc", ...}
+        :course (xhr-request "/api/course" "POST" body resp-handle xhr-log)
+
         "default")
       (str "Send to Server: " body))))
 

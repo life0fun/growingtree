@@ -85,8 +85,8 @@
         action (second topic)    ; :creatething is msg type
         thing-type (last topic)
         details (:details msg)   ; details
-        body (assoc details :user user)]  ;
+        body (assoc details :user user)]  ; user is author
     (.log js/console (str user " created new thing " thing-type " body " body))
     ; msg type :assign
-    ;[{msgs/topic [:server] msgs/type action :body body}]
+    [{msgs/topic [:server] msgs/type action :body body}]
     ))
