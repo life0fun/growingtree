@@ -4,6 +4,7 @@
            [java.net URI]
            [java.util Map Map$Entry List ArrayList Collection Iterator HashMap])
   (:require [clojure.string :as str]
+            [clojure.set :as set]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.data.json :as json])
@@ -12,7 +13,8 @@
             [clj-time.coerce :refer [to-long from-long]])
   (:require [datomic.api :as d])
   (:require [growingtree-server.datomic.dbschema :as dbschema]
-            [growingtree-server.datomic.dbconn :as dbconn :refer :all]))
+            [growingtree-server.datomic.dbconn :as dbconn :refer :all]
+            [growingtree-server.datomic.util :as util]))
 
 ;
 ; http://blog.datomic.com/2013/05/a-whirlwind-tour-of-datomic-query_16.html
@@ -98,18 +100,75 @@
 (declare create-course-coding)
 
 
-; for course and lectures
-(defn course-attr
-  "compose a map of attrs for a course entity"
-  [subject title overview materials contenturi]
-  (let [m {:db/id (d/tempid :db.part/user)
-          :course/subject subject
-          :course/title title
-          :course/overview overview
-          :course/materials materials
-          :course/contenturi contenturi}]
-    (prn m)
-    m))
+; this map between course map to entity attr
+(def course-key-attr-map 
+  {:id :db/id
+   :title :course/title
+   :author :course/author
+   :content :course/content
+   :type :course/type
+   :url :course/url 
+   :email :course/email
+   :comments :course/comments})
+
+(defn thing-type-enum
+  [type]
+  (case type
+    "Math" :course.type/math
+    "Science" :course.type/science
+    "Reading/Writing" :course.type/reading
+    "Art" :course.type/art
+    "Sport" :course.type/sports
+    "default"))
+
+
+; given a map of course attr, rename to datomic schema ns for inserting
+; for now, comment out ref attrs.
+(defn insert-course-map
+  [course-map]
+  (let [type-enum-map (update-in course-map [:type] thing-type-enum)
+        ; for now, do not project ref attr for insertion
+        projkeys (dissoc course-key-attr-map :id :author :comments)
+        course-attr (-> type-enum-map 
+                        (set/rename-keys projkeys)
+                        (select-keys (vals projkeys))
+                        (assoc :db/id (d/tempid :db.part/user)))]
+    course-attr))
+
+
+; create course
+; {:title "aa", :author "bb", :type "Math", :content "", 
+;  :url "", :email "", :comments "", :user "rich"}
+(defn create-course
+  "create a course with details "
+  [details]
+  (let [insert-map (insert-course-map details)
+        trans (submit-transact [insert-map])]
+    (prn "create course " insert-map)
+    trans))
+  
+
+; convert a course entity to map
+(defn to-course-map
+  [e]
+  (let [lectures (:course/lectures e)
+        course-map (zipmap (keys course-key-attr-map)
+                           (util/select-values e (vals course-key-attr-map)))]
+    course-map))
+
+; find a course
+(defn find-course
+  "find course by subject, ret a list of course entity"
+  []
+  (let [cs (d/q '[:find ?c :where [?c :course/title]] (get-db))
+        entities (map (comp get-entity first) cs)
+        courses (map to-course-map entities)
+        ]
+    (doseq [c courses]
+      (prn " course --> " c))
+    courses))
+
+
 
 (defn lecture-attr
   "compose a map of attrs for a course lecture"
@@ -123,19 +182,6 @@
           :lecture/videouri videouri}]
     (prn m)
     m))
-
-
-; create homework to be assigned
-(defn create-course
-  "create a course "
-  ([]
-    (create-course :coding))
-
-  ([subject]
-    (case subject
-      :coding (create-course-coding)
-      "default")))
-
 
 ; create course and lecture together
 (defn create-course-and-lecture
@@ -180,26 +226,7 @@
     lecturem)) ; tx-data is a list of write datoms
 
 
-; find a course
-(defn find-course
-  "find course by subject, ret a list of course entity"
-  []
-  (let [subject :course.subject/coding
-        ; get a vec of [[course-id lecture-id] [] ...]
-        eids (d/q '[:find ?c ?l           ; ret both course id and lecture id
-                    :in $ ?sub 
-                    :where [?c :course/lectures ?l]    ; all courses that have lectures
-                    ] ; all lectures of the course
-                db 
-                subject)
-        cids (map first eids)  ; always ret the first homework to assign.
-        lids (map second eids)]
-    ; (prn "cids" cids)
-    ; (prn "lids" lids)
-    (show-entity-by-id (first cids))
-    (show-entity-by-id (first lids))
-    ; [ [cid lid] [cid lid]], ret course entity map
-    (map (comp get-entity first) eids)))  
+
 
 
 (defn find-lecture

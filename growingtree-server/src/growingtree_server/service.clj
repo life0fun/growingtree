@@ -197,14 +197,12 @@
   ;  :user "rich"},
   ; :path-info "/api/assignments",
   ; :uri "/api/assignments",
-(defn add-things
+(defn add-thing
   "add a thing upon post request, request contains http post data"
   [{postdata :edn-params :as request}]
   (let [;resp (bootstrap/json-print {:result msg-data})
         type (get-in request [:path-params :thing])  ; /api/:thing
-        action (:action postdata)
-        user (:user postdata)
-        added-things (peer/add-things (keyword type) postdata)
+        added-things (peer/add-thing (keyword type) postdata)
         result {:status 200 :data added-things}
         jsonresp (bootstrap/json-response result)
         ]
@@ -213,12 +211,11 @@
               :request request
               :msg-data postdata)
 
-    (prn "adding thing done " postdata " type " type " action " action 
-          " resp " added-things)
+    (prn "adding thing done " postdata " type " type " resp " added-things)
     jsonresp))
 
 
-;; - - - - - routing table - - - - - - - -
+;; - - - - - - - routing table - - - - - - - -
 ;; define routing table with verb map and route interceptor
 (defroutes routes
   [[["/" {:get home-page}
@@ -227,7 +224,7 @@
      ["/msgs" {:get subscribe :post publish}
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
      ["/about" {:get about-page}]
-     ["/api/:thing" {:get get-all-things :post add-things}]
+     ["/api/:thing" {:get get-all-things :post add-thing}]
     ]]])
 
 

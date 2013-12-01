@@ -124,6 +124,13 @@ Datomic database is persistent under /Volumes/Build/datomic/data/db/, You can us
     (d/delete-database uri)
     (d/create-database uri)
 
+or
+    bin/shell
+    uri = "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic";
+    conn = Peer.connect(uri);
+    db = conn.db();
+    Peer.q("[:find ?p :where [?p :parent/children]]", db);
+
 
 ## Datomic EntityMap
 

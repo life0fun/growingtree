@@ -142,6 +142,14 @@
 (declare submit-transact)
 
 
+(defn get-conn
+  []
+  (d/connect uri))
+
+; reconnect to db. XXX need redo.
+(defn get-db
+  []
+  (d/db (get-conn)))
 
 ; create attr schema thru conn
 (defn create-schema
@@ -183,7 +191,7 @@
 (defn get-entity
   "ret an datomic EntityMap from eid"
   [eid]
-  (d/touch (d/entity db eid)))
+  (d/touch (d/entity (get-db) eid)))
 
 
 (defn entity-attr
@@ -234,8 +242,9 @@
 (defn submit-transact
   "submit a transaction"
   [tx-data]
-  (prn "submit trans " tx-data)
-  (d/transact conn tx-data))
+  (let [ft (d/transact conn tx-data)]  ; ret future task
+    (prn "dbconn submit trans ft " tx-data ft)
+    ft))
 
 
 ; list all transaction of db

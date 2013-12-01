@@ -74,137 +74,115 @@
           entity-keys))
 
 
-;; -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+;;======================================================
+;; get all things multi method
+;; (defmulti name docstring? attr-map? dispatch-fn & options)
+;;======================================================
+; defmulti needs a name and a dispatch fn, which rets value for dispatching
+(defmulti get-things
+  (fn [thing-type] 
+    thing-type))
 
-(defn add-family
-  []
-  (dda/add-family))
-
-; can ot de-ref children link, as it will cause infinite circular de-ref !
-(defn get-all-parents
-  "no filter, ret a list of all parents entity maps"
-  []
+(defmethod get-things
+  :parents
+  [type]
   (let [parents (dda/list-parent)]
     (prn "peer get all parents " parents )
-    ;(prn "get all parents data " data)
     parents))
 
-; get all children
-(defn get-all-children
-  "no filter, ret all children that has parents"
-  []
-  (let [children (dda/find-children)]
-    (prn "peer get all children " children )
-    children))
+(defmethod get-things
+  :courses
+  [type]
+  (let [courses (dda/find-course)]
+    (prn "peer get all courses " courses)
+    courses))
+
+(defmethod get-things
+  :homeworks
+  [type]
+  (let [homeworks (dda/find-homework)]
+    (prn "peer get all homeworks " homeworks)
+    homeworks))
 
 
-; need to convert datomic EntityMap to simple map string so we can stream text json.
-(defn get-all-courses
-  "no filter, ret a list of all course titles"
-  []
-  (let [courses (dda/find-course)
-        coursekeys [:db/id :course/title :course/overview :course/subject]
-        ; a lazy map list will result in cljs.core.PersistentVector
-        
-        data (map #(-> % (select-keys coursekeys)) courses)
-        ]
-    (prn "all courses " data)
-    data))
-
-
-; need to convert datomic EntityMap to simple map string so we can stream text json.
-(defn get-all-lectures
-  "no filter, ret a list of all lecture titles"
-  []
-  (let [lectures (dda/find-lecture)
-        lecturekeys [:db/id :lecture/topic :lecture/content]
-        ; a lazy map list will result in cljs.core.PersistentVector
-        ;data (map (partial entity->map lecturekeys) lectures)
-        data (map #(-> % (select-keys lecturekeys)) lectures)
-        ]
-    (prn "all lectures " data)
-    data))
-
-
-(defn get-all-homeworks
-  "no filter, ret a list of all homeworks"
-  []
-  (let [homeworks (dda/find-homework)
-        homeworkkeys [:db/id :homework/title :homework/content]
-        ; a lazy map list will result in cljs.core.PersistentVector
-        ;data (map (partial entity->map homeworkkeys) homeworks)
-        data (map #(-> % (select-keys homeworkkeys)) homeworks)
-        ]
-    (prn "all homeworks " data)
-    data))
-
-
-(defn get-all-assignments
-  "no filter, ret a list of all assignments"
-  []
-  (let [assignments (dda/find-assignment)
-        assignmentkeys [:db/id :assignment/homework :assignment/lecture :assignment/hint :assignment/answer]
-        ; a lazy map list will result in cljs.core.PersistentVector
-        data (map #(-> % (select-keys assignmentkeys)) assignments)
-        ]
-    ;(prn "all assignments " (select-keys (first assignments) [:assignment/homework]) data)
-    (prn "all assignments " data)
-    data))
-
-
-(defn get-things
-  "get a list of things based thing type"
-  [type]  ; type must be keyword when calling.
-  (prn "peer get things " type)
-  (case type
-    :parents (get-all-parents)
-    :children (get-all-children)
-    :courses (get-all-courses)
-    :lectures (get-all-lectures)
-    :homeworks (get-all-homeworks)
-    :assignments (get-all-assignments)
-    "default"))
+(defmethod get-things
+  :assignments
+  [type]
+  (let [assignments (dda/find-assignment)]
+    (prn "peer get all assignments " assignments)
+    assignments))
 
 
 ;;======================================================
+;; create new thing multi method
+;;======================================================
 ; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
 ; add new things, subtype, eventually, should merge with add-things
-(defmulti add-new-things
+(defmulti create-new-thing
   (fn [new-thing-type details]
     new-thing-type))
 
-(defmethod add-new-things
+
+(defmethod create-new-thing
   :course
   [type details]
   (let [user (:user details)
-        result (dda/add-family user)]
-    (prn "adding new family " user " transact " result)
-    result))
+        ;result (dda/create-course details)
+        result details
+        ]
+    (prn "adding new course " user " transact " result)
+    details))
 
 
-;; add things
-(defmulti add-things 
-  (fn [type data]
+;;======================================================
+;; add things multi method
+;; watch non ref-ed attr entity. :transact/bad-data Unable to resolve entity: rich
+;;======================================================
+(defmulti add-thing
+  (fn [type details]
     type))
 
+
+; add family
+(defmethod add-thing
+  :parents
+  [type details]
+  (let [user (:user details) ; thing-type value is json string.
+        result (dda/add-family details)
+       ]
+    (prn "peer add thing " type " details " details " result " result)
+    details))
+
+
 ; watch non ref-ed attr entity. :transact/bad-data Unable to resolve entity: rich
-(defmethod add-things
-  :assignments
-  [type data]
-  (let [;user (:user data)
-        ;to (:toid data)
-        hwid (:hwid data)
-        hint (:hint data)]
+(defmethod add-thing
+  :assignment
+  [type details]
+  (let [hwid (:hwid details)
+        hint (:hint details)]
+    (prn "peer add thing " type details)
     (dda/create-assignment hwid {:hint hint})))
 
 
 ;; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
-(defmethod add-things
-  :newthing
-  [type data]
-  (let [thing-type (keyword (:type data))  ; thing-type value is json string.
+(defmethod add-thing
+  :course
+  [type details]
+  (let [user (:user details) ; thing-type value is json string.
+        result (dda/create-course details)
        ]
-    (add-new-things thing-type data)))
+    (prn "peer add thing " type " details " details " result " result)
+    details))
+
+;; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
+(defmethod add-thing
+  :homework
+  [type details]
+  (let [user (:user details) ; thing-type value is json string.
+        result (dda/create-homework details)
+       ]
+    (prn "peer add thing " type " details " details " result ")
+    details))
 
 
 

@@ -4,6 +4,7 @@
            [java.net URI]
            [java.util Map Map$Entry List ArrayList Collection Iterator HashMap])
   (:require [clojure.string :as str]
+            [clojure.set :as set]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.data.json :as json])
@@ -12,7 +13,8 @@
             [clj-time.coerce :refer [to-long from-long]])
   (:require [datomic.api :as d])
   (:require [growingtree-server.datomic.dbschema :as dbschema]
-            [growingtree-server.datomic.dbconn :as dbconn :refer :all]))
+            [growingtree-server.datomic.dbconn :as dbconn :refer :all]
+            [growingtree-server.datomic.util :as util]))
 
 
 ;
@@ -100,21 +102,88 @@
 (declare inc-homework-popularity)
 (declare create-homework-math)
 
+; this map between course map to entity attr
+(def homework-key-attr-map 
+  {:id :db/id
+   :title :homework/title
+   :author :homework/author
+   :content :homework/content
+   :type :homework/type
+   :lecture :homework/lecture
+   :difficulty :homework/difficulty
+   :url :homework/url 
+   :email :homework/email
+   :comments :homework/comments})
 
-;
-; homework for course lecture, or random questions from anybody
-(defn homework-attr
-  "compose a map of attrs for a homework entity"
-  [subject title content uri]
-  (let [m {:db/id (d/tempid :db.part/user)
-          :homework/subject subject
-          :homework/title title
-          :homework/content content
-          :homework/uri uri}]
-    (prn m)
-    m))
+(defn thing-type-enum
+  [type]
+  (case type
+    "Math" :homework.type/math
+    "Science" :homework.type/science
+    "Reading/Writing" :homework.type/reading
+    "Art" :homework.type/art
+    "Sport" :homework.type/sports
+    "default"))
 
 
+; given a map of homework attr, rename to datomic schema ns for inserting
+; for now, comment out ref attrs.
+(defn insert-homework-map
+  [homework-map]
+  (let [type-enum-map (update-in homework-map [:type] thing-type-enum)
+        ; for now, do not project ref attr for insertion
+        projkeys (dissoc homework-key-attr-map :id :author :lecture :comments)
+        homework-attr (-> type-enum-map 
+                        (set/rename-keys projkeys)
+                        (select-keys (vals projkeys))
+                        (assoc :db/id (d/tempid :db.part/user)))]
+    homework-attr))
+
+
+; the enum must be fully qualified, :homework.subject/math
+(defn create-homework
+  "create homework with details"
+  [details]
+  (let [insert-map (insert-homework-map details)
+        trans (submit-transact [insert-map])
+        ]
+    (prn "create homework " insert-map " trans " trans)
+    trans))
+
+; convert a homework entity to map
+(defn to-homework-map
+  [e]
+  (let [lectures (:homework/lectures e)
+        homework-map (zipmap (keys homework-key-attr-map)
+                           (util/select-values e (vals homework-key-attr-map)))]
+    homework-map))
+
+; find a homework
+(defn find-homework
+  "find homework by subject, ret a list of homework entity"
+  []
+  (let [hw (d/q '[:find ?h :where [?h :homework/title]] (get-db))
+        entities (map (comp get-entity first) hw)
+        homeworks (map to-homework-map entities)
+        ]
+    (doseq [h homeworks]
+      (prn " homework --> " h))
+    homeworks))
+
+
+ 
+(defn inc-homework-popularity
+  "increase homework popularity"
+  []
+  (let [hwids (find-homework)
+        incstmt (map #(incby-stmt % :homework/popularity 1) hwids)]
+    (prn "inc-homework-popularity " incstmt)
+    (submit-transact (vec incstmt))))
+
+
+;;================================================================================
+;; assignment
+;;================================================================================
 ; form assignment attr map
 (defn assignment-attr
   "basic assignment attr map"
@@ -142,49 +211,6 @@
     (prn m)
     m))
 
-
-
-; the enum must be fully qualified, :homework.subject/math
-(defn create-homework
-  "create a simple math homework"
-  [subject]  
-  (let [lhs (rand-int 100)
-        rhs (rand-int 100)
-        op (rand-nth (map str ['+ '- '* '/]))
-        content (str lhs " " op " " rhs " = ?")
-        title "simple add sub mul div"
-        subject :homework.subject/math
-        uri (URI. "http://www.growingtree.com/math")
-        hwmap (homework-attr subject title content uri)]
-    (prn "the math question is " hwmap)
-    (submit-transact [hwmap])))
-
-
-(defn find-homework
-  "find homework by subject"
-  []
-  (let [subject :homework.subject/math
-        hws (d/q '[:find ?e ?content
-                   :in $ ?sub
-                   :where [?e :homework/content ?content]
-                          [?e :homework/subject ?sub]]
-                  db
-                  subject)
-        eids (map first hws)  ; the first item of tuple is homework id
-        entities (map (comp get-entity first) hws)
-        ]
-    (prn "find-homework " (first eids) entities)
-    entities))
-
- 
-(defn inc-homework-popularity
-  "increase homework popularity"
-  []
-  (let [hwids (find-homework)
-        incstmt (map #(incby-stmt % :homework/popularity 1) hwids)]
-    (prn incstmt)
-    (submit-transact (vec incstmt))))
- 
 
 ; create an assignment for any homework that 
 (defn create-assignment
