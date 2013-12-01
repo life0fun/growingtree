@@ -42,12 +42,26 @@
           input-domids (map #(dom/by-id %) input-fieldname)
           input-vals (map #(.-value %) input-domids)
           details (zipmap input-fields input-vals)
-
-          ; title (dom/by-id "course-title")
-          ; title-val (.-value title)
-          ; details {:title title-val}
           ]
       (.log js/console (str "submit-handler " type " val " details))
       (dom/destroy! form)
       (msgs/fill :creatething messages {:details details}))))
 
+
+(defmethod submit-fn
+  :homework
+  [type form messages]
+  (.log js/console "submit-fn for " type)
+  (fn [_]
+    (let [
+          input-fields [:title :author :type :content :url :difficulty :comments]
+          input-fieldname (map #(str (name type) "-" (name %)) input-fields)
+          input-domids (map #(dom/by-id %) input-fieldname)
+          input-vals (map #(.-value %) input-domids)
+          ; read-string to parse string to num, use no exception version later               
+          details (-> (zipmap input-fields input-vals)
+                      (update-in [:difficulty] cljs.reader/read-string))
+          ]
+      (.log js/console (str "submit-handler " type " val " details))
+      (dom/destroy! form)
+      (msgs/fill :creatething messages {:details details}))))

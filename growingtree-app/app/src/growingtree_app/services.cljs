@@ -120,6 +120,7 @@
         
         ; type:course {:user "rich" :title "aa", :author "bb", :type "Math", :content "cc", ...}
         :course (xhr-request "/api/course" "POST" body resp-handle xhr-log)
+        :homework (xhr-request "/api/homework" "POST" body resp-handle xhr-log)
 
         "default")
       (str "Send to Server: " body))))
