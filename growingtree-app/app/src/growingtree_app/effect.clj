@@ -69,3 +69,24 @@
                           " thingid " thingid " body " body))
     ; msg type :assign
     [{msgs/topic [:server] msgs/type action :body body}]))
+
+
+
+; effect processing. create new thing form submitted
+; inputs contains {:mesage {topic [] :details} :new-model {} :old-model {}}
+;; rich post submit thing [:submit :assignn] action :assign details {:action :create-assignment, :hwid 17592186045485, :toid "a", :hint "b"}
+;; rich post submit thing [:submit :newthing] action :newthing details {:action :newthing, :type "course", :title "", :content "", :user "rich"}
+(defn post-create-thing
+  "create new thing form submitted, [:create :*] form transformed"
+  [inputs]
+  (let [user (get-login-name inputs)
+        msg (:message inputs)    ; the msg sent when create new thing form submitted
+        topic (msgs/topic msg)   ;[:create :course]
+        action (second topic)    ; :creatething is msg type
+        thing-type (last topic)
+        details (:details msg)   ; details
+        body (assoc details :user user)]  ;
+    (.log js/console (str user " created new thing " thing-type " body " body))
+    ; msg type :assign
+    ;[{msgs/topic [:server] msgs/type action :body body}]
+    ))

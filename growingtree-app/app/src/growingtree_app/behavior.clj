@@ -271,6 +271,9 @@
               
               ; submit action effect, action is from topic and send details to backend.
               [#{[:submit]} effect/post-submit-thing :mode :always]
+
+              ; create thing type change [:create :course]
+              [#{[:create :*]} effect/post-create-thing :mode :always]
             }
 
     ; emitter

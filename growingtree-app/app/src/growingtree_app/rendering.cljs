@@ -212,10 +212,10 @@
     ; setup and submit action handler, path [:setup :assign :homework id] multi-method, 
     ; we can match anything, mutlimethod dispatch based on transkey
     [:transform-enable [:setup :**] transforms/enable-setup-action]
-    ;[:transform-disable [:setup :**] disable-setup-action]
+    [:transform-disable [:setup :**] disable-setup-action]
 
     [:transform-enable [:submit :**] transforms/enable-submit-action]
-    ;[:transform-disable [:submit :**] disable-submit-action]
+    [:transform-disable [:submit :**] disable-submit-action]
 
     ; create new thing 
     [:node-create [:create :*] create-thing-page]

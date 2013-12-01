@@ -12,7 +12,8 @@
             [io.pedestal.app.render.push.handlers.automatic :as auto]
             [growingtree-app.util :as util]
             [growingtree-app.entity-view :as entity-view]
-            [growingtree-app.selector :as sel])
+            [growingtree-app.selector :as sel]
+            [growingtree-app.newthing-form :as newthing-form])
   (:require-macros [growingtree-app.html-templates :as html-templates]))
 
 
@@ -237,21 +238,10 @@
 (defmethod enable-submit-action 
   :creatething
   [r [target path transkey messages] input-queue]
-  (let [form (dom/by-class "newthing-form") ; must use dom by-class to select form ?!
-        type (dom/by-id "newthing-type")
-        title (dom/by-id "newthing-title")
-        content (dom/by-id "newthing-content")
-        submit-fn (fn [_]   ; form submit handler, fill msg and ret the msg
-                    (let [type-val (.-value type)
-                          title-val (.-value title)
-                          content-val (.-value content)
-                          details {:action :newthing :type type-val 
-                                   :title title-val :content content-val}]
-                      (.log js/console (str "create thing submitted " details))
-                      (dom/destroy! form)
-                      (msgs/fill :creatething messages {:details details})))]
-
-    (.log js/console (str "enable create new thing submit " path transkey messages form))
+  (let [type (last path)
+        form (dom/by-class (str (name type) "-form"))
+        submit-fn (newthing-form/submit-fn type form messages)]
+    (.log js/console (str "enable submit on create thing page " path transkey messages form))
     (events/send-on :submit form input-queue submit-fn)))
 
 
