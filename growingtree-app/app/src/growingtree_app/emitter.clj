@@ -286,8 +286,6 @@
             changemap)
     ))
 
-
-
 ;;
 ;; emitter when getting sse-data, dispatch by sse event type
 (defn sse-data-emitter

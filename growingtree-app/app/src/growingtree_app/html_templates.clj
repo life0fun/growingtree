@@ -22,12 +22,22 @@
   {
    :login (dtfn (tnodes "growingtree-app.html" "login") #{:id})
    :homepage (dtfn (tnodes "growingtree-app.html" "homepage") #{:id})
+   
    :thing     (dtfn (tnodes "growingtree-app.html" "thing") #{:id})
+   :thing-parent  (dtfn (tnodes "thing.html" "thing-parent") #{:id})
+   :thing-child  (dtfn (tnodes "thing.html" "thing-child") #{:id})
+   :thing-course  (dtfn (tnodes "thing.html" "thing-course") #{:id})
+   :thing-lecture  (dtfn (tnodes "thing.html" "thing-lecture") #{:id})
+   :thing-homework  (dtfn (tnodes "thing.html" "thing-homework") #{:id})
+   :thing-assignment  (dtfn (tnodes "thing.html" "thing-assignment") #{:id})
+
    :thing-thumbnail (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})
    :thing-entry (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})
    :toprow (dtfn (tnodes "growingtree-app.html" "toprow") #{:id})
    :sublist-entry (dtfn (tnodes "growingtree-app.html" "sublistentry") #{})
+   
    :assign-form (dtfn (tnodes "growingtree-app.html" "assign-form") #{})
+   
    :user (dtfn (tnodes "newthing.html" "user") #{:id})
    :course (dtfn (tnodes "newthing.html" "course") #{:id})
    :homework (dtfn (tnodes "newthing.html" "homework") #{:id})

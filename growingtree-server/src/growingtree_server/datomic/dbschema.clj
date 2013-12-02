@@ -122,6 +122,8 @@
     [popularity :long "persons popularity"]
     [followers :ref :many "the follower"]
     [friends :ref :many "a list of kids friends, as followers"]
+    [courses :ref :many "a list of courses the child taken"]
+    [lectures :ref :many "a list of lectures the child taken"]
     [assignments :ref :many "list of assignments to child"]
     [likes :ref :many "what homework the kid liked"]
     [classmates :ref :many "classmate of the kid"]

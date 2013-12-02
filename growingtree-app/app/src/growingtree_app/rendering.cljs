@@ -126,10 +126,11 @@
   [r [op path] input-queue]
   (let [thingid (last path)
         ; make a template attached to this node
-        html (templates/add-template r path (:thing templates)) ; added template to this path node
-        assign-link (sel/assign-link thingid)
-        share-link (sel/share-link thingid)
-        thing (html {:id thingid :assign-link-class assign-link :share-link-class share-link})
+        ; html (templates/add-template r path (:thing templates)) ; added template to this path node
+        ; assign-link (sel/assign-link thingid)
+        ; share-link (sel/share-link thingid)
+        ; thing (html {:id thingid :assign-link-class assign-link :share-link-class share-link})
+        thing (entity-view/thing-node-html path r)
         ]
     (.log js/console "adding new thing node " thingid)
     (dom/append! (dom/by-id "main") thing)))

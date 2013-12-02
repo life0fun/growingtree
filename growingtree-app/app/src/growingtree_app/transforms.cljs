@@ -136,11 +136,11 @@
         div (html {:assign-form-class (sel/assign-form thingid)})
 
         thing-node (dom/by-id (str thingid))
-        assign-link (dom/by-class (sel/assign-link thingid))]
+        assignto-link (dom/by-class (str "assignto-" thingid))]
   
     (.log js/console (str "enable setup action assign " path))
     ; wrap assign link with div and use class selector
-    (de/listen! assign-link
+    (de/listen! assignto-link
                 :click 
                 (fn [evt]
                   (dom/append! thing-node div)
