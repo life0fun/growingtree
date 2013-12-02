@@ -186,20 +186,51 @@
     (fn [entity-map]
       (let [id (:id entity-map)
             newpath (conj path id)  ; [:all :homework 123]
-            actionpath (vec (concat [:setup action] (rest newpath)))]
+            thing-type (second path)
+            actionpath (vec (concat [:setup action] (rest newpath)))
+            actiontransforms (thing-actionbar-setup-transforms thing-type id)
+            ]
         (.log js/console (str "new thing delta path " newpath " actionpath " actionpath 
                               " action " action))
         ; ret a vec of delta tuples, 
-        [ [:node-create newpath :map]
-          [:value newpath entity-map]
-          ; destroy the existing action path, otherwise transform-enable wont work.
-          [:node-destroy actionpath]
-          ; ask UI to send back assignment details
-          [:transform-enable actionpath   ;[:setup :assign :courses 17592186045476]
-                             action       ; :assign
-                             [{msgs/topic actionpath ; [:setup :assign :homework 123]
-                              (msgs/param :details) {}}]] ]))
+        ; [ [:node-create newpath :map]
+        ;   [:value newpath entity-map]
+        ;   ; destroy the existing action path, otherwise transform-enable wont work.
+        ;   [:node-destroy actionpath]
+        ;   ; ask UI to send back assignment details
+        ;   [:transform-enable actionpath   ;[:setup :assign :courses 17592186045476]
+        ;                      action       ; :assign
+        ;                      [{msgs/topic actionpath ; [:setup :assign :homework 123]
+        ;                       (msgs/param :details) {}}]] ]))
+        (concat [ [:node-create newpath :map]
+                  [:value newpath entity-map] ]
+                actiontransforms)))
     value-vec))
+
+
+; return a list of transform-enable for actionbar links
+(defmulti thing-actionbar-setup-transforms
+  (fn [thing-type thing-id]
+    thing-type))
+
+
+(defmethod thing-actionbar-setup-transforms
+  :parents
+  [thing-type thing-id]
+  (let [actions [:children :assignments :likes :comments :followers]
+        actionpaths (map #(conj [:setup] % thing-type thing-id) actions)
+       ]
+    (mapcat 
+      ; [:setup :assign :courses 17592186045476]
+      (fn [[setup action type id] :as actionpath]
+        (vector [:node-destroy actionpath]
+                [:transform-enable actionpath 
+                                   action
+                                   [{msgs/topic actionpath
+                                     (msgs/param :details) {}}]]))
+      actionpaths)))
+
+
 
 (defn- removed-thing-deltas
   "the removed path node from removed-inputs, arg is node path"
