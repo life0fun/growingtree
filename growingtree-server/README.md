@@ -195,6 +195,7 @@ copy mysql-connector-java-5.1.6.jar from ~/.m2 maven repo to transactor lib fold
     [com.datomic/datomic-pro "0.9.4324"]
 
 
+    bin/maven-install
     bin/transactor config/sql-transactor-template.properties
 
     System started datomic:sql://<DB-NAME>?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic, you may need to change the user and password parameters to work with your jdbc driver

@@ -208,7 +208,9 @@
     value-vec))
 
 
-; return a list of transform-enable for actionbar links
+;------------------------------------------------------------------------------------
+; multimethod for returning a list of transform-enable for actionbar links
+;------------------------------------------------------------------------------------
 (defmulti thing-actionbar-setup-transforms
   (fn [thing-type thing-id]
     thing-type))
@@ -222,8 +224,27 @@
        ]
     (mapcat 
       ; [:setup :assign :courses 17592186045476]
-      (fn [[setup action type id] :as actionpath]
+      (fn [[setup action type id :as actionpath]]
         (vector [:node-destroy actionpath]
+                [:transform-enable actionpath 
+                                   action
+                                   [{msgs/topic actionpath
+                                     (msgs/param :details) {}}]]))
+      actionpaths)))
+
+
+
+(defmethod thing-actionbar-setup-transforms
+  :courses
+  [thing-type thing-id]
+  (let [actions [:lectures :assignto :enroll]
+        actionpaths (map #(conj [:setup] % thing-type thing-id) actions)
+       ]
+    (mapcat
+      ; [:setup :assign :courses 17592186045476]
+      (fn [[setup action type id :as actionpath]]
+        (.log js/console "thing actionbar setup " setup action type id actionpath)
+        (vector ;[:node-destroy actionpath]
                 [:transform-enable actionpath 
                                    action
                                    [{msgs/topic actionpath

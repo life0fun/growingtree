@@ -209,7 +209,7 @@
   ))
     
 
-; wire submit button click on new thing to fill newthing message
+; wire submit button click on new thing template to fill newthing message
 (defmethod enable-submit-action 
   :newthing
   [r [target path transkey messages] input-queue]
@@ -260,5 +260,79 @@
   :share
   [r [target path transkey messages] input-queue]
   (.log js/console (str "share submit clicked " target path messages)))
+
+ 
+
+;;==================================================================================
+;; lectures btn clicked
+;;==================================================================================
+(defmethod enable-setup-action 
+  :lectures 
+  [r [target path transkey messages] input-queue]
+  (let [thingid (last path)   ; last segment of path is thingid
+        html (templates/add-template r path (:assign-form templates))
+        div (html {:assign-form-class (sel/assign-form thingid)})
+        thing-node (dom/by-id (str thingid))
+        lectures-link (dom/by-class (str "lectures-" thingid))]
+  
+    (.log js/console (str "lectures setup clicked " target path messages))
+    ; wrap assign link with div and use class selector
+    (de/listen! lectures-link
+                :click 
+                (fn [evt]
+                  (dom/append! thing-node div)
+                  (.log js/console "lectures link clicked")))
+  ))
+
+
+(defmethod enable-submit-action 
+  :lectures
+  [r [target path transkey messages] input-queue]
+  (.log js/console (str "lectures submit clicked " target path messages)))
+
+
+;;==================================================================================
+;; assign to btn clicked
+;;================================================================================== 
+(defmethod enable-setup-action 
+  :assignto
+  [r [target path transkey messages] input-queue]
+  (let [thingid (last path)   ; last segment of path is thingid
+        html (templates/add-template r path (:assign-form templates))
+        div (html {:assign-form-class (sel/assign-form thingid)})
+        thing-node (dom/by-id (str thingid))
+        assignto-link (dom/by-class (str "assignto-" thingid))]
+  
+    (.log js/console (str "assignto setup clicked " target path messages))
+    ; wrap assign link with div and use class selector
+    (de/listen! assignto-link
+                :click 
+                (fn [evt]
+                  (dom/append! thing-node div)
+                  (.log js/console "assignto link clicked")))
+  ))
+
+
+;;==================================================================================
+;; enroll to btn clicked
+;;================================================================================== 
+(defmethod enable-setup-action 
+  :enroll
+  [r [target path transkey messages] input-queue]
+  (let [thingid (last path)   ; last segment of path is thingid
+        html (templates/add-template r path (:assign-form templates))
+        div (html {:assign-form-class (sel/assign-form thingid)})
+        thing-node (dom/by-id (str thingid))
+        enroll-link (dom/by-class (str "enroll-" thingid))]
+  
+    (.log js/console (str "enroll setup clicked " target path messages))
+    ; wrap assign link with div and use class selector
+    (de/listen! enroll-link
+                :click 
+                (fn [evt]
+                  (dom/append! thing-node div)
+                  (.log js/console "enroll link clicked")))
+  ))
+
 
    

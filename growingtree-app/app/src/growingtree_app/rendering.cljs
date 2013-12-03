@@ -27,7 +27,7 @@
 ; is configured when we created the render.
 ;
 ; render fn has 3 args, render, render op and a input-queue to sends
-; data back to app. 
+; data back to apply. 
 ; Render op is specified by transforms in emitter.
 ; input-queue is used for transform-enable to send back user click event.
 ; transforms say part of UI should do X and render trigger X on events.

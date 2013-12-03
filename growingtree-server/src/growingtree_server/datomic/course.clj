@@ -207,9 +207,10 @@
         overview (str "datomic is a database as value based on clojure, awesome !")
         materials (str "http://docs.datomic.com/tutorial.html")
         contenturi (URI. "http://docs.datomic.com/")
-        coursem (course-attr subject title overview materials contenturi)]
+        ;coursem (course-attr subject title overview materials contenturi)
+        ]
     ;(d/transact conn [coursem])
-    coursem))
+    subject))
 
 
 ; create an online course
