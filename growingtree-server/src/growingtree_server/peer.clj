@@ -91,6 +91,13 @@
     parents))
 
 (defmethod get-things
+  :children
+  [type]
+  (let [children (dda/find-children)]
+    (prn "peer get all children " children )
+    children))
+
+(defmethod get-things
   :courses
   [type]
   (let [courses (dda/find-course)]

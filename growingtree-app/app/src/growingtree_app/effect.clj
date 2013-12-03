@@ -45,6 +45,15 @@
     [{msgs/topic [:server] msgs/type type (msgs/param :body) {:filter :all}}]))
   
 
+(defn request-filtered-things
+  "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
+  [details]  ; request filtered things by type
+  (let [filterpath (:filterpath details)]
+    (.log js/console (str "request filtered things " filterpath details))
+    ; (if type
+    ;   [{msgs/topic [:server] msgs/type type (msgs/param :body) {:filter :all}}]))
+    ))
+
 ; request timeline
 (defn request-timeline
   [timeline]

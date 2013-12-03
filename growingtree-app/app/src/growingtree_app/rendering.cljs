@@ -210,7 +210,7 @@
     [:node-destroy [:all :*] h/default-destroy]
     [:node-destroy [:all :* :*] del-thing-node]
     
-    ; setup and submit action handler, path [:setup :assign :homework id] multi-method, 
+    ; setup and submit action handler, path [:setup :homework id :assign]
     ; we can match anything, mutlimethod dispatch based on transkey
     [:transform-enable [:setup :**] transforms/enable-setup-action]
     [:transform-disable [:setup :**] disable-setup-action]
@@ -221,5 +221,8 @@
     ; create new thing 
     [:node-create [:create :*] create-thing-page]
     [:transform-enable [:create :*] transforms/enable-submit-action]
+
+    ; filter path transformers
+    [:transform-enable [:filter :**] transforms/enable-filter-path]
 
   ])

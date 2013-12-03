@@ -111,9 +111,10 @@
 
 
 ;;==================================================================================
-;; action bar multimethod dispatches by transkey, path [:setup :transkey]
+;; action bar multimethod dispatches by transkey/action, path [:setup :transkey]
+;; transkey, when setup from emitter, is next link, when come back to behavior, is transkey.
 ;;==================================================================================
-
+;; [:transform-enable [:setup :children 17592186045496 :assignments] :assignments]
 (defmulti enable-setup-action
   (fn [render [target path transkey messages] input-queue]
     transkey))
@@ -131,7 +132,7 @@
 (defmethod enable-setup-action 
   :assign
   [r [t path k messages] input-queue]
-  (let [thingid (last path)   ; last segment of path is thingid
+  (let [thingid (last (butlast path))   ; [:setup thing-type thing-id transkey]
         html (templates/add-template r path (:assign-form templates))
         div (html {:assign-form-class (sel/assign-form thingid)})
 
@@ -156,7 +157,7 @@
 (defmethod enable-submit-action 
   :assign
   [r [target path transkey messages] input-queue]
-  (let [thingid (last path)
+  (let [thingid (last (butlast path))
         form (dom/by-class (sel/assign-form thingid))  ; must use dom by-class to select form ?!
 
         to-node (dom/by-id "assign-to")
@@ -176,7 +177,7 @@
 
 
 ;;==================================================================================
-;; newthing btn setup and submit
+;; newthing btn setup and submit, Deprecated ! not used !
 ;;==================================================================================
 ; ; create new thing btn event listen, when clicked, display input newthing template
 ; ; under main div. messages is cljs PersistentVector, hence doseq to process each.
@@ -256,17 +257,73 @@
   (.log js/console (str "share setup clicked " target path messages)))
 
 
-(defmethod enable-submit-action 
-  :share
+;;==================================================================================
+;; fill filter path along the nav path for each thing action bar links
+;;==================================================================================
+(defmulti enable-filter-path
+  (fn [render [target path transkey messages] input-queue]
+    transkey))
+
+;;==================================================================================
+;; parent - children filter, transkey is children, 
+;; [:filter :thing-type thing-id transkey]
+;;==================================================================================
+(defmethod enable-filter-path 
+  :children
+  [r [_ path transkey messages] input-queue]
+  (let [filterpath (rest (butlast path))  ; get rid of head and tail
+        thingid (last filterpath) ; [:setup :thing-type thing-id transkey]
+        thing-type (second (reverse filterpath))
+        ; html (templates/add-template r path (:thing-details templates))
+        ; div (html {:id (str "thing-details-" thingid)})
+        thing-node (dom/by-id (str thingid))
+        children-link (dom/by-class (str "children-" thingid))]
+  
+    (.log js/console (str "enable filter path children " path messages))
+    ; wrap assign link with div and use class selector
+    (de/listen! children-link
+                :click 
+                (fn [evt]
+                  (let [details {:next-entity :child
+                                 :filterpath filterpath}
+                        ; fill msg with msg-type messages, and input-map
+                        new-msgs (msgs/fill :set-filter messages {:details details})]
+                    (.log js/console (str "child assignment link clicked " new-msgs))
+                    (doseq [m new-msgs]
+                      (p/put-message input-queue m)))))
+  ))
+
+
+;;==================================================================================
+;; assignments btn in children thing clicked, display thing details of child-assignment
+;;==================================================================================
+(defmethod enable-filter-path 
+  :assignments
   [r [target path transkey messages] input-queue]
-  (.log js/console (str "share submit clicked " target path messages)))
+  (let [thingid (last path)   ; last segment of path is thingid
+        thing-type (second path) ; [:setup :assignments :course 123]
+        thing-node (dom/by-id (str thingid))
+        children-link (dom/by-class (str "children-" thingid))]
+  
+    ; wrap assign link with div and use class selector
+    (de/listen! children-link
+                :click 
+                (fn [evt]
+                  (let [details {:action :actionbar-event :id thingid
+                                 :thing-type thing-type
+                                 :transkey transkey
+                                 :target transkey}
+                        new-msgs (msgs/fill :actionbar-event messages {:details details})]
+                    (.log js/console (str "child assignment link clicked " new-msgs))
+                    (doseq [m new-msgs]
+                      (p/put-message input-queue m)))))
+  ))
 
- 
 
 ;;==================================================================================
-;; lectures btn clicked
+;; lectures btn in course thing clicked
 ;;==================================================================================
-(defmethod enable-setup-action 
+(defmethod enable-filter-path 
   :lectures 
   [r [target path transkey messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid
@@ -285,38 +342,10 @@
   ))
 
 
-(defmethod enable-submit-action 
-  :lectures
-  [r [target path transkey messages] input-queue]
-  (.log js/console (str "lectures submit clicked " target path messages)))
-
-
-;;==================================================================================
-;; assign to btn clicked
-;;================================================================================== 
-(defmethod enable-setup-action 
-  :assignto
-  [r [target path transkey messages] input-queue]
-  (let [thingid (last path)   ; last segment of path is thingid
-        html (templates/add-template r path (:assign-form templates))
-        div (html {:assign-form-class (sel/assign-form thingid)})
-        thing-node (dom/by-id (str thingid))
-        assignto-link (dom/by-class (str "assignto-" thingid))]
-  
-    (.log js/console (str "assignto setup clicked " target path messages))
-    ; wrap assign link with div and use class selector
-    (de/listen! assignto-link
-                :click 
-                (fn [evt]
-                  (dom/append! thing-node div)
-                  (.log js/console "assignto link clicked")))
-  ))
-
-
 ;;==================================================================================
 ;; enroll to btn clicked
 ;;================================================================================== 
-(defmethod enable-setup-action 
+(defmethod enable-filter-path 
   :enroll
   [r [target path transkey messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid

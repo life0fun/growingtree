@@ -45,7 +45,7 @@
     (returns a vector of msg that will be processed as part of this dataflow transaction))
 
   ;; dataflow description reference
-  {:transform [[:op [:path] example-transform]]
+  {:transform [[:message-type [:path] example-transform]]
    :derive    #{[#{[:in]} [:path] example-derive]}
    :effect    #{[#{[:in]} example-effect]}
    :continue  #{[#{[:in]} example-continue]}
@@ -161,6 +161,18 @@
     (.log js/console (str "create thing type " details))
     details))
 
+
+; use navigate from things
+; messages {:topic [:filter :parents 17592186045498 :children], :details {} }
+; details {:next-entity :child, :filterpath (:parents 17592186045498)} 
+; old value is detail map {:next-entity :child, :filterpath (:parents 17592186045498)}
+(defn set-filter
+  [oldv messages]
+  (let [details (:details messages)]
+    (.log js/console (str "set filter transform " oldv messages details))
+    details))
+
+
 ;;==================================================================================
 ;; derive dataflow, derive fn got 2 args, old value, and tracking map
 ;; [inputs output-path derive-fn input-spec] ;; input-spec is optional
@@ -251,6 +263,8 @@
 
                 ; create thing page handler
                 [:creatething [:create :*] create-thing-type]
+
+                [:set-filter [:filter :**] set-filter]
                ]
 
     :derive #{
@@ -274,6 +288,9 @@
 
               ; create thing type change [:create :course]
               [#{[:create :*]} effect/post-create-thing :mode :always]
+
+              ; user clicked actionbar links
+              [#{[:filter :*]} effect/request-filtered-things :map]
             }
 
     ; emitter

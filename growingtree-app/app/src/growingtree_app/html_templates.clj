@@ -32,11 +32,12 @@
    :thing-assignment  (dtfn (tnodes "thing.html" "thing-assignment") #{:id})
 
    :thing-thumbnail (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})
-   :thing-entry (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})
+   :thing-entry (dtfn (tnodes "growingtree-app.html" "thing-entry") #{:href})
    :toprow (dtfn (tnodes "growingtree-app.html" "toprow") #{:id})
-   :sublist-entry (dtfn (tnodes "growingtree-app.html" "sublistentry") #{})
    
    :assign-form (dtfn (tnodes "growingtree-app.html" "assign-form") #{})
+
+   :thing-details  (dtfn (tnodes "thing.html" "thing-details") #{:id})
    
    :user (dtfn (tnodes "newthing.html" "user") #{:id})
    :course (dtfn (tnodes "newthing.html" "course") #{:id})
