@@ -258,37 +258,33 @@
 
 
 ;;==================================================================================
-;; fill filter path along the nav path for each thing action bar links
+;; fill xpath along the nav path for each thing action bar links
 ;;==================================================================================
-(defmulti enable-filter-path
+(defmulti record-xpath
   (fn [render [target path transkey messages] input-queue]
     transkey))
 
 ;;==================================================================================
-;; parent - children filter, transkey is children, 
-;; [:filter :thing-type thing-id transkey]
+;; xpath parent - children , transkey is children, 
+;; [:xpath :thing-type thing-id transkey]
 ;;==================================================================================
-(defmethod enable-filter-path 
+(defmethod record-xpath 
   :children
   [r [_ path transkey messages] input-queue]
-  (let [filterpath (rest (butlast path))  ; get rid of head and tail
-        thingid (last filterpath) ; [:setup :thing-type thing-id transkey]
-        thing-type (second (reverse filterpath))
-        ; html (templates/add-template r path (:thing-details templates))
-        ; div (html {:id (str "thing-details-" thingid)})
+  (let [xpath (rest path)  ; [:parent 1 :children]
+        thingid (first (reverse (butlast xpath)))
+        thing-type (second (reverse (butlast xpath)))
         thing-node (dom/by-id (str thingid))
         children-link (dom/by-class (str "children-" thingid))]
-  
-    (.log js/console (str "enable filter path children " path messages))
+    (.log js/console (str "record path children " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! children-link
                 :click 
                 (fn [evt]
-                  (let [details {:next-entity :child
-                                 :filterpath filterpath}
+                  (let [details {:xpath xpath}
                         ; fill msg with msg-type messages, and input-map
-                        new-msgs (msgs/fill :set-filter messages {:details details})]
-                    (.log js/console (str "child assignment link clicked " new-msgs))
+                        new-msgs (msgs/fill :set-xpath messages {:details details})]
+                    (.log js/console (str xpath " link clicked " new-msgs))
                     (doseq [m new-msgs]
                       (p/put-message input-queue m)))))
   ))
@@ -297,7 +293,7 @@
 ;;==================================================================================
 ;; assignments btn in children thing clicked, display thing details of child-assignment
 ;;==================================================================================
-(defmethod enable-filter-path 
+(defmethod record-xpath 
   :assignments
   [r [target path transkey messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid
@@ -323,7 +319,7 @@
 ;;==================================================================================
 ;; lectures btn in course thing clicked
 ;;==================================================================================
-(defmethod enable-filter-path 
+(defmethod record-xpath 
   :lectures 
   [r [target path transkey messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid
@@ -345,7 +341,7 @@
 ;;==================================================================================
 ;; enroll to btn clicked
 ;;================================================================================== 
-(defmethod enable-filter-path 
+(defmethod record-xpath 
   :enroll
   [r [target path transkey messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid

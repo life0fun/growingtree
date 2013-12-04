@@ -96,10 +96,11 @@
   [message input-queue] ; input queue is where ret result should be injected to.
   ; ensure msgs wrap/unwrap keys match.
   ;; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
-  (when-let [body (pr-str (:body message))]
-    (let [type (msgs/type message)  ; msgs type, the type user clicked on sidebar
+  (when-let [body ((msgs/param :body) message)]
+    (let [body (pr-str body)  ; convert body to json string
+          type (msgs/type message)  ; msgs type, the type user clicked on sidebar
           resp-handle (response-handler type input-queue)]  ; json response handler
-      (.log js/console (str "service-fn consume effect queue type" type " " body))
+      (.log js/console (str "service-fn consume effect queue type" type " " body message))
       ; dispatch on case, 
       (case type
         ;; sse subscribe and publish
@@ -114,13 +115,15 @@
         :homeworks (xhr-request "/api/homeworks" "GET" body resp-handle xhr-log)
         :assignments (xhr-request "/api/assignments" "GET" body resp-handle xhr-log) 
 
-
         ;; msg type for actionbar assignment is :assign, post data to create-assignment
         :assign (xhr-request "/api/assignment" "POST" body resp-handle xhr-log)
         
         ; type:course {:user "rich" :title "aa", :author "bb", :type "Math", :content "cc", ...}
         :course (xhr-request "/api/course" "POST" body resp-handle xhr-log)
         :homework (xhr-request "/api/homework" "POST" body resp-handle xhr-log)
+
+        ; {:xpath (:parents 17592186045499 :children)}
+        :xpath (xhr-request (str "/api/xpath/" (:target body)) "GET" body resp-handle xhr-log)
 
         "default")
       (str "Send to Server: " body))))

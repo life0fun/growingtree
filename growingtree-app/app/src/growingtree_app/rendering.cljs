@@ -222,7 +222,7 @@
     [:node-create [:create :*] create-thing-page]
     [:transform-enable [:create :*] transforms/enable-submit-action]
 
-    ; filter path transformers
-    [:transform-enable [:filter :**] transforms/enable-filter-path]
+    ; xpath path transformers
+    [:transform-enable [:xpath :**] transforms/record-xpath]
 
   ])

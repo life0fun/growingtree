@@ -184,6 +184,12 @@
     ; (-> (ring-response/response things)
     ;     (ring-response/content-type "application/edn"))))
 
+(defn get-xdata
+  "get things by type, ret from peer a list of thing in a new line sep string"
+  [req]
+  (let [type (get-in req [:path-params :thing])]
+    (println (str "get-xdata " type req))
+    ))
 
 ; destruct edn-params as request params and post body data is a clj map. frame does json transcoding.
   ; :request-method :post,
@@ -225,6 +231,7 @@
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
      ["/about" {:get about-page}]
      ["/api/:thing" {:get get-all-things :post add-thing}]
+     ["/api/xpath/:thing" {:get get-xdata}]
     ]]])
 
 

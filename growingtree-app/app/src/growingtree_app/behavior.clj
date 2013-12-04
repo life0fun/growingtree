@@ -163,14 +163,21 @@
 
 
 ; use navigate from things
-; messages {:topic [:filter :parents 17592186045498 :children], :details {} }
+; messages {:topic [:xpath :parents 17592186045498 :children], :details {} }
 ; details {:next-entity :child, :filterpath (:parents 17592186045498)} 
 ; old value is detail map {:next-entity :child, :filterpath (:parents 17592186045498)}
-(defn set-filter
+(defn set-xpath
   [oldv messages]
   (let [details (:details messages)]
-    (.log js/console (str "set filter transform " oldv messages details))
+    (.log js/console (str "set xpath transform " oldv details))
     details))
+
+(defn set-xdata
+  [oldv messages]
+  (let [type (:type messages)    ; thing type 
+        things-vec (:data messages)]
+    (.log js/console "set-xdata " things-vec)
+    things-vec))
 
 
 ;;==================================================================================
@@ -252,7 +259,6 @@
                 [:login-modal [:nav :login-modal] set-login-modal]
                 [:create-modal [:nav :create-modal] set-create-modal]
 
-                
                 ; assign action setup transform
                 [:assign [:setup :assign :* :*] setup-assign]
                 [:assign [:submit :assign :* :*] submit-assign]
@@ -264,7 +270,10 @@
                 ; create thing page handler
                 [:creatething [:create :*] create-thing-type]
 
-                [:set-filter [:filter :**] set-filter]
+                ; xpath records navigation path and xdata stores query result.
+                [:set-xpath [:xpath :**] set-xpath]
+                [:set-xdata [:xdata :**] set-xdata]
+
                ]
 
     :derive #{
@@ -290,7 +299,7 @@
               [#{[:create :*]} effect/post-create-thing :mode :always]
 
               ; user clicked actionbar links
-              [#{[:filter :*]} effect/request-filtered-things :map]
+              [#{[:xpath :**]} effect/request-xpath-things :mode :always]
             }
 
     ; emitter
@@ -315,6 +324,10 @@
            {:in #{[:setup :newthing]} :fn emitter/newthing-emitter :mode :always}
 
            {:in #{[:sse-data]} :fn emitter/sse-data-emitter :mode :always}
+
+           ; when xdata back, create nodes
+           {:in #{[:xdata]} :fn emitter/xdata-emitter :mode :always}
+
 
            [#{[:pedestal :debug :dataflow-time]
               [:pedestal :debug :dataflow-time-max]

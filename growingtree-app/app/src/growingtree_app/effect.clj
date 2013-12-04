@@ -21,6 +21,11 @@
    :emit      [[#{[:in]} example-emit]]}
   )
 
+;;=======================================================================
+;; when input is tracking map, you can following keys from tracking map
+;; :message, :new-model, :old-model, :input-paths :added :updated :removed
+;;=======================================================================
+
 
 (defn get-login-name
   [inputs]
@@ -39,19 +44,23 @@
 (defn request-all-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [type]  ; request all things by type
-  (.log js/console "request things of type upon sidebar click  " type)
+  (.log js/console "effect request all things of type upon sidebar click  " type)
   ; only request when nav type sidebar clicked !
   (if type
     [{msgs/topic [:server] msgs/type type (msgs/param :body) {:filter :all}}]))
   
 
-(defn request-filtered-things
+(defn request-xpath-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
-  [details]  ; request filtered things by type
-  (let [filterpath (:filterpath details)]
-    (.log js/console (str "request filtered things " filterpath details))
-    ; (if type
-    ;   [{msgs/topic [:server] msgs/type type (msgs/param :body) {:filter :all}}]))
+  [inputs]  ; request xpath things by type
+  (let [msg (:message inputs)  ; get the msg that triggers this effect
+        xpath (msgs/topic msg)  ;[:xpath :parents 17592186045499 :children]
+        type (first xpath)
+        target (last xpath)
+        qpath (butlast (rest xpath))  ; query path [:parent id :children]
+       ] 
+    (.log js/console (str "request xpath things topic " xpath qpath))
+    [{msgs/topic [:server] msgs/type type (msgs/param :body) {:target target :qpath qpath}}]
     ))
 
 ; request timeline

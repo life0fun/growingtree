@@ -25,7 +25,7 @@
   (p/put-message (:output app)   ; effect queue is output queue.
                  {msg/topic [:server]
                   msg/type :subscribe
-                  :out-message :subscribe}))
+                  (msg/param :body) {:out-message :subscribe}}))
 
 
 ; fake user clicked nav course side bar

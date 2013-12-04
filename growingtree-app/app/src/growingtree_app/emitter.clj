@@ -211,7 +211,7 @@
       (let [id (:id entity-map)
             newpath (conj path id)  ; [:all :homework 123]
             thing-type (second path)
-            actiontransforms (thing-actionbar-transforms thing-type id)
+            actiontransforms (thing-xpath-transforms thing-type id)
             ]
         (.log js/console (str "new thing delta path " newpath))
         (concat [ [:node-create newpath :map]
@@ -220,35 +220,58 @@
     value-vec))
 
 
+;;==================================================================================
+;; xdata from xhr request, emit nodes
+;;==================================================================================
+(defn xdata-emitter
+  "when xdata come back, create new node "
+  [inputs]
+  (let [msg (:message inputs)
+        changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
+        removed (d/removed-inputs inputs)]
+    ; each change tuple consists of node-path and a vector of values
+    ;(removed-thing-deltas removed)
+    (vec 
+      (concat
+        ; with this, will emit [:value [:all :courses] old-value new-val]
+        ;((app/default-emitter) inputs) 
+        []
+        (reduce (fn [alldeltas [input-path newvals]] ;input-path, [:all :course] is a vec
+              ; concat is vec de-pack and re-pack, enable :assign action for now
+              (concat alldeltas (new-thing-deltas input-path newvals)))
+            []
+            changemap)))))
+
+
 ;------------------------------------------------------------------------------------
 ; multimethod for a list of transform-enable for next level links
 ; the target action must be entity name for filtered
 ;------------------------------------------------------------------------------------
-(defmulti thing-actionbar-transforms
+(defmulti thing-xpath-transforms
   (fn [thing-type thing-id]
     thing-type))
 
 
 ; all action bar links for parent entity
-(defmethod thing-actionbar-transforms
+(defmethod thing-xpath-transforms
   :parents
   [thing-type thing-id]
-  (let [transkeys [:children]
-        filterpaths (map #(conj [:filter thing-type thing-id] %) transkeys)
+  (let [transkeys [:children]  ; transkey is path next
+        xpaths (map #(conj [:xpath thing-type thing-id] %) transkeys)
        ]
     (mapcat 
-      ; [:setup :courses 17592186045476 :lectures]
-      (fn [[filter type id transkey :as filterpath]]
-        (vector [:node-destroy filterpath]
-                [:transform-enable filterpath    ; path
-                                   transkey      ; transkey
-                                   [{msgs/topic filterpath
+      ; [:xpath :parents 17592186045499 :children] :children
+      (fn [[path type id transkey :as xpath]]
+        (vector [:node-destroy xpath]
+                [:transform-enable xpath      ; 
+                                   transkey   ; transkey
+                                   [{msgs/topic xpath
                                      (msgs/param :details) {}}]]))
-      filterpaths)))
+      xpaths)))
 
 
 ; all action bar links for children entity
-(defmethod thing-actionbar-transforms
+(defmethod thing-xpath-transforms
   :children
   [thing-type thing-id]
   (let [actions [:assignments]
@@ -265,7 +288,7 @@
       actionpaths)))
 
 
-(defmethod thing-actionbar-transforms
+(defmethod thing-xpath-transforms
   :courses
   [thing-type thing-id]
   (let [actions [:lectures :assignto :enroll]
@@ -274,7 +297,7 @@
     (mapcat
       ; [:setup :assign :courses 17592186045476]
       (fn [[setup action type id :as actionpath]]
-        (.log js/console "thing actionbar setup " setup action type id actionpath)
+        (.log js/console "thing xpath setup " setup action type id actionpath)
         (vector ;[:node-destroy actionpath]
                 [:transform-enable actionpath 
                                    action
@@ -283,7 +306,7 @@
       actionpaths)))
 
 
-(defmethod thing-actionbar-transforms
+(defmethod thing-xpath-transforms
   :homeworks
   [thing-type thing-id]
   (let [actions [:assignto]
@@ -304,8 +327,6 @@
   "the removed path node from removed-inputs, arg is node path"
   [input-path oldvals]
   (.log js/console (str "removed path " input-path " oldvals " oldvals)))
-
-
 
 
 ;;==================================================================================
@@ -363,6 +384,10 @@
             []
             changemap)
     ))
+
+
+
+
 
 ;;
 ;; emitter when getting sse-data, dispatch by sse event type
