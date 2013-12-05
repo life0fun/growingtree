@@ -187,18 +187,19 @@
 
 
 ; get xthings based on query xpath. route handler must return a ring response
-; type=children postdata={:target :children, :qpath (:parents 17592186045501)}
+; data populate at app service side.
+; type=children postdata={:target :children, :qpath (:parents 17592186045501 :children)}
 (defn get-xthings
   "get things by type, ret from peer a list of thing in a new line sep string"
   [{postdata :edn-params :as request}]
   (let [type (get-in request [:path-params :thing])
         qpath (:qpath postdata)
         target (:target postdata)
-        xthings (peer/get-things (keyword type) (apply hash-map qpath))
+        xthings (peer/get-things (keyword type) qpath)
         result {:status 200 :data xthings}
         jsonresp (bootstrap/json-response result)]
     (newline)  
-    (println (str "get-xthings " type qpath postdata))
+    (println (str "get-xthings " type qpath xthings))
     jsonresp))
 
 

@@ -57,10 +57,11 @@
         xpath (msgs/topic msg)  ;[:xpath :parents 17592186045499 :children]
         type (first xpath)
         target (last xpath)
-        qpath (butlast (rest xpath))  ; query path [:parent id :children]
+        qpath (rest xpath)  ; query path [:parent id :children]
+        body {:target target :qpath qpath}
        ] 
     (.log js/console (str "request xpath things topic " xpath qpath))
-    [{msgs/topic [:server] msgs/type type (msgs/param :body) {:target target :qpath qpath}}]
+    [{msgs/topic [:server] msgs/type type (msgs/param :body) body }]
     ))
 
 ; request timeline

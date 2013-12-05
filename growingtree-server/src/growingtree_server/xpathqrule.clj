@@ -6,14 +6,13 @@
   (:require [clj-redis.client :as redis]) ; bring in redis namespace
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format]
-            [clj-time.local])
-  (:require [growingtree-server.datomic.dda :as dda])  ; datomic data accessor
-  )
+            [clj-time.local]))  ; datomic data accessor
 
 ; this ns defines mapping from xpath to query rules.
 
 (def path-rule-map 
-  {[:parent :children] [[?e :child/parent ?p]]
+  {
+    (str [:parents :children]) '[[?e :child/parent ?p]]
   })
 
 
@@ -26,7 +25,7 @@
 (defmethod getrules 
   :child
   [target xpath]
-  (let [pathkeys (take-nth 2 xpath)
-        rules ()]  ; take every second item from xpath
-    (prn "xpathqrule get rules " target xpath)
+  (let [pathkeys (str (reduce conj [] (take-nth 2 xpath)))  ; convert to string
+        rules (get path-rule-map pathkeys)]  ; take every second item from xpath
+    (prn "xpathqrule get rules " target xpath pathkeys rules)
   ))

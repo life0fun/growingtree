@@ -80,36 +80,36 @@
 ;;======================================================
 ; defmulti needs a name and a dispatch fn, which rets value for dispatching
 (defmulti get-things
-  (fn [thing-type filters] 
+  (fn [thing-type qpath] 
     thing-type))
 
 
 (defmethod get-things
   :parents
-  [type filters]
-  (let [parents (dda/list-parent filters)]
-    (prn "peer get all parents " parents )
+  [type qpath]
+  (let [parents (dda/list-parent qpath)]
+    (prn "peer get parents " qpath parents)
     parents))
 
 
 (defmethod get-things
   :children
-  [type filters]
-  (let [children (dda/find-children filters)]
-    (prn "peer get all children " children )
+  [type qpath]
+  (let [children (dda/find-children qpath)]
+    (prn "peer get children " qpath children)
     children))
 
 
 (defmethod get-things
   :courses
-  [type filters]
+  [type qpath]
   (let [courses (dda/find-course)]
     (prn "peer get all courses " courses)
     courses))
 
 (defmethod get-things
   :homeworks
-  [type filters]
+  [type qpath]
   (let [homeworks (dda/find-homework)]
     (prn "peer get all homeworks " homeworks)
     homeworks))
@@ -117,7 +117,7 @@
 
 (defmethod get-things
   :assignments
-  [type filters]
+  [type qpath]
   (let [assignments (dda/find-assignment)]
     (prn "peer get all assignments " assignments)
     assignments))

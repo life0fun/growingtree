@@ -284,6 +284,7 @@
                   (let [details {:xpath xpath}
                         ; fill msg with msg-type messages, and input-map
                         new-msgs (msgs/fill :set-xpath messages {:details details})]
+                    ; details {:xpath (:parents 17592186045499 :children)}
                     (.log js/console (str xpath " link clicked " new-msgs))
                     (doseq [m new-msgs]
                       (p/put-message input-queue m)))))

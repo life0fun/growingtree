@@ -72,20 +72,20 @@
   (fn [response]
     ; parse response body into json and convert json to cljs PersistentVector
     (when-let [body (:body response)] ; only when we have valid body
-      (.log js/console "xhr response body " body)
+      (.log js/console "xhr response body " type body)
       (let [bodyjson (JSON/parse body)  
             ; parse js json object to cljs.core.PersisitentVector data structre.
             result (js->clj bodyjson :keywordize-keys true)
             status (:status result)
             things-vec (:data result)
             ]
-        (.log js/console "response things tuples " things-vec)
+        (.log js/console "response things tuples " type things-vec)
         (p/put-message input-queue
                        {msgs/topic [:all]  ; store data into [:all]
                         msgs/type :set-all-things    ; set all things msgs type
                         :type type        ; set thing type
                         :data things-vec  ; store cljs.core.PersistVector into path node
-                        :id (util/random-id)})))))
+                        })))))
 
 
 ;
@@ -123,7 +123,7 @@
         :homework (xhr-request "/api/homework" "POST" body resp-handle xhr-log)
 
         ;:xpath (xhr-request (str "/api/xpath/" (:target body)) "GET" body resp-handle xhr-log)
-        :xpath (request-xpath body)
+        :xpath (request-xpath type body input-queue)
 
         "default")
       (str "Send to Server: " body))))
@@ -132,11 +132,11 @@
 
 ; request xpath data, body is {:target :children, :qpath (:parents 17592186045501)} 
 (defn request-xpath
-  [body]
+  [type body input-queue]
   (let [target (name (:target body))
         xpath (str "/api/xpath/" target)
-        xdata-resp (response-handler type input-queue)]
-    (.log js/console (str "app service request xpath data " body))
+        xdata-resp (response-handler :children input-queue)]
+    (.log js/console (str "app service request xpath body" type body))
     (xhr-request xpath "POST" body xdata-resp xhr-log)))
 
 

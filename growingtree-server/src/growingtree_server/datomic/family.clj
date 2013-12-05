@@ -12,7 +12,8 @@
             [clj-time.coerce :refer [to-long from-long]])
   (:require [datomic.api :as d])
   (:require [growingtree-server.datomic.dbschema :as dbschema]
-            [growingtree-server.datomic.dbconn :as dbconn :refer :all]))
+            [growingtree-server.datomic.dbconn :as dbconn :refer :all]
+            [growingtree-server.xpathqrule :as xpathqrule]))
 
 ;
 ; http://blog.datomic.com/2013/05/a-whirlwind-tour-of-datomic-query_16.html
@@ -142,10 +143,10 @@
 ; a rule is a list, the head of list is rule name, with other items are rule content.
 ; any single item in the rule list is a list, hence, rule set are list of rules, list of list.
 (def child-by
-  '[[(by-parent ?c ?p) [?c :child/parents ?p]]
-    [(by-name ?c ?n) [?c :child/name ?n]]
-    [(by-phone ?c ?ph) [?c :child/phone ?ph]]
-    [(by-group ?c ?g) [?c :child/group ?g]]
+  '[[(:parents ?c ?val) [?c :child/parents ?val]]
+    [(:name ?c ?val) [?c :child/name ?val]]
+    [(:phone ?c ?val) [?c :child/phone ?val]]
+    [(:groups ?c ?val) [?c :child/groups ?val]]
   ])
 
 ; create a parent entity, does not link child yet
@@ -185,7 +186,7 @@
 ; :find rets entity id, find all parent's pid and name.
 (defn list-parent
   "find all parents with all children"
-  [filters]
+  [qpath]
   (let [pc (d/q '[:find ?p :where [?p :parent/children]] db)
         entities (map (comp get-entity first) pc)
         parents (map parent-entity-map entities)] ;?p parent who has children
@@ -232,20 +233,16 @@
 
 
 ;
-; find children, to find one entity with id, use (get-entity id)
+; find children with qpath. use rule from child-by rule set by parent name in qpath.
 (defn find-children
   "find all children who has parents"
-  [filters]
-  (let [qrules (xpathqrule/filters)
-        c (d/q '[:find ?c 
-                 :in $ % 
-                 :where [?c :child/parents ]]
-               db        ; :in $ and child-by rule set
-               childby   ; child-by rule set
-                )
-
+  [qpath]
+  (let [qrule (list (first qpath) '?e '?val)
+        q (conj '[:find ?e :in $ % ?val :where ] qrule)
+        c (d/q q db child-by (second qpath))
         entities (map (comp get-entity first) c)
         children (map child-entity-map entities)]
+    (prn "qrule " qrule)
     (doseq [c children]
       (prn " child --> " c))
     children))
