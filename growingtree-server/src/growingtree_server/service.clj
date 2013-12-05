@@ -175,7 +175,7 @@
   [req]
   ; path segment in req contains request params.
   (let [type (get-in req [:path-params :thing])
-        things (peer/get-things (keyword type))
+        things (peer/get-things (keyword type) {})
         result {:status 200 :data things}
         jsonresp (bootstrap/json-response result)] ; conver to keyword for query
     (newline)
@@ -184,12 +184,24 @@
     ; (-> (ring-response/response things)
     ;     (ring-response/content-type "application/edn"))))
 
-(defn get-xdata
+
+
+; get xthings based on query xpath. route handler must return a ring response
+; type=children postdata={:target :children, :qpath (:parents 17592186045501)}
+(defn get-xthings
   "get things by type, ret from peer a list of thing in a new line sep string"
-  [req]
-  (let [type (get-in req [:path-params :thing])]
-    (println (str "get-xdata " type req))
-    ))
+  [{postdata :edn-params :as request}]
+  (let [type (get-in request [:path-params :thing])
+        qpath (:qpath postdata)
+        target (:target postdata)
+        xthings (peer/get-things (keyword type) (apply hash-map qpath))
+        result {:status 200 :data xthings}
+        jsonresp (bootstrap/json-response result)]
+    (newline)  
+    (println (str "get-xthings " type qpath postdata))
+    jsonresp))
+
+
 
 ; destruct edn-params as request params and post body data is a clj map. frame does json transcoding.
   ; :request-method :post,
@@ -231,7 +243,7 @@
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
      ["/about" {:get about-page}]
      ["/api/:thing" {:get get-all-things :post add-thing}]
-     ["/api/xpath/:thing" {:get get-xdata}]
+     ["/api/xpath/:thing" {:post get-xthings}]
     ]]])
 
 

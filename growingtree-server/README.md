@@ -130,6 +130,11 @@ or
     conn = Peer.connect(uri);
     db = conn.db();
     Peer.q("[:find ?p :where [?p :parent/children]]", db);
+    tx = Util.list(Util.list(":db.fn/retractEntity", "17592186045496"));
+    txr = conn.transact(tx).get();
+
+console
+    bin/console -p 8088 colorcloud "datomic:sql://?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic"
 
 
 ## Datomic EntityMap

@@ -35,7 +35,12 @@
 ; rules with the same name defined multiple times in rule set make rule OR.
 ;   [[northern ?c] (region ?c :region/ne)] 
 ;   [[northern ?c] (region ?c :region/n)]
-; Within the same rule, multiple tuples are AND.
+; Within the same rule set, multiple tuples are AND.
+; rules with the same name, results are OR.
+;
+; To use rules, First, you have to pass the rule set as an input source and reference it in 
+; the :in section of your query using the '%' symbol. 
+; Second, you have to invoke one or more rules from the :where section of your query. 
 ;
 ;
 ; all eids must be number, use read-string to convert from command line. 
@@ -120,7 +125,9 @@
 ;; parse seed data dtm file
 ;(def data-tx (read-string (slurp "./resource/schema/seattle-data0.dtm")))
 
-; rules to find all parent or child with the name, using rules for OR logic
+
+; rules to find all parent or child with the name, 
+; for all rule lists with the same name, results are OR logic.
 (def nameruleset '[[[byname ?e ?n] 
                    [?e :parent/name ?n]]  ; multiple tuples within a rule are AND.
                   [[byname ?e ?n]
@@ -130,6 +137,16 @@
                   [[byname ?e ?n]
                    [?e :child/lname ?n]]])
 
+
+; rule set is a set of list. each entry in the list is a rule.
+; a rule is a list, the head of list is rule name, with other items are rule content.
+; any single item in the rule list is a list, hence, rule set are list of rules, list of list.
+(def child-by
+  '[[(by-parent ?c ?p) [?c :child/parents ?p]]
+    [(by-name ?c ?n) [?c :child/name ?n]]
+    [(by-phone ?c ?ph) [?c :child/phone ?ph]]
+    [(by-group ?c ?g) [?c :child/group ?g]]
+  ])
 
 ; create a parent entity, does not link child yet
 (defn create-parent
@@ -168,7 +185,7 @@
 ; :find rets entity id, find all parent's pid and name.
 (defn list-parent
   "find all parents with all children"
-  []
+  [filters]
   (let [pc (d/q '[:find ?p :where [?p :parent/children]] db)
         entities (map (comp get-entity first) pc)
         parents (map parent-entity-map entities)] ;?p parent who has children
@@ -214,11 +231,19 @@
     }))
 
 
-; list all children, to find one entity with id, use (get-entity id)
+;
+; find children, to find one entity with id, use (get-entity id)
 (defn find-children
   "find all children who has parents"
-  []
-  (let [c (d/q '[:find ?c :where [?c :child/parents]] db)
+  [filters]
+  (let [qrules (xpathqrule/filters)
+        c (d/q '[:find ?c 
+                 :in $ % 
+                 :where [?c :child/parents ]]
+               db        ; :in $ and child-by rule set
+               childby   ; child-by rule set
+                )
+
         entities (map (comp get-entity first) c)
         children (map child-entity-map entities)]
     (doseq [c children]

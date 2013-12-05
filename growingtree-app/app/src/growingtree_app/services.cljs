@@ -97,7 +97,7 @@
   ; ensure msgs wrap/unwrap keys match.
   ;; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
   (when-let [body ((msgs/param :body) message)]
-    (let [body (pr-str body)  ; convert body to json string
+    (let [;body (pr-str body)  ; do not need to convert body to json string
           type (msgs/type message)  ; msgs type, the type user clicked on sidebar
           resp-handle (response-handler type input-queue)]  ; json response handler
       (.log js/console (str "service-fn consume effect queue type" type " " body message))
@@ -122,11 +122,23 @@
         :course (xhr-request "/api/course" "POST" body resp-handle xhr-log)
         :homework (xhr-request "/api/homework" "POST" body resp-handle xhr-log)
 
-        ; {:xpath (:parents 17592186045499 :children)}
-        :xpath (xhr-request (str "/api/xpath/" (:target body)) "GET" body resp-handle xhr-log)
+        ;:xpath (xhr-request (str "/api/xpath/" (:target body)) "GET" body resp-handle xhr-log)
+        :xpath (request-xpath body)
 
         "default")
       (str "Send to Server: " body))))
+
+
+
+; request xpath data, body is {:target :children, :qpath (:parents 17592186045501)} 
+(defn request-xpath
+  [body]
+  (let [target (name (:target body))
+        xpath (str "/api/xpath/" target)
+        xdata-resp (response-handler type input-queue)]
+    (.log js/console (str "app service request xpath data " body))
+    (xhr-request xpath "POST" body xdata-resp xhr-log)))
+
 
 
 ; received server send event 

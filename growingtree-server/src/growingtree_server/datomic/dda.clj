@@ -139,15 +139,15 @@
 ; :find rets entity id, find all parent's pid and name.
 (defn list-parent
   "find all parents with all children"
-  []
-  (family/list-parent))
+  [filters]
+  (family/list-parent filters))
 
 
 ; list all children, to find one entity with id, use (get-entity id)
 (defn find-children
   "find all children who has parents"
-  []
-  (family/find-children))
+  [filters]
+  (family/find-children filters))
 
 
 (defn insert-child
