@@ -223,6 +223,6 @@
     [:transform-enable [:create :*] transforms/enable-submit-action]
 
     ; xpath path transformers
-    [:transform-enable [:xpath :**] transforms/record-xpath]
+    [:transform-enable [:xpath :**] transforms/enable-xpath-event]
 
   ])

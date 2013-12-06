@@ -43,25 +43,30 @@
 ; input specifier is :single-val, so arg is single-value
 (defn request-all-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
-  [type]  ; request all things by type
-  (.log js/console "effect request all things of type upon sidebar click  " type)
-  ; only request when nav type sidebar clicked !
-  (if type
-    [{msgs/topic [:server] msgs/type type (msgs/param :body) {:filter :all}}]))
-  
+  [thing-type]  ; request all things by thing-type
+  (let [msg-topic (conj [:all] thing-type)
+        msg-type :set-all-things
+        body {:msg-topic msg-topic :msg-type msg-type :qpath [thing-type]}] ; all things
+    (.log js/console (str "effect request all things " thing-type msg-topic msg-type))
+    ; only request when nav thing-type sidebar clicked !
+    (if thing-type
+      [{msgs/topic [:server] msgs/type thing-type (msgs/param :body) body}])))
+    
 
+;
+; request data based on xpath, store data into xdata
 (defn request-xpath-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [inputs]  ; request xpath things by type
   (let [msg (:message inputs)  ; get the msg that triggers this effect
-        xpath (msgs/topic msg)  ;[:xpath :parents 17592186045499 :children]
-        type (first xpath)
-        target (last xpath)
-        qpath (rest xpath)  ; query path [:parent id :children]
-        body {:target target :qpath qpath}
+        msg-topic (cons :xdata (rest (msgs/topic msg)))  ;[:xpath :parents 17592186045499 :children]
+        msg-type :set-xdata   ; dispatch to set-xdata
+        target (last msg-topic)
+        qpath (rest msg-topic)  ; query path [:parent id :children]
+        body {:msg-topic msg-topic :msg-type msg-type :target target :qpath qpath}
        ] 
-    (.log js/console (str "request xpath things topic " xpath qpath))
-    [{msgs/topic [:server] msgs/type type (msgs/param :body) body }]
+    (.log js/console (str "request xpath things topic " msg-topic qpath))
+    [{msgs/topic [:server] msgs/type :xpath (msgs/param :body) body }]
     ))
 
 ; request timeline

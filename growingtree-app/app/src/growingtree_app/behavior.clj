@@ -113,10 +113,11 @@
 (defn set-all-things
   "store list of all things vec in [:all :type] node under each type key"
   [oldv messages]
-  (let [type (:type messages)    ; thing type 
+  (let [thing-type (:thing-type messages)    ; thing type 
         things-vec (:data messages)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
-    (.log js/console "all-transformer set [:all] for " type things-vec)
-    (assoc-in oldv [type] things-vec)))  ; now vector is stored in [:all :parents]
+    (.log js/console "all-transformer for " thing-type things-vec)
+    ; associate [:all :parents]  with vector value
+    things-vec))  ; now vector is stored in [:all :parents]
 
 
 ; Path is [:action :setup :thing-type thingid], stores details map {:action :assign :id 12}
@@ -172,12 +173,14 @@
     (.log js/console (str "set xpath transform " oldv details))
     details))
 
+
 (defn set-xdata
   [oldv messages]
-  (let [type (:type messages)    ; thing type 
+  (let [thing-type (:thing-type messages)
         things-vec (:data messages)]
-    (.log js/console "set-xdata " things-vec)
+    (.log js/console "set-xdata " thing-type things-vec)
     things-vec))
+
 
 
 ;;==================================================================================
@@ -212,6 +215,16 @@
       ; ret the new map to be stored in [:all] path node, which is oldv
       (assoc-in oldv [oldtype] []))))
 
+
+; derive fn, first arg is the old value at output path, 2nd arg is tracking map.
+; the :message key contains the msg that triggered the derive fn.
+; when xpath changed, clear up all xdata, so xdata emitter can always emit always
+; topic [:xpath :parents 17592186045502 :children], :details {:xpath (:parents 17592186045502 :children)}
+(defn refresh-xdata
+  [oldv inputs]
+  (let [msg (:message inputs)]
+    (.log js/console (str "refresh xdata " oldv msg))
+    {}))
 
 
 ;;==================================================================================
@@ -253,7 +266,8 @@
                 [:set-nav-type [:nav :type] set-nav-type]
 
                 ; set-all to store all type things list into all type map
-                [:set-all-things [:all] set-all-things]
+                ; use :** to create path nodes.
+                [:set-all-things [:all :**] set-all-things]
 
                 ; modal handling
                 [:login-modal [:nav :login-modal] set-login-modal]
@@ -271,8 +285,8 @@
                 [:creatething [:create :*] create-thing-type]
 
                 ; xpath records navigation path and xdata stores query result.
-                [:set-xpath [:xpath :**] set-xpath]
-                [:set-xdata [:xdata :**] set-xdata]
+                [:set-xpath [:xpath :**] set-xpath]  ; rendering UI set path value
+                [:set-xdata [:xdata :**] set-xdata]  ; db populate data into here
 
                ]
 
@@ -284,6 +298,8 @@
 
              ; upon user click new thing type, clear old thing list
              [#{[:nav :type]} [:all] refresh-all-things]  ; inputs type as single-val
+             [#{[:xpath :**]} [:xdata] refresh-xdata]  ; inputs type as single-val
+
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn to xhr to back-end.
@@ -303,7 +319,7 @@
             }
 
     ; emitter
-    :emit [;{:init init-app-model}
+    :emit [;{:init emitter/init-app-model}
            {:init emitter/login-emitter}
 
            ; after user logged in, create homepage
@@ -326,7 +342,7 @@
            {:in #{[:sse-data]} :fn emitter/sse-data-emitter :mode :always}
 
            ; when xdata back, create nodes
-           {:in #{[:xdata]} :fn emitter/xdata-emitter :mode :always}
+           {:in #{[:xdata :**]} :fn emitter/xdata-emitter :mode :always}
 
 
            [#{[:pedestal :debug :dataflow-time]

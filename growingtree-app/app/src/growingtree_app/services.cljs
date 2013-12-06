@@ -68,22 +68,22 @@
 ; server always sends list of things, parse to cljs.core.PersistentVector.
 (defn response-handler
   "handle RESTful json array response close over thing type and input queue"
-  [type input-queue]
+  [thing-type msg-topic msg-type input-queue]
   (fn [response]
     ; parse response body into json and convert json to cljs PersistentVector
     (when-let [body (:body response)] ; only when we have valid body
-      (.log js/console "xhr response body " type body)
+      (.log js/console "xhr response body " thing-type body)
       (let [bodyjson (JSON/parse body)  
             ; parse js json object to cljs.core.PersisitentVector data structre.
             result (js->clj bodyjson :keywordize-keys true)
             status (:status result)
             things-vec (:data result)
             ]
-        (.log js/console "response things tuples " type things-vec)
+        (.log js/console (str "response tuples " thing-type msg-topic msg-type things-vec))
         (p/put-message input-queue
-                       {msgs/topic [:all]  ; store data into [:all]
-                        msgs/type :set-all-things    ; set all things msgs type
-                        :type type        ; set thing type
+                       {msgs/topic msg-topic
+                        msgs/type msg-type
+                        :thing-type thing-type        ; set thing type
                         :data things-vec  ; store cljs.core.PersistVector into path node
                         })))))
 
@@ -91,18 +91,20 @@
 ;
 ; services-fn consume effect queue msgs from app behavior and xhr post to server.
 ; pr-str is used to convert map data structure to edn string for RESTFul request.
+; the message must contain the behavior's transformer's msg/topic and msg/type for data
 (defn services-fn
   "service fn takes msgs out of effect queue and post to back-end"
   [message input-queue] ; input queue is where ret result should be injected to.
   ; ensure msgs wrap/unwrap keys match.
-  ;; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
   (when-let [body ((msgs/param :body) message)]
     (let [;body (pr-str body)  ; do not need to convert body to json string
-          type (msgs/type message)  ; msgs type, the type user clicked on sidebar
-          resp-handle (response-handler type input-queue)]  ; json response handler
-      (.log js/console (str "service-fn consume effect queue type" type " " body message))
+          thing-type (msgs/type message)
+          msg-topic (:msg-topic body)
+          msg-type (:msg-type body)
+          resp-handle (response-handler thing-type msg-topic msg-type input-queue)]  ; json response handler
+      (.log js/console (str "service-fn consume effect thing type" thing-type " " body))
       ; dispatch on case, 
-      (case type
+      (case thing-type
         ;; sse subscribe and publish
         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
         :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)  ; log as callback
@@ -123,7 +125,7 @@
         :homework (xhr-request "/api/homework" "POST" body resp-handle xhr-log)
 
         ;:xpath (xhr-request (str "/api/xpath/" (:target body)) "GET" body resp-handle xhr-log)
-        :xpath (request-xpath type body input-queue)
+        :xpath (request-xpath body input-queue)
 
         "default")
       (str "Send to Server: " body))))
@@ -132,11 +134,14 @@
 
 ; request xpath data, body is {:target :children, :qpath (:parents 17592186045501)} 
 (defn request-xpath
-  [type body input-queue]
-  (let [target (name (:target body))
-        xpath (str "/api/xpath/" target)
-        xdata-resp (response-handler :children input-queue)]
-    (.log js/console (str "app service request xpath body" type body))
+  [body input-queue]
+  (let [msg-topic (:msg-topic body)
+        msg-type (:msg-type body)
+        thing-type (:target body)
+        qpath (:qpath body)
+        xpath (str "/api/xpath/" (name thing-type))
+        xdata-resp (response-handler thing-type msg-topic msg-type input-queue)]
+    (.log js/console (str "app service request xpath " thing-type msg-topic msg-type body))
     (xhr-request xpath "POST" body xdata-resp xhr-log)))
 
 

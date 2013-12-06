@@ -260,7 +260,7 @@
 ;;==================================================================================
 ;; fill xpath along the nav path for each thing action bar links
 ;;==================================================================================
-(defmulti record-xpath
+(defmulti enable-xpath-event
   (fn [render [target path transkey messages] input-queue]
     transkey))
 
@@ -268,7 +268,7 @@
 ;; xpath parent - children , transkey is children, 
 ;; [:xpath :thing-type thing-id transkey]
 ;;==================================================================================
-(defmethod record-xpath 
+(defmethod enable-xpath-event 
   :children
   [r [_ path transkey messages] input-queue]
   (let [xpath (rest path)  ; [:parent 1 :children]
@@ -276,7 +276,7 @@
         thing-type (second (reverse (butlast xpath)))
         thing-node (dom/by-id (str thingid))
         children-link (dom/by-class (str "children-" thingid))]
-    (.log js/console (str "record path children " path messages))
+    (.log js/console (str "enable xpath event " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! children-link
                 :click 
@@ -294,7 +294,7 @@
 ;;==================================================================================
 ;; assignments btn in children thing clicked, display thing details of child-assignment
 ;;==================================================================================
-(defmethod record-xpath 
+(defmethod enable-xpath-event 
   :assignments
   [r [target path transkey messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid
@@ -302,6 +302,7 @@
         thing-node (dom/by-id (str thingid))
         children-link (dom/by-class (str "children-" thingid))]
   
+    (.log js/console (str "enable xpath event " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! children-link
                 :click 
@@ -320,7 +321,7 @@
 ;;==================================================================================
 ;; lectures btn in course thing clicked
 ;;==================================================================================
-(defmethod record-xpath 
+(defmethod enable-xpath-event 
   :lectures 
   [r [target path transkey messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid
@@ -329,7 +330,7 @@
         thing-node (dom/by-id (str thingid))
         lectures-link (dom/by-class (str "lectures-" thingid))]
   
-    (.log js/console (str "lectures setup clicked " target path messages))
+    (.log js/console (str "enable xpath event " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! lectures-link
                 :click 
@@ -342,7 +343,7 @@
 ;;==================================================================================
 ;; enroll to btn clicked
 ;;================================================================================== 
-(defmethod record-xpath 
+(defmethod enable-xpath-event 
   :enroll
   [r [target path transkey messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid
@@ -351,7 +352,7 @@
         thing-node (dom/by-id (str thingid))
         enroll-link (dom/by-class (str "enroll-" thingid))]
   
-    (.log js/console (str "enroll setup clicked " target path messages))
+    (.log js/console (str "enable xpath event " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! enroll-link
                 :click 

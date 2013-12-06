@@ -69,7 +69,8 @@
 ; the most important things is to define transform fn that can be triggered
 ; by render upon UI events on this portion.
 (defn init-app-model [_]
-  [{:nav
+  [{:db {}
+    :nav
       {:type  {}  ; a single val of current viewing thing type
        :filtered  ; a list of filtered things of current viewing
         {:transforms   ; the node path is from top to here [:course :form :set-course]
@@ -205,6 +206,7 @@
   [path value-vec]  ; path is [:all :homework] and a list of new thing ids
   ; ret a vector of delta tuples. concat vector of tuples from apply fn on each entity map.
   ; for now, we only enable assign btn, for othe btns, iterate
+  (.log js/console (str "new thing delta " path value-vec))
   (mapcat
     (fn [entity-map]
       (let [id (:id entity-map)
@@ -220,16 +222,19 @@
 
 
 ;;==================================================================================
-;; xdata from xhr request, emit nodes
+;; xdata from xhr request, we do not look at changes, just blindly emit new nodes
 ;;==================================================================================
 (defn xdata-emitter
   "when xdata come back, create new node "
   [inputs]
   (let [msg (:message inputs)
+        thing-type (:thing-type msg)  ; set at service.clj
+        thing-vec (:data msg)
         changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         removed (d/removed-inputs inputs)]
     ; each change tuple consists of node-path and a vector of values
     ;(removed-thing-deltas removed)
+    (.log js/console (str "xdata emitter " thing-vec " changemap " changemap))
     (vec 
       (concat
         ; with this, will emit [:value [:all :courses] old-value new-val]
