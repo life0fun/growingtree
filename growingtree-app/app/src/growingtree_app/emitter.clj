@@ -205,15 +205,14 @@
   "ret a vector of delta tuples of node-create and value delta from a vec of new things"
   [path value-vec]  ; path is [:all :homework] and a list of new thing ids
   ; ret a vector of delta tuples. concat vector of tuples from apply fn on each entity map.
-  ; for now, we only enable assign btn, for othe btns, iterate
   (.log js/console (str "new thing delta " path value-vec))
   (mapcat
     (fn [entity-map]
       (let [id (:id entity-map)
+            thing-type (last path)
             newpath (conj path id)  ; [:all :homework 123]
-            thing-type (second path)
             actiontransforms (thing-xpath-transforms thing-type id)
-            ]
+           ]
         (.log js/console (str "new thing delta path " newpath))
         (concat [ [:node-create newpath :map]
                   [:value newpath entity-map] ]
@@ -223,34 +222,51 @@
 
 ;;==================================================================================
 ;; xdata from xhr request, we do not look at changes, just blindly emit new nodes
+;; one filter triggered by changemap path [:xdata :parent 12 :children], and thing-vec. 
 ;;==================================================================================
 (defn xdata-emitter
   "when xdata come back, create new node "
   [inputs]
   (let [msg (:message inputs)
         thing-type (:thing-type msg)  ; set at service.clj
-        thing-vec (:data msg)
+        things-vec (:data msg)
         changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         removed (d/removed-inputs inputs)]
-    ; each change tuple consists of node-path and a vector of values
     ;(removed-thing-deltas removed)
-    (.log js/console (str "xdata emitter " thing-vec " changemap " changemap))
+    (.log js/console (str "xdata emitter changemap " changemap))
     (vec 
       (concat
-        ; with this, will emit [:value [:all :courses] old-value new-val]
         ;((app/default-emitter) inputs) 
         []
-        (reduce (fn [alldeltas [input-path newvals]] ;input-path, [:all :course] is a vec
-              ; concat is vec de-pack and re-pack, enable :assign action for now
-              (concat alldeltas (new-thing-deltas input-path newvals)))
+        (reduce (fn [alldeltas [input-path newvals]] 
+              (concat alldeltas (xdata-deltas input-path newvals)))
             []
+            ; change-map destrcture to path and thing-vec 
+            ; {[:xdata :parents 17592186045499 :children] [{:phone ["1385741609167"], :id ..}]
             changemap)))))
 
 
-;------------------------------------------------------------------------------------
+(defn- xdata-deltas
+  [path things-vec]
+  ; for now, we only enable assign btn, for othe btns, iterate
+  (.log js/console (str "xdata delta " path things-vec))
+  (mapcat
+    (fn [entity-map]
+      (let [id (:id entity-map)
+            thing-type (last path)
+            newpath (conj path id)  ; [:xdata :parent 12 :children 34]
+            actiontransforms (thing-xpath-transforms thing-type id)
+           ]
+        (.log js/console (str "new thing delta path " newpath))
+        (concat [ [:node-create newpath :map]
+                  [:value newpath entity-map] ]
+                actiontransforms)))
+    things-vec))
+
+;;==================================================================================
 ; multimethod for a list of transform-enable for next level links
 ; the target action must be entity name for filtered
-;------------------------------------------------------------------------------------
+;;==================================================================================
 (defmulti thing-xpath-transforms
   (fn [thing-type thing-id]
     thing-type))

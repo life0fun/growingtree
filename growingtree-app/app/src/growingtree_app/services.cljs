@@ -81,7 +81,7 @@
             ]
         (.log js/console (str "response tuples " thing-type msg-topic msg-type things-vec))
         (p/put-message input-queue
-                       {msgs/topic msg-topic
+                       {msgs/topic msg-topic  ; store vec in [:all :parent]
                         msgs/type msg-type
                         :thing-type thing-type        ; set thing type
                         :data things-vec  ; store cljs.core.PersistVector into path node

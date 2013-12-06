@@ -106,6 +106,20 @@
     (dom/append! (dom/by-id parent) divcode)   ; homepage no data val map
   ))
 
+; render thing details page for xdata, two sections, parent data at upper layer
+; and list of children
+(defn render-detail-page
+  [r path]
+  (let [id (render/new-id! r path)
+        templ (:thing-details templates)
+        html (templates/add-template r path templ)
+        divcode (html {:id id})
+        main (dom/by-id "main")]
+    (.log js/console (str "render detail page " path id))
+    (dom/destroy-children! main)
+    (dom/append! main divcode)))
+
+
 ; clear all things
 (defn clear-all-things
   "upon nav type change, clear all things divs under topthings div"
@@ -113,9 +127,6 @@
   (.log js/console (str "clear all things upon nav type change " path))
   (dom/destroy-children! (dom/by-id "main")))
 
-
-;;================================================================================
-;;================================================================================
 
 
 ;;==================================================================================
@@ -158,6 +169,72 @@
     (h/destroy! r path)
     (dom/destroy! div)))
     
+
+;;================================================================================
+;; add node for xdata. we should take the last thing id path segment, and render
+;; it as top section parent node, and the list of children
+;;================================================================================
+(defn add-xdata-parent-node
+  [r [op path] input-queue]
+  (let [thingid (last path)
+        thing (entity-view/thing-node-html path r)
+        div (dom/by-id (str thingid))
+        ]
+    (.log js/console "clear main section and adding xdata parent node " thingid)
+    ; first, clear all children
+    ;(dom/destroy-children! (dom/by-id "main"))
+    (render-detail-page r path)
+    ; append parent
+    (dom/append! (dom/by-id "thing-root") div)))
+
+
+(defn add-xdata-child-node
+  [r [op path] input-queue]
+  (let [thingid (last path)
+        ; make a template attached to this node
+        ; html (templates/add-template r path (:thing templates)) ; added template to this path node
+        ; assign-link (sel/assign-link thingid)
+        ; share-link (sel/share-link thingid)
+        ; thing (html {:id thingid :assign-link-class assign-link :share-link-class share-link})
+        thing (entity-view/thing-node-html path r)
+        ]
+    (.log js/console "add xdata child node " thingid)
+    (dom/append! (dom/by-id "subthings-list") thing)))
+    
+
+; info model value transformed, update template attached to node path.
+; oldv contains old value map and newv contains new value map.
+(defn value-xdata-parent-node
+  [r [op path oldv newv] input-queue]
+  (.log js/console (str "updating new thing value " path newv))
+  (let [id (render/get-id r path)    ; node destroy, get-id will blow off
+        type-path (butlast path)
+        view-vec (entity-view/view-value type-path newv)
+        title (:title view-vec)
+        thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
+    (templates/update-t r path thing-map)
+    ))
+
+
+(defn value-xdata-child-node
+  [r [op path oldv newv] input-queue]
+  (.log js/console (str "updating new thing value " path newv))
+  (let [id (render/get-id r path)    ; node destroy, get-id will blow off
+        type-path (butlast path)
+        view-vec (entity-view/view-value type-path newv)
+        title (:title view-vec)
+        thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
+    (templates/update-t r path thing-map)
+    ))
+
+
+(defn del-xdata-node
+  [r [op path] input-queue]
+  (let [thingid (last path)
+        div (dom/by-id (str thingid))]
+    (.log js/console "del xdata node " thingid)
+    (h/destroy! r path)
+    (dom/destroy! div)))
 
 ;;================================================================================
 ;; create thing page template
@@ -205,7 +282,7 @@
 
 
     ; create all thing list consist of each thing node
-    [:node-create [:all :* :*] add-thing-node]
+    [:node-create [:all :* :*] add-thing-node]  ; [:all :parent id]
     [:value [:all :* :*] value-thing-node]
     [:node-destroy [:all :*] h/default-destroy]
     [:node-destroy [:all :* :*] del-thing-node]
@@ -222,7 +299,13 @@
     [:node-create [:create :*] create-thing-page]
     [:transform-enable [:create :*] transforms/enable-submit-action]
 
-    ; xpath path transformers
+    ; xpath path transformers, match any path, the transform
     [:transform-enable [:xpath :**] transforms/enable-xpath-event]
 
+    ; xdata is has two section, header parent node, and a list of children nodes.
+    [:node-create [:xdata :* :*] add-xdata-parent-node]  ; [:all :parent id]
+    [:node-create [:xdata :* :* :* :*] add-xdata-child-node]  ; [:all :parent id]
+    [:value [:xdata :* :* :* :*] value-xdata-child-node]
+    [:node-destroy [:xdata :**] h/default-destroy]
+    
   ])

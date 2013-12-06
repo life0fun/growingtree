@@ -65,6 +65,7 @@
 ;;==================================================================================
 ;; transforms
 ;; transform-fn gets 2 args, old-value and message, ret value used to set new value.
+;; the actual location in data model to be updated is determined by the path in message.
 ;; message is PersistentArrayMap, which echoed back from transform-enabled [topic, params]
 ;; when messages sent to cljs, it becomes PersistentVector, when sending back, becomes
 ;; PersistentArrayMap again. Hence you can do (:details messages) here.
@@ -72,39 +73,39 @@
 
 ; user login, store user name into [:login :name]
 (defn set-login
-  [oldv messages]  ; messages is PersistentArrayMap, an array of map
-  (let [login-name (:login-name messages)
-        login-pass (:login-pass messages)]
-    (.log js/console "user logged in " login-name " pass " login-pass messages)
+  [oldv message]  ; message is PersistentArrayMap, an array of map
+  (let [login-name (:login-name message)
+        login-pass (:login-pass message)]
+    (.log js/console "user logged in " login-name " pass " login-pass message)
     login-name))
 
 
 (defn set-login-modal
-  [oldv messages]
-  (let [login-name (:login-name messages)
-        login-pass (:login-pass messages)]
+  [oldv message]
+  (let [login-name (:login-name message)
+        login-pass (:login-pass message)]
     (.log js/console "set nav login modal " login-name " pass " login-pass)
     login-name))    
 
 
 (defn set-create-modal
-  [oldv messages]
-  (let [newthing-type (:type messages)]
+  [oldv message]
+  (let [newthing-type (:type message)]
     (.log js/console "set create newthing modal " newthing-type)
     newthing-type))
 
 
 ; extract the user clicked nav type from msg, and store it in [:nav :type] node
 (defn set-nav-type
-  [_ messages]
-  (.log js/console (str "set-nav-type " messages))
-  (:type messages))  ; value stored inside thing :type key
+  [_ message]
+  (.log js/console (str "set-nav-type " message))
+  (:type message))  ; value stored inside thing :type key
 
 
 ; set thing type after nav to new type upon sidebar click
 (defn set-thing-type
-  [_ messages]
-  (:type messages))  ; value stored inside :category key
+  [_ message]
+  (:type message))  ; value stored inside :category key
 
 
 ; called by xhr respond handler, store list of all things data structure into map.
@@ -112,10 +113,10 @@
 ; no more parse needed. We only need one parse at response-handler.
 (defn set-all-things
   "store list of all things vec in [:all :type] node under each type key"
-  [oldv messages]
-  (let [thing-type (:thing-type messages)    ; thing type 
-        things-vec (:data messages)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
-    (.log js/console "all-transformer for " thing-type things-vec)
+  [oldv message]
+  (let [thing-type (:thing-type message)    ; thing type 
+        things-vec (:data message)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
+    (.log js/console "all transformer for " thing-type things-vec)
     ; associate [:all :parents]  with vector value
     things-vec))  ; now vector is stored in [:all :parents]
 
@@ -124,16 +125,16 @@
 ; user clicked assign link, show assign action bar, enable transform for content
 (defn setup-assign
   "after displaying actionbar, store at [:action :setup :type id] the detail map"
-  [oldv messages]
-  (let [details (:details messages)]  ; details is {:action :create-assignment :id 12}
+  [oldv message]
+  (let [details (:details message)]  ; details is {:action :create-assignment :id 12}
     (.log js/console (str "setup assign details " details))
     details))
 
 ; Path is [:action :submit :thing-type thingid], stores details map {:action :assign :id 12}
 (defn submit-assign
   "actionbar form submitted, store and write to effect queue"
-  [oldv messages]
-  (let [details (:details messages)] ; details is {:action :create-assignment :id xx}
+  [oldv message]
+  (let [details (:details message)] ; details is {:action :create-assignment :id xx}
     (.log js/console (str "submitted assign details " details))
     details))
 
@@ -142,43 +143,45 @@
 ; each key val in details value map will create a new node under action setup newthing.
 (defn setup-newthing
   "create new thing btn clicked, details should contains :user"
-  [oldv messages]
-  (let [details (:details messages)]
+  [oldv message]
+  (let [details (:details message)]
     (.log js/console (str "newthing btn clicked " details))
     details))
 
 (defn submit-newthing
   "create new thing btn clicked "
-  [oldv messages]
-  (let [details (:details messages)]
+  [oldv message]
+  (let [details (:details message)]
     (.log js/console (str "submit newthing " details))
     details))
 
 ; create thing by type
 (defn create-thing-type
   "create thing by type submitted"
-  [oldv messages]
-  (let [details (:details messages)]
+  [oldv message]
+  (let [details (:details message)]
     (.log js/console (str "create thing type " details))
     details))
 
 
 ; use navigate from things
-; messages {:topic [:xpath :parents 17592186045498 :children], :details {} }
+; message {:topic [:xpath :parents 17592186045498 :children], :details {} }
 ; details {:next-entity :child, :filterpath (:parents 17592186045498)} 
 ; old value is detail map {:next-entity :child, :filterpath (:parents 17592186045498)}
 (defn set-xpath
-  [oldv messages]
-  (let [details (:details messages)]
+  [oldv message]
+  (let [details (:details message)]
     (.log js/console (str "set xpath transform " oldv details))
     details))
 
 
+; the actual location in data model to be updated is determined by the path in message.
 (defn set-xdata
-  [oldv messages]
-  (let [thing-type (:thing-type messages)
-        things-vec (:data messages)]
-    (.log js/console "set-xdata " thing-type things-vec)
+  [oldv message]
+  (let [topic (msgs/topic message)  ; (:xdata :parents 17592186045499 :children)
+        thing-type (:thing-type message)
+        things-vec (:data message)]
+    (.log js/console (str "set-xdata " thing-type topic things-vec))
     things-vec))
 
 
@@ -266,8 +269,7 @@
                 [:set-nav-type [:nav :type] set-nav-type]
 
                 ; set-all to store all type things list into all type map
-                ; use :** to create path nodes.
-                [:set-all-things [:all :**] set-all-things]
+                [:set-all-things [:all :*] set-all-things]
 
                 ; modal handling
                 [:login-modal [:nav :login-modal] set-login-modal]
@@ -285,6 +287,7 @@
                 [:creatething [:create :*] create-thing-type]
 
                 ; xpath records navigation path and xdata stores query result.
+                ; :** match any path, and node path determined by msg topic
                 [:set-xpath [:xpath :**] set-xpath]  ; rendering UI set path value
                 [:set-xdata [:xdata :**] set-xdata]  ; db populate data into here
 
@@ -341,8 +344,8 @@
 
            {:in #{[:sse-data]} :fn emitter/sse-data-emitter :mode :always}
 
-           ; when xdata back, create nodes
-           {:in #{[:xdata :**]} :fn emitter/xdata-emitter :mode :always}
+           ; when xdata back, create nodes, [:xdata :parent 123 :children]
+           {:in #{[:xdata :* :* :*]} :fn emitter/xdata-emitter :mode :always}
 
 
            [#{[:pedestal :debug :dataflow-time]

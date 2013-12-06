@@ -44,7 +44,7 @@
 (defn request-all-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [thing-type]  ; request all things by thing-type
-  (let [msg-topic (conj [:all] thing-type)
+  (let [msg-topic (conj [:all] thing-type)  ; path node all type [:all :parent]
         msg-type :set-all-things
         body {:msg-topic msg-topic :msg-type msg-type :qpath [thing-type]}] ; all things
     (.log js/console (str "effect request all things " thing-type msg-topic msg-type))
@@ -59,7 +59,7 @@
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [inputs]  ; request xpath things by type
   (let [msg (:message inputs)  ; get the msg that triggers this effect
-        msg-topic (cons :xdata (rest (msgs/topic msg)))  ;[:xpath :parents 17592186045499 :children]
+        msg-topic (cons :xdata (rest (msgs/topic msg)))  ;[:xdata :parents 17592186045499 :children]
         msg-type :set-xdata   ; dispatch to set-xdata
         target (last msg-topic)
         qpath (rest msg-topic)  ; query path [:parent id :children]
