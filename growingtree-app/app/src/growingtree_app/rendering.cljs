@@ -106,6 +106,7 @@
     (dom/append! (dom/by-id parent) divcode)   ; homepage no data val map
   ))
 
+
 ; render thing details page for xdata, two sections, parent data at upper layer
 ; and list of children
 (defn render-detail-page
@@ -198,7 +199,7 @@
         ; thing (html {:id thingid :assign-link-class assign-link :share-link-class share-link})
         thing (entity-view/thing-node-html path r)
         ]
-    (.log js/console "add xdata child node " thingid)
+    (.log js/console "add xdata child node " thingid path)
     (dom/append! (dom/by-id "subthings-list") thing)))
     
 

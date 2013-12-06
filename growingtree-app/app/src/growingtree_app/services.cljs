@@ -62,9 +62,9 @@
                :on-error on-error))
 
 
-; create a fn to handle query response, inject json array data into input-queue
+; create a fn to handle query response, inject json array data into input-queue.
 ; as json is more efficient than edn, we use json-response at server side.
-; we will dispatch msgs to path node accordingly.
+; response handler closed over the msg topic and type, dispatch to transformer directly.
 ; server always sends list of things, parse to cljs.core.PersistentVector.
 (defn response-handler
   "handle RESTful json array response close over thing type and input queue"
@@ -80,6 +80,7 @@
             things-vec (:data result)
             ]
         (.log js/console (str "response tuples " thing-type msg-topic msg-type things-vec))
+        ; dispatch to different transformer in behavior directly.
         (p/put-message input-queue
                        {msgs/topic msg-topic  ; store vec in [:all :parent]
                         msgs/type msg-type
@@ -98,37 +99,46 @@
   ; ensure msgs wrap/unwrap keys match.
   (when-let [body ((msgs/param :body) message)]
     (let [;body (pr-str body)  ; do not need to convert body to json string
-          thing-type (msgs/type message)
-          msg-topic (:msg-topic body)
-          msg-type (:msg-type body)
-          resp-handle (response-handler thing-type msg-topic msg-type input-queue)]  ; json response handler
+          thing-type (msgs/type message)]
       (.log js/console (str "service-fn consume effect thing type" thing-type " " body))
-      ; dispatch on case, 
+      ; dispatch on thing-type
       (case thing-type
         ;; sse subscribe and publish
         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
         :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)  ; log as callback
 
         ; plural keyword for GET request
-        :parents (xhr-request "/api/parents" "GET" body resp-handle xhr-log) 
-        :children (xhr-request "/api/children" "GET" body resp-handle xhr-log)
-        :courses (xhr-request "/api/courses" "GET" body resp-handle xhr-log) 
-        :lectures (xhr-request "/api/lectures" "GET" body resp-handle xhr-log)
-        :homeworks (xhr-request "/api/homeworks" "GET" body resp-handle xhr-log)
-        :assignments (xhr-request "/api/assignments" "GET" body resp-handle xhr-log) 
+        :parents (request-all "/api/parents" "GET" body input-queue)
+        :children (request-all "/api/children" "GET" body input-queue)
+        :courses (request-all "/api/courses" "GET" body input-queue)
+        :lectures (request-all "/api/lectures" "GET" body input-queue)
+        :homeworks (request-all "/api/homeworks" "GET" body input-queue)
+        :assignments (request-all "/api/assignments" "GET" body input-queue)
 
-        ;; msg type for actionbar assignment is :assign, post data to create-assignment
-        :assign (xhr-request "/api/assignment" "POST" body resp-handle xhr-log)
-        
-        ; type:course {:user "rich" :title "aa", :author "bb", :type "Math", :content "cc", ...}
-        :course (xhr-request "/api/course" "POST" body resp-handle xhr-log)
-        :homework (xhr-request "/api/homework" "POST" body resp-handle xhr-log)
+        ; singular keyword for post data to create new thing
+        :assignment (request-all "/api/assignment" "POST" body input-queue)
+        :course (request-all "/api/course" "POST" body input-queue)
+        :homework (request-all "/api/homework" "POST" body input-queue)
 
-        ;:xpath (xhr-request (str "/api/xpath/" (:target body)) "GET" body resp-handle xhr-log)
+        ; xpath filtered query
         :xpath (request-xpath body input-queue)
 
         "default")
       (str "Send to Server: " body))))
+
+
+;;=======================================================================================
+;; request handler, create response handler closure.
+;; here we define msg topic/type which will dispatch msg to the right transformer.
+;;=======================================================================================
+(defn request-all
+  [api method body input-queue]
+  (let [msg-topic (:msg-topic body)
+        msg-type (:msg-type body)
+        thing-type (last msg-topic)  ; for request all thing, thing-type is the last of topic
+        resp (response-handler thing-type msg-topic msg-type input-queue)]
+    (.log js/console (str "app service request all " thing-type msg-topic msg-type body))
+    (xhr-request api method body resp xhr-log)))
 
 
 

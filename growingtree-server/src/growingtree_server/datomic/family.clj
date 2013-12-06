@@ -237,15 +237,26 @@
 (defn find-children
   "find all children who has parents"
   [qpath]
-  (let [qrule (list (first qpath) '?e '?val)
-        q (conj '[:find ?e :in $ % ?val :where ] qrule)
-        c (d/q q db child-by (second qpath))
-        entities (map (comp get-entity first) c)
-        children (map child-entity-map entities)]
-    (prn "qrule " qrule)
-    (doseq [c children]
-      (prn " child --> " c))
-    children))
+  (if (empty? qpath)
+    (let [c (d/q '[:find ?c :where [?c :child/parents]] db)
+          entities (map (comp get-entity first) c)
+          children (map child-entity-map entities)]
+      (prn "find children " children)
+      (doseq [c children]
+        (prn " child --> " c))
+      children)
+
+    (let [qrule (list (first qpath) '?e '?val)
+          q (conj '[:find ?e :in $ % ?val :where ] qrule)
+          c (d/q q db child-by (second qpath))
+          entities (map (comp get-entity first) c)
+          children (map child-entity-map entities)]
+      (prn " qrule " qrule)
+      (doseq [c children]
+        (prn " child --> " c))
+      children)
+    ))
+
 
 
 ; use :db/add to upsert child attr to parent. find parent eid by list-parent.

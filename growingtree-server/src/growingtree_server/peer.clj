@@ -155,7 +155,7 @@
 
 ; add family
 (defmethod add-thing
-  :parents
+  :parent
   [type details]
   (let [user (:user details) ; thing-type value is json string.
         result (dda/add-family details)

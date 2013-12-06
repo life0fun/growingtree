@@ -109,14 +109,17 @@
 
 
 ; called by xhr respond handler, store list of all things data structure into map.
+; under key 
 ; we store cljs.core.Vector data structure into path node. when clj get the ds out,
 ; no more parse needed. We only need one parse at response-handler.
 (defn set-all-things
   "store list of all things vec in [:all :type] node under each type key"
   [oldv message]
-  (let [thing-type (:thing-type message)    ; thing type 
+  (let [msg-topic (msgs/topic message)
+        msg-type (msgs/type message)
+        thing-type (:thing-type message)  ; for all, thing-type is all
         things-vec (:data message)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
-    (.log js/console "all transformer for " thing-type things-vec)
+    (.log js/console (str "all transformer store at topic " msg-topic " thing-type " thing-type " things-vec " things-vec))
     ; associate [:all :parents]  with vector value
     things-vec))  ; now vector is stored in [:all :parents]
 
@@ -155,7 +158,8 @@
     (.log js/console (str "submit newthing " details))
     details))
 
-; create thing by type
+
+; ; create thing by type
 (defn create-thing-type
   "create thing by type submitted"
   [oldv message]
@@ -213,7 +217,7 @@
   [oldv inputs]  ; inputs is single value of upstream nav type.
   (let [oldtype (get-in inputs [:old-model :nav :type])
         newtype (get-in inputs [:new-model :nav :type])]
-    (.log js/console (str "all things refresh from " oldtype " to " newtype " val " oldv))
+    (.log js/console (str "all things refresh from " oldtype " to " newtype " old val " oldv))
     (if oldv
       ; ret the new map to be stored in [:all] path node, which is oldv
       (assoc-in oldv [oldtype] []))))
@@ -299,10 +303,8 @@
             ;; the oldv to derive fn varies based on input specifier. 
             ;; can be old val or tracking map
 
-             ; upon user click new thing type, clear old thing list
-             [#{[:nav :type]} [:all] refresh-all-things]  ; inputs type as single-val
-             [#{[:xpath :**]} [:xdata] refresh-xdata]  ; inputs type as single-val
-
+            ; derive can not use wildcard path, as the msg topic is for upstream src.
+            [#{[:nav :type]} [:all] refresh-all-things]
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn to xhr to back-end.
@@ -317,7 +319,7 @@
               ; create thing type change [:create :course]
               [#{[:create :*]} effect/post-create-thing :mode :always]
 
-              ; user clicked actionbar links
+              ; user clicked actionbar links, xpath query
               [#{[:xpath :**]} effect/request-xpath-things :mode :always]
             }
 

@@ -140,9 +140,10 @@
   [inputs]
   (let [oldtype (get-in inputs [:old-model :nav :type])
         newtype (get-in inputs [:new-model :nav :type])
+        ; yeah, get data from [:all :thing-type] and destroy [:all thing-tye thingid]
         allpath (conj [:all] (keyword oldtype))
         oldlist (get-in inputs [:old-model :all (keyword oldtype)])]
-    (.log js/console (str "nav type from " oldtype " to " newtype " all things " oldlist))
+    (.log js/console (str "nav type emitter from " oldtype " to " newtype " old things " oldlist))
     (vec (concat 
         ;((app/default-emitter nil) inputs)
         (mapcat (fn [entity]
@@ -182,10 +183,14 @@
 (defn all-things-node-emitter
   "emit node-create and value delta for list of things from xhr response"
   [inputs]
-  (let [changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
+  (let [msg (:message inputs)
+        changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         removed (d/removed-inputs inputs)]
     ; each change tuple consists of node-path and a vector of values
     ;(removed-thing-deltas removed)
+    (.log js/console (str "all thing emit changemap " changemap))
+    (.log js/console (str "all thing emit removed " removed))
+    (.log js/console (str "all thing emit msg " msg))
     (vec 
       (concat
         ; with this, will emit [:value [:all :courses] old-value new-val]
@@ -290,23 +295,21 @@
       xpaths)))
 
 
-; all action bar links for children entity
+; all action bar links for children entity, assignments, etc.
 (defmethod thing-xpath-transforms
   :children
   [thing-type thing-id]
   (let [actions [:assignments]
-        actionpaths (map #(conj [:setup] % thing-type thing-id) actions)
+        xpaths (map #(conj [:xpath thing-type thing-id] %) transkeys)
        ]
     (mapcat 
-      ; [:setup :assign :courses 17592186045476]
-      (fn [[setup action type id :as actionpath]]
-        (vector [:node-destroy actionpath]
-                [:transform-enable actionpath   
-                                   action
-                                   [{msgs/topic actionpath
+      (fn [[path type id transkey :as xpath]]
+        (vector [:node-destroy xpath]
+                [:transform-enable xpath      ; 
+                                   transkey   ; transkey
+                                   [{msgs/topic xpath
                                      (msgs/param :details) {}}]]))
-      actionpaths)))
-
+      xpaths)))
 
 (defmethod thing-xpath-transforms
   :courses

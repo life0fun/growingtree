@@ -292,7 +292,7 @@
 
 
 ;;==================================================================================
-;; assignments btn in children thing clicked, display thing details of child-assignment
+;; xpath event, for assignments
 ;;==================================================================================
 (defmethod enable-xpath-event 
   :assignments

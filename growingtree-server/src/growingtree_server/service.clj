@@ -173,9 +173,9 @@
 (defn get-all-things
   "get things by type, ret from peer a list of thing in a new line sep string"
   [req]
-  ; path segment in req contains request params.
+  ; path segment in req contains request params
   (let [type (get-in req [:path-params :thing])
-        things (peer/get-things (keyword type) {})
+        things (peer/get-things (keyword type) [])  ;qpath is null
         result {:status 200 :data things}
         jsonresp (bootstrap/json-response result)] ; conver to keyword for query
     (newline)

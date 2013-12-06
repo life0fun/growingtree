@@ -35,11 +35,12 @@
 ;;===============================================================
 ;; generate thing template based on thing type
 ;; when rendering node-create with thing-type and id, ret thing node div html
-;; [:node-create [:all :courses 17592186045505] :map
+;; [:node-create [:all :courses 17592186045505] :map]
+;; [:node-create [:xdata :parents 17592186045502 :children 17592186045499] :map]
 ;;===============================================================
 (defmulti thing-node-html
-  (fn [path render]  ; [:node-create [:all :courses 17592186045505] :map
-    (second path)))
+  (fn [path render]  ; the last segment of path
+    (second (reverse path))))  
 
 
 ; dispatch by thing type, type is plural b/c sidebar list item name is plura.
