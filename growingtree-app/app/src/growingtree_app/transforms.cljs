@@ -94,19 +94,20 @@
 ;;==================================================================================
 
 ; sidebar click transform [:nav :path] value, trigger request to get list of things.
-(def enable-nav-path
+; ; sidebar clicked, path is always [:sidebar 0 cur-li]
+(def enable-sidebar-nav
   "wire sidebar click event to all things transform fn"
-  (fn [r [_ p transform-name message] input-queue]
-    (let [sidebars ["parents" "children" "courses" "lectures" "homeworks"
-                    "assignments" "topquestions" "topanswers" "ask" "answer"
-                    "contributions" "knowledges" "activities" "locations"]]
-      (doseq [path sidebars]
-        (events/send-on :click 
-                        (dom/by-id (str "sidenav-" path)) 
+  (fn [r [_ p transform-name messages] input-queue]
+    (let [sidebars [:parents :children :courses :lectures :homeworks
+                    :assignments :topquestions :topanswers :ask :answer
+                    :contributions :nowledges :activities :locations]]
+      (doseq [s sidebars]
+        (events/send-on :click
+                        (dom/by-id (str "sidenav-" (name s)))
                         input-queue
                         (msgs/fill :set-nav-path
-                                    message
-                                    {:path (keyword path)})))
+                                    messages
+                                    {:path [:all 0 s]})))
     )))
 
 
@@ -258,9 +259,9 @@
 
 
 ;;==================================================================================
-;; fill xpath along the nav path for each thing action bar links
+;; fill xpath along the nav path for each thing sub links
 ;;==================================================================================
-(defmulti enable-xpath-event
+(defmulti enable-thing-nav
   (fn [render [target path transkey messages] input-queue]
     transkey))
 
@@ -268,24 +269,24 @@
 ;; xpath parent - children , transkey is children, 
 ;; [:xpath :thing-type thing-id transkey]
 ;;==================================================================================
-(defmethod enable-xpath-event 
+(defmethod enable-thing-nav 
   :children
   [r [_ path transkey messages] input-queue]
-  (let [xpath (rest path)  ; [:parent 1 :children]
-        thingid (first (reverse (butlast xpath)))
-        thing-type (second (reverse (butlast xpath)))
+  (let [navpath (rest path)  ; [:parent 1 :children]
+        thingid (first (reverse (butlast navpath)))
+        thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thingid))
         children-link (dom/by-class (str "children-" thingid))]
-    (.log js/console (str "enable xpath event " path messages))
+    (.log js/console (str "enable thing nav event " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! children-link
                 :click 
                 (fn [evt]
-                  (let [details {:xpath xpath}
+                  (let [details {:path navpath}
                         ; fill msg with msg-type messages, and input-map
-                        new-msgs (msgs/fill :set-xpath messages {:details details})]
-                    ; details {:xpath (:parents 17592186045499 :children)}
-                    (.log js/console (str xpath " link clicked " new-msgs))
+                        new-msgs (msgs/fill :set-nav-path messages {:path navpath})]
+                    ; details {:navpath (:parents 17592186045499 :children)}
+                    (.log js/console (str navpath " link clicked " new-msgs))
                     (doseq [m new-msgs]
                       (p/put-message input-queue m)))))
   ))
@@ -294,7 +295,7 @@
 ;;==================================================================================
 ;; xpath event, for assignments
 ;;==================================================================================
-(defmethod enable-xpath-event 
+(defmethod enable-thing-nav 
   :assignments
   [r [target path transkey messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid
@@ -321,7 +322,7 @@
 ;;==================================================================================
 ;; lectures btn in course thing clicked
 ;;==================================================================================
-(defmethod enable-xpath-event 
+(defmethod enable-thing-nav 
   :lectures 
   [r [target path transkey messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid
@@ -343,7 +344,7 @@
 ;;==================================================================================
 ;; enroll to btn clicked
 ;;================================================================================== 
-(defmethod enable-xpath-event 
+(defmethod enable-thing-nav 
   :enroll
   [r [target path transkey messages] input-queue]
   (let [thingid (last path)   ; last segment of path is thingid

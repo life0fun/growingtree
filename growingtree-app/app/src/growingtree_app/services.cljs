@@ -142,13 +142,13 @@
 
 
 
-; request xpath data, body is {:target :children, :qpath (:parents 17592186045501)} 
+; request xpath data, body is {:target :children, :path (:parents 17592186045501)} 
 (defn request-xpath
   [body input-queue]
   (let [msg-topic (:msg-topic body)
         msg-type (:msg-type body)
         thing-type (:target body)
-        qpath (:qpath body)
+        path (:path body)
         xpath (str "/api/xpath/" (name thing-type))
         xdata-resp (response-handler thing-type msg-topic msg-type input-queue)]
     (.log js/console (str "app service request xpath " thing-type msg-topic msg-type body))

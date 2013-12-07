@@ -41,14 +41,16 @@
 
 ; inject msg to output queue consumed by service-fn, which makes a xhr request for json data.
 ; input specifier is :single-val, so arg is single-value
-(defn request-all-things
+(defn request-navpath-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
-  [navpath]  ; request all things by thing-type
-  (let [thing-type (last navpath)
-        msg-topic (conj [:all] thing-type)  ; path node all type [:all :parent]
-        msg-type :set-all-things
-        body {:msg-topic msg-topic :msg-type msg-type :qpath [thing-type]}] ; all things
-    (.log js/console (str "effect request all things " thing-type msg-topic msg-type))
+  [inputs]  ; request path things by thing-type
+  (let [msg (:message inputs)  ; get the active msg
+        activepath (:path msg)   ; active path is the under msg path key.
+        thing-type (last activepath)
+        msg-topic (concat [:data] activepath) ; topic = [:data :all 0 :parent]
+        msg-type :set-thing-data
+        body {:msg-topic msg-topic :msg-type msg-type :path activepath}]
+    (.log js/console (str "effect request nav path things " body))
     ; only request when nav thing-type sidebar clicked !
     (if thing-type
       [{msgs/topic [:server] msgs/type thing-type (msgs/param :body) body}])))
@@ -69,6 +71,7 @@
     (.log js/console (str "request xpath things topic " msg-topic qpath))
     [{msgs/topic [:server] msgs/type :xpath (msgs/param :body) body }]
     ))
+
 
 ; request timeline
 (defn request-timeline

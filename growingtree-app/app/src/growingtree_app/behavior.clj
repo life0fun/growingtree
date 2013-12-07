@@ -96,12 +96,15 @@
 
 
 ; extract the user clicked nav path from msg, and store it in [:nav :path] node
+; nav path store a list of paths, each path is a list of target id. id=0 mean no filter.
+; [ [:current-thing current-thing-id :next ] [:current-thing current-thing-id :next] ... ]
+; for sidebar, it is [:sidebar 0 :thing-tyep]
 (defn set-nav-path
   [oldv message]
-  (let [path (:path message)
+  (let [path (:path message)  ; :path is a vector
         npath (vec (conj oldv path))]
-    (.log js/console (str "set-nav-path " npath message))
-    npath))  ; value stored inside thing :type key
+    (.log js/console (str "set-nav-path " path npath message))
+    npath))
 
 
 ; set thing type after nav to new type upon sidebar click
@@ -110,19 +113,18 @@
   (:type message))  ; value stored inside :category key
 
 
-; called by xhr respond handler, store list of all things data structure into map.
-; under key 
+; setup in effect, and callback by xhr respond handler, store list of all things data into 
+; [:data :all 0 :parent] or [:data :parent 1 :children]
 ; we store cljs.core.Vector data structure into path node. when clj get the ds out,
 ; no more parse needed. We only need one parse at response-handler.
-(defn set-all-things
-  "store list of all things vec in [:all :type] node under each type key"
+(defn set-thing-data
+  "store list of all things vec in [:all navpath] node specified by msg topic"
   [oldv message]
   (let [msg-topic (msgs/topic message)
         msg-type (msgs/type message)
         thing-type (:thing-type message)  ; for all, thing-type is all
         things-vec (:data message)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
-    (.log js/console (str "all transformer store at topic " msg-topic " thing-type " thing-type " things-vec " things-vec))
-    ; associate [:all :parents]  with vector value
+    (.log js/console (str "set thing data at " msg-topic " thing-type " thing-type " things-vec " things-vec))
     things-vec))  ; now vector is stored in [:all :parents]
 
 
@@ -176,8 +178,9 @@
 ; old value is detail map {:next-entity :child, :filterpath (:parents 17592186045498)}
 (defn set-xpath
   [oldv message]
-  (let [details (:details message)]
-    (.log js/console (str "set xpath transform " oldv details))
+  (let [topic (msgs/topic message)
+        details (:details message)]
+    (.log js/console (str "set xpath transform " oldv " details " details))
     details))
 
 
@@ -214,15 +217,15 @@
 
 ; clear all things by type upon nav type change, as we will restful request from service.
 ; input specifier defines what inputs var is, i.e., what upstream inputs are
-(defn refresh-all-things
-  "remove stale list of things by type upon user click new thing type"
-  [oldv inputs]  ; inputs is single value of upstream nav type.
-  (let [oldpath (last (get-in inputs [:old-model :nav :path]))
-        newpath (last (get-in inputs [:new-model :nav :path]))]
-    (.log js/console (str "all things refresh from " oldpath " to " newpath " old val " oldv))
+(defn refresh-thing-data
+  "remove stale things vec under [:data :all 0 :parent] upon nav path change"
+  [oldv inputs] 
+  (let [oldpath (vec (last (get-in inputs [:old-model :nav :path])))
+        newpath (vec (last (get-in inputs [:new-model :nav :path])))]
+    (.log js/console (str " nav path refresh from " oldpath " to " newpath " old val " oldv))
     (if oldv
       ; ret the new map to be stored in [:all] path node, which is oldv
-      (assoc-in oldv [oldpath] []))))
+      (assoc-in oldv oldpath []))))
 
 
 ; derive fn, first arg is the old value at output path, 2nd arg is tracking map.
@@ -270,16 +273,17 @@
     :debug true
     :transform [
                 [:login [:login :name] set-login]
-                
-                ; UI event sent to outbound node, then derive to [:nav :path] node
-                [:set-nav-path [:nav :path] set-nav-path]
-
-                ; set-all to store all type things list into all type map
-                [:set-all-things [:all :*] set-all-things]
 
                 ; modal handling
                 [:login-modal [:nav :login-modal] set-login-modal]
                 [:create-modal [:nav :create-modal] set-create-modal]
+                
+                ; UI event sent to outbound node, then derive to [:nav :path] node
+                [:set-nav-path [:nav :path] set-nav-path]
+
+                ; db response data goes here. [:data :all 0 :parent] [:data :parent 1 :children]
+                [:set-thing-data [:data :**] set-thing-data]
+
 
                 ; assign action setup transform
                 [:assign [:setup :assign :* :*] setup-assign]
@@ -296,7 +300,7 @@
                 ; :** match any path, and node path determined by msg topic
                 [:set-xpath [:xpath :**] set-xpath]  ; rendering UI set path value
                 [:set-xdata [:xdata :**] set-xdata]  ; db populate data into here
-
+                
                ]
 
     :derive #{
@@ -306,14 +310,14 @@
             ;; can be old val or tracking map
 
             ; derive can not use wildcard path, as the msg topic is for upstream src.
-            [#{[:nav :path]} [:all] refresh-all-things]
+            [#{[:nav :path]} [:data] refresh-thing-data]
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn to xhr to back-end.
     ; the input path node for effect is recursively match from top. 
     :effect #{
               ; user clicked nav, request all things by path
-              [#{[:nav :path]} effect/request-all-things :single-val :mode :always]
+              [#{[:nav :path]} effect/request-navpath-things :mode :always]
               
               ; submit action effect, action is from topic and send details to backend.
               [#{[:submit]} effect/post-submit-thing :mode :always]
@@ -331,14 +335,14 @@
 
            ; after user logged in, create homepage
            {:in #{[:login :name]} :fn emitter/init-nav-emitter :mode :always}
-            
+           
+           {:in #{[:nav :create-modal]} :fn emitter/create-modal-emitter}
+
            ; upon nav path changes, clear the topthings div and destroy path nodes.
            {:in #{[:nav :path]} :fn emitter/nav-path-emitter :mode :always}
 
-           {:in #{[:nav :create-modal]} :fn emitter/create-modal-emitter}
-
-           ; when getting things from server, created map entry, cause node here.
-           {:in #{[:all :*]} :fn emitter/all-things-node-emitter :mode :always}
+           ; [:data :all 0 :parent] or [:data :parent 1 :children]
+           {:in #{[:data :* :* :*]} :fn emitter/thing-data-emitter :mode :always}
 
            ; when actionbar displayed, action, setup, assign, thing enable transform
            {:in #{[:setup :assign :* :*]} :fn emitter/assign-emitter :mode :always}

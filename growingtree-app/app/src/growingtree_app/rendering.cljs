@@ -274,7 +274,7 @@
     ; upon nav path change, clear all things
     ;[:value [:nav :path] clear-all-things]
     ; wire sidebar nav click to send this transform to change data model.
-    [:transform-enable [:nav :path] transforms/enable-nav-path]
+    [:transform-enable [:nav :sidebar] transforms/enable-sidebar-nav]
 
     ; login modal
     [:transform-enable [:nav :login-modal] modals/enable-login-modal]
@@ -282,11 +282,12 @@
     [:transform-enable [:nav :create-modal] modals/enable-create-modal]
 
 
-    ; create all thing list consist of each thing node
-    [:node-create [:all :* :*] add-thing-node]  ; [:all :parent id]
-    [:value [:all :* :*] value-thing-node]
-    [:node-destroy [:all :*] clear-all-things]
-    [:node-destroy [:all :* :*] del-thing-node]
+    ; [:data :all 0 :parent 1] or [:data :parent 1 :children 2]
+    [:node-create [:data :all :* :* :*] add-thing-node]  ; [:all :parent id]
+    [:value [:data :all :* :* :*] value-thing-node]
+    [:node-destroy [:data :all :* :* :*] clear-all-things]
+    [:node-destroy [:data :all :* :* :*] del-thing-node]
+
     
     ; setup and submit action handler, path [:setup :homework id :assign]
     ; we can match anything, mutlimethod dispatch based on transkey
@@ -301,7 +302,7 @@
     [:transform-enable [:create :*] transforms/enable-submit-action]
 
     ; xpath path transformers, match any path, the transform
-    [:transform-enable [:xpath :**] transforms/enable-xpath-event]
+    [:transform-enable [:xpath :* :**] transforms/enable-thing-nav]
 
     ; xdata is has two section, header parent node, and a list of children nodes.
     [:node-create [:xdata :* :*] add-xdata-parent-node]  ; [:all :parent id]
