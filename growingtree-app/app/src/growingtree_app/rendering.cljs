@@ -142,10 +142,10 @@
         ; assign-link (sel/assign-link thingid)
         ; share-link (sel/share-link thingid)
         ; thing (html {:id thingid :assign-link-class assign-link :share-link-class share-link})
-        thing (entity-view/thing-node-html path r)
-        ]
+        thing-div (entity-view/thing-node-html path r)
+        main (dom/by-id "main")]
     (.log js/console "adding new thing node " thingid)
-    (dom/append! (dom/by-id "main") thing)))
+    (dom/append! main thing-div)))
     
 
 ; info model value transformed, update template attached to node path.
@@ -268,13 +268,13 @@
     [:transform-enable [:login :name] transforms/enable-login-submit]
     [:transform-disable [:login :name] transforms/disable-login-submit]
 
-    ; side bar nav type
+    ; side bar nav path
     [:node-create  [:nav] render-home-page]
     [:node-destroy [:nav] h/default-destroy]
-    ; upon nav type change, clear all things
-    ;[:value [:nav :type] clear-all-things]
+    ; upon nav path change, clear all things
+    ;[:value [:nav :path] clear-all-things]
     ; wire sidebar nav click to send this transform to change data model.
-    [:transform-enable [:nav :type] transforms/enable-nav-type]
+    [:transform-enable [:nav :path] transforms/enable-nav-path]
 
     ; login modal
     [:transform-enable [:nav :login-modal] modals/enable-login-modal]
@@ -285,7 +285,7 @@
     ; create all thing list consist of each thing node
     [:node-create [:all :* :*] add-thing-node]  ; [:all :parent id]
     [:value [:all :* :*] value-thing-node]
-    [:node-destroy [:all :*] h/default-destroy]
+    [:node-destroy [:all :*] clear-all-things]
     [:node-destroy [:all :* :*] del-thing-node]
     
     ; setup and submit action handler, path [:setup :homework id :assign]

@@ -93,20 +93,20 @@
 ;; sidebar nav click
 ;;==================================================================================
 
-; sidebar click transform [:nav :type] value, trigger request to get list of things.
-(def enable-nav-type
+; sidebar click transform [:nav :path] value, trigger request to get list of things.
+(def enable-nav-path
   "wire sidebar click event to all things transform fn"
   (fn [r [_ p transform-name message] input-queue]
     (let [sidebars ["parents" "children" "courses" "lectures" "homeworks"
                     "assignments" "topquestions" "topanswers" "ask" "answer"
                     "contributions" "knowledges" "activities" "locations"]]
-      (doseq [type sidebars]
+      (doseq [path sidebars]
         (events/send-on :click 
-                        (dom/by-id (str "sidenav-" type)) 
+                        (dom/by-id (str "sidenav-" path)) 
                         input-queue
-                        (msgs/fill :set-nav-type
+                        (msgs/fill :set-nav-path
                                     message
-                                    {:type (keyword type)})))
+                                    {:path (keyword path)})))
     )))
 
 

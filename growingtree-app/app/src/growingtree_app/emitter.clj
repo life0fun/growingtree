@@ -71,7 +71,7 @@
 (defn init-app-model [_]
   [{:db {}
     :nav
-      {:type  {}  ; a single val of current viewing thing type
+      {:path []  ; nav path is a stack stores nav path. items in stack is nav target
        :filtered  ; a list of filtered things of current viewing
         {:transforms   ; the node path is from top to here [:course :form :set-course]
           {:set-things-filtered [{msgs/topic [:filtered] 
@@ -114,10 +114,10 @@
     (if (not= oldv newv)
       [
         [:node-create [:nav]]
-        [:transform-enable [:nav :type] 
-                           :set-nav-type
-                           [{msgs/topic [:nav :type]
-                            (msgs/param :type) {}}]]
+        [:transform-enable [:nav :path] 
+                           :set-nav-path
+                           [{msgs/topic [:nav :path]
+                            (msgs/param :path) {}}]]
 
         ; enable login modal, for modal, msg must be 
         [:transform-enable [:nav :login-modal]
@@ -136,20 +136,23 @@
       ])))
 
 ; when nav type changed, emit node destroy for old list
-(defn nav-type-emitter
+(defn nav-path-emitter
   [inputs]
-  (let [oldtype (get-in inputs [:old-model :nav :type])
-        newtype (get-in inputs [:new-model :nav :type])
-        ; yeah, get data from [:all :thing-type] and destroy [:all thing-tye thingid]
-        allpath (conj [:all] (keyword oldtype))
-        oldlist (get-in inputs [:old-model :all (keyword oldtype)])]
-    (.log js/console (str "nav type emitter from " oldtype " to " newtype " old things " oldlist))
-    (vec (concat 
+  (let [oldpath (last (get-in inputs [:old-model :nav :path]))
+        newpath (last (get-in inputs [:new-model :nav :path]))
+        ; yeah, get data from [:all :thing-path] and destroy [:all thing-tye thingid]
+        allpath (conj [:all] (keyword oldpath))
+        oldlist (get-in inputs [:old-model :all (keyword oldpath)])]
+    (.log js/console (str "nav path emitter from " oldpath " to " newpath " old things " oldlist))
+    (vec 
+      (concat 
         ;((app/default-emitter nil) inputs)
         (mapcat (fn [entity]
                   ; concat list mean peel off and re package, so ret a vec of tuples.
                   [[:node-destroy (conj allpath (:id entity))]])
-                oldlist)))))
+                oldlist)
+        [[:node-destroy allpath]]
+      ))))
 
 
 ; user wants to create new thing of type

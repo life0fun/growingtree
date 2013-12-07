@@ -43,8 +43,9 @@
 ; input specifier is :single-val, so arg is single-value
 (defn request-all-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
-  [thing-type]  ; request all things by thing-type
-  (let [msg-topic (conj [:all] thing-type)  ; path node all type [:all :parent]
+  [navpath]  ; request all things by thing-type
+  (let [thing-type (last navpath)
+        msg-topic (conj [:all] thing-type)  ; path node all type [:all :parent]
         msg-type :set-all-things
         body {:msg-topic msg-topic :msg-type msg-type :qpath [thing-type]}] ; all things
     (.log js/console (str "effect request all things " thing-type msg-topic msg-type))

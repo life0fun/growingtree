@@ -95,11 +95,13 @@
     newthing-type))
 
 
-; extract the user clicked nav type from msg, and store it in [:nav :type] node
-(defn set-nav-type
-  [_ message]
-  (.log js/console (str "set-nav-type " message))
-  (:type message))  ; value stored inside thing :type key
+; extract the user clicked nav path from msg, and store it in [:nav :path] node
+(defn set-nav-path
+  [oldv message]
+  (let [path (:path message)
+        npath (vec (conj oldv path))]
+    (.log js/console (str "set-nav-path " npath message))
+    npath))  ; value stored inside thing :type key
 
 
 ; set thing type after nav to new type upon sidebar click
@@ -159,7 +161,7 @@
     details))
 
 
-; ; create thing by type
+;; create thing by type
 (defn create-thing-type
   "create thing by type submitted"
   [oldv message]
@@ -185,7 +187,7 @@
   (let [topic (msgs/topic message)  ; (:xdata :parents 17592186045499 :children)
         thing-type (:thing-type message)
         things-vec (:data message)]
-    (.log js/console (str "set-xdata " thing-type topic things-vec))
+    (.log js/console (str "set-xdata transformer " thing-type topic things-vec))
     things-vec))
 
 
@@ -215,12 +217,12 @@
 (defn refresh-all-things
   "remove stale list of things by type upon user click new thing type"
   [oldv inputs]  ; inputs is single value of upstream nav type.
-  (let [oldtype (get-in inputs [:old-model :nav :type])
-        newtype (get-in inputs [:new-model :nav :type])]
-    (.log js/console (str "all things refresh from " oldtype " to " newtype " old val " oldv))
+  (let [oldpath (last (get-in inputs [:old-model :nav :path]))
+        newpath (last (get-in inputs [:new-model :nav :path]))]
+    (.log js/console (str "all things refresh from " oldpath " to " newpath " old val " oldv))
     (if oldv
       ; ret the new map to be stored in [:all] path node, which is oldv
-      (assoc-in oldv [oldtype] []))))
+      (assoc-in oldv [oldpath] []))))
 
 
 ; derive fn, first arg is the old value at output path, 2nd arg is tracking map.
@@ -269,8 +271,8 @@
     :transform [
                 [:login [:login :name] set-login]
                 
-                ; UI event sent to outbound node, then derive to [:nav :type] node
-                [:set-nav-type [:nav :type] set-nav-type]
+                ; UI event sent to outbound node, then derive to [:nav :path] node
+                [:set-nav-path [:nav :path] set-nav-path]
 
                 ; set-all to store all type things list into all type map
                 [:set-all-things [:all :*] set-all-things]
@@ -304,14 +306,14 @@
             ;; can be old val or tracking map
 
             ; derive can not use wildcard path, as the msg topic is for upstream src.
-            [#{[:nav :type]} [:all] refresh-all-things]
+            [#{[:nav :path]} [:all] refresh-all-things]
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn to xhr to back-end.
     ; the input path node for effect is recursively match from top. 
     :effect #{
-              ; user clicked nav, request all things by type
-              [#{[:nav :type]} effect/request-all-things :single-val]
+              ; user clicked nav, request all things by path
+              [#{[:nav :path]} effect/request-all-things :single-val :mode :always]
               
               ; submit action effect, action is from topic and send details to backend.
               [#{[:submit]} effect/post-submit-thing :mode :always]
@@ -330,8 +332,8 @@
            ; after user logged in, create homepage
            {:in #{[:login :name]} :fn emitter/init-nav-emitter :mode :always}
             
-           ; upon nav type changes, clear the topthings div and destroy path nodes.
-           {:in #{[:nav :type]} :fn emitter/nav-type-emitter :mode :always}
+           ; upon nav path changes, clear the topthings div and destroy path nodes.
+           {:in #{[:nav :path]} :fn emitter/nav-path-emitter :mode :always}
 
            {:in #{[:nav :create-modal]} :fn emitter/create-modal-emitter}
 
