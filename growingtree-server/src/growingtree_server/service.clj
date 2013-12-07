@@ -185,23 +185,19 @@
     ;     (ring-response/content-type "application/edn"))))
 
 
-
-; get xthings based on query xpath. route handler must return a ring response
-; data populate at app service side.
-; type=children postdata={:target :children, :qpath (:parents 17592186045501 :children)}
-(defn get-xthings
+; get things with filter from post data
+(defn get-things
   "get things by type, ret from peer a list of thing in a new line sep string"
   [{postdata :edn-params :as request}]
   (let [type (get-in request [:path-params :thing])
-        qpath (:qpath postdata)
-        target (:target postdata)
-        xthings (peer/get-things (keyword type) qpath)
-        result {:status 200 :data xthings}
+        path (:path postdata)
+        thing-type (:thing-type postdata)
+        things (peer/get-things thing-type path)
+        result {:status 200 :data things}
         jsonresp (bootstrap/json-response result)]
     (newline)  
-    (println (str "get-xthings " type qpath xthings))
+    (println (str "get-things " type thing-type path things))
     jsonresp))
-
 
 
 ; destruct edn-params as request params and post body data is a clj map. frame does json transcoding.
@@ -243,8 +239,8 @@
      ["/msgs" {:get subscribe :post publish}
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
      ["/about" {:get about-page}]
-     ["/api/:thing" {:get get-all-things :post add-thing}]
-     ["/api/xpath/:thing" {:post get-xthings}]
+     ["/api/:thing" {:get get-all-things :post get-things}]
+     ["/add/:thing" {:post add-thing}]
     ]]])
 
 

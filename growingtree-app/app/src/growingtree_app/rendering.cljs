@@ -144,7 +144,7 @@
         ; thing (html {:id thingid :assign-link-class assign-link :share-link-class share-link})
         thing-div (entity-view/thing-node-html path r)
         main (dom/by-id "main")]
-    (.log js/console "adding new thing node " thingid)
+    (.log js/console "adding thing node " thingid)
     (dom/append! main thing-div)))
     
 
@@ -283,10 +283,10 @@
 
 
     ; [:data :all 0 :parent 1] or [:data :parent 1 :children 2]
-    [:node-create [:data :all :* :* :*] add-thing-node]  ; [:all :parent id]
-    [:value [:data :all :* :* :*] value-thing-node]
-    [:node-destroy [:data :all :* :* :*] clear-all-things]
-    [:node-destroy [:data :all :* :* :*] del-thing-node]
+    [:node-create [:data :* :* :* :*] add-thing-node]  ; [:all :parent id]
+    [:value [:data :* :* :* :*] value-thing-node]
+    [:node-destroy [:data :* :* :* :*] clear-all-things]
+    [:node-destroy [:data :* :* :* :*] del-thing-node]
 
     
     ; setup and submit action handler, path [:setup :homework id :assign]
@@ -301,11 +301,11 @@
     [:node-create [:create :*] create-thing-page]
     [:transform-enable [:create :*] transforms/enable-submit-action]
 
-    ; xpath path transformers, match any path, the transform
-    [:transform-enable [:xpath :* :**] transforms/enable-thing-nav]
+    ; thing nav path transformers, match any path, the transform
+    [:transform-enable [:nav :* :**] transforms/enable-thing-nav]
 
     ; xdata is has two section, header parent node, and a list of children nodes.
-    [:node-create [:xdata :* :*] add-xdata-parent-node]  ; [:all :parent id]
+    [:node-create [:xdata :* :* :*] add-xdata-parent-node]  ; [:all :parent id]
     [:node-create [:xdata :* :* :* :*] add-xdata-child-node]  ; [:all :parent id]
     [:value [:xdata :* :* :* :*] value-xdata-child-node]
     [:node-destroy [:xdata :**] h/default-destroy]

@@ -211,7 +211,7 @@
       (let [id (:id entity-map)
             thing-type (last path)
             newpath (conj path id)  ; [:data :parent 12 :children 34]
-            actiontransforms (thing-xpath-transforms thing-type id)
+            actiontransforms (thing-navpath-transforms thing-type id)
            ]
         (.log js/console (str "thing data delta path " newpath))
         (concat [ [:node-create newpath :map]
@@ -221,77 +221,35 @@
 
 
 ;;==================================================================================
-;; xdata from xhr request, we do not look at changes, just blindly emit new nodes
-;; one filter triggered by changemap path [:xdata :parent 12 :children], and thing-vec. 
+; multimethod for enable thing nav action bar links
+; render fills the msg with type set-nav-path and topic to [:nav :path], and path vector
 ;;==================================================================================
-(defn xdata-emitter
-  "when xdata come back, create new node "
-  [inputs]
-  (let [msg (:message inputs)
-        thing-type (:thing-type msg)  ; set at service.clj
-        things-vec (:data msg)
-        changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
-        removed (d/removed-inputs inputs)]
-    ;(removed-thing-deltas removed)
-    (.log js/console (str "xdata emitter changemap " changemap))
-    (vec 
-      (concat
-        ;((app/default-emitter) inputs) 
-        []
-        (reduce (fn [alldeltas [input-path newvals]] 
-              (concat alldeltas (xdata-deltas input-path newvals)))
-            []
-            ; change-map destrcture to path and thing-vec 
-            ; {[:xdata :parents 17592186045499 :children] [{:phone ["1385741609167"], :id ..}]
-            changemap)))))
-
-
-(defn- xdata-deltas
-  [path things-vec]
-  ; for now, we only enable assign btn, for othe btns, iterate
-  (.log js/console (str "xdata delta " path things-vec))
-  (mapcat
-    (fn [entity-map]
-      (let [id (:id entity-map)
-            thing-type (last path)
-            newpath (conj path id)  ; [:xdata :parent 12 :children 34]
-            actiontransforms (thing-xpath-transforms thing-type id)
-           ]
-        (.log js/console (str "new thing delta path " newpath))
-        (concat [ [:node-create newpath :map]
-                  [:value newpath entity-map] ]
-                actiontransforms)))
-    things-vec))
-
-;;==================================================================================
-; multimethod for a list of transform-enable for next level links
-; the target action must be entity name for filtered
-;;==================================================================================
-(defmulti thing-xpath-transforms
+(defmulti thing-navpath-transforms
   (fn [thing-type thing-id]
     thing-type))
 
 
-; all action bar links for parent entity
-(defmethod thing-xpath-transforms
+; enable thing nav action bar links for parent entity.
+; no
+(defmethod thing-navpath-transforms
   :parents
-  [thing-type thing-id]
-  (let [transkeys [:children]  ; transkey is path next
-        navpaths (map #(conj [:xpath thing-type thing-id] %) transkeys)
+  [thing-type thing-id]  ; thing-id is id of parent
+  (let [transkeys [:children]  ; transkeys are thing links
+        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
        ]
     (mapcat 
-      ; [:xpath :parents 17592186045499 :children] :children
+      ; [:nav :parents 17592186045499 :children] :children
       (fn [[path type id transkey :as navpath]]
         (vector [:node-destroy navpath]
                 [:transform-enable navpath      ; 
                                    transkey   ; transkey
-                                   [{msgs/topic navpath
-                                     (msgs/param :details) {}}]]))
+                                   [{msgs/topic [:nav :path]
+                                     (msgs/param :path) []}]]))
       navpaths)))
 
 
 ; all action bar links for children entity, assignments, etc.
-(defmethod thing-xpath-transforms
+(defmethod thing-navpath-transforms
   :children
   [thing-type thing-id]
   (let [actions [:assignments]
@@ -306,7 +264,7 @@
                                      (msgs/param :details) {}}]]))
       xpaths)))
 
-(defmethod thing-xpath-transforms
+(defmethod thing-navpath-transforms
   :courses
   [thing-type thing-id]
   (let [actions [:lectures :assignto :enroll]
@@ -324,7 +282,7 @@
       actionpaths)))
 
 
-(defmethod thing-xpath-transforms
+(defmethod thing-navpath-transforms
   :homeworks
   [thing-type thing-id]
   (let [actions [:assignto]
@@ -402,9 +360,6 @@
             []
             changemap)
     ))
-
-
-
 
 
 ;;

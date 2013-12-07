@@ -46,7 +46,7 @@
     (app/begin app)
 
     ; first, subscribe to server bcast msgs, inject msg to :effect queue directly
-    (subscribe-to-msgs app)
+    ;(subscribe-to-msgs app)
 
     ; create app model
     ;(create-app app)

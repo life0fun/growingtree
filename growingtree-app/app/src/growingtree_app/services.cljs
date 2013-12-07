@@ -93,67 +93,72 @@
 ; services-fn consume effect queue msgs from app behavior and xhr post to server.
 ; pr-str is used to convert map data structure to edn string for RESTFul request.
 ; the message must contain the behavior's transformer's msg/topic and msg/type for data
+; (defn services-fn
+;   "service fn takes msgs out of effect queue and post to back-end"
+;   [message input-queue] ; input queue is where ret result should be injected to.
+;   ; ensure msgs wrap/unwrap keys match.
+;   (when-let [body ((msgs/param :body) message)]
+;     (let [;body (pr-str body)  ; do not need to convert body to json string
+;           thing-type (msgs/type message)]
+;       (.log js/console (str "service-fn consume effect thing type" thing-type " " body))
+;       ; dispatch on thing-type
+;       (case thing-type
+;         ;; sse subscribe and publish
+;         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
+;         :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)  ; log as callback
+
+;         ; plural keyword for GET request
+;         :parents (request-thing "/api/parents" "GET" body input-queue)
+;         :children (request-thing "/api/children" "POST" body input-queue)
+;         ; :courses (request-thing "/api/courses" "GET" body input-queue)
+;         ; :lectures (request-thing "/api/lectures" "GET" body input-queue)
+;         ; :homeworks (request-thing "/api/homeworks" "GET" body input-queue)
+;         ; :assignments (request-thing "/api/assignments" "GET" body input-queue)
+
+;         ; singular keyword for post data to create new thing
+;         :assignment (request-thing "/api/assignment" "POST" body input-queue)
+;         :course (request-thing "/api/course" "POST" body input-queue)
+;         :homework (request-thing "/api/homework" "POST" body input-queue)
+
+;         ; xpath filtered query
+;         :xpath (request-xpath body input-queue)
+
+;         "default")
+;       (str "Send to Server: " body))))
+
+
 (defn services-fn
   "service fn takes msgs out of effect queue and post to back-end"
-  [message input-queue] ; input queue is where ret result should be injected to.
-  ; ensure msgs wrap/unwrap keys match.
+  [message input-queue]
   (when-let [body ((msgs/param :body) message)]
-    (let [;body (pr-str body)  ; do not need to convert body to json string
-          thing-type (msgs/type message)]
-      (.log js/console (str "service-fn consume effect thing type" thing-type " " body))
+    (let [msg-type (msgs/type message)]
+      (.log js/console (str "service-fn consume effect thing " body))
       ; dispatch on thing-type
-      (case thing-type
+      (case msg-type
         ;; sse subscribe and publish
         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
-        :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)  ; log as callback
+        :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)
 
-        ; plural keyword for GET request
-        :parents (request-all "/api/parents" "GET" body input-queue)
-        :children (request-all "/api/children" "GET" body input-queue)
-        :courses (request-all "/api/courses" "GET" body input-queue)
-        :lectures (request-all "/api/lectures" "GET" body input-queue)
-        :homeworks (request-all "/api/homeworks" "GET" body input-queue)
-        :assignments (request-all "/api/assignments" "GET" body input-queue)
-
-        ; singular keyword for post data to create new thing
-        :assignment (request-all "/api/assignment" "POST" body input-queue)
-        :course (request-all "/api/course" "POST" body input-queue)
-        :homework (request-all "/api/homework" "POST" body input-queue)
-
-        ; xpath filtered query
-        :xpath (request-xpath body input-queue)
-
+        :request-things (request-things body input-queue)
+        
         "default")
       (str "Send to Server: " body))))
-
 
 ;;=======================================================================================
 ;; request handler, create response handler closure.
 ;; here we define msg topic/type which will dispatch msg to the right transformer.
 ;;=======================================================================================
-(defn request-all
-  [api method body input-queue]
-  (let [msg-topic (:msg-topic body)
-        msg-type (:msg-type body)
-        thing-type (last msg-topic)  ; for request all thing, thing-type is the last of topic
-        resp (response-handler thing-type msg-topic msg-type input-queue)]
-    (.log js/console (str "app service request all " thing-type msg-topic msg-type body))
-    (xhr-request api method body resp xhr-log)))
-
-
-
-; request xpath data, body is {:target :children, :path (:parents 17592186045501)} 
-(defn request-xpath
+(defn request-things
   [body input-queue]
-  (let [msg-topic (:msg-topic body)
-        msg-type (:msg-type body)
-        thing-type (:target body)
-        path (:path body)
-        xpath (str "/api/xpath/" (name thing-type))
-        xdata-resp (response-handler thing-type msg-topic msg-type input-queue)]
-    (.log js/console (str "app service request xpath " thing-type msg-topic msg-type body))
-    (xhr-request xpath "POST" body xdata-resp xhr-log)))
-
+  (let [{:keys [msg-topic msg-type thing-type path]} body
+        ; msg-topic (:msg-topic body)
+        ; msg-type (:msg-type body)
+        ; thing-type (:thing-type body)
+        ; path (:path body)
+        api (str "/api/" (name thing-type))
+        resp (response-handler thing-type msg-topic msg-type input-queue)]
+    (.log js/console (str "app service request things" thing-type msg-topic msg-type body))
+    (xhr-request api "POST" body resp xhr-log)))
 
 
 ; received server send event 

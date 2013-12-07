@@ -47,30 +47,16 @@
   (let [msg (:message inputs)  ; get the active msg
         activepath (:path msg)   ; active path is the under msg path key.
         thing-type (last activepath)
-        msg-topic (concat [:data] activepath) ; topic = [:data :all 0 :parent]
+        msg-topic (concat [:data] activepath) ; topic = [:data :all 0 :parent], store data to here
         msg-type :set-thing-data
-        body {:msg-topic msg-topic :msg-type msg-type :path activepath}]
+        body {:msg-topic msg-topic :msg-type msg-type 
+              :thing-type thing-type :path activepath}]
     (.log js/console (str "effect request nav path things " body))
     ; only request when nav thing-type sidebar clicked !
     (if thing-type
-      [{msgs/topic [:server] msgs/type thing-type (msgs/param :body) body}])))
+      ;[{msgs/topic [:server] msgs/type thing-type (msgs/param :body) body}])))
+      [{msgs/topic [:server] msgs/type :request-things (msgs/param :body) body}])))
     
-
-;
-; request data based on xpath, store data into xdata
-(defn request-xpath-things
-  "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
-  [inputs]  ; request xpath things by type
-  (let [msg (:message inputs)  ; get the msg that triggers this effect
-        msg-topic (cons :xdata (rest (msgs/topic msg)))  ;[:xdata :parents 17592186045499 :children]
-        msg-type :set-xdata   ; dispatch to set-xdata
-        target (last msg-topic)
-        qpath (rest msg-topic)  ; query path [:parent id :children]
-        body {:msg-topic msg-topic :msg-type msg-type :target target :qpath qpath}
-       ] 
-    (.log js/console (str "request xpath things topic " msg-topic qpath))
-    [{msgs/topic [:server] msgs/type :xpath (msgs/param :body) body }]
-    ))
 
 
 ; request timeline

@@ -284,7 +284,7 @@
                 (fn [evt]
                   (let [details {:path navpath}
                         ; fill msg with msg-type messages, and input-map
-                        new-msgs (msgs/fill :set-nav-path messages {:path navpath})]
+                        new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
                     ; details {:navpath (:parents 17592186045499 :children)}
                     (.log js/console (str navpath " link clicked " new-msgs))
                     (doseq [m new-msgs]

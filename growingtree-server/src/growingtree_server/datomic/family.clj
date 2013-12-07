@@ -237,7 +237,7 @@
 (defn find-children
   "find all children who has parents"
   [qpath]
-  (if (empty? qpath)
+  (if (zero? (second qpath)) ;(empty? qpath)
     (let [c (d/q '[:find ?c :where [?c :child/parents]] db)
           entities (map (comp get-entity first) c)
           children (map child-entity-map entities)]
