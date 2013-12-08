@@ -87,8 +87,8 @@
 (defmethod get-things
   :parents
   [type qpath]
-  (let [parents (dda/list-parent qpath)]
-    (prn "peer get parents " qpath parents)
+  (let [parents (dda/find-parent qpath)]
+    (prn "peer dda find parent " qpath parents)
     parents))
 
 
@@ -96,7 +96,7 @@
   :children
   [type qpath]
   (let [children (dda/find-children qpath)]
-    (prn "peer get children " qpath children)
+    (prn "peer dda find children " qpath children)
     children))
 
 

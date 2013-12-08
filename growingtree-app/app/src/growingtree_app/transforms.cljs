@@ -311,12 +311,10 @@
     (de/listen! children-link
                 :click 
                 (fn [evt]
-                  (let [details {:path navpath}
-                        ; fill msg with msg-type messages, and input-map
+                  (let [; fill msg to set-nav-path [:nav :path] topic
                         new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
-                    ; details {:navpath (:parents 17592186045499 :children)}
-                    (.log js/console (str navpath " link clicked " new-msgs))
-                    (doseq [m new-msgs]
+                    (.log js/console (str navpath " link clicked " messages))
+                    (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
                       (p/put-message input-queue m)))))
   ))
 

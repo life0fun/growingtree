@@ -35,8 +35,10 @@
 ;;===============================================================
 ;; generate thing template based on thing type
 ;; when rendering node-create with thing-type and id, ret thing node div html
-;; [:node-create [:all :courses 17592186045505] :map]
-;; [:node-create [:xdata :parents 17592186045502 :children 17592186045499] :map]
+;; [:node-create [:main :all 0 :parents 17592186045505] :map]
+;; [:node-create [:main :parents 1 :children 17592186045505] :map]
+;; path = (:main :all 0 :parents 17592186045498) or 
+;;        (:header :parents 17592186045498)
 ;;===============================================================
 (defmulti thing-node-html
   (fn [path render]  ; the last segment of path
@@ -158,6 +160,7 @@
 (defn parent-view-value
   "ret a view map for parent entity"
   [value-map]
+  (.log js/console "parent view value " (:name value-map) value-map)
   (assoc value-map :title (:name value-map)))
 
 (defn child-view-value

@@ -163,31 +163,31 @@
   (family/link-parent-child pid cid))
 
 
-(defn find-parent
-  "find parent by child id, id could be child name or child entity id"
-  [cidstr & args]
-  (family/find-parent cidstr args))
+; (defn find-parent
+;   "find parent by child id, id could be child name or child entity id"
+;   [cidstr & args]
+;   (family/find-parent cidstr args))
 
 
-; find parent of a child
-(defn find-parent-by-cid
-  "find the parent of a child by its id, the passed cid is number"
-  [cid]
-  (family/find-parent-by-cid cid))
+; ; find parent of a child
+; (defn find-parent-by-cid
+;   "find the parent of a child by its id, the passed cid is number"
+;   [cid]
+;   (family/find-parent-by-cid cid))
 
 
-; search all fname and lname to check whether there is a match
-(defn find-parent-by-cname
-  "find the parent of a child by its name"
-  [clname cfname]
-  (family/find-parent-by-cname clname cfname))
+; ; search all fname and lname to check whether there is a match
+; (defn find-parent-by-cname
+;   "find the parent of a child by its name"
+;   [clname cfname]
+;   (family/find-parent-by-cname clname cfname))
 
 
-; find a person by name, use set/union as sql union query.
-(defn find-by-name 
-  "find a person by either first name or last name"
-  [pname]
-  (family/find-by-name pname))
+; ; find a person by name, use set/union as sql union query.
+; (defn find-by-name 
+;   "find a person by either first name or last name"
+;   [pname]
+;   (family/find-by-name pname))
 
 
 ;;==============================================================

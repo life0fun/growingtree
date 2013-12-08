@@ -107,21 +107,7 @@
   ))
 
 
-; render thing details page for xdata, two sections, parent data at upper layer
-; and list of children
-(defn render-detail-page
-  [r path]
-  (let [id (render/new-id! r path)
-        templ (:thing-details templates)
-        html (templates/add-template r path templ)
-        divcode (html {:id id})
-        main (dom/by-id "main")]
-    (.log js/console (str "render detail page " path id))
-    (dom/destroy-children! main)
-    (dom/append! main divcode)))
-
-
-; clear all things
+; called upon nav path change, clear all children under main div for 
 (defn clear-all-things
   "upon nav type change, clear all things divs under topthings div"
   [r [_ path oldv newv] input-queue]
@@ -129,11 +115,11 @@
   (dom/destroy-children! (dom/by-id "main")))
 
 
-
 ;;==================================================================================
 ;; add each thing list node, and setup action bar transformer in each node.
 ;;==================================================================================
 ; info model added a new node, create a new thing node, append it to topthings div.
+; path = 
 (defn add-thing-node
   [r [op path] input-queue]
   (let [thingid (last path)
@@ -144,7 +130,7 @@
         ; thing (html {:id thingid :assign-link-class assign-link :share-link-class share-link})
         thing-div (entity-view/thing-node-html path r)
         main (dom/by-id "main")]
-    (.log js/console "adding thing node " thingid)
+    (.log js/console "adding thing node " path thingid)
     (dom/append! main thing-div)))
     
 
@@ -172,24 +158,43 @@
     
 
 ;;================================================================================
-;; add node for xdata. we should take the last thing id path segment, and render
-;; it as top section parent node, and the list of children
+;; add thing nav parent node. we should take the last thing id path segment, 
+;; and render it as top section parent node, and the list of children
 ;;================================================================================
-(defn add-xdata-parent-node
+
+; render thing details page for thing nave, first, delete main div childrens.
+; the render two sections, parent data at upper layer and list of children
+(defn render-filtered-page
+  "render thing details parent header and a list of children, delete main children first"
+  [r path]  ; path=[:header :parents]
+  (let [id (render/new-id! r (vec path))
+        templ (:thing-details templates)
+        html (templates/add-template r path templ)
+        divcode (html {:id id})
+        main (dom/by-id "main")]
+    (.log js/console (str "render detail page " path id))
+    (dom/destroy-children! main)
+    (dom/append! main divcode)))
+
+
+(defn add-filtered-parent-node
+  "render parent header in thing nav details"
   [r [op path] input-queue]
   (let [thingid (last path)
-        thing (entity-view/thing-node-html path r)
-        div (dom/by-id (str thingid))
+        thing-div (entity-view/thing-node-html path r)
+        ; get parent node
+        ;div (dom/by-id (str thingid))
         ]
-    (.log js/console "clear main section and adding xdata parent node " thingid)
+    (.log js/console (str "add filtered parent node " thingid path))
     ; first, clear all children
     ;(dom/destroy-children! (dom/by-id "main"))
-    (render-detail-page r path)
+    (render-filtered-page r (butlast path)) ; [:header :parents]
     ; append parent
-    (dom/append! (dom/by-id "thing-root") div)))
+    (dom/append! (dom/by-id "thing-root") thing-div)))
 
 
-(defn add-xdata-child-node
+(defn append-filtered-child-node
+  "append child node to thing nav children list panel"
   [r [op path] input-queue]
   (let [thingid (last path)
         ; make a template attached to this node
@@ -199,15 +204,30 @@
         ; thing (html {:id thingid :assign-link-class assign-link :share-link-class share-link})
         thing (entity-view/thing-node-html path r)
         ]
-    (.log js/console "add xdata child node " thingid path)
+    ; [:data :parents 17592186045498 :children 17592186045497]
+    (.log js/console "append thing nav child node " thingid path)
     (dom/append! (dom/by-id "subthings-list") thing)))
     
 
 ; info model value transformed, update template attached to node path.
 ; oldv contains old value map and newv contains new value map.
-(defn value-xdata-parent-node
+; path =  [:header :parents 17592186045498]
+(defn value-filtered-parent-node
   [r [op path oldv newv] input-queue]
-  (.log js/console (str "updating new thing value " path newv))
+  (let [id (render/get-id r path)    ; node destroy, get-id will blow off
+        type-path (butlast path)   ; bad code. [:header :parents]
+        view-map (entity-view/view-value type-path newv)
+        title (:title view-map)
+        thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
+    (.log js/console (str "value filtered parent node " path title view-map newv))
+    (templates/update-t r path thing-map)
+    ))
+
+
+
+(defn value-filtered-child-node
+  [r [op path oldv newv] input-queue]
+  (.log js/console (str "value thing nav child node " path newv))
   (let [id (render/get-id r path)    ; node destroy, get-id will blow off
         type-path (butlast path)
         view-vec (entity-view/view-value type-path newv)
@@ -217,25 +237,14 @@
     ))
 
 
-(defn value-xdata-child-node
-  [r [op path oldv newv] input-queue]
-  (.log js/console (str "updating new thing value " path newv))
-  (let [id (render/get-id r path)    ; node destroy, get-id will blow off
-        type-path (butlast path)
-        view-vec (entity-view/view-value type-path newv)
-        title (:title view-vec)
-        thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
-    (templates/update-t r path thing-map)
-    ))
-
-
-(defn del-xdata-node
+(defn del-thing-nav-node
   [r [op path] input-queue]
   (let [thingid (last path)
         div (dom/by-id (str thingid))]
-    (.log js/console "del xdata node " thingid)
+    (.log js/console (str "del thing nav node " thingid path))
     (h/destroy! r path)
     (dom/destroy! div)))
+
 
 ;;================================================================================
 ;; create thing page template
@@ -268,27 +277,39 @@
     [:transform-enable [:login :name] transforms/enable-login-submit]
     [:transform-disable [:login :name] transforms/disable-login-submit]
 
-    ; side bar nav path
+    ;; ============== nav path with sidebar or thing type event binding ============
     [:node-create  [:nav] render-home-page]
     [:node-destroy [:nav] h/default-destroy]
-    ; upon nav path change, clear all things
-    ;[:value [:nav :path] clear-all-things]
     ; wire sidebar nav click to send this transform to change data model.
     [:transform-enable [:nav :sidebar] transforms/enable-sidebar-nav]
 
     ; login modal
     [:transform-enable [:nav :login-modal] modals/enable-login-modal]
-    ; create modal
+    ; create new thing modal
     [:transform-enable [:nav :create-modal] modals/enable-create-modal]
 
+    ; thing nav path event bindings, match any path, setup in thing navpath transforms
+    [:transform-enable [:nav :* :**] transforms/enable-thing-nav]
 
-    ; [:data :all 0 :parent 1] or [:data :parent 1 :children 2]
-    [:node-create [:data :* :* :* :*] add-thing-node]  ; [:all :parent id]
-    [:value [:data :* :* :* :*] value-thing-node]
-    [:node-destroy [:data :* :* :* :*] clear-all-things]
-    [:node-destroy [:data :* :* :* :*] del-thing-node]
 
+    ;; ============== all data thing node viewed on main section ============
+    ;; render path is setup in navpath->render-path in thing-data-emitter
+    ;; ======================================================================
+    [:node-create [:main :all :* :* :*] add-thing-node]  ; [:all :parent id]
+    [:value       [:main :all :* :* :*] value-thing-node]
+    [:node-destroy [:main :all :* :* :*] del-thing-node]
+    [:node-destroy [:main] clear-all-things]  ; clear all children under main div
+
+    ;; ============== thing data thing node from thing nav click ============
+    ;; thing nav [:filtered :parent 1 :children 2] two sections, head for parent and list of children.
+    [:node-create [:header :* :*] add-filtered-parent-node]  
+    [:value       [:header :* :*] value-filtered-parent-node]
+    [:node-create [:filtered :* :* :* :*] append-filtered-child-node]
+    [:value       [:filtered :* :* :* :*] value-filtered-child-node]
+    [:node-destroy [:filtered] clear-all-things]  ; clear all children under main div
     
+
+    ;; ============== other thing nav links setup and submit handling ============
     ; setup and submit action handler, path [:setup :homework id :assign]
     ; we can match anything, mutlimethod dispatch based on transkey
     [:transform-enable [:setup :**] transforms/enable-setup-action]
@@ -297,17 +318,9 @@
     [:transform-enable [:submit :**] transforms/enable-submit-action]
     [:transform-disable [:submit :**] disable-submit-action]
 
-    ; create new thing 
+  
+    ;; ============== create new thing view and event binding ============
     [:node-create [:create :*] create-thing-page]
     [:transform-enable [:create :*] transforms/enable-submit-action]
-
-    ; thing nav path transformers, match any path, the transform
-    [:transform-enable [:nav :* :**] transforms/enable-thing-nav]
-
-    ; xdata is has two section, header parent node, and a list of children nodes.
-    [:node-create [:xdata :* :* :*] add-xdata-parent-node]  ; [:all :parent id]
-    [:node-create [:xdata :* :* :* :*] add-xdata-child-node]  ; [:all :parent id]
-    [:value [:xdata :* :* :* :*] value-xdata-child-node]
-    [:node-destroy [:xdata :**] h/default-destroy]
     
   ])

@@ -164,16 +164,22 @@
 
 
 ; get entities by qpath, formulate query rules from qpath
+; qpath is [:all 0 :children] or [:parent 1 :children] or [:parents 1 :parents]
 (defn get-entities-by-rule
   "get entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
-  (let [pid (second qpath)
-        rule-name (first qpath)  ; parent thing type is rule name
-        parent-rule (list rule-name '?e '?val)   ; not useful
-        q (conj '[:find ?e :in $ % ?val :where ] parent-rule)
-        eids (d/q q db rule-set (second qpath))
-        entities (map (comp get-entity first) eids)]
-    entities))
+  (if (= (first qpath) (last qpath))
+    (let [eid (second qpath)
+          e (d/entity db eid)]
+      [e])
+    (let [pid (second qpath)
+          rule-name (first qpath)  ; parent thing type is rule name
+          parent-rule (list rule-name '?e '?val)
+          q (conj '[:find ?e :in $ % ?val :where ] parent-rule)
+          eids (d/q q db rule-set pid)
+          entities (map (comp get-entity first) eids)
+          ]
+      entities)))
 
 
 ; create a parent entity, does not link child yet

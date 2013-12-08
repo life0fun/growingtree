@@ -103,7 +103,7 @@
   [oldv message]
   (let [path (:path message)  ; :path is a vector
         npath (vec (conj oldv path))]
-    (.log js/console (str "set-nav-path " path npath message))
+    (.log js/console (str "set-nav-path newpath " npath message))
     npath))
 
 
@@ -220,7 +220,8 @@
 (defn refresh-thing-data
   "remove stale things vec under [:data :all 0 :parent] upon nav path change"
   [oldv inputs] 
-  (let [oldpath (vec (last (get-in inputs [:old-model :nav :path])))
+  (let [activemsg (:message inputs)
+        oldpath (vec (last (get-in inputs [:old-model :nav :path])))
         newpath (vec (last (get-in inputs [:new-model :nav :path])))]
     (.log js/console (str " nav path refresh from " oldpath " to " newpath " old val " oldv))
     (if oldv
@@ -316,7 +317,9 @@
     ; effect fn takes msg and ret a vec of msg consumed by services-fn to xhr to back-end.
     ; the input path node for effect is recursively match from top. 
     :effect #{
-              ; user clicked nav, request all things by path
+              ; nav path changed, request all things by path. 
+              ; note we specific tranform msg topic and type here so response data got
+              ; dispatch to the right data model directly.
               [#{[:nav :path]} effect/request-navpath-things :mode :always]
               
               ; submit action effect, action is from topic and send details to backend.
