@@ -267,7 +267,7 @@
 
 
 ;;==================================================================================
-;; nav children - parent, transkey is children, 
+;; nav anywhere to -> parents, transkey is children, 
 ;; [:transform-enable [:nav :children 17592186045496 :parents]]
 ;;==================================================================================
 (defmethod enable-thing-nav 
@@ -278,23 +278,21 @@
         thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thingid))
         ; thing nav link class set inside entity view class
-        parents-link (dom/by-class (str "parents-" thingid))]
+        thing-link (dom/by-class (str "parents-" thingid))]
     (.log js/console (str "enable thing nav event " path messages))
     ; wrap assign link with div and use class selector
-    (de/listen! parents-link
+    (de/listen! thing-link
                 :click 
                 (fn [evt]
-                  (let [details {:path navpath}
-                        ; fill msg with msg-type messages, and input-map
+                  (let [; fill msg to set-nav-path [:nav :path] topic
                         new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
-                    ; details {:navpath (:child 17592186045499 :parents)}
-                    (.log js/console (str navpath " link clicked " new-msgs))
-                    (doseq [m new-msgs]
+                    (.log js/console (str navpath " link clicked " messages))
+                    (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
                       (p/put-message input-queue m)))))
   ))
 
 ;;==================================================================================
-;; nav parent - children , transkey is children, 
+;; nav anywhere -> children , transkey is children, 
 ;; [:transform-enable [:nav :parents 17592186045498 :children] :children
 ;;==================================================================================
 (defmethod enable-thing-nav 

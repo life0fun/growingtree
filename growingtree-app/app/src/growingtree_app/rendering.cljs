@@ -130,7 +130,7 @@
         ; thing (html {:id thingid :assign-link-class assign-link :share-link-class share-link})
         thing-div (entity-view/thing-node-html path r)
         main (dom/by-id "main")]
-    (.log js/console "adding thing node " path thingid)
+    (.log js/console (str "adding thing node " path thingid))
     (dom/append! main thing-div)))
     
 
@@ -205,7 +205,7 @@
         thing (entity-view/thing-node-html path r)
         ]
     ; [:data :parents 17592186045498 :children 17592186045497]
-    (.log js/console "append thing nav child node " thingid path)
+    (.log js/console (str "append thing nav child node " thingid path))
     (dom/append! (dom/by-id "subthings-list") thing)))
     
 
@@ -290,6 +290,7 @@
 
     ; thing nav path event bindings, match any path, setup in thing navpath transforms
     [:transform-enable [:nav :* :**] transforms/enable-thing-nav]
+    [:transform-disable [:nav :* :**] h/default-destroy]
 
 
     ;; ============== all data thing node viewed on main section ============

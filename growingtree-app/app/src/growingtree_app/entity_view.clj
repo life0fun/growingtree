@@ -78,7 +78,7 @@
                          :comments-class (str "comments-" thingid)
                          :classmates-class (str "classmates-" thingid)})
         ]
-    (.log js/console "thing-node-html " path)
+    (.log js/console (str "thing-node-html " path))
     thing-div))
 
 
@@ -96,7 +96,7 @@
                          :share-class (str "share-" thingid)
                          :enroll-class (str "enroll-" thingid)})
         ]
-    (.log js/console "thing-node-html " path)
+    (.log js/console (str "thing-node-html " path))
     thing-div))
 
 
@@ -114,7 +114,7 @@
                          :share-class (str "share-" thingid)
                          :enroll-class (str "enroll-" thingid)})
         ]
-    (.log js/console "thing-node-html " path)
+    (.log js/console (str "thing-node-html " path))
     thing-div))
 
 
@@ -131,7 +131,7 @@
                          :lectures-class (str "lectures-" thingid)
                          :share-class (str "share-" thingid)})
         ]
-    (.log js/console "thing-node-html " path)
+    (.log js/console (str "thing-node-html " path))
     thing-div))
 
 
@@ -149,7 +149,7 @@
                          :submit-class (str "submit-" thingid)
                          :share-class (str "share-" thingid)})
         ]
-    (.log js/console "thing-node-html " path)
+    (.log js/console (str "thing-node-html " path))
     thing-div))
 
 
@@ -160,7 +160,6 @@
 (defn parent-view-value
   "ret a view map for parent entity"
   [value-map]
-  (.log js/console "parent view value " (:name value-map) value-map)
   (assoc value-map :title (:name value-map)))
 
 (defn child-view-value

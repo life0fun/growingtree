@@ -191,9 +191,9 @@
         removed (d/removed-inputs inputs)]
     ; each change tuple consists of node-path and a vector of values
     ;(removed-thing-deltas removed)
-    (.log js/console (str "thing data emit changemap " changemap))
-    (.log js/console (str "thing data emit removed " removed))
-    (.log js/console (str "thing data emit msg " msg))
+    ; (.log js/console (str "thing data emit changemap " changemap))
+    ; (.log js/console (str "thing data emit removed " removed))
+    ; (.log js/console (str "thing data emit msg " msg))
     (vec 
       (concat
         ; with this, will emit [:value [:all :courses] old-value new-val]
@@ -223,7 +223,7 @@
                 actiontransforms (thing-navpath-transforms thing-type id)
                ]
             ; input-path = [:data :children 17592186045497 :parents]
-            (.log js/console (str "thing data delta input-path " id input-path render-path))
+            (.log js/console (str "thing data delta render-path " render-path entity-map))
             (concat [ [:node-create render-path :map]
                       [:value render-path entity-map] ]
                     actiontransforms)))
@@ -263,8 +263,10 @@
       ; [:nav :parents 17592186045499 :children] :children
       (fn [[path type id transkey :as navpath]]
         (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:parents 17592186045499 :parent]
-          (.log js/console (str "thing navpath transform " self-path (rest navpath)))
-          (vector ;[:node-destroy navpath]
+          (.log js/console (str "thing navpath transform self " self-path " sublink " (rest navpath)))
+          (vector 
+            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy navpath]
             [:transform-enable navpath    ; [:nav :parents 17592186045499 :children]
                                transkey   ; transkey
                                [ ; first msg, request current thing as parent after nav
@@ -283,18 +285,30 @@
 (defmethod thing-navpath-transforms
   :children
   [thing-type thing-id]
-  (let [transkeys [:parents :assignments]
+  (let [transkeys [:parents :assignments]  ; transkeys are thing links
         navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
        ]
     (mapcat 
+      ; [:nav :parents 17592186045499 :children] :children
       (fn [[path type id transkey :as navpath]]
-        (.log js/console (str "thing navpath trans " thing-type navpath))
-        (vector ;[:node-destroy navpath]
-                [:transform-enable navpath      ; 
-                                   transkey   ; transkey
-                                   [{msgs/topic [:nav :path]
-                                     (msgs/param :path) []}]]))
+        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:parents 17592186045499 :parent]
+          (.log js/console (str "thing navpath transform " self-path (rest navpath)))
+          (vector 
+            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy navpath]
+            [:transform-enable navpath    ; [:nav :parents 17592186045499 :children]
+                               transkey   ; transkey
+                               [ ; first msg, request current thing as parent after nav
+                                {msgs/topic [:nav :path] 
+                                 msgs/type :set-nav-path
+                                 :path (vec self-path)}  ; no need to wrap to (msgs/param :path)
+                                ; second msg, the child list of nav
+                                {msgs/topic [:nav :path]
+                                 msgs/type :set-nav-path 
+                                 :path (vec (rest navpath))} 
+                                ]] )))
       navpaths)))
+
 
 (defmethod thing-navpath-transforms
   :courses
