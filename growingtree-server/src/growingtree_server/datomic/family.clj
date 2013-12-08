@@ -142,12 +142,39 @@
 ; rule set is a set of list. each entry in the list is a rule.
 ; a rule is a list, the head of list is rule name, with other items are rule content.
 ; any single item in the rule list is a list, hence, rule set are list of rules, list of list.
-(def child-by
-  '[[(:parents ?c ?val) [?c :child/parents ?val]]
-    [(:name ?c ?val) [?c :child/name ?val]]
-    [(:phone ?c ?val) [?c :child/phone ?val]]
-    [(:groups ?c ?val) [?c :child/groups ?val]]
+
+; rule set for get child by. rule name is the parent thing type.
+(def get-child-by
+  '[[(:all ?e ?val) [?e :child/parents]]   ; select all 
+    [(:parents ?e ?val) [?e :child/parents ?val]]
+    [(:name ?e ?val) [?e :child/name ?val]]
+    [(:phone ?e ?val) [?e :child/phone ?val]]
+    [(:groups ?e ?val) [?e :child/groups ?val]]
   ])
+
+
+; rule set for get parent by. rule name is the parent thing type.
+(def get-parent-by
+  '[[(:all ?e ?val) [?e :parent/children]]   ; select all
+    [(:children ?e ?val) [?e :parent/children ?val]]
+    [(:name ?e ?val) [?e :parent/name ?val]]
+    [(:phone ?e ?val) [?e :parent/phone ?val]]
+    [(:groups ?e ?val) [?e :parent/groups ?val]]
+  ])
+
+
+; get entities by qpath, formulate query rules from qpath
+(defn get-entities-by-rule
+  "get entities by qpath and rule-set, formulate query rules from qpath"
+  [qpath rule-set]
+  (let [pid (second qpath)
+        rule-name (first qpath)  ; parent thing type is rule name
+        parent-rule (list rule-name '?e '?val)   ; not useful
+        q (conj '[:find ?e :in $ % ?val :where ] parent-rule)
+        eids (d/q q db rule-set (second qpath))
+        entities (map (comp get-entity first) eids)]
+    entities))
+
 
 ; create a parent entity, does not link child yet
 (defn create-parent
@@ -182,21 +209,18 @@
      :popularity (:parent/popularity entity)
     }))
 
-
 ; :find rets entity id, find all parent's pid and name.
-(defn list-parent
-  "find all parents with all children"
+; the parent thing type in qpath is used as rule name selector.
+(defn find-parent
+  "find parent by query path "
   [qpath]
-  (let [pc (d/q '[:find ?p :where [?p :parent/children]] db)
-        entities (map (comp get-entity first) pc)
-        parents (map parent-entity-map entities)] ;?p parent who has children
-    ;(map (comp show-entity-by-id first) pc)
-    ;(prn "list parent entities " parents)
-    (doseq [p parents]
-      (prn " parent --> " p))
+  (let [entities (get-entities-by-rule qpath get-parent-by)
+        parents (map parent-entity-map entities)]
+    (doseq [e parents]
+      (prn "parent --> " e))
     parents))
 
-
+;;==========================================================================
 ; create a parent entity, does not link child yet
 (defn create-child
   "create a parent entity, id is random"
@@ -232,31 +256,15 @@
     }))
 
 
-;
-; find children with qpath. use rule from child-by rule set by parent name in qpath.
+;; find children with qpath. use rule from get-child-by rule set by parent name in qpath.
 (defn find-children
-  "find all children who has parents"
+  "find children by passed in query path"
   [qpath]
-  (if (zero? (second qpath)) ;(empty? qpath)
-    (let [c (d/q '[:find ?c :where [?c :child/parents]] db)
-          entities (map (comp get-entity first) c)
-          children (map child-entity-map entities)]
-      (prn "find children " children)
-      (doseq [c children]
-        (prn " child --> " c))
-      children)
-
-    (let [qrule (list (first qpath) '?e '?val)
-          q (conj '[:find ?e :in $ % ?val :where ] qrule)
-          c (d/q q db child-by (second qpath))
-          entities (map (comp get-entity first) c)
-          children (map child-entity-map entities)]
-      (prn " qrule " qrule)
-      (doseq [c children]
-        (prn " child --> " c))
-      children)
-    ))
-
+  (let [entities (get-entities-by-rule qpath get-child-by)
+        children (map child-entity-map entities)]
+    (doseq [e children]
+      (prn "child --> " e))
+    children))
 
 
 ; use :db/add to upsert child attr to parent. find parent eid by list-parent.
@@ -306,64 +314,65 @@
     lparent))
 
 
-(defn find-parent
-  "find parent by child id, id could be child name or child entity id"
-  [cidstr & args]
-  (let [cidval (read-string cidstr)
-        cid? (number? cidval)]
-    (if cid?
-      (find-parent-by-cid cidval)
-      (find-parent-by-cname cidval args))))
+
+; (defn find-parent
+;   "find parent by child id, id could be child name or child entity id"
+;   [cidstr & args]
+;   (let [cidval (read-string cidstr)
+;         cid? (number? cidval)]
+;     (if cid?
+;       (find-parent-by-cid cidval)
+;       (find-parent-by-cname cidval args))))
 
 
-; find parent of a child
-(defn find-parent-by-cid
-  "find the parent of a child by its id, the passed cid is number"
-  [cid]
-  (let [ce (d/entity db cid)
-        ;parent (-> ce (:parent/_child))   ; inbound(who refed me) might be slow.
-        parent (:child/parents ce)  ; :ref :many rets a map, each tuple is a  clojure.lang.MapEntry.
-        ]
-    (prn parent)
-    (map (comp show-entity-by-id :db/id) parent)))  ; eid is the 1st in a ret tuple.
+; ; find parent of a child
+; (defn find-parent-by-cid
+;   "find the parent of a child by its id, the passed cid is number"
+;   [cid]
+;   (let [ce (d/entity db cid)
+;         ;parent (-> ce (:parent/_child))   ; inbound(who refed me) might be slow.
+;         parent (:child/parents ce)  ; :ref :many rets a map, each tuple is a  clojure.lang.MapEntry.
+;         ]
+;     (prn parent)
+;     (map (comp show-entity-by-id :db/id) parent)))  ; eid is the 1st in a ret tuple.
 
 
-; search all fname and lname to check whether there is a match
-(defn find-parent-by-cname
-  "find the parent of a child by its name"
-  [clname cfname]
-  (let [fname (first cfname)
-        ; args needs to bind to ?var to pass into query
-        rset (d/q '[:find ?p :in $ % ?n
-                    :where [?p :parent/children ?e]  ; join parent entity that child entity equals
-                           [?e :child/parents]  ; for child entity that has parent
-                           (byname ?e ?n)]     ; its fname or lname mateches ?
-                db
-                nameruleset
-                (str clname))
-        ]
-    (doseq [pid rset] 
-      ((comp show-entity-by-id first) pid))
-    (prn clname rset)))
+; ; search all fname and lname to check whether there is a match
+; (defn find-parent-by-cname
+;   "find the parent of a child by its name"
+;   [clname cfname]
+;   (let [fname (first cfname)
+;         ; args needs to bind to ?var to pass into query
+;         rset (d/q '[:find ?p :in $ % ?n
+;                     :where [?p :parent/children ?e]  ; join parent entity that child entity equals
+;                            [?e :child/parents]  ; for child entity that has parent
+;                            (byname ?e ?n)]     ; its fname or lname mateches ?
+;                 db
+;                 nameruleset
+;                 (str clname))
+;         ]
+;     (doseq [pid rset] 
+;       ((comp show-entity-by-id first) pid))
+;     (prn clname rset)))
 
 
-; find a person by name, use set/union as sql union query.
-(defn find-by-name 
-  "find a person by either first name or last name"
-  [pname]
-  (let [parent (d/q '[:find ?e :in $ % ?n
-                      :where [?e :parent/children]
-                             (byname ?e ?n)]
-                    db
-                    nameruleset
-                    pname)
-        child (d/q '[:find ?e :in $ % ?n
-                     :where [?e :child/parents]  ; query child
-                             (byname ?e ?n)]
-                    db
-                    nameruleset
-                    pname)
-        all (clojure.set/union parent child)  
-      ]
-    (prn parent child all)
-    (map (comp show-entity-by-id first) all)))
+; ; find a person by name, use set/union as sql union query.
+; (defn find-by-name 
+;   "find a person by either first name or last name"
+;   [pname]
+;   (let [parent (d/q '[:find ?e :in $ % ?n
+;                       :where [?e :parent/children]
+;                              (byname ?e ?n)]
+;                     db
+;                     nameruleset
+;                     pname)
+;         child (d/q '[:find ?e :in $ % ?n
+;                      :where [?e :child/parents]  ; query child
+;                              (byname ?e ?n)]
+;                     db
+;                     nameruleset
+;                     pname)
+;         all (clojure.set/union parent child)  
+;       ]
+;     (prn parent child all)
+;     (map (comp show-entity-by-id first) all)))

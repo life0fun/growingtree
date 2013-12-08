@@ -137,10 +137,10 @@
 
 
 ; :find rets entity id, find all parent's pid and name.
-(defn list-parent
+(defn find-parent
   "find all parents with all children"
   [qpath]
-  (family/list-parent qpath))
+  (family/find-parent qpath))
 
 
 ; list all children, to find one entity with id, use (get-entity id)
