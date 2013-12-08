@@ -252,17 +252,18 @@
 (defmethod thing-navpath-transforms
   :children
   [thing-type thing-id]
-  (let [actions [:assignments]
-        xpaths (map #(conj [:xpath thing-type thing-id] %) transkeys)
+  (let [transkeys [:parents :assignments]
+        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
        ]
     (mapcat 
-      (fn [[path type id transkey :as xpath]]
-        (vector [:node-destroy xpath]
-                [:transform-enable xpath      ; 
+      (fn [[path type id transkey :as navpath]]
+        (.log js/console (str "thing navpath trans " thing-type navpath))
+        (vector [:node-destroy navpath]
+                [:transform-enable navpath      ; 
                                    transkey   ; transkey
-                                   [{msgs/topic xpath
-                                     (msgs/param :details) {}}]]))
-      xpaths)))
+                                   [{msgs/topic [:nav :path]
+                                     (msgs/param :path) []}]]))
+      navpaths)))
 
 (defmethod thing-navpath-transforms
   :courses

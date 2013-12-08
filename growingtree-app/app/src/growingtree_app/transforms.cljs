@@ -259,15 +259,43 @@
 
 
 ;;==================================================================================
-;; fill xpath along the nav path for each thing sub links
+;; enable thing nav sub link, transkey is thing sub link thing type
 ;;==================================================================================
 (defmulti enable-thing-nav
-  (fn [render [target path transkey messages] input-queue]
+  (fn [render [op path transkey messages] input-queue]
     transkey))
 
+
 ;;==================================================================================
-;; xpath parent - children , transkey is children, 
-;; [:xpath :thing-type thing-id transkey]
+;; nav children - parent, transkey is children, 
+;; [:transform-enable [:nav :children 17592186045496 :parents]]
+;;==================================================================================
+(defmethod enable-thing-nav 
+  :parents
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:parent 1 :children]
+        thingid (first (reverse (butlast navpath)))
+        thing-type (second (reverse (butlast navpath)))
+        thing-node (dom/by-id (str thingid))
+        ; thing nav link class set inside entity view class
+        parents-link (dom/by-class (str "parents-" thingid))]
+    (.log js/console (str "enable thing nav event " path messages))
+    ; wrap assign link with div and use class selector
+    (de/listen! parents-link
+                :click 
+                (fn [evt]
+                  (let [details {:path navpath}
+                        ; fill msg with msg-type messages, and input-map
+                        new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
+                    ; details {:navpath (:child 17592186045499 :parents)}
+                    (.log js/console (str navpath " link clicked " new-msgs))
+                    (doseq [m new-msgs]
+                      (p/put-message input-queue m)))))
+  ))
+
+;;==================================================================================
+;; nav parent - children , transkey is children, 
+;; [:transform-enable [:nav :parents 17592186045498 :children] :children
 ;;==================================================================================
 (defmethod enable-thing-nav 
   :children
@@ -276,6 +304,7 @@
         thingid (first (reverse (butlast navpath)))
         thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thingid))
+        ; thing nav link class set inside entity view class
         children-link (dom/by-class (str "children-" thingid))]
     (.log js/console (str "enable thing nav event " path messages))
     ; wrap assign link with div and use class selector
@@ -293,31 +322,30 @@
 
 
 ;;==================================================================================
-;; xpath event, for assignments
+;; nav event, for assignments
 ;;==================================================================================
 (defmethod enable-thing-nav 
   :assignments
-  [r [target path transkey messages] input-queue]
-  (let [thingid (last path)   ; last segment of path is thingid
-        thing-type (second path) ; [:setup :assignments :course 123]
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:parent 1 :children]
+        thingid (first (reverse (butlast navpath)))
+        thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thingid))
-        children-link (dom/by-class (str "children-" thingid))]
-  
-    (.log js/console (str "enable xpath event " path messages))
+        ; thing nav link class set inside entity view class
+        assignments-link (dom/by-class (str "assignments-" thingid))]
+    (.log js/console (str "enable thing nav event " path messages))
     ; wrap assign link with div and use class selector
-    (de/listen! children-link
+    (de/listen! assignments-link
                 :click 
                 (fn [evt]
-                  (let [details {:action :actionbar-event :id thingid
-                                 :thing-type thing-type
-                                 :transkey transkey
-                                 :target transkey}
-                        new-msgs (msgs/fill :actionbar-event messages {:details details})]
-                    (.log js/console (str "child assignment link clicked " new-msgs))
+                  (let [details {:path navpath}
+                        ; fill msg with msg-type messages, and input-map
+                        new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
+                    ; details {:navpath (:child 17592186045499 :assignments)}
+                    (.log js/console (str navpath " link clicked " new-msgs))
                     (doseq [m new-msgs]
                       (p/put-message input-queue m)))))
   ))
-
 
 ;;==================================================================================
 ;; lectures btn in course thing clicked
@@ -331,7 +359,7 @@
         thing-node (dom/by-id (str thingid))
         lectures-link (dom/by-class (str "lectures-" thingid))]
   
-    (.log js/console (str "enable xpath event " path messages))
+    (.log js/console (str "enable nav event " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! lectures-link
                 :click 
@@ -353,7 +381,7 @@
         thing-node (dom/by-id (str thingid))
         enroll-link (dom/by-class (str "enroll-" thingid))]
   
-    (.log js/console (str "enable xpath event " path messages))
+    (.log js/console (str "enable nav event " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! enroll-link
                 :click 
