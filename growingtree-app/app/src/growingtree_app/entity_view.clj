@@ -142,8 +142,8 @@
                          :share-class (str "share-" thingid)
                          :assign-form-class (str assign-form thingid " toggle")
                          ;:assignto-id (str "assign-" thingid)
-                         :assignto-name-class (str assignto-name thingid)
-                         :assignto-hint-class (str assignto-hint thingid)
+                         ;:assignto-name-class (str assignto-name thingid)
+                         ;:assignto-hint-class (str assignto-hint thingid)
                          })
         ]
     (.log js/console (str "thing-node-html " path thingid))

@@ -358,14 +358,14 @@
         ; must use dom by-class to select form ?!
         form (dom/by-class (str entity-view/assign-form thingid))
 
-        to-node (dom/by-class (str entity-view/assignto-name thingid))
-        hint-node (dom/by-class (str entity-view/assignto-hint thingid))
+        ;to-node (dom/by-class (str entity-view/assignto-name thingid))
+        ;hint-node (dom/by-class (str entity-view/assignto-hint thingid))
         
         ; to-node (dom/by-id "input-name")
         ;hint-node (dom/by-id "input-hint")
 
-        ;to-node (dx/xpath form "//input[1]")
-        ;hint-node (dx/xpath form "//input[2]")
+        to-node (dx/xpath form "//input[@id='input-name']")
+        hint-node (dx/xpath form "//input[2]")
 
         ;to-node (dc/sel form "#input-name")
         ;hint-node (dc/sel form "#input-hint")
@@ -376,7 +376,7 @@
                                    :hwid thingid 
                                    :toid toid-val 
                                    :hint hint-val}]
-                      (.log js/console (str "assign to submitted x" details to-node))
+                      (.log js/console (str "assign to submitted xze" details to-node))
                       ;(dom/destroy! form)
                       (msgs/fill :submit messages {:details details})))
         ]
