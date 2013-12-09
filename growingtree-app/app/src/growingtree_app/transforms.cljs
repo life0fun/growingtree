@@ -2,6 +2,7 @@
   (:require [domina :as dom]
             [domina.css :as dc]
             [domina.events :as de]
+            [domina.xpath :as dx]
             [io.pedestal.app.render.push :as render]
             [io.pedestal.app.render.events :as events]
             [io.pedestal.app.render.push.templates :as templates]
@@ -303,10 +304,10 @@
         thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thingid))
         ; thing nav link class set inside entity view class
-        children-link (dom/by-class (str "children-" thingid))]
+        thing-link (dom/by-class (str "children-" thingid))]
     (.log js/console (str "enable thing nav event " path messages))
     ; wrap assign link with div and use class selector
-    (de/listen! children-link
+    (de/listen! thing-link
                 :click 
                 (fn [evt]
                   (let [; fill msg to set-nav-path [:nav :path] topic
@@ -316,6 +317,73 @@
                       (p/put-message input-queue m)))))
   ))
 
+;;==================================================================================
+;; enable assignto-toggle and assignto-submit form.
+;; nav anywhere -> assignto-submit , transkey is assignto-submit, 
+;; [:transform-enable [:nav :parents 17592186045498 :assignto-submit] :assignto-submit
+;;==================================================================================
+(defmethod enable-thing-nav 
+  :assign-toggle
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:parent 1 :assign-toggle]
+        thingid (first (reverse (butlast navpath)))
+        thing-type (second (reverse (butlast navpath)))
+        thing-node (dom/by-id (str thingid))
+        assignto-link (dom/by-class (str entity-view/assignto thingid))
+        ; thing nav link class set inside entity view class
+        form (dom/by-class (str entity-view/assign-form thingid))
+        hform (dom/by-class "assign-form")
+        toggle-fn (fn [e]
+                    (let [hidden (dom/has-class? form ".hide")]
+                      (.log js/console (str "assign to clicked" hidden form))
+                      (if hidden
+                        (dom/add-class! form "hide")
+                        (dom/remove-class! form "hide"))))
+        ]
+    (.log js/console (str "enable thing nav event " path 
+                      (str entity-view/assignto thingid)
+                      (str entity-view/assign-form thingid) assignto-link))
+    ; wrap assign link with div and use class selector
+    (de/listen! assignto-link :click toggle-fn)
+  ))
+
+
+(defmethod enable-thing-nav 
+  :assign-form
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:parent 1 :assign-form]
+        thingid (first (reverse (butlast navpath)))
+        thing-type (second (reverse (butlast navpath)))
+        thing-node (dom/by-id (str thingid))
+        ; must use dom by-class to select form ?!
+        form (dom/by-class (str entity-view/assign-form thingid))
+
+        to-node (dom/by-class (str entity-view/assignto-name thingid))
+        hint-node (dom/by-class (str entity-view/assignto-hint thingid))
+        
+        ; to-node (dom/by-id "input-name")
+        ;hint-node (dom/by-id "input-hint")
+
+        ;to-node (dx/xpath form "//input[1]")
+        ;hint-node (dx/xpath form "//input[2]")
+
+        ;to-node (dc/sel form "#input-name")
+        ;hint-node (dc/sel form "#input-hint")
+        submit-fn (fn [_]   ; form submit handler, fill msg and ret the msg
+                    (let [toid-val (dom/value to-node)
+                          hint-val (dom/value hint-node)
+                          details {:action :create-assignment 
+                                   :hwid thingid 
+                                   :toid toid-val 
+                                   :hint hint-val}]
+                      (.log js/console (str "assign to submitted x" details to-node))
+                      ;(dom/destroy! form)
+                      (msgs/fill :submit messages {:details details})))
+        ]
+    (.log js/console (str "enable thing nav event " path messages))
+    ; wrap assign link with div and use class selector
+    (events/send-on :submit form input-queue submit-fn)
+  ))
 
 ;;==================================================================================
 ;; nav event, for assignments
@@ -328,18 +396,16 @@
         thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thingid))
         ; thing nav link class set inside entity view class
-        assignments-link (dom/by-class (str "assignments-" thingid))]
+        thing-link (dom/by-class (str "assignments-" thingid))]
     (.log js/console (str "enable thing nav event " path messages))
     ; wrap assign link with div and use class selector
-    (de/listen! assignments-link
+    (de/listen! thing-link
                 :click 
                 (fn [evt]
-                  (let [details {:path navpath}
-                        ; fill msg with msg-type messages, and input-map
+                  (let [; fill msg to set-nav-path [:nav :path] topic
                         new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
-                    ; details {:navpath (:child 17592186045499 :assignments)}
-                    (.log js/console (str navpath " link clicked " new-msgs))
-                    (doseq [m new-msgs]
+                    (.log js/console (str navpath " link clicked " messages))
+                    (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
                       (p/put-message input-queue m)))))
   ))
 

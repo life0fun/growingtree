@@ -261,7 +261,7 @@
        ]
     (mapcat 
       ; [:nav :parents 17592186045499 :children] :children
-      (fn [[path type id transkey :as navpath]]
+      (fn [[nav type id transkey :as navpath]]
         (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:parents 17592186045499 :parent]
           (.log js/console (str "thing navpath transform self " self-path " sublink " (rest navpath)))
           (vector 
@@ -290,7 +290,7 @@
        ]
     (mapcat 
       ; [:nav :parents 17592186045499 :children] :children
-      (fn [[path type id transkey :as navpath]]
+      (fn [[nav type id transkey :as navpath]]
         (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:parents 17592186045499 :parent]
           (.log js/console (str "thing navpath transform " self-path (rest navpath)))
           (vector 
@@ -301,7 +301,7 @@
                                [ ; first msg, request current thing as parent after nav
                                 {msgs/topic [:nav :path] 
                                  msgs/type :set-nav-path
-                                 :path (vec self-path)}  ; no need to wrap to (msgs/param :path)
+                                 :path (vec self-path)}  ; no need to wrap to (msgs/param :path) if you do not msgs/fill
                                 ; second msg, the child list of nav
                                 {msgs/topic [:nav :path]
                                  msgs/type :set-nav-path 
@@ -313,37 +313,35 @@
 (defmethod thing-navpath-transforms
   :courses
   [thing-type thing-id]
-  (let [actions [:lectures :assignto :enroll]
-        actionpaths (map #(conj [:setup] % thing-type thing-id) actions)
+  (let [transkeys [:lectures :assignto :enroll]
+        navpaths (map #(conj [:setup] % thing-type thing-id) transkeys)
        ]
-    (mapcat
-      ; [:setup :assign :courses 17592186045476]
-      (fn [[setup action type id :as actionpath]]
-        (.log js/console "thing xpath setup " setup action type id actionpath)
-        (vector ;[:node-destroy actionpath]
-                [:transform-enable actionpath 
-                                   action
-                                   [{msgs/topic actionpath
-                                     (msgs/param :details) {}}]]))
-      actionpaths)))
-
+    navpaths))
+    
 
 (defmethod thing-navpath-transforms
   :homeworks
   [thing-type thing-id]
-  (let [actions [:assignto]
-        actionpaths (map #(conj [:setup] % thing-type thing-id) actions)
+  (let [transkeys [:assign-toggle :assign-form]
+        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
        ]
-    (mapcat
-      ; [:setup :assign :homeworks 17592186045476]
-      (fn [[setup action type id :as actionpath]]
-        (.log js/console "thing actionbar setup " setup action type id actionpath)
-        (vector ;[:node-destroy actionpath]
-                [:transform-enable actionpath 
-                                   action
-                                   [{msgs/topic actionpath
-                                     (msgs/param :details) {}}]]))
-      actionpaths)))
+    (mapcat 
+      ; [:nav :homework 17592186045499 :assign-toggle]
+      (fn [[nav type id transkey :as navpath]]
+        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:homework 17592186045499 :assignments]
+          (.log js/console (str "thing navpath transform " self-path (rest navpath)))
+          (vector 
+            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy navpath]
+            [:transform-enable navpath    ; [:nav :parents 17592186045499 :children]
+                               transkey   ; transkey
+                               [ ; first msg, request current thing as parent after nav
+                                {msgs/topic [:submit transkey] 
+                                 msgs/type :submit
+                                 (msgs/param :details) {}} ; if msgs/fill, need to wrap into param
+                                ]] )))
+  
+      navpaths)))
 
 (defn- removed-thing-deltas
   "the removed path node from removed-inputs, arg is node path"

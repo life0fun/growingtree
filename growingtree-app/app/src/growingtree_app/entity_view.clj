@@ -32,6 +32,13 @@
 (def templates (html-templates/growingtree-app-templates))
 
 
+(def children-prefix "children-")
+
+(def assignto "assignto-")
+(def assign-form "assign-form-")
+(def assignto-name "assignto-name-")
+(def assignto-hint "assignto-hint-")
+
 ;;===============================================================
 ;; generate thing template based on thing type
 ;; when rendering node-create with thing-type and id, ret thing node div html
@@ -118,22 +125,29 @@
     thing-div))
 
 
+;; ------------------------------------------------------------------------
+;; instantiate homework thing template and gen html for rendering
+;; shall use selector for hardcoded dom class name
+;; ------------------------------------------------------------------------
 (defmethod thing-node-html
   :homeworks
   [path render] 
   (let [thingid (last path)
         templ (:thing-homework templates)
-        ; make a template attached to path node
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
-                         :assignto-class (str "assignto-" thingid)
+                         :assignto-class (str assignto thingid)
                          :comments-class (str "comments-" thingid)
                          :lectures-class (str "lectures-" thingid)
-                         :share-class (str "share-" thingid)})
+                         :share-class (str "share-" thingid)
+                         :assign-form-class (str assign-form thingid " toggle")
+                         ;:assignto-id (str "assign-" thingid)
+                         :assignto-name-class (str assignto-name thingid)
+                         :assignto-hint-class (str assignto-hint thingid)
+                         })
         ]
-    (.log js/console (str "thing-node-html " path))
+    (.log js/console (str "thing-node-html " path thingid))
     thing-div))
-
 
 
 (defmethod thing-node-html

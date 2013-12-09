@@ -107,12 +107,6 @@
     npath))
 
 
-; set thing type after nav to new type upon sidebar click
-(defn set-thing-type
-  [_ message]
-  (:type message))  ; value stored inside :category key
-
-
 ; setup in effect, and callback by xhr respond handler, store list of all things data into 
 ; [:data :all 0 :parent] or [:data :parent 1 :children]
 ; we store cljs.core.Vector data structure into path node. when clj get the ds out,
@@ -163,37 +157,21 @@
     details))
 
 
-;; create thing by type
-(defn create-thing-type
-  "create thing by type submitted"
+;; create thing from Create new thing modal
+(defn create-thing
+  "create thing from create new thing modal"
   [oldv message]
   (let [details (:details message)]
     (.log js/console (str "create thing type " details))
     details))
 
-
-; use navigate from things
-; message {:topic [:xpath :parents 17592186045498 :children], :details {} }
-; details {:next-entity :child, :filterpath (:parents 17592186045498)} 
-; old value is detail map {:next-entity :child, :filterpath (:parents 17592186045498)}
-(defn set-xpath
+;; submit thing from inline submit form under parent thing
+(defn submit-thing
+  "submit new thing from inline submit form under parent thing"
   [oldv message]
-  (let [topic (msgs/topic message)
-        details (:details message)]
-    (.log js/console (str "set xpath transform " oldv " details " details))
+  (let [details (:details message)]
+    (.log js/console (str "submit thing transform " details message))
     details))
-
-
-; the actual location in data model to be updated is determined by the path in message.
-(defn set-xdata
-  [oldv message]
-  (let [topic (msgs/topic message)  ; (:xdata :parents 17592186045499 :children)
-        thing-type (:thing-type message)
-        things-vec (:data message)]
-    (.log js/console (str "set-xdata transformer " thing-type topic things-vec))
-    things-vec))
-
-
 
 ;;==================================================================================
 ;; derive dataflow, derive fn got 2 args, old value, and tracking map
@@ -295,12 +273,11 @@
                 [:newthing [:submit :newthing] submit-newthing]
 
                 ; create thing page handler
-                [:creatething [:create :*] create-thing-type]
+                [:creatething [:create :*] create-thing]
 
-                ; xpath records navigation path and xdata stores query result.
-                ; :** match any path, and node path determined by msg topic
-                [:set-xpath [:xpath :**] set-xpath]  ; rendering UI set path value
-                [:set-xdata [:xdata :**] set-xdata]  ; db populate data into here
+                ; submit single thing form under parent thing, lecture, homework, 
+                ; assignment, question, answer, comment
+                [:submit [:submit :*] submit-thing]
                 
                ]
 
@@ -321,15 +298,12 @@
               ; note we specific tranform msg topic and type here so response data got
               ; dispatch to the right data model directly.
               [#{[:nav :path]} effect/request-navpath-things :mode :always]
-              
-              ; submit action effect, action is from topic and send details to backend.
-              [#{[:submit]} effect/post-submit-thing :mode :always]
 
               ; create thing type change [:create :course]
               [#{[:create :*]} effect/post-create-thing :mode :always]
-
-              ; user clicked actionbar links, xpath query
-              [#{[:xpath :**]} effect/request-xpath-things :mode :always]
+              
+              ; submit action effect, action is from topic and send details to backend.
+              ;[#{[:submit]} effect/post-submit-thing :mode :always]
             }
 
     ; emitter

@@ -123,11 +123,6 @@
 (defn add-thing-node
   [r [op path] input-queue]
   (let [thingid (last path)
-        ; make a template attached to this node
-        ; html (templates/add-template r path (:thing templates)) ; added template to this path node
-        ; assign-link (sel/assign-link thingid)
-        ; share-link (sel/share-link thingid)
-        ; thing (html {:id thingid :assign-link-class assign-link :share-link-class share-link})
         thing-div (entity-view/thing-node-html path r)
         main (dom/by-id "main")]
     (.log js/console (str "adding thing node " path thingid))
@@ -197,11 +192,6 @@
   "append child node to thing nav children list panel"
   [r [op path] input-queue]
   (let [thingid (last path)
-        ; make a template attached to this node
-        ; html (templates/add-template r path (:thing templates)) ; added template to this path node
-        ; assign-link (sel/assign-link thingid)
-        ; share-link (sel/share-link thingid)
-        ; thing (html {:id thingid :assign-link-class assign-link :share-link-class share-link})
         thing (entity-view/thing-node-html path r)
         ]
     ; [:data :parents 17592186045498 :children 17592186045497]
@@ -222,7 +212,6 @@
     (.log js/console (str "value filtered parent node " path title view-map newv))
     (templates/update-t r path thing-map)
     ))
-
 
 
 (defn value-filtered-child-node

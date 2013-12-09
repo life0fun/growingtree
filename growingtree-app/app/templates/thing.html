@@ -315,9 +315,9 @@
 
       <ul class="flat-list buttons">
         <li class="share">
-          <div field="class:assignto-class">
+          <div field="class:lectures-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">assign to</a>
+              <a class="option active" href="#">lectures</a>
             </span>
           <div>
         </li>
@@ -332,14 +332,6 @@
         </li>
 
         <li class="share">
-          <div field="class:lectures-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">lectures</a>
-            </span>
-          <div>
-        </li>
-
-        <li class="share">
           <div field="class:share-link-class">
             <span class="share-button toggle" style>
               <a class="option active" href="#">share</a>
@@ -347,8 +339,27 @@
           </div>
         </li>
 
+        <li class="share">
+          <div field="class:assignto-class">
+            <span class="share-button toggle" style>
+              <a class="option active" href="#">assign to</a>
+            </span>
+          <div>
+        </li>
+
       </ul>
-      <div class="child"></div>
+
+      <div class="child-forms">
+        <!-- assign to form, hide first -->
+        <div field="id:id,class:assign-form-class">
+          <form class="assign-form" style="float:left;">
+            <input field="class:assignto-name-class" id="input-name" type="text" placeholder="assign to">
+            <input field-"class:assignto-hint-class" id="input-hint" type="text" placeholder="hints">
+            <button class="assign-button" type="submit"> Assign </button>
+          </form>
+        </div>
+
+      </div>
       <div class="clearleft"></div>
     </div>
   </div>
