@@ -98,9 +98,10 @@
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
                          :lectures-class (str "lectures-" thingid)
-                         :assignto-class (str "assignto-" thingid)
                          :comments-class (str "comments-" thingid)
                          :share-class (str "share-" thingid)
+                         :assignto-class (str assignto thingid)
+                         :assign-form-class (str assign-form thingid)
                          :enroll-class (str "enroll-" thingid)})
         ]
     (.log js/console (str "thing-node-html " path))
@@ -116,8 +117,9 @@
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
                          :homeworks-class (str "homeworks-" thingid)
-                         :assignto-class (str "assignto-" thingid)
                          :comments-class (str "comments-" thingid)
+                         :assignto-class (str assignto thingid)
+                         :assign-form-class (str assign-form thingid)
                          :share-class (str "share-" thingid)
                          :enroll-class (str "enroll-" thingid)})
         ]
@@ -136,14 +138,11 @@
         templ (:thing-homework templates)
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
-                         :assignto-class (str assignto thingid)
-                         :comments-class (str "comments-" thingid)
                          :lectures-class (str "lectures-" thingid)
+                         :comments-class (str "comments-" thingid)
                          :share-class (str "share-" thingid)
+                         :assignto-class (str assignto thingid)
                          :assign-form-class (str assign-form thingid " toggle")
-                         ;:assignto-id (str "assign-" thingid)
-                         ;:assignto-name-class (str assignto-name thingid)
-                         ;:assignto-hint-class (str assignto-hint thingid)
                          })
         ]
     (.log js/console (str "thing-node-html " path thingid))

@@ -310,14 +310,32 @@
       navpaths)))
 
 
+
 (defmethod thing-navpath-transforms
   :courses
   [thing-type thing-id]
-  (let [transkeys [:lectures :assignto :enroll]
-        navpaths (map #(conj [:setup] % thing-type thing-id) transkeys)
+  (let [transkeys [:assign-toggle :assign-form]
+        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
        ]
-    navpaths))
+    (mapcat 
+      ; [:nav :courses 17592186045499 :assign-toggle]
+      (fn [[nav type id transkey :as navpath]]
+        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:courses 17592186045499 :assign-form]
+          (.log js/console (str "thing navpath transform " self-path (rest navpath)))
+          (vector 
+            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy navpath]
+            [:transform-enable navpath    ; [:nav :parents 17592186045499 :children]
+                               transkey   ; transkey
+                               [ ; first msg, request current thing as parent after nav
+                                {msgs/topic [:submit transkey] 
+                                 msgs/type :submit
+                                 (msgs/param :details) {}} ; if msgs/fill, need to wrap into param
+                                ]] )))
+  
+      navpaths)))
     
+
 
 (defmethod thing-navpath-transforms
   :homeworks
@@ -328,7 +346,7 @@
     (mapcat 
       ; [:nav :homework 17592186045499 :assign-toggle]
       (fn [[nav type id transkey :as navpath]]
-        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:homework 17592186045499 :assignments]
+        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:homework 17592186045499 :assign-form]
           (.log js/console (str "thing navpath transform " self-path (rest navpath)))
           (vector 
             [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.

@@ -165,6 +165,7 @@
     (.log js/console (str "create thing type " details))
     details))
 
+
 ;; submit thing from inline submit form under parent thing
 (defn submit-thing
   "submit new thing from inline submit form under parent thing"

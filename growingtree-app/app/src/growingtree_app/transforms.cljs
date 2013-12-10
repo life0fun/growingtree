@@ -17,6 +17,12 @@
             [growingtree-app.newthing-form :as newthing-form])
   (:require-macros [growingtree-app.html-templates :as html-templates]))
 
+;=============================================================================
+; transform module is responsible for dom selector element, and listen to
+; dom events, and handle events by sending transform messages back to app model.
+; to get dom element value, can not use class selector, must use xpath selector
+; with id as class selector returns a list of node and id return unique element.
+;=============================================================================
 
 ;
 ; data structure in cljs are cljs.core.X data structure.
@@ -71,8 +77,23 @@
 ; Load templates macro.
 (def templates (html-templates/growingtree-app-templates))
 
+
 ;;==================================================================================
-;; login btn
+;; utility functions for toggle hide of form
+;;==================================================================================
+; too bad (dom/toggle-class! form "hide") is not available.
+(defn toggle-hide-fn
+  "return an event handler fn that toggen hide css class of the form"
+  [form]
+  (fn [_] 
+    (let [hidden (dom/has-class? form "hide")]
+      (if hidden
+        (dom/remove-class! form "hide")
+        (dom/add-class! form "hide")))))
+
+
+;;==================================================================================
+;; login btn event handler
 ;;==================================================================================
 (defn enable-login-submit
   "listen login btn event and sent transform msgs back to behavior"
@@ -90,8 +111,9 @@
   [_ _ _]
   (events/remove-click-event "login-button"))
 
+
 ;;==================================================================================
-;; sidebar nav click
+;; sidebar nav click event handler
 ;;==================================================================================
 
 ; sidebar click transform [:nav :path] value, trigger request to get list of things.
@@ -163,10 +185,10 @@
         form (dom/by-class (sel/assign-form thingid))  ; must use dom by-class to select form ?!
 
         to-node (dom/by-id "assign-to")
-        hint-node (dom/by-id "assign-hint")
+        assignto-hint (dom/by-id "assign-hint")
         submit-fn (fn [_]   ; form submit handler, fill msg and ret the msg
                     (let [toid-val (.-value to-node)
-                          hint-val (.-value hint-node)
+                          hint-val (.-value assignto-hint)
                           details {:action :create-assignment 
                                    :hwid thingid :toid toid-val :hint hint-val}]
                       (.log js/console (str "assign submitted " details))
@@ -235,7 +257,7 @@
  
 
 ;;==================================================================================
-;; create new thing btn clicked
+;; create new thing btn clicked event handler
 ;;==================================================================================
 ; wire submit button click on new thing to fill newthing message
 (defmethod enable-submit-action 
@@ -249,7 +271,7 @@
 
 
 ;;==================================================================================
-;; share btn setup and submit
+;; share btn setup and submit event handlers
 ;;==================================================================================
 
 ; ;; Handle add-tasks 
@@ -318,69 +340,55 @@
   ))
 
 ;;==================================================================================
-;; enable assignto-toggle and assignto-submit form.
+;; enable assignto-toggle and assignto-submit form with link and form event handler.
 ;; nav anywhere -> assignto-submit , transkey is assignto-submit, 
-;; [:transform-enable [:nav :parents 17592186045498 :assignto-submit] :assignto-submit
+;; [:transform-enable [:nav :courses 17592186045496 :assign-toggle] :assign-toggle
 ;;==================================================================================
 (defmethod enable-thing-nav 
   :assign-toggle
   [r [_ path transkey messages] input-queue]
   (let [navpath (rest path)  ; [:parent 1 :assign-toggle]
         thingid (first (reverse (butlast navpath)))
-        thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thingid))
         assignto-link (dom/by-class (str entity-view/assignto thingid))
-        ; thing nav link class set inside entity view class
-        form (dom/by-class (str entity-view/assign-form thingid))
-        hform (dom/by-class "assign-form")
-        toggle-fn (fn [e]
-                    (let [hidden (dom/has-class? form ".hide")]
-                      (.log js/console (str "assign to clicked" hidden form))
-                      (if hidden
-                        (dom/add-class! form "hide")
-                        (dom/remove-class! form "hide"))))
+
+        toggle-fn (-> (dom/by-class (str entity-view/assign-form thingid))
+                      (dx/xpath "//form[@id='assign-form']")
+                      (toggle-hide-fn))
         ]
-    (.log js/console (str "enable thing nav event " path 
-                      (str entity-view/assignto thingid)
-                      (str entity-view/assign-form thingid) assignto-link))
-    ; wrap assign link with div and use class selector
+    (.log js/console (str "enable thing nav assign toggle " path assignto-link))
     (de/listen! assignto-link :click toggle-fn)
   ))
 
 
+; use xpath with id selector to find assignto-name and assignto-hint ele and 
+; submit transform messsage upon clicked.
 (defmethod enable-thing-nav 
   :assign-form
   [r [_ path transkey messages] input-queue]
   (let [navpath (rest path)  ; [:parent 1 :assign-form]
         thingid (first (reverse (butlast navpath)))
-        thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thingid))
-        ; must use dom by-class to select form ?!
-        form (dom/by-class (str entity-view/assign-form thingid))
 
-        ;to-node (dom/by-class (str entity-view/assignto-name thingid))
-        ;hint-node (dom/by-class (str entity-view/assignto-hint thingid))
-        
-        ; to-node (dom/by-id "input-name")
-        ;hint-node (dom/by-id "input-hint")
-
-        to-node (dx/xpath form "//input[@id='input-name']")
-        hint-node (dx/xpath form "//input[2]")
-
-        ;to-node (dc/sel form "#input-name")
-        ;hint-node (dc/sel form "#input-hint")
-        submit-fn (fn [_]   ; form submit handler, fill msg and ret the msg
-                    (let [toid-val (dom/value to-node)
-                          hint-val (dom/value hint-node)
-                          details {:action :create-assignment 
-                                   :hwid thingid 
-                                   :toid toid-val 
-                                   :hint hint-val}]
-                      (.log js/console (str "assign to submitted xze" details to-node))
-                      ;(dom/destroy! form)
-                      (msgs/fill :submit messages {:details details})))
+        ; select form by class and then xpath within the node
+        form (-> (dom/by-class (str entity-view/assign-form thingid))
+                  (dx/xpath "//form[@id='assign-form']"))
+        ; must use xpath id selector
+        assignto-name (dx/xpath form "//input[@id='assignto-name']")
+        assignto-hint (dx/xpath form "//input[@id='assignto-hint']")
+        ; form submit handler, fill msg and ret the msg
+        submit-fn (fn [_]   
+            (let [to-val (dom/value assignto-name)
+                  hint-val (dom/value assignto-hint)
+                  details {:action :create-assignment 
+                           :thing-id thingid 
+                           :assignto-name to-val 
+                           :assignto-hint hint-val}]
+              (.log js/console (str "assign form submitted " details))
+              ((toggle-hide-fn form) nil)  ; hide the form
+              (msgs/fill :submit messages {:details details})))
         ]
-    (.log js/console (str "enable thing nav event " path messages))
+    (.log js/console (str "enable thing nav assign-form " path messages))
     ; wrap assign link with div and use class selector
     (events/send-on :submit form input-queue submit-fn)
   ))

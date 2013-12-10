@@ -214,7 +214,19 @@
         </li>
 
       </ul>
-      <div class="child"></div>
+      
+
+      <div class="child-forms">
+        <!-- assign to form, hide first -->
+        <div field="id:id,class:assign-form-class">
+          <form id="assign-form" class="assign-form hide" style="float:left;">
+            <input id="assignto-name" type="text" placeholder="assign to">
+            <input id="assignto-hint" type="text" placeholder="hints">
+            <button class="assign-button" type="submit"> Assign </button>
+          </form>
+        </div>
+
+      </div>
       <div class="clearleft"></div>
     </div>
   </div>
@@ -285,7 +297,18 @@
         </li>
 
       </ul>
-      <div class="child"></div>
+      
+      
+      <div class="child-forms">
+        <!-- assign to form, hide first -->
+        <div field="id:id,class:assign-form-class">
+          <form class="assign-form" style="float:left;">
+            <input id="assignto-name" type="text" placeholder="assign to">
+            <input id="assignto-hint" type="text" placeholder="hints">
+            <button class="assign-button" type="submit"> Assign </button>
+          </form>
+        </div>
+      </div>
       <div class="clearleft"></div>
     </div>
   </div>
@@ -353,8 +376,8 @@
         <!-- assign to form, hide first -->
         <div field="id:id,class:assign-form-class">
           <form class="assign-form" style="float:left;">
-            <input id="input-name" type="text" placeholder="assign to">
-            <input id="input-hint" type="text" placeholder="hints">
+            <input id="assignto-name" type="text" placeholder="assign to">
+            <input id="assignto-hint" type="text" placeholder="hints">
             <button class="assign-button" type="submit"> Assign </button>
           </form>
         </div>
@@ -430,14 +453,14 @@
 
   <!-- the assign form action div -->
   <div template="assign-form" field="class:assign-form-class">
-    <form class="assign-form action-bar" style="float:left;">
-      <input id="assign-to" type="text" placeholder="assign to">
-      <input id="assign-hint" type="text" placeholder="hints">
+    <form class="assign-form" style="float:left;">
+      <input id="assignto-name" type="text" placeholder="assign to">
+      <input id="assignto-hint" type="text" placeholder="hints">
       <button class="assign-button" type="submit"> Assign </button>
     </form>
   </div>
 
-
+ 
   <!-- thing details div -->
   <div class="offset0" template="thing-details" field="id:id">
     <div id="thing-root"> </div>
