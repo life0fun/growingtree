@@ -169,7 +169,9 @@
   (ring-response/response "Hello, Growing Tree !"))
 
 
-; api things
+;;==================================================================================
+; GET request to get all things without post any filters
+;;==================================================================================
 (defn get-all-things
   "get things by type, ret from peer a list of thing in a new line sep string"
   [req]
@@ -179,13 +181,15 @@
         result {:status 200 :data things}
         jsonresp (bootstrap/json-response result)] ; conver to keyword for query
     (newline)
-    (println "server service get-all-things " (count things) type things)
+    (println "service get peer get-all-things " (count things) type things)
     jsonresp))
     ; (-> (ring-response/response things)
     ;     (ring-response/content-type "application/edn"))))
 
 
-; get things with filter from post data
+;;==================================================================================
+; POST filter from nav path to get things within parent.
+;;==================================================================================
 (defn get-things
   "get things by type, ret from peer a list of thing in a new line sep string"
   [{postdata :edn-params :as request}]
@@ -196,10 +200,11 @@
         result {:status 200 :data things}
         jsonresp (bootstrap/json-response result)]
     (newline)  
-    (println (str "get-things " type thing-type path things))
+    (println (str "service got peer get-things " type thing-type path things))
     jsonresp))
 
 
+;------------------------------------------------------------------------------------
 ; destruct edn-params as request params and post body data is a clj map. frame does json transcoding.
   ; :request-method :post,
   ; :query-string nil,
@@ -212,26 +217,30 @@
   ;  :user "rich"},
   ; :path-info "/api/assignments",
   ; :uri "/api/assignments",
+;------------------------------------------------------------------------------------
+
+;;==================================================================================
+; POST form details to add a particular thing
+; postdata is body when xhr-request on api service side
+;;==================================================================================
 (defn add-thing
   "add a thing upon post request, request contains http post data"
   [{postdata :edn-params :as request}]
   (let [;resp (bootstrap/json-print {:result msg-data})
         type (get-in request [:path-params :thing])  ; /api/:thing
-        added-things (peer/add-thing (keyword type) postdata)
+        added-things (peer/add-thing (keyword type) (:details postdata))
         result {:status 200 :data added-things}
         jsonresp (bootstrap/json-response result)
         ]
 
-    (log/info :message "received message"
-              :request request
-              :msg-data postdata)
-
-    (prn "adding thing done " postdata " type " type " resp " added-things)
+    (log/info :message "received message" :request request :msg-data postdata)
+    (prn "service got peer adding thing done " postdata " type " type " resp " added-things)
     jsonresp))
 
 
-;; - - - - - - - routing table - - - - - - - -
+;;==================================================================================
 ;; define routing table with verb map and route interceptor
+;;==================================================================================
 (defroutes routes
   [[["/" {:get home-page}
      ;; Set default interceptors for /about and any other paths under /

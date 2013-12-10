@@ -40,7 +40,6 @@
 ;; we convert response data to cljs.core.PersistentVector and store i
 
 
-
 ; log fn for xhr request
 (defn xhr-log
   "js console log the args"
@@ -62,71 +61,11 @@
                :on-error on-error))
 
 
-; create a fn to handle query response, inject json array data into input-queue.
-; as json is more efficient than edn, we use json-response at server side.
-; response handler closed over the msg topic and type, dispatch to transformer directly.
-; server always sends list of things, parse to cljs.core.PersistentVector.
-(defn response-handler
-  "handle RESTful json array response close over thing type and input queue"
-  [thing-type msg-topic msg-type input-queue]
-  (fn [response]
-    ; parse response body into json and convert json to cljs PersistentVector
-    (when-let [body (:body response)] ; only when we have valid body
-      (.log js/console "xhr response body " thing-type body)
-      (let [bodyjson (JSON/parse body)  
-            ; parse js json object to cljs.core.PersisitentVector data structre.
-            result (js->clj bodyjson :keywordize-keys true)
-            status (:status result)
-            things-vec (:data result)
-            ]
-        (.log js/console (str "response tuples " thing-type msg-topic msg-type things-vec))
-        ; dispatch to different transformer in behavior directly.
-        (p/put-message input-queue
-                       {msgs/topic msg-topic  ; store vec in [:all :parent]
-                        msgs/type msg-type
-                        :thing-type thing-type        ; set thing type
-                        :data things-vec  ; store cljs.core.PersistVector into path node
-                        })))))
-
-
-;
+;;==================================================================================
 ; services-fn consume effect queue msgs from app behavior and xhr post to server.
 ; pr-str is used to convert map data structure to edn string for RESTFul request.
 ; the message must contain the behavior's transformer's msg/topic and msg/type for data
-; (defn services-fn
-;   "service fn takes msgs out of effect queue and post to back-end"
-;   [message input-queue] ; input queue is where ret result should be injected to.
-;   ; ensure msgs wrap/unwrap keys match.
-;   (when-let [body ((msgs/param :body) message)]
-;     (let [;body (pr-str body)  ; do not need to convert body to json string
-;           thing-type (msgs/type message)]
-;       (.log js/console (str "service-fn consume effect thing type" thing-type " " body))
-;       ; dispatch on thing-type
-;       (case thing-type
-;         ;; sse subscribe and publish
-;         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
-;         :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)  ; log as callback
-
-;         ; plural keyword for GET request
-;         :parents (request-thing "/api/parents" "GET" body input-queue)
-;         :children (request-thing "/api/children" "POST" body input-queue)
-;         ; :courses (request-thing "/api/courses" "GET" body input-queue)
-;         ; :lectures (request-thing "/api/lectures" "GET" body input-queue)
-;         ; :homeworks (request-thing "/api/homeworks" "GET" body input-queue)
-;         ; :assignments (request-thing "/api/assignments" "GET" body input-queue)
-
-;         ; singular keyword for post data to create new thing
-;         :assignment (request-thing "/api/assignment" "POST" body input-queue)
-;         :course (request-thing "/api/course" "POST" body input-queue)
-;         :homework (request-thing "/api/homework" "POST" body input-queue)
-
-;         ; xpath filtered query
-;         :xpath (request-xpath body input-queue)
-
-;         "default")
-;       (str "Send to Server: " body))))
-
-
+;;==================================================================================
 (defn services-fn
   "service fn takes msgs out of effect queue and post to back-end"
   [message input-queue]
@@ -140,24 +79,66 @@
         :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)
 
         :request-things (request-things body input-queue)
+        :add-thing (add-thing body input-queue)
         
-        "default")
-      (str "Send to Server: " body))))
+        "default"))))
+
+
+
+;;==================================================================================
+; return a fn to handle query response, inject json array data into input-queue.
+; as json is more efficient than edn, we use json-response at server side.
+; when create response handler closure, setup msg type/topic, data got delivered into
+; app model directly. msg type/topic is setup in effect flow trigged by [:nav :path]
+;
+; server always deliver list of things, parse to cljs.core.PersistentVector.
+; app model transformer has :thing-type / :data keys.
+;;==================================================================================
+(defn response-handler
+  "dispatch RESTful json array response to app model set by effect nav path data"
+  [thing-type msg-topic msg-type input-queue]
+  (fn [response]
+    ; parse response body into json and convert json to cljs PersistentVector
+    (when-let [body (:body response)] ; only when we have valid body
+      (let [bodyjson (JSON/parse body)  
+            ; parse js json object to cljs.core.PersisitentVector data structre.
+            result (js->clj bodyjson :keywordize-keys true)
+            status (:status result)
+            things-vec (:data result)  ; alway ret a list of things
+            ]
+        (.log js/console (str "xhr response tuples " thing-type msg-topic msg-type things-vec))
+        ; dispatch to different transformer in behavior directly.
+        (p/put-message input-queue
+                       {msgs/topic msg-topic  ; store vec in [:all :parent]
+                        msgs/type msg-type
+                        :thing-type thing-type        ; set thing type
+                        :data things-vec  ; store cljs.core.PersistVector into path node
+                        })))))
+
 
 ;;=======================================================================================
-;; request handler, create response handler closure.
-;; here we define msg topic/type which will dispatch msg to the right transformer.
+; request handler msg topic/type will dispatch msg to the right transformer.
+; msg type topic is setup in effect flow when nav path changed. [:data nav-path]
 ;;=======================================================================================
 (defn request-things
   [body input-queue]
   (let [{:keys [msg-topic msg-type thing-type path]} body
-        ; msg-topic (:msg-topic body)
-        ; msg-type (:msg-type body)
-        ; thing-type (:thing-type body)
-        ; path (:path body)
         api (str "/api/" (name thing-type))
         resp (response-handler thing-type msg-topic msg-type input-queue)]
     (.log js/console (str "app service request things" thing-type msg-topic msg-type body))
+    (xhr-request api "POST" body resp xhr-log)))
+
+
+;;=======================================================================================
+; add thing handler, post thing details to server to insert.
+; body is details map that has :thing-type
+;;=======================================================================================
+(defn add-thing
+  [body input-queue]
+  (let [{:keys [msg-topic msg-type thing-type details]} body
+        api (str "/add/" (name thing-type))  ; api is /add/:thing
+        resp (response-handler thing-type msg-topic msg-type input-queue)]
+    (.log js/console (str "app service add thing " thing-type msg-topic msg-type body))
     (xhr-request api "POST" body resp xhr-log)))
 
 

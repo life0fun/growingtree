@@ -361,10 +361,24 @@
   
       navpaths)))
 
+
+
 (defn- removed-thing-deltas
   "the removed path node from removed-inputs, arg is node path"
   [input-path oldvals]
   (.log js/console (str "removed path " input-path " oldvals " oldvals)))
+
+
+;;==================================================================================
+; after user submitted form data, emit a confirmation modal
+;;==================================================================================
+(defn submitted-form-emitter
+  "emit a confirmation modal after user submitted form"
+  [inputs]
+  (let [msg (:message inputs)]  ; get the active msg that triggers this
+    (.log js/console (str "submitted-form-emitter " msg))
+    []
+    ))
 
 
 ;;==================================================================================

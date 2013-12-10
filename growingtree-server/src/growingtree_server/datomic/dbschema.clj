@@ -203,6 +203,7 @@
 (defschema assignment
   (part app)
   (fields
+    [title :string :fulltext "the title of the assignment"]
     [author :ref :one "assignment created from who"]
     [homework :ref :one "assignment always comes from homework"]
     [priority :long :one "the priority of the assignment"]

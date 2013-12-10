@@ -263,7 +263,7 @@
 
                 ; db response data goes here. [:data :all 0 :parent] [:data :parent 1 :children]
                 [:set-thing-data [:data :**] set-thing-data]
-
+                [:submitted-form [:data :form] submitted-form]
 
                 ; assign action setup transform
                 [:assign [:setup :assign :* :*] setup-assign]
@@ -304,7 +304,7 @@
               [#{[:create :*]} effect/post-create-thing :mode :always]
               
               ; submit action effect, action is from topic and send details to backend.
-              ;[#{[:submit]} effect/post-submit-thing :mode :always]
+              [#{[:submit]} effect/post-submit-thing :mode :always]
             }
 
     ; emitter
@@ -321,6 +321,7 @@
 
            ; [:data :all 0 :parent] or [:data :parent 1 :children]
            {:in #{[:data :* :* :*]} :fn emitter/thing-data-emitter :mode :always}
+           {:in #{[:data :form]} :fn emitter/submitted-form-emitter :mode :always}
 
            ; when actionbar displayed, action, setup, assign, thing enable transform
            {:in #{[:setup :assign :* :*]} :fn emitter/assign-emitter :mode :always}

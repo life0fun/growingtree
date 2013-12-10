@@ -168,10 +168,12 @@
 (defmethod add-thing
   :assignment
   [type details]
-  (let [hwid (:hwid details)
+  (let [task-id (:task-id details)
         hint (:hint details)]
+    (newline)
     (prn "peer add thing " type details)
-    (dda/create-assignment hwid {:hint hint})))
+    (dda/create-assignment task-id {:hint hint})
+    ))
 
 
 ;; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 

@@ -48,7 +48,7 @@
         activepath (:path msg)   ; [:all 0 :children] or [:parent 1 :children] or [:parent 1 :parent]
         thing-type (last activepath)
         ; topic = [:data :all 0 :parent], store data in location [:data :parent 1 :children]
-        msg-topic (concat [:data] activepath) 
+        msg-topic (concat [:data] activepath)
         msg-type :set-thing-data
         body {:msg-topic msg-topic :msg-type msg-type 
               :thing-type thing-type :path activepath}]
@@ -57,35 +57,33 @@
     (if thing-type
       ;[{msgs/topic [:server] msgs/type thing-type (msgs/param :body) body}])))
       [{msgs/topic [:server] msgs/type :request-things (msgs/param :body) body}])))
-    
-
-; request timeline
-(defn request-timeline
-  [timeline]
-  [])
 
 
-; effect processing. assign submit btn clicked.
-; inputs contains {:mesage {topic [] :details} :new-model {} :old-model {}}
-;; rich post submit thing [:submit :assignn] action :assign details {:action :create-assignment, :hwid 17592186045485, :toid "a", :hint "b"}
-;; rich post submit thing [:submit :newthing] action :newthing details {:action :newthing, :type "course", :title "", :content "", :user "rich"}
+;;==================================================================================
+; after input form submitted, app model transform stores details in [:submit :thing-type]
+; effect flow picks it up and post data to insert things into db
+; details setup in enable-thing-nav with :action :thing-id :assignto-name and :assignto-hint.
+; we get the current login user as the user id
+;;==================================================================================
 (defn post-submit-thing
-  "after use created new thing, post them to database"
+  "assign form submitted, post thing details data to add to database"
   [inputs]
   (let [user (get-login-name inputs)
-        msg (:message inputs)  ; the msg sent when assign clicked
-        topic (msgs/topic msg)   ;[:submit :assign :homeworks 17592186045485]
-        action (second topic)    ; :assign is msg type
-        thingid (last topic)
-        details (:details msg)
-        body (assoc details :user user)]  ; homework id and :toid and hint
-    (.log js/console (str user " post submit thing " topic " action " action 
-                          " thingid " thingid " body " body))
+        msg (:message inputs)  ; active msg that triggered this effect flow
+        msg-topic [:data :form]   ; single bucket to FIFO all submitted forms
+        msg-type :submitted-form
+        details (assoc (:details msg) :user user)
+        body {:msg-topic msg-topic :msg-type msg-type 
+              :thing-type (:thing-type details) :details details}]
+    (.log js/console (str user " submit form details " body))
     ; msg type :assign
-    [{msgs/topic [:server] msgs/type action :body body}]))
+    [{msgs/topic [:server] msgs/type :add-thing (msgs/param :body) body}]))
 
 
-
+;;==================================================================================
+;; XXX we specific tranform msg topic and type here so response data got dispatch 
+;; to the right locaton in data model directly.
+;;==================================================================================
 ; effect processing. create new thing form submitted
 ; inputs contains {:mesage {topic [] :details} :new-model {} :old-model {}}
 ;; rich post submit thing [:submit :assignn] action :assign details {:action :create-assignment, :hwid 17592186045485, :toid "a", :hint "b"}
@@ -102,5 +100,11 @@
         body (assoc details :user user)]  ; user is author
     (.log js/console (str user " created new thing " thing-type " body " body))
     ; msg type :assign
-    [{msgs/topic [:server] msgs/type action :body body}]
+    [{msgs/topic [:server] msgs/type action (msgs/param :body) body}]
     ))
+
+; request timeline
+(defn request-timeline
+  [timeline]
+  [])
+

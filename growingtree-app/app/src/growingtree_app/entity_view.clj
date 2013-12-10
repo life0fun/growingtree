@@ -142,7 +142,7 @@
                          :comments-class (str "comments-" thingid)
                          :share-class (str "share-" thingid)
                          :assignto-class (str assignto thingid)
-                         :assign-form-class (str assign-form thingid " toggle")
+                         :assign-form-class (str assign-form thingid)
                          })
         ]
     (.log js/console (str "thing-node-html " path thingid))

@@ -380,8 +380,8 @@
         submit-fn (fn [_]   
             (let [to-val (dom/value assignto-name)
                   hint-val (dom/value assignto-hint)
-                  details {:action :create-assignment 
-                           :thing-id thingid 
+                  details {:thing-type :assignment   ; single thing-type for add thing
+                           :task-id thingid  ; homework, course, lecture, etc.
                            :assignto-name to-val 
                            :assignto-hint hint-val}]
               (.log js/console (str "assign form submitted " details))

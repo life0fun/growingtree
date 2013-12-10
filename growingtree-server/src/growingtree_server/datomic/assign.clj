@@ -125,6 +125,33 @@
     "Sport" :homework.type/sports
     "default"))
 
+;---------------------------------------------------------------------------------
+; rules to find all parent or child with the name, 
+; for all rule lists with the same name, results are OR logic.
+
+; rule set for get child by. rule name is the parent thing type.
+(def get-homework-by
+  '[[(:all ?e ?val) [?e :homework/author]]   ; select all homework that has author
+    [(:title ?e ?val) [?e :homework/title ?val]]
+    [(:author ?e ?val) [?e :homework/author ?val]]
+    [(:lecture ?e ?val) [?e :homework/lecture ?val]]
+    [(:type ?e ?val) [?e :homework/type ?val]]
+    [(:content ?e ?val) [?e :homework/content ?val]]
+  ])
+
+(def get-assignment-by
+  '[[(:all ?e ?val) [?e :assignment/author]]   ; select all assignment that has author
+    [(:title ?e ?val) [?e :assignment/title ?val]]
+    [(:author ?e ?val) [?e :assignment/author ?val]]
+    [(:homework ?e ?val) [?e :assignment/homework ?val]]
+    [(:assignee ?e ?val) [?e :assignment/assignee ?val]]
+    [(:status ?e ?val) [?e :assignment/status ?val]]
+    [(:due ?e ?val) [?e :assignment/due ?val]]
+  ])
+
+;;==================================================================================
+; create homework
+;;==================================================================================
 
 ; given a map of homework attr, rename to datomic schema ns for inserting
 ; for now, comment out ref attrs.
@@ -269,6 +296,9 @@
     entities))
 
 
+;;================================================================================
+;; assignment
+;;================================================================================
 ; submit an answer to an assignment
 (defn submit-answer
   "submit an answer to an assignment"

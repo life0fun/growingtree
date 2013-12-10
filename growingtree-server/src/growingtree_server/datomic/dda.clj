@@ -300,8 +300,8 @@
   ([]
     (assign/create-assignment))
 
-  ([hwid data]
-    (assign/create-assignment hwid data)))
+  ([task-id details]
+    (assign/create-assignment task-id details)))
 
 
 
