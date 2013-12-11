@@ -7,7 +7,8 @@
                  [io.pedestal/pedestal.app "0.2.1"]
                  [io.pedestal/pedestal.app-tools "0.2.1"]
                  [com.cemerick/piggieback "0.1.0"]
-                 [cheshire "5.2.0"]]
+                 [clj-time "0.5.1"]  ; clj-time wraps Joda time
+                 ]
   :min-lein-version "2.0.0"
   :source-paths ["app/src" "app/templates"]
   :resource-paths ["config"]

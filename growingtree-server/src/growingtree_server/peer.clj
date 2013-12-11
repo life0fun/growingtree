@@ -168,11 +168,11 @@
 (defmethod add-thing
   :assignment
   [type details]
-  (let [task-id (:task-id details)
-        hint (:hint details)]
+  (let [details (assoc details :author (:user details))]  ; make the user as author
     (newline)
     (prn "peer add thing " type details)
-    (dda/create-assignment task-id {:hint hint})
+    ;(dda/create-assignment task-id details)
+    (dda/create-assignment details)
     ))
 
 

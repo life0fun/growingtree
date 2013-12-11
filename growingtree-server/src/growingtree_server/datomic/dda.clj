@@ -269,7 +269,7 @@
 
 
 ;;==============================================================
-;; homework assignment related, should use multi-method to dispatch
+;; homework related, should use multi-method to dispatch
 ;;==============================================================
 ; create homework to be assigned
 (defn create-homework
@@ -294,15 +294,17 @@
   (assign/inc-homework-popularity))
 
 
+;;==============================================================
+; assignment 
+;;==============================================================
 ; create an assignment for any homework that 
 (defn create-assignment
   "create an assignment from a homework to a child"
   ([]
     (assign/create-assignment))
 
-  ([task-id details]
-    (assign/create-assignment task-id details)))
-
+  ([details]
+    (assign/submit-assignment details)))
 
 
 ; find all assignment
@@ -312,6 +314,9 @@
   (assign/find-assignment))
 
 
+;;==============================================================
+; answer 
+;;==============================================================
 ; submit an answer to an assignment
 (defn submit-answer
   "submit an answer to an assignment"

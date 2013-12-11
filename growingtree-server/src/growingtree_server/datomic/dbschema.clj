@@ -207,7 +207,7 @@
     [author :ref :one "assignment created from who"]
     [homework :ref :one "assignment always comes from homework"]
     [priority :long :one "the priority of the assignment"]
-    [assignee :ref :many "make one assignment to one child, or many children ?"]
+    [assignee :ref :one "make one assignment to one child, one to one mapping"]
     [status :enum assignment-status "status of assignment"]
     [tag :string :many "the tag to the assignment"]
     [hint :string :many "hints to the assignment"]

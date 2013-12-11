@@ -102,18 +102,6 @@
 (declare inc-homework-popularity)
 (declare create-homework-math)
 
-; this map between course map to entity attr
-(def homework-key-attr-map 
-  {:id :db/id
-   :title :homework/title
-   :author :homework/author
-   :content :homework/content
-   :type :homework/type
-   :lecture :homework/lecture
-   :difficulty :homework/difficulty
-   :url :homework/url 
-   :email :homework/email
-   :comments :homework/comments})
 
 (defn thing-type-enum
   [type]
@@ -123,6 +111,15 @@
     "Reading/Writing" :homework.type/reading
     "Art" :homework.type/art
     "Sport" :homework.type/sports
+    "default"))
+
+
+(defn status-enum
+  [status]
+  (case status
+    "Pending" :assignment.status/pending
+    "Active" :assignment.status/active
+    "Overdue" :assignment.status/overdue
     "default"))
 
 ;---------------------------------------------------------------------------------
@@ -149,13 +146,26 @@
     [(:due ?e ?val) [?e :assignment/due ?val]]
   ])
 
+
 ;;==================================================================================
 ; create homework
 ;;==================================================================================
+; this map between course map to entity attr
+(def homework-key-attr-map 
+  {:id :db/id
+   :title :homework/title
+   :author :homework/author
+   :content :homework/content
+   :type :homework/type
+   :lecture :homework/lecture
+   :difficulty :homework/difficulty
+   :url :homework/url 
+   :email :homework/email
+   :comments :homework/comments})
 
-; given a map of homework attr, rename to datomic schema ns for inserting
-; for now, comment out ref attrs.
-(defn insert-homework-map
+
+(defn homework-to-attr
+  "convert from homework value map to entity attr"
   [homework-map]
   (let [type-enum-map (update-in homework-map [:type] thing-type-enum)
         ; for now, do not project ref attr for insertion
@@ -166,24 +176,25 @@
                         (assoc :db/id (d/tempid :db.part/user)))]
     homework-attr))
 
+; convert a homework entity to map
+(defn homework-to-map
+  [e]
+  (let [lectures (:homework/lectures e)
+        homework-map (zipmap (keys homework-key-attr-map)
+                           (util/entity-values e (vals homework-key-attr-map)))]
+    homework-map))
+
 
 ; the enum must be fully qualified, :homework.subject/math
 (defn create-homework
   "create homework with details"
   [details]
-  (let [insert-map (insert-homework-map details)
+  (let [insert-map (homework-to-attr details)
         trans (submit-transact [insert-map])
         ]
     (prn "create homework " insert-map " trans " trans)
     trans))
 
-; convert a homework entity to map
-(defn to-homework-map
-  [e]
-  (let [lectures (:homework/lectures e)
-        homework-map (zipmap (keys homework-key-attr-map)
-                           (util/select-values e (vals homework-key-attr-map)))]
-    homework-map))
 
 ; find a homework
 (defn find-homework
@@ -191,7 +202,7 @@
   []
   (let [hw (d/q '[:find ?h :where [?h :homework/title]] (get-db))
         entities (map (comp get-entity first) hw)
-        homeworks (map to-homework-map entities)
+        homeworks (map homework-to-map entities)
         ]
     (doseq [h homeworks]
       (prn " homework --> " h))
@@ -211,32 +222,50 @@
 ;;================================================================================
 ;; assignment
 ;;================================================================================
-; form assignment attr map
-(defn assignment-attr
-  "basic assignment attr map"
-  [pid cid hwid start due hint]
-  (let [m {:db/id (d/tempid :db.part/user)
-          :assignment/homework hwid
-          :assignment/from pid
-          :assignment/to cid
-          :assignment/start start
-          :assignment/due due
-          :assignment/hint hint}]
-    (prn m)
-    m))
+
+; this map between assignment map to entity attr
+(def assignment-key-attr-map 
+  {:id :db/id
+   :title :assignment/title
+   :author :assignment/author
+   :homework :assignment/homework
+   :assignee :assignment/assignee
+   :priority :assignment/priority
+   :status :assignment/status
+   :start :assignment/start
+   :due :assignment/due
+   :hint :assignment/hint
+   :answer :assignment/answer
+   :comments :assignment/comments})
 
 
-; answer attr
-(defn answer-attr
-  "basic answer attr map"
-  [assid authorid answer completetime]
-  (let [m {:db/id (d/tempid :db.part/user)
-          :answer/assignment assid
-          :answer/author authorid
-          :answer/answer answer
-          :answer/completetime completetime}]
-    (prn m)
-    m))
+; convert a assignment entity to map
+(defn assignment-val-map
+  [entity]
+  (let [answers (:assignment/answers entity)
+        assignment-map (util/entity-value-map entity assignment-key-attr-map)]
+    assignment-map))
+
+
+; get assign entity attr val from value map
+(defn assignment-attr-val
+  "convert assignment map to entity attr to be inserted"
+  [assignment-map]
+  (let [projkeys (dissoc assignment-key-attr-map :id :author :lecture :comments)
+        assignment-attr (-> (util/entity-attr-value assignment-map)
+                            (select-keys (vals projkeys)) ; project subset of keys
+                            (assoc :db/id (d/tempid :db.part/user)))]   ; temp :db/id
+    (prn "assignment-attr-val " assignment-attr)
+    assignment-attr))
+
+
+(defn submit-assignment
+  "new assignment form the submitted form data"
+  [details]
+  (prn "submit assignment " details)
+  (let [entity (assignment-attr-val details)]
+    (prn "submit assignment " entity)))
+
 
 
 ; create an assignment for any homework that 
@@ -274,6 +303,9 @@
       assig)))  ; ret the newly added thing map
 
 
+
+
+
 ; find all assignment
 (defn find-assignment
   "find all assignments "
@@ -297,8 +329,21 @@
 
 
 ;;================================================================================
-;; assignment
+;; answer 
 ;;================================================================================
+
+(defn answer-attr
+  "basic answer attr map"
+  [assid authorid answer completetime]
+  (let [m {:db/id (d/tempid :db.part/user)
+          :answer/assignment assid
+          :answer/author authorid
+          :answer/answer answer
+          :answer/completetime completetime}]
+    (prn m)
+    m))
+
+
 ; submit an answer to an assignment
 (defn submit-answer
   "submit an answer to an assignment"
