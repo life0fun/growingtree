@@ -381,12 +381,13 @@
             (let [to-val (dom/value assignto-name)
                   hint-val (dom/value assignto-hint)
                   details {:thing-type :assignment   ; single thing-type for add thing
-                           :task-id thingid  ; homework, course, lecture, etc.
-                           :assignee to-val 
-                           :hint hint-val
-                           ;:status :assigment.status/active
-                           ;:assignment/start (js/moment)
-                           ;:assignment/due (.add (js/moment) "hours" 4)
+                           :assignment/task-id thingid  ; homework, course, lecture, etc.
+                           :assignment/homework thingid  ; homework, course, lecture, etc.
+                           :assignment/assignee to-val 
+                           :assignment/hint hint-val
+                           :assignment/status :assigment.status/active
+                           :assignment/start (.unix (js/moment))
+                           :assignment/due (.unix (.add (js/moment) "hours" 4))
                            }]
               (.log js/console (str "assign form submitted " details))
               ((toggle-hide-fn form) nil)  ; hide the form

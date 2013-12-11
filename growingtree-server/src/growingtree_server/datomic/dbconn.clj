@@ -126,7 +126,6 @@
 ;
 
 
-
 ;; store database uri
 ;(defonce uri "datomic:free://localhost:4334/colorcloud")
 (defonce uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
@@ -146,10 +145,12 @@
   []
   (d/connect uri))
 
+
 ; reconnect to db. XXX need redo.
 (defn get-db
   []
   (d/db (get-conn)))
+
 
 ; create attr schema thru conn
 (defn create-schema
@@ -160,6 +161,178 @@
     (submit-transact (dschema/build-parts d/tempid))
     ; turn all defschema macro statement into schema transaction
     (submit-transact (dschema/build-schema d/tempid))))
+
+
+
+
+
+(defn get-entity
+  "ret an datomic EntityMap from eid"
+  [eid]
+  (d/touch (d/entity (get-db) eid)))
+
+
+(defn entity-attr
+  "display all attributes of an entity by its id, passed in eid is in a list [eid]"
+  [eid]
+  (let [e (d/entity (get-db) (first eid))
+        attrs (keys e)
+        tostr (reduce (fn [o c] (str o " " c "=" (c e))) (str (first eid) " = ") attrs)]
+    ;(pprint/pprint tostr)
+    tostr))
+
+; show entity by id
+(defn show-entity-by-id
+  "show all attrs and values of the entity by id"
+  [eid]
+  (let [e (d/touch (d/entity (get-db) eid))  ; touch to reify all attributes.
+        attrs (keys e)]
+    (prn "--------- " eid " ----------------")
+    (doseq [a attrs]
+      (prn a  (a e)))))
+
+;;==========================================================================
+; datomic transaction
+;;==========================================================================
+;; submit transaction (transact connection tx-data)
+; tx-data is a list of lists, each of which specifies a write
+; operation, either an assertion, a retraction or the invocation of
+; a data function. Each nested list starts with a keyword identifying
+; the operation followed by the arguments for the operation.
+; Returns a completed future to monitor the completion of tran.
+(defn submit-transact
+  "submit a transaction"
+  [tx-data]
+  (let [ft (d/transact conn tx-data)]  ; ret future task
+    (prn "dbconn submit trans ft " tx-data ft)
+    ft))
+
+
+; list all transaction of db
+(defn all-transactions
+  "list all transactions "
+  [db since]
+  (let [alltxs (reverse (sort 
+              (d/q '[:find ?e ?when 
+                     :where [?e :db/txInstant ?when]] db)))]
+    (prn alltxs)
+    alltxs))
+
+
+;;==========================================================================
+; datomic query 
+;;==========================================================================
+; find entity by its attr and value
+(defn find-entity
+  "find entity by attr value, ret a list of matching tuples [[eid] [eid]]"
+  [attr attr-val]
+  (let [rule (conj '[?e ] attr '?val)  ; quote ?e ?val symbol
+        q (conj '[:find ?e :in $ ?val :where ] rule)
+        eid (d/q q (get-db) attr-val)]
+    eid))
+
+
+(defn only
+  "Return the only item from a query result"
+  [query-result]
+  (assert (= 1 (count query-result)))
+  (assert (= 1 (count (first query-result))))
+  (ffirst query-result))
+
+
+(defn qe
+  "Returns the single entity returned by a query."
+  [query db & args]
+  (let [res (apply d/q query db args)]
+    (d/entity (get-db) (only res))))
+
+
+(defn find-by
+  "Returns the unique entity identified by attr and val."
+  [attr val]
+  (qe '[:find ?e :in $ ?attr ?val
+        :where [?e ?attr ?val]]
+      (get-db) attr val))
+
+
+(defn qes
+  "Returns the entities returned by a query, assuming that
+   all :find results are entity ids."
+  [query db & args]
+  (->> (apply d/q query db args)
+       (mapv (fn [items]
+               (mapv (partial d/entity db) items)))))
+
+
+(defn qfs
+  "Returns the first of each query result."
+  [query db & args]
+  (->> (apply d/q query db args)
+       (mapv first)))
+
+; (defn maybe
+;   "Returns the value of attr for e, or if-not if e does not possess
+;    any values for attr. Cardinality-many attributes will be
+;    returned as a set"
+;   [db e attr if-not]
+;   (let [result (d/q '[:find ?v
+;                       :in $ ?e ?a
+;                       :where [?e ?a ?v]]
+;                     db e attr)]
+;     (if (seq result)
+;       (case (schema/cardinality db attr)
+;             :db.cardinality/one (ffirst result)
+;             :db.cardinality/many (into #{} (map first result)))
+;       if-not)))
+
+
+
+
+(defn existing-values
+  "Returns subset of values that already exist as unique
+   attribute attr in db"
+  [attr vals]
+  (->> (d/q '[:find ?val
+              :in $ ?attr [?val ...]
+              :where [_ ?attr ?val]]
+            db attr vals)
+       (map first)
+       (into #{})))
+
+(defn assert-new-values
+  "Assert emaps whose attr value does not already exist in db.
+   Returns transaction result or nil if nothing to assert."
+  [conn part attr emaps]
+  (let [vals (mapv attr emaps)
+        existing (existing-values (d/db conn) attr vals)]
+    (when-not (= (count existing) (count vals))
+      (->> emaps
+           (remove #(existing (get attr %)))
+           (map (fn [emap] (assoc emap :db/id (d/tempid part))))
+           (d/transact conn)
+           deref))))
+
+
+;;==========================================================================
+; schema query 
+;;==========================================================================
+; get attr details by attr ident. 
+; {:db/id :db/ident :community/url :db/valueType :db.type/string }
+(defn list-attr
+  "list all attributes for ident, if no ident, list all"
+  ([]  ; db is (d/db conn)
+    (let [eid (d/q '[:find ?attr 
+                     :where [_ :db.install/attribute ?attr]] 
+                    db)]
+      (prn "list all attr " eid)
+      (map entity-attr eid)))
+
+  ([attr-ident]
+    (let [eid (d/q '[:find ?e :in $ ?attr 
+                     :where [?e :db/ident ?attr]] 
+                    db 
+                    attr-ident)]
+      (map entity-attr eid))))
 
 
 ; to use the reted write op tuple inside a transact, wrap inside (vec code)
@@ -186,77 +359,6 @@
   (let [code [:db/add eid attr value]]
     (prn "code " code)
     code))
-
-
-(defn get-entity
-  "ret an datomic EntityMap from eid"
-  [eid]
-  (d/touch (d/entity (get-db) eid)))
-
-
-(defn entity-attr
-  "display all attributes of an entity by its id, passed in eid is in a list [eid]"
-  [eid]
-  (let [e (d/entity db (first eid))
-        attrs (keys e)
-        tostr (reduce (fn [o c] (str o " " c "=" (c e))) (str (first eid) " = ") attrs)]
-    ;(pprint/pprint tostr)
-    tostr))
-
-; show entity by id
-(defn show-entity-by-id
-  "show all attrs and values of the entity by id"
-  [eid]
-  (let [e (d/touch (d/entity db eid))  ; touch to reify all attributes.
-        attrs (keys e)]
-    (prn "--------- " eid " ----------------")
-    (doseq [a attrs]
-      (prn a  (a e)))))
-
-
-; get attr details by attr ident. 
-; {:db/id :db/ident :community/url :db/valueType :db.type/string }
-(defn list-attr
-  "list all attributes for ident, if no ident, list all"
-  ([]  ; db is (d/db conn)
-    (let [eid (d/q '[:find ?attr 
-                     :where [_ :db.install/attribute ?attr]] 
-                    db)]
-      (prn "list all attr " eid)
-      (map entity-attr eid)))
-
-  ([attr-ident]
-    (let [eid (d/q '[:find ?e :in $ ?attr 
-                     :where [?e :db/ident ?attr]] 
-                    db 
-                    attr-ident)]
-      (map entity-attr eid))))
-
-
-;; submit transaction (transact connection tx-data)
-; tx-data is a list of lists, each of which specifies a write
-; operation, either an assertion, a retraction or the invocation of
-; a data function. Each nested list starts with a keyword identifying
-; the operation followed by the arguments for the operation.
-; Returns a completed future to monitor the completion of tran.
-(defn submit-transact
-  "submit a transaction"
-  [tx-data]
-  (let [ft (d/transact conn tx-data)]  ; ret future task
-    (prn "dbconn submit trans ft " tx-data ft)
-    ft))
-
-
-; list all transaction of db
-(defn all-transactions
-  "list all transactions "
-  [db since]
-  (let [alltxs (reverse (sort 
-              (d/q '[:find ?e ?when 
-                     :where [?e :db/txInstant ?when]] db)))]
-    (prn alltxs)
-    alltxs))
-
 
 ; find the timeline of an attribute of 
 (defn entity-attr-timeline

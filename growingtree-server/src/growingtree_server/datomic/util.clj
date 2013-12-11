@@ -2,7 +2,7 @@
 (ns growingtree-server.datomic.util
   (:import [java.io FileReader]
            [java.net URI]
-           [java.util Map Map$Entry List ArrayList Collection Iterator HashMap])
+           [java.util Date Map Map$Entry List ArrayList Collection Iterator HashMap])
   (:require [clojure.string :as str]
             [clojure.set :as set]
             [clojure.java.io :as io]
@@ -10,7 +10,7 @@
             [clojure.data.json :as json])
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format :refer [parse unparse formatter]]
-            [clj-time.coerce :refer [to-long from-long]])
+            [clj-time.coerce :refer [to-long from-long to-date from-date]])
   (:require [datomic.api :as d]))
 
 
@@ -23,7 +23,10 @@
 
 ;
 ; datomic #inst type is java Date class, not DateTime.
+; 
 ;  (.toDate (clj-time.format/parse (clj-time.format/formatters :date-time) "2012-09-11T11:51:26.00Z"))
+;  (from-long 893462400000)  -> Joda DateTime object.
+;  (to-date (from-long (to-long (now))))
 ;
 ;  (read-string "#inst \"2012-09-11T11:51:26.00Z\"") 
 ;   #inst "2012-09-11T11:51:26.000-00:00" 
@@ -46,16 +49,28 @@
   (reduce #(if-let [v (%2 entity)] (conj %1 v) %1) [] ks))
 
 
-; extract entity values, convert hash set #{} to vector
-(defn entity-values [entity ks]
+; convert unix epoch to Date object as the value to #inst attr.
+(defn toDate [epoch] (to-date (from-long epoch)))
+
+
+(defn entity-values
   "reduce to a list of value while convert hash set to vector"
+  [entity ks]
   (reduce (fn [tot curk]
-            (let [curv (curk entity)]
-              (if (= clojure.lang.PersistentHashSet (type curv))
-                (conj tot (vec curv))
-                (conj tot curv))))
+            (let [curv (curk entity)
+                  curtype (type curv)]
+              (cond
+                ; hashset #{} to vector []
+                (= clojure.lang.PersistentHashSet curtype)
+                  (conj tot (vec curv))
+                ; instant to unix epoch
+                (= java.util.Date curtype) 
+                  (conj tot (to-long (from-date curv))) ; conver to epoch
+                ; default use value
+                :else (conj tot curv))))
           []
           ks))
+
 
 
 ; convert entity attr values to value map
@@ -74,6 +89,9 @@
   "convert entity value map to attr value"
   [valmap entity-key-attr-map]
   (let [entity-attr (-> valmap   ; rename keys from val map to entity attr
-                        (set/rename-keys entity-key-attr-map)
-                        (select-keys (val entity-key-attr-map)))]
+                    (set/rename-keys entity-key-attr-map)
+                    (select-keys (vals entity-key-attr-map)))]
     entity-attr))
+
+
+

@@ -114,14 +114,6 @@
     "default"))
 
 
-(defn status-enum
-  [status]
-  (case status
-    "Pending" :assignment.status/pending
-    "Active" :assignment.status/active
-    "Overdue" :assignment.status/overdue
-    "default"))
-
 ;---------------------------------------------------------------------------------
 ; rules to find all parent or child with the name, 
 ; for all rule lists with the same name, results are OR logic.
@@ -224,48 +216,38 @@
 ;;================================================================================
 
 ; this map between assignment map to entity attr
-(def assignment-key-attr-map 
-  {:id :db/id
-   :title :assignment/title
-   :author :assignment/author
-   :homework :assignment/homework
-   :assignee :assignment/assignee
-   :priority :assignment/priority
-   :status :assignment/status
-   :start :assignment/start
-   :due :assignment/due
-   :hint :assignment/hint
-   :answer :assignment/answer
-   :comments :assignment/comments})
+(def assignment-attr-map
+  {
+    :db/id :id
+    :assignment/title :string
+    :assignment/author :ref
+    :assignment/homework :ref
+    :assignment/assignee :ref
+    :assignment/priority :long
+    :assignment/status :enum
+    :assignment/start  :instant
+    :assignment/due :instant
+    :assignment/hint :string
+    :assignment/answer :ref
+    :assignment/comments :ref
+  })
 
-
-; convert a assignment entity to map
-(defn assignment-val-map
-  [entity]
-  (let [answers (:assignment/answers entity)
-        assignment-map (util/entity-value-map entity assignment-key-attr-map)]
-    assignment-map))
-
-
-; get assign entity attr val from value map
-(defn assignment-attr-val
-  "convert assignment map to entity attr to be inserted"
-  [assignment-map]
-  (let [projkeys (dissoc assignment-key-attr-map :id :author :lecture :comments)
-        assignment-attr (-> (util/entity-attr-value assignment-map)
-                            (select-keys (vals projkeys)) ; project subset of keys
-                            (assoc :db/id (d/tempid :db.part/user)))]   ; temp :db/id
-    (prn "assignment-attr-val " assignment-attr)
-    assignment-attr))
 
 
 (defn submit-assignment
   "new assignment form the submitted form data"
   [details]
-  (prn "submit assignment " details)
-  (let [entity (assignment-attr-val details)]
-    (prn "submit assignment " entity)))
-
+  (let [author (:author details)
+        author-id (dbconn/find-by :parent/name (:author details))
+        assignee-id (dbconn/existing-values :child/parents author-id)
+        ;assignee-id 1
+        ; entity (-> details
+        ;         (select-keys (keys assignment-attr-map))
+        ;         (assoc :assignment/author author-id)
+        ;         (assoc :assignment/assignee assignee-id)
+        ;         (assoc :db/id (d/tempid :db.part/user)))
+        ]
+    (prn "submit assignment entity " author-id assignee-id " entity ")))
 
 
 ; create an assignment for any homework that 
@@ -301,9 +283,6 @@
       (prn "create-assignment " hwid assig)
       (prn "trans result " (submit-transact [assig]))
       assig)))  ; ret the newly added thing map
-
-
-
 
 
 ; find all assignment
