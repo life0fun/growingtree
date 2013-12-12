@@ -107,6 +107,7 @@
     (prn "peer get all courses " courses)
     courses))
 
+
 (defmethod get-things
   :homeworks
   [type qpath]
@@ -118,8 +119,8 @@
 (defmethod get-things
   :assignments
   [type qpath]
-  (let [assignments (dda/find-assignment)]
-    (prn "peer get all assignments " assignments)
+  (let [assignments (dda/find-assignment qpath)]
+    (prn "peer get all assignments " qpath assignments)
     assignments))
 
 

@@ -234,7 +234,7 @@
         ]
 
     (log/info :message "received message" :request request :msg-data postdata)
-    (prn "service got peer adding thing done " postdata " type " type " resp " added-things)
+    (prn "service got peer adding thing done " added-things)
     jsonresp))
 
 

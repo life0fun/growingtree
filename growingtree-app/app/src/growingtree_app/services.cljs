@@ -71,7 +71,7 @@
   [message input-queue]
   (when-let [body ((msgs/param :body) message)]
     (let [msg-type (msgs/type message)]
-      (.log js/console (str "service-fn consume effect thing " body))
+      (.log js/console (str "app service-fn consumes effect " msg-type body))
       ; dispatch on thing-type
       (case msg-type
         ;; sse subscribe and publish
@@ -125,7 +125,7 @@
   (let [{:keys [msg-topic msg-type thing-type path]} body
         api (str "/api/" (name thing-type))
         resp (response-handler thing-type msg-topic msg-type input-queue)]
-    (.log js/console (str "app service request things" thing-type msg-topic msg-type body))
+    (.log js/console (str "app service request things" api msg-topic msg-type body))
     (xhr-request api "POST" body resp xhr-log)))
 
 

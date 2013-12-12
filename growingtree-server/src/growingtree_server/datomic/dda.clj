@@ -312,11 +312,12 @@
     (assign/submit-assignment details)))
 
 
-; find all assignment
+
+; :find rets entity id, find all assignments
 (defn find-assignment
-  "find all assignments "
-  []
-  (assign/find-assignment))
+  "find all assignments by query path"
+  [qpath]
+  (assign/find-assignment qpath))
 
 
 ;;==============================================================

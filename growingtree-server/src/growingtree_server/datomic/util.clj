@@ -11,7 +11,8 @@
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format :refer [parse unparse formatter]]
             [clj-time.coerce :refer [to-long from-long to-date from-date]])
-  (:require [datomic.api :as d]))
+  (:require [growingtree-server.datomic.dbschema :as dbschema]
+            [growingtree-server.datomic.dbconn :as dbconn :refer :all]))
 
 
 ; for enum value, :parent/status, the value is keyword :parent.status/active
@@ -52,6 +53,11 @@
 ; convert unix epoch to Date object as the value to #inst attr.
 (defn toDate [epoch] (to-date (from-long epoch)))
 
+
+; go throu
+(defn toDate
+  [entity]
+  ())
 
 (defn entity-values
   "reduce to a list of value while convert hash set to vector"

@@ -164,8 +164,6 @@
 
 
 
-
-
 (defn get-entity
   "ret an datomic EntityMap from eid"
   [eid]
@@ -203,7 +201,8 @@
 (defn submit-transact
   "submit a transaction"
   [tx-data]
-  (let [ft (d/transact conn tx-data)]  ; ret future task
+  (prn "submit-transact " tx-data)
+  (let [ft (d/transact (get-conn) tx-data)]  ; ret future task
     (prn "dbconn submit trans ft " tx-data ft)
     ft))
 
@@ -222,14 +221,10 @@
 ;;==========================================================================
 ; datomic query 
 ;;==========================================================================
-; find entity by its attr and value
-(defn find-entity
-  "find entity by attr value, ret a list of matching tuples [[eid] [eid]]"
-  [attr attr-val]
-  (let [rule (conj '[?e ] attr '?val)  ; quote ?e ?val symbol
-        q (conj '[:find ?e :in $ ?val :where ] rule)
-        eid (d/q q (get-db) attr-val)]
-    eid))
+(defn first-entity
+  "Return the first entity from a query result"
+  [query-result]
+  (ffirst query-result))
 
 
 (defn only
@@ -244,7 +239,8 @@
   "Returns the single entity returned by a query."
   [query db & args]
   (let [res (apply d/q query db args)]
-    (d/entity (get-db) (only res))))
+    ;(d/entity db (only res))))
+    (d/entity db (first-entity res))))
 
 
 (defn find-by
@@ -255,13 +251,35 @@
       (get-db) attr val))
 
 
+; find entity by its attr and value
+(defn find-entity
+  "find entity by attr value, ret a list of matching tuples [[eid] [eid]]"
+  [attr attr-val]
+  (let [rule (conj '[?e ] attr '?val)  ; quote ?e ?val symbol
+        q (conj '[:find ?e :in $ ?val :where ] rule)
+        eid (d/q q (get-db) attr-val)]
+    eid))
+
+
+; find all entity in the many ref attr field
+(defn find-many-by
+  "return a list of entities iden by attr and val"
+  [attr val]
+  ; the query is the same, switch many entity result processing
+  (qes '[:find ?e :in $ ?attr ?val
+        :where [?e ?attr ?val]]
+      (get-db) attr val))
+
+
+; "qes result tuple " [17592186045499]
 (defn qes
   "Returns the entities returned by a query, assuming that
    all :find results are entity ids."
   [query db & args]
   (->> (apply d/q query db args)
-       (mapv (fn [items]
-               (mapv (partial d/entity db) items)))))
+       (mapv (fn [tuple]  ; tuple [id]
+                (prn "qes result tuple " tuple)
+                (mapv (partial d/entity db) tuple)))))
 
 
 (defn qfs
@@ -269,6 +287,7 @@
   [query db & args]
   (->> (apply d/q query db args)
        (mapv first)))
+
 
 ; (defn maybe
 ;   "Returns the value of attr for e, or if-not if e does not possess
@@ -287,7 +306,6 @@
 
 
 
-
 (defn existing-values
   "Returns subset of values that already exist as unique
    attribute attr in db"
@@ -295,9 +313,11 @@
   (->> (d/q '[:find ?val
               :in $ ?attr [?val ...]
               :where [_ ?attr ?val]]
-            db attr vals)
+            (get-db) 
+            attr vals)
        (map first)
        (into #{})))
+
 
 (defn assert-new-values
   "Assert emaps whose attr value does not already exist in db.
@@ -335,6 +355,45 @@
       (map entity-attr eid))))
 
 
+(defn cardinality
+  "Returns the cardinality (:db.cardinality/one or
+   :db.cardinality/many) of the attribute"
+  [db attr]
+  (->>
+   (d/q '[:find ?v
+          :in $ ?attr
+          :where
+          [?attr :db/cardinality ?card]
+          [?card :db/ident ?v]]
+        db attr)
+   ffirst))
+
+(defn has-attribute?
+  "Does database have an attribute named attr-name?"
+  [db attr-name]
+  (-> (d/entity db attr-name)
+      :db.install/_attribute
+      boolean))
+
+(defn has-schema?
+  "Does database have a schema named schema-name installed?
+   Uses schema-attr (an attribute of transactions!) to track
+   which schema names are installed."
+  [db schema-attr schema-name]
+  (and (has-attribute? db schema-attr)
+       (-> (d/q '[:find ?e
+                  :in $ ?sa ?sn
+                  :where [?e ?sa ?sn]]
+                db schema-attr schema-name)
+           seq boolean)))
+
+
+
+
+
+;;==========================================================================
+; atomic inc and set ref
+;;==========================================================================
 ; to use the reted write op tuple inside a transact, wrap inside (vec code)
 (defn incby-stmt
   "ret a write datom to inc a counter by amt for d/transact conn (vec incby-stmt)"

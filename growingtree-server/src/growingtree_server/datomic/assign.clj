@@ -139,6 +139,25 @@
   ])
 
 
+; get entities by qpath, formulate query rules from qpath
+; qpath is [:all 0 :children] or [:parent 1 :children] or [:parents 1 :parents]
+(defn get-entities-by-rule
+  "get entities by qpath and rule-set, formulate query rules from qpath"
+  [qpath rule-set]
+  (if (= (first qpath) (last qpath))
+    (let [eid (second qpath)
+          e (d/entity db eid)]
+      [e])
+    (let [pid (second qpath)
+          rule-name (first qpath)  ; parent thing type is rule name
+          parent-rule (list rule-name '?e '?val)
+          q (conj '[:find ?e :in $ % ?val :where ] parent-rule)
+          eids (d/q q db rule-set pid)
+          entities (map (comp get-entity first) eids)
+          ]
+      entities)))
+
+
 ;;==================================================================================
 ; create homework
 ;;==================================================================================
@@ -233,84 +252,40 @@
   })
 
 
-
 (defn submit-assignment
   "new assignment form the submitted form data"
   [details]
-  (let [author (:author details)
-        author-id (dbconn/find-by :parent/name (:author details))
-        assignee-id (dbconn/existing-values :child/parents author-id)
-        ;assignee-id 1
-        ; entity (-> details
-        ;         (select-keys (keys assignment-attr-map))
-        ;         (assoc :assignment/author author-id)
-        ;         (assoc :assignment/assignee assignee-id)
-        ;         (assoc :db/id (d/tempid :db.part/user)))
-        ]
-    (prn "submit assignment entity " author-id assignee-id " entity ")))
-
-
-; create an assignment for any homework that 
-(defn create-assignment
-  "create an assignment from a homework to a child"
-  ([]
-    (let [hw (first (find-homework))
-          hwid (:db/id hw)]
-      (create-assignment hwid {:hint "fraction"})))
-
-  ; destructure json data map into a list of args {:keys [k1 k2]}
-  ; when key is missing, the corresponding val got nil as value.
-  ([hwid {:keys [user to hint duedt]}]
-    (let [pid (if user 
-                  user 
-                  (ffirst (d/q '[:find ?e :where [?e :parent/child]] db)))
-          ; the ref attr of entity is a list of map-entries with [{:db/id xx} {:db/id zz}]
-          cid (if to 
-                  to 
-                  (:db/id (first (:parent/child (d/entity db pid)))))
-          
-          nowdt (clj-time/now)
-          nowd (.toDate nowdt)
-
-          duedt (if duedt 
-                    duedt 
-                    (clj-time/plus nowdt (clj-time/hours 1)))
-          dued (.toDate duedt)
-
-          hint (if hint hint "use your brain")
-          assig (assignment-attr pid cid hwid nowd dued hint)
-          ]
-      (prn "create-assignment " hwid assig)
-      (prn "trans result " (submit-transact [assig]))
-      assig)))  ; ret the newly added thing map
+  (let [author (dbconn/find-by :parent/name (:author details))
+        author-id (:db/id author)
+        ; this find all children whose parent is author-di
+        assignee-id (:db/id (dbconn/find-by :child/parents author-id))
+        entity (-> details
+                (select-keys (keys assignment-attr-map))
+                (assoc :assignment/author author-id)
+                (assoc :assignment/assignee assignee-id)
+                (assoc :db/id (d/tempid :db.part/user)))
+        trans (submit-transact [entity])
+      ]
+    (newline)
+    (prn "submit assignment entity " author-id assignee-id " entity " entity)
+    (prn "submit assignment trans " trans)
+    entity))
 
 
 ; find all assignment
 (defn find-assignment
-  "find all assignments "
-  []
-  (let [assig (d/q '[:find ?e ?hwcontent ?from ?to ?start ?due ?hint
-                    :where [?e :assignment/homework ?h]
-                           [?h :homework/content ?hwcontent]
-                           [?e :assignment/from ?p]
-                           [?p :parent/fname ?from]
-                           [?e :assignment/to ?c] 
-                           [?c :child/fname ?to] 
-                           [?e :assignment/start ?start]
-                           [?e :assignment/due ?due]
-                           [?e :assignment/hint ?hint]
-                    ] 
-                    db)
-        assignkeys [:db/id :assignment/homework :assignment/from :assignment/to :assignment/start :assignment/due :assignment/hint]
-        entities (map (partial zipmap assignkeys) assig)]
-    (prn "assignment entities " entities)
-    entities))
+  "find all assignment by query path "
+  [qpath]
+  (let [entities (get-entities-by-rule qpath get-assignment-by)
+        assignments (map #(util/entity-values % (keys assignment-attr-map)) entities)]
+    (doseq [e assignments]
+      (prn "assignment --> " e))
+    assignments))
 
 
 ;;================================================================================
 ;; answer 
 ;;================================================================================
-
 (defn answer-attr
   "basic answer attr map"
   [assid authorid answer completetime]
