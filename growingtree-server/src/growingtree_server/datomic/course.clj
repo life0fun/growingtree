@@ -148,21 +148,13 @@
     trans))
   
 
-; convert a course entity to map
-(defn to-course-map
-  [e]
-  (let [lectures (:course/lectures e)
-        course-map (zipmap (keys course-key-attr-map)
-                           (util/select-values e (vals course-key-attr-map)))]
-    course-map))
-
 ; find a course
 (defn find-course
   "find course by subject, ret a list of course entity"
   []
   (let [cs (d/q '[:find ?c :where [?c :course/title]] (get-db))
         entities (map (comp get-entity first) cs)
-        courses (map to-course-map entities)
+        courses entities
         ]
     (doseq [c courses]
       (prn " course --> " c))

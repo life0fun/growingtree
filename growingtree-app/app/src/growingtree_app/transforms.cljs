@@ -385,7 +385,7 @@
                            :assignment/homework thingid  ; homework, course, lecture, etc.
                            :assignment/assignee to-val 
                            :assignment/hint hint-val
-                           :assignment/status :assigment.status/active
+                           :assignment/status :assignment.status/active
                            :assignment/start (.unix (js/moment))
                            :assignment/due (.unix (.add (js/moment) "hours" 4))
                            }]

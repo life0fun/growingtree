@@ -6,7 +6,7 @@
   (:require [clojure.string :as str]
             [clojure.set :as set]
             [clojure.java.io :as io]
-            [clojure.pprint :as pprint]
+            [clojure.pprint :as pprint :refer [pprint]]
             [clojure.data.json :as json])
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format :refer [parse unparse formatter]]
@@ -152,9 +152,10 @@
           rule-name (first qpath)  ; parent thing type is rule name
           parent-rule (list rule-name '?e '?val)
           q (conj '[:find ?e :in $ % ?val :where ] parent-rule)
-          eids (d/q q db rule-set pid)
+          eids (d/q q (get-db) rule-set pid)
           entities (map (comp get-entity first) eids)
           ]
+      (prn "get entities by rule " rule-name pid parent-rule q eids)
       entities)))
 
 
@@ -192,7 +193,7 @@
   [e]
   (let [lectures (:homework/lectures e)
         homework-map (zipmap (keys homework-key-attr-map)
-                           (util/entity-values e (vals homework-key-attr-map)))]
+                             (util/entity-value-vec e (vals homework-key-attr-map)))]
     homework-map))
 
 
@@ -218,7 +219,6 @@
     (doseq [h homeworks]
       (prn " homework --> " h))
     homeworks))
-
 
  
 (defn inc-homework-popularity
@@ -252,7 +252,7 @@
   })
 
 
-(defn submit-assignment
+(defn create-assignment
   "new assignment form the submitted form data"
   [details]
   (let [author (dbconn/find-by :parent/name (:author details))
@@ -263,6 +263,7 @@
                 (select-keys (keys assignment-attr-map))
                 (assoc :assignment/author author-id)
                 (assoc :assignment/assignee assignee-id)
+                (util/entity-date)
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])
       ]
@@ -276,11 +277,14 @@
 (defn find-assignment
   "find all assignment by query path "
   [qpath]
-  (let [entities (get-entities-by-rule qpath get-assignment-by)
-        assignments (map #(util/entity-values % (keys assignment-attr-map)) entities)]
-    (doseq [e assignments]
+  (let [entities (get-entities-by-rule qpath get-assignment-by) ; a list of entity tuples
+        assignment-vec (map #(util/entity-value-vec % (keys assignment-attr-map)) entities)
+        ;assignment-vec entities
+        ]
+    (doseq [e assignment-vec]
       (prn "assignment --> " e))
-    assignments))
+    ;assignment-vec
+    ))
 
 
 ;;================================================================================

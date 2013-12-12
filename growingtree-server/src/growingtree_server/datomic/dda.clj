@@ -309,7 +309,7 @@
     (assign/create-assignment))
 
   ([details]
-    (assign/submit-assignment details)))
+    (assign/create-assignment details)))
 
 
 

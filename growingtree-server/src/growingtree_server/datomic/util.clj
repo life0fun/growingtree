@@ -42,29 +42,35 @@
 ;
 ;; util fns for attr convertion between map and entity attr.
 
-(defn entity-values [entity ks]
-  (reduce #(conj %1 (%2 entity)) [] ks))
 
+; convert unix mills to Date object as the value to #inst attr.
+; clj-time expect unix offset in mills, moment().unix() only get seconds.
+(defn mills-date [mills] (to-date (from-long mills)))
 
-(defn entity-values-nonil [entity ks] 
-  (reduce #(if-let [v (%2 entity)] (conj %1 v) %1) [] ks))
+(defn attr-date
+  "coerce the map entry to :instant java.util.Date"
+  [k v]
+  (let [[type card] (type-card k)]
+    (if (= :db.type/instant type)
+      [k (mills-date (* 1000 v))]
+      [k v])))
 
-
-; convert unix epoch to Date object as the value to #inst attr.
-(defn toDate [epoch] (to-date (from-long epoch)))
-
-
-; go throu
-(defn toDate
+; go through each map entry, if type is :instant, convert mills to date
+(defn entity-date
   [entity]
-  ())
+  (reduce (fn [tot [k v]]
+            (into tot (vector (attr-date k v))))
+          {} entity))
 
-(defn entity-values
-  "reduce to a list of value while convert hash set to vector"
+
+
+(defn entity-value-vec
+  "reduce to a list of tuple while convert hash set to vector"
   [entity ks]
   (reduce (fn [tot curk]
             (let [curv (curk entity)
                   curtype (type curv)]
+              (prn "entity value vec " curk curv curtype tot)
               (cond
                 ; hashset #{} to vector []
                 (= clojure.lang.PersistentHashSet curtype)
@@ -78,16 +84,33 @@
           ks))
 
 
+(defn entity-value
+  "convert tuple hash set to vector"
+  [entity]
+  (reduce (fn [tot [k v]]
+            (let [curv (curk entity)
+                  curtype (type curv)]
+              (prn "entity value vec " curk curv curtype tot)
+              (cond
+                ; hashset #{} to vector []
+                (= clojure.lang.PersistentHashSet curtype)
+                  (conj tot (vec curv))
+                ; instant to unix epoch
+                (= java.util.Date curtype) 
+                  (conj tot (to-long (from-date curv))) ; conver to epoch
+                ; default use value
+                :else (conj tot curv))))
+          {}
+          entity))
 
 ; convert entity attr values to value map
 (defn entity-value-map
   "convert entity attr values to value map based on entity key attr map"
   [entity entity-key-attr-map]
   (let [val-keys (vals entity-key-attr-map)
-        attr-vals (entity-values entity val-keys)]
+        attr-vals (entity-value-vec entity val-keys)]
     (zipmap (keys entity-key-attr-map)
             attr-vals)))
-
 
 
 ; convert a value map to entity attr value

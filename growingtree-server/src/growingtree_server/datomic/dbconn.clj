@@ -163,7 +163,6 @@
     (submit-transact (dschema/build-schema d/tempid))))
 
 
-
 (defn get-entity
   "ret an datomic EntityMap from eid"
   [eid]
@@ -261,16 +260,6 @@
     eid))
 
 
-; find all entity in the many ref attr field
-(defn find-many-by
-  "return a list of entities iden by attr and val"
-  [attr val]
-  ; the query is the same, switch many entity result processing
-  (qes '[:find ?e :in $ ?attr ?val
-        :where [?e ?attr ?val]]
-      (get-db) attr val))
-
-
 ; "qes result tuple " [17592186045499]
 (defn qes
   "Returns the entities returned by a query, assuming that
@@ -287,6 +276,16 @@
   [query db & args]
   (->> (apply d/q query db args)
        (mapv first)))
+
+
+; find all entity in the many ref attr field
+(defn find-many-by
+  "return a list of entities iden by attr and val"
+  [attr val]
+  ; the query is the same, switch many entity result processing
+  (qes '[:find ?e :in $ ?attr ?val
+        :where [?e ?attr ?val]]
+      (get-db) attr val))
 
 
 ; (defn maybe
@@ -334,7 +333,7 @@
 
 
 ;;==========================================================================
-; schema query 
+; schema query, find db installed attributes.
 ;;==========================================================================
 ; get attr details by attr ident. 
 ; {:db/id :db/ident :community/url :db/valueType :db.type/string }
@@ -355,25 +354,30 @@
       (map entity-attr eid))))
 
 
-(defn cardinality
-  "Returns the cardinality (:db.cardinality/one or
+(defn type-card
+  "Returns the type :db.type/instant and cardinality (:db.cardinality/one or
    :db.cardinality/many) of the attribute"
-  [db attr]
+  [attr]
   (->>
-   (d/q '[:find ?v
+   (d/q '[:find ?t ?v
           :in $ ?attr
           :where
+          [?attr :db/valueType ?vt]
+          [?vt :db/ident ?t]
           [?attr :db/cardinality ?card]
-          [?card :db/ident ?v]]
-        db attr)
-   ffirst))
+          [?card :db/ident ?v]]  ; ident is keyword, :db.cardinality/one, many.
+        (get-db) attr)
+   first))
 
+
+; find from db installed attribute
 (defn has-attribute?
   "Does database have an attribute named attr-name?"
   [db attr-name]
   (-> (d/entity db attr-name)
       :db.install/_attribute
       boolean))
+
 
 (defn has-schema?
   "Does database have a schema named schema-name installed?
@@ -386,7 +390,6 @@
                   :where [?e ?sa ?sn]]
                 db schema-attr schema-name)
            seq boolean)))
-
 
 
 
