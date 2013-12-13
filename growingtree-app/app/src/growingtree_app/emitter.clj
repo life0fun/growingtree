@@ -216,6 +216,7 @@
       ;(filtered-parent-deltas inputs render-type navpath)
       (mapcat
         (fn [entity-map]
+          (.log js/console "thing data delta " input-path entity-map)
           (let [id (:db/id entity-map)  ; :db/id is entity id
                 thing-type (last input-path)
                 ; [:main :parent 12 :children 34]
@@ -361,6 +362,34 @@
   
       navpaths)))
 
+
+(defmethod thing-navpath-transforms
+  :assignments
+  [thing-type thing-id]  ; thing-id is id of parent
+  (.log js/console "delta " thing-type thing-id)
+  (let [transkeys [:children]  ; transkeys are thing links
+        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
+       ]
+    (mapcat 
+      ; [:nav :assignments 17592186045499 :children] :children
+      (fn [[nav type id transkey :as navpath]]
+        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:assignments 17592186045499 :parent]
+          (.log js/console (str "thing navpath transform self " self-path " sublink " (rest navpath)))
+          (vector 
+            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy navpath]
+            [:transform-enable navpath    ; [:nav :assignments 17592186045499 :children]
+                               transkey   ; transkey
+                               [ ; first msg, request current thing as parent after nav
+                                {msgs/topic [:nav :path] 
+                                 msgs/type :set-nav-path
+                                 :path (vec self-path)}  ; no need to wrap to (msgs/param :path)
+                                ; second msg, the child list of nav
+                                {msgs/topic [:nav :path]
+                                 msgs/type :set-nav-path 
+                                 :path (vec (rest navpath))} 
+                                ]] )))
+      navpaths)))
 
 
 (defn- removed-thing-deltas

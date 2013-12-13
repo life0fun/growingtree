@@ -7,7 +7,8 @@
             [clojure.set :as set]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
-            [clojure.data.json :as json])
+            [clojure.data.json :as json]
+            [datomic.api :as d])
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format :refer [parse unparse formatter]]
             [clj-time.coerce :refer [to-long from-long to-date from-date]])
@@ -43,8 +44,10 @@
 ;; util fns for attr convertion between map and entity attr.
 
 
+; ============================================================================
 ; convert unix mills to Date object as the value to #inst attr.
 ; clj-time expect unix offset in mills, moment().unix() only get seconds.
+; ============================================================================
 (defn mills-date [mills] (to-date (from-long mills)))
 
 (defn attr-date
@@ -63,7 +66,9 @@
           {} entity))
 
 
-
+; ============================================================================
+; coerce entity attr value
+; ============================================================================
 (defn entity-value-vec
   "reduce to a list of tuple while convert hash set to vector"
   [entity ks]
@@ -102,24 +107,26 @@
           {}
           entity))
 
-; convert entity attr values to value map
-(defn entity-value-map
-  "convert entity attr values to value map based on entity key attr map"
-  [entity entity-key-attr-map]
-  (let [val-keys (vals entity-key-attr-map)
-        attr-vals (entity-value-vec entity val-keys)]
-    (zipmap (keys entity-key-attr-map)
-            attr-vals)))
 
-
-; convert a value map to entity attr value
-(defn entity-attr-value
-  "convert entity value map to attr value"
-  [valmap entity-key-attr-map]
-  (let [entity-attr (-> valmap   ; rename keys from val map to entity attr
-                    (set/rename-keys entity-key-attr-map)
-                    (select-keys (vals entity-key-attr-map)))]
-    entity-attr))
+; ============================================================================
+; get entities by qpath, formulate query rules from qpath
+; qpath is [:all 0 :children] or [:parent 1 :children] or [:parents 1 :parents]
+; ============================================================================
+(defn get-entities-by-rule
+  "get entities by qpath and rule-set, formulate query rules from qpath"
+  [qpath rule-set]
+  (if (= (first qpath) (last qpath))
+    (let [eid (second qpath)
+          e (d/entity db eid)]
+      [e])
+    (let [pid (second qpath)
+          rule-name (first qpath)  ; parent thing type is rule name
+          parent-rule (list rule-name '?e '?val)
+          q (conj '[:find ?e :in $ % ?val :where ] parent-rule)
+          eids (d/q q (get-db) rule-set pid)
+          entities (map (comp get-entity first) eids)  ; touch to not lazy.
+          ]
+      entities)))
 
 
 

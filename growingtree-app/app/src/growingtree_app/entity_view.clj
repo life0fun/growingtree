@@ -208,4 +208,8 @@
 (defmethod thing-view
   :assignments
   [path entity]
-  (assoc entity :title (:assigment/title entity)))
+  (let [hmwk (:assignment/homework entity)
+        content (:homework/content hmwk)]
+    (.log js/console entity hmwk content)
+    (assoc entity :title (:homework/content (:assigment/homework entity)))))
+

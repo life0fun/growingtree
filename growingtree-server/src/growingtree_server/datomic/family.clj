@@ -125,6 +125,10 @@
 ;; parse seed data dtm file
 ;(def data-tx (read-string (slurp "./resource/schema/seattle-data0.dtm")))
 
+; schema attr-name value type map for parent schema and child schema
+(def parent-schema (assoc (list-attr :parent) :db/id :db.type/id))
+(def child-schema (assoc (list-attr :child) :db/id :db.type/id))
+
 
 ; rules to find all parent or child with the name, 
 ; for all rule lists with the same name, results are OR logic.
@@ -162,40 +166,6 @@
   ])
 
 
-; we should query schema entity for attrs, not hard-code here.
-(def parent-schema
-  {
-    :db/id :id
-    :parent/name :string
-    :parent/lname :string
-    :parent/children :ref
-    :parent/age :long
-    :parent/address :string
-    :parent/gender :keyword
-    :parent/email :string
-    :parent/phone :string
-    :parent/status :enum
-    :parent/popularity :long
-    })
-
-; get entities by qpath, formulate query rules from qpath
-; qpath is [:all 0 :children] or [:parent 1 :children] or [:parents 1 :parents]
-(defn get-entities-by-rule
-  "get entities by qpath and rule-set, formulate query rules from qpath"
-  [qpath rule-set]
-  (if (= (first qpath) (last qpath))
-    (let [eid (second qpath)
-          e (d/entity db eid)]
-      [e])
-    (let [pid (second qpath)
-          rule-name (first qpath)  ; parent thing type is rule name
-          parent-rule (list rule-name '?e '?val)
-          q (conj '[:find ?e :in $ % ?val :where ] parent-rule)
-          eids (d/q q db rule-set pid)
-          entities (map (comp get-entity first) eids)  ; touch to not lazy.
-          ]
-      entities)))
-
 
 ; create a parent entity, does not link child yet
 (defn create-parent
@@ -220,9 +190,10 @@
 (defn find-parent
   "find parent by query path "
   [qpath]
-  (let [entities (get-entities-by-rule qpath get-parent-by)
+  (let [entities (util/get-entities-by-rule qpath get-parent-by)
         projkeys (keys (dissoc parent-schema :parent/children))
         parents (map #(select-keys % projkeys) entities)
+        parent-attrs (list-attr :parent)
         ]
     (doseq [e parents]
       (prn "parent --> " e))
@@ -231,23 +202,6 @@
 ;;==========================================================================
 ; child related
 ;;==========================================================================
-
-; we should query schema entity for attrs, not hard-code here.
-(def child-schema
-  {
-    :db/id :id
-    :child/name :string
-    :child/lname :string
-    :child/parents :ref
-    :child/age :long
-    :child/address :string
-    :child/gender :keyword
-    :child/email :string
-    :child/phone :string
-    :child/status :enum
-    :child/popularity :long
-    })
-
 
 (defn create-child
   "create a parent entity, id is random"
@@ -270,7 +224,7 @@
 (defn find-children
   "find children by passed in query path"
   [qpath]
-  (let [entities (get-entities-by-rule qpath get-child-by)
+  (let [entities (util/get-entities-by-rule qpath get-child-by)
         projkeys (keys (dissoc child-schema :child/parents))
         children (map #(select-keys % projkeys) entities)]
     (doseq [e children]

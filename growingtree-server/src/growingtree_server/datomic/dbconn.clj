@@ -352,28 +352,28 @@
       (prn "list all attr " eid)
       (map entity-attr eid)))
 
-  ([attr-ident]
-    (let [eid (d/q '[:find ?e :in $ ?attr 
-                     :where [?e :db/ident ?attr]] 
-                    db 
-                    attr-ident)]
-      (map entity-attr eid))))
+  ; list schema attr name and attr valueType
+  ([schema-name]
+    (let [attr-types
+            (d/q '[:find ?attr-name ?val-type
+                   :where [?ref :db.install/attribute ?attr]
+                          [?attr :db/ident ?attr-name]
+                          [?attr :db/valueType ?vt]
+                          [?vt :db/ident ?val-type]
+                          ]
+                  (get-db))
 
-
-(defn type-card
-  "Returns the type :db.type/instant and cardinality (:db.cardinality/one or
-   :db.cardinality/many) of the attribute"
-  [attr]
-  (->>
-   (d/q '[:find ?t ?v
-          :in $ ?attr
-          :where
-          [?attr :db/valueType ?vt]
-          [?vt :db/ident ?t]
-          [?attr :db/cardinality ?card]
-          [?card :db/ident ?v]]  ; ident is keyword, :db.cardinality/one, many.
-        (get-db) attr)
-   first))
+          schema-map
+            (reduce
+              (fn [tot [attr vtype]]
+                (if (= (keyword (namespace attr)) schema-name)
+                  (into tot (vector [attr vtype]))
+                  tot))
+              {}
+              attr-types)
+          ]
+    ;(prn "schema attrs " schema-map)
+    schema-map)))
 
 
 ; find from db installed attribute
@@ -397,6 +397,36 @@
                 db schema-attr schema-name)
            seq boolean)))
 
+
+(defn type-card
+  "Returns the type :db.type/instant and cardinality (:db.cardinality/one or
+   :db.cardinality/many) of the attribute"
+  [attr]
+  (->>
+   (d/q '[:find ?t ?v
+          :in $ ?attr
+          :where
+          [?attr :db/valueType ?vt]
+          [?vt :db/ident ?t]
+          [?attr :db/cardinality ?card]
+          [?card :db/ident ?v]]  ; ident is keyword, :db.cardinality/one, many.
+        (get-db) attr)
+   first))
+
+
+; given a schema name, find all the attr of the schema
+(defn schema-attrs
+  [schema-name]
+  (let [attr-types
+          (d/q '[:find ?attr-name ?val-type
+                 :where [?ref :db.install/attribute ?attr]
+                        [?attr :db/ident ?attr-name]
+                        [?attr :db/valueType ?vt]
+                        [?vt :db/ident ?val-type]
+                        ]
+                (get-db))
+        ]
+    (prn "find schema attra " attr-types)))
 
 
 

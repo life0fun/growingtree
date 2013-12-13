@@ -103,10 +103,15 @@
 (declare create-homework-math)
 
 
+; schema attr-name value type map for homework schema and assignment schema
+(def homework-schema (assoc (list-attr :homework) :db/id :db.type/id))
+(def assignment-schema (assoc (list-attr :assignment) :db/id :db.type/id))
+
+
 ;---------------------------------------------------------------------------------
 ; rules to find all parent or child with the name, 
 ; for all rule lists with the same name, results are OR logic.
-
+;---------------------------------------------------------------------------------
 ; rule set for get child by. rule name is the parent thing type.
 (def get-homework-by
   '[[(:all ?e ?val) [?e :homework/author]]   ; select all homework that has author
@@ -128,8 +133,8 @@
   ])
 
 
-; get entities by qpath, formulate query rules from qpath
-; qpath is [:all 0 :children] or [:parent 1 :children] or [:parents 1 :parents]
+; ; get entities by qpath, formulate query rules from qpath
+; ; qpath is [:all 0 :children] or [:parent 1 :children] or [:parents 1 :parents]
 (defn get-entities-by-rule
   "get entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
@@ -223,24 +228,6 @@
 ;; assignment
 ;;================================================================================
 
-; this map between assignment map to entity attr
-(def assignment-attr-map
-  {
-    :db/id :id
-    :assignment/title :string
-    :assignment/author :ref
-    :assignment/homework :ref
-    :assignment/assignee :ref
-    :assignment/priority :long
-    :assignment/status :enum
-    :assignment/start  :instant
-    :assignment/due :instant
-    :assignment/hint :string
-    :assignment/answer :ref
-    :assignment/comments :ref
-  })
-
-
 (defn create-assignment
   "new assignment form the submitted form data"
   [details]
@@ -249,7 +236,7 @@
         ; this find all children whose parent is author-di
         assignee-id (:db/id (dbconn/find-by :child/parents author-id))
         entity (-> details
-                (select-keys (keys assignment-attr-map))
+                (select-keys (keys assignment-schema))
                 (assoc :assignment/author author-id)
                 (assoc :assignment/assignee assignee-id)
                 (util/entity-date)
@@ -266,13 +253,14 @@
 (defn find-assignment
   "find all assignment by query path "
   [qpath]
-  (let [entities (get-entities-by-rule qpath get-assignment-by) ; a list of entity tuples
-        assignment-vec (map #(util/entity-value-vec % (keys assignment-attr-map)) entities)
-        ;assignment-vec entities
+  (let [entities (util/get-entities-by-rule qpath get-assignment-by) ; a list of entity tuples
+        projkeys (keys (dissoc assignment-schema :assignment/assignee :assignment/author))
+        assignments (map #(select-keys % projkeys) entities)
         ]
-    (doseq [e assignment-vec]
+    (prn projkeys assignments)
+    (doseq [e assignments]
       (prn "assignment --> " e))
-    ;assignment-vec
+    assignments
     ))
 
 
