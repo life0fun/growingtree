@@ -171,6 +171,7 @@
 
 ;;==================================================================================
 ; GET request to get all things without post any filters
+; this fn is deprecated as nav path for all things is [:all 0 :parent]
 ;;==================================================================================
 (defn get-all-things
   "get things by type, ret from peer a list of thing in a new line sep string"

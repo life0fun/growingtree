@@ -103,17 +103,6 @@
 (declare create-homework-math)
 
 
-(defn thing-type-enum
-  [type]
-  (case type
-    "Math" :homework.type/math
-    "Science" :homework.type/science
-    "Reading/Writing" :homework.type/reading
-    "Art" :homework.type/art
-    "Sport" :homework.type/sports
-    "default"))
-
-
 ;---------------------------------------------------------------------------------
 ; rules to find all parent or child with the name, 
 ; for all rule lists with the same name, results are OR logic.

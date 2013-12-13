@@ -216,7 +216,7 @@
       ;(filtered-parent-deltas inputs render-type navpath)
       (mapcat
         (fn [entity-map]
-          (let [id (:id entity-map)
+          (let [id (:db/id entity-map)  ; :db/id is entity id
                 thing-type (last input-path)
                 ; [:main :parent 12 :children 34]
                 render-path (navpath->render-path navpath id)

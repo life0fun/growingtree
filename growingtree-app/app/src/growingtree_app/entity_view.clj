@@ -168,52 +168,44 @@
 
 
 ;;===============================================================
-;; ret a view map for parent entity
+;; ret a view map for thing type
 ;;===============================================================
-(defn parent-view-value
-  "ret a view map for parent entity"
-  [value-map]
-  (assoc value-map :title (:name value-map)))
-
-(defn child-view-value
-  "ret a view map for child entity"
-  [value-map]
-  (assoc value-map :title (:name value-map)))
-
-(defn course-view-value
-  "ret a view map for course entity"
-  [value-map]
-  value-map)
+(defmulti thing-view
+  (fn [path entity]
+    (second (reverse path))))  
 
 
-(defn lecture-view-value
-  "ret a view map for lecture entity"
-  [value-map]
-  value-map)
+(defmethod thing-view
+  :parents
+  [path entity]
+  (assoc entity :title (:parent/name entity)))
 
 
-(defn homework-view-value
-  "ret a view map for lecture entity"
-  [value-map]
-  value-map)
+(defmethod thing-view
+  :children
+  [path entity]
+  (assoc entity :title (:child/name entity)))
 
 
-(defn assignment-view-value
-  "ret a view map for lecture entity"
-  [value-map]
-  value-map)
+(defmethod thing-view
+  :courses
+  [path entity]
+  (assoc entity :title (:course/title entity)))
 
 
-(defn view-value
-  "map entity value vectors to view value vector based on thing type"
-  [path value-map]
-  (let [type (last path)]  ; nav type is plural, db schema is singular
-    (case type
-      :parents (parent-view-value value-map)
-      :children (child-view-value value-map)
-      :courses (course-view-value value-map)
-      :lectures (lecture-view-value value-map)
-      :homeworks (homework-view-value value-map)
-      :assignments (assignment-view-value value-map)
-      "default")))
+(defmethod thing-view
+  :lectures
+  [path entity]
+  (assoc entity :title (:lecture/title entity)))
 
+
+(defmethod thing-view
+  :homeworks
+  [path entity]
+  (assoc entity :title (:homework/title entity)))
+
+
+(defmethod thing-view
+  :assignments
+  [path entity]
+  (assoc entity :title (:assigment/title entity)))

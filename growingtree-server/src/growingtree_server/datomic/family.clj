@@ -116,8 +116,7 @@
 (def PersonId (atom (to-long (clj-time/now))))
 
 ; get the id for a person
-(defn getPersonId 
-  [] 
+(defn getPersonId [] 
   (let [n (swap! PersonId inc)] 
     (str n)))
 
@@ -163,6 +162,22 @@
   ])
 
 
+; we should query schema entity for attrs, not hard-code here.
+(def parent-schema
+  {
+    :db/id :id
+    :parent/name :string
+    :parent/lname :string
+    :parent/children :ref
+    :parent/age :long
+    :parent/address :string
+    :parent/gender :keyword
+    :parent/email :string
+    :parent/phone :string
+    :parent/status :enum
+    :parent/popularity :long
+    })
+
 ; get entities by qpath, formulate query rules from qpath
 ; qpath is [:all 0 :children] or [:parent 1 :children] or [:parents 1 :parents]
 (defn get-entities-by-rule
@@ -177,7 +192,7 @@
           parent-rule (list rule-name '?e '?val)
           q (conj '[:find ?e :in $ % ?val :where ] parent-rule)
           eids (d/q q db rule-set pid)
-          entities (map (comp get-entity first) eids)
+          entities (map (comp get-entity first) eids)  ; touch to not lazy.
           ]
       entities)))
 
@@ -199,21 +214,6 @@
            :parent/popularity (rand-int 10)}]
     m))
 
-; convert a parent entity to map
-(defn parent-entity-map
-  "convert a parent entity to map"
-  [entity]
-  (let [children (map :db/id (:parent/children entity))]
-    {:id (:db/id entity)
-     :name (:parent/name entity)
-     :lname (:parent/lname entity)
-     :children children
-     :age (:parent/age entity)
-     :address (:parent/address entity)
-     :email (vec (:parent/email entity))  ; convert set to string
-     :phone (vec (:parent/phone entity))
-     :popularity (:parent/popularity entity)
-    }))
 
 ; :find rets entity id, find all parent's pid and name.
 ; the parent thing type in qpath is used as rule name selector.
@@ -221,13 +221,34 @@
   "find parent by query path "
   [qpath]
   (let [entities (get-entities-by-rule qpath get-parent-by)
-        parents (map parent-entity-map entities)]
+        projkeys (keys (dissoc parent-schema :parent/children))
+        parents (map #(select-keys % projkeys) entities)
+        ]
     (doseq [e parents]
       (prn "parent --> " e))
     parents))
 
 ;;==========================================================================
-; create a parent entity, does not link child yet
+; child related
+;;==========================================================================
+
+; we should query schema entity for attrs, not hard-code here.
+(def child-schema
+  {
+    :db/id :id
+    :child/name :string
+    :child/lname :string
+    :child/parents :ref
+    :child/age :long
+    :child/address :string
+    :child/gender :keyword
+    :child/email :string
+    :child/phone :string
+    :child/status :enum
+    :child/popularity :long
+    })
+
+
 (defn create-child
   "create a parent entity, id is random"
   [name]
@@ -245,29 +266,13 @@
     m))
 
 
-; convert a parent entity to map
-(defn child-entity-map
-  "convert a child entity to map"
-  [entity]
-  (let [parents (map :db/id (:child/parents entity))]
-    {:id (:db/id entity)
-     :name (:child/name entity)
-     :lname (:child/lname entity)
-     :parents parents
-     :age (:child/age entity)
-     :address (:child/address entity)
-     :email (vec (:child/email entity))  ; convert set to string
-     :phone (vec (:child/phone entity))
-     :popularity (:child/popularity entity)
-    }))
-
-
 ;; find children with qpath. use rule from get-child-by rule set by parent name in qpath.
 (defn find-children
   "find children by passed in query path"
   [qpath]
   (let [entities (get-entities-by-rule qpath get-child-by)
-        children (map child-entity-map entities)]
+        projkeys (keys (dissoc child-schema :child/parents))
+        children (map #(select-keys % projkeys) entities)]
     (doseq [e children]
       (prn "child --> " e))
     children))

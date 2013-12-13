@@ -135,12 +135,12 @@
   [r [op path oldv newv] input-queue]
   (.log js/console (str "updating new thing value " path newv))
   (let [id (render/get-id r path)    ; node destroy, get-id will blow off
-        type-path (butlast path)
-        view-vec (entity-view/view-value type-path newv)
+        view-vec (entity-view/thing-view path newv)
         title (:title view-vec)
-        thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
-    (templates/update-t r path thing-map)
-    ))
+        thing-map {:thing-entry-title title 
+                   :thumbhref "thumbhref" 
+                   :entryhref path}]
+    (templates/update-t r path thing-map)))
 
 
 (defn del-thing-node

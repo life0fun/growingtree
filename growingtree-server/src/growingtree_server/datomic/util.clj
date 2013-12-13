@@ -88,18 +88,17 @@
   "convert tuple hash set to vector"
   [entity]
   (reduce (fn [tot [k v]]
-            (let [curv (curk entity)
-                  curtype (type curv)]
-              (prn "entity value vec " curk curv curtype tot)
+            (let [curtype (type v)]
+              (prn "entity value vec " k v curtype tot)
               (cond
                 ; hashset #{} to vector []
                 (= clojure.lang.PersistentHashSet curtype)
-                  (conj tot (vec curv))
+                  (conj tot (vec v))
                 ; instant to unix epoch
                 (= java.util.Date curtype) 
-                  (conj tot (to-long (from-date curv))) ; conver to epoch
+                  (conj tot (to-long (from-date v))) ; conver to epoch
                 ; default use value
-                :else (conj tot curv))))
+                :else (conj tot v))))
           {}
           entity))
 

@@ -111,16 +111,6 @@
    :email :course/email
    :comments :course/comments})
 
-(defn thing-type-enum
-  [type]
-  (case type
-    "Math" :course.type/math
-    "Science" :course.type/science
-    "Reading/Writing" :course.type/reading
-    "Art" :course.type/art
-    "Sport" :course.type/sports
-    "default"))
-
 
 ; given a map of course attr, rename to datomic schema ns for inserting
 ; for now, comment out ref attrs.

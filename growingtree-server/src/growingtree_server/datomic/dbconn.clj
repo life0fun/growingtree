@@ -333,7 +333,13 @@
 
 
 ;;==========================================================================
-; schema query, find db installed attributes.
+; schema query, schema itself, like transactors and everything in db, is entities.
+; Schema entities are ordinary entities, like any other data in the system. 
+; Rather then return their entity ids, you can join through :db/ident to find the 
+; programmatic identifiers that name each attribute
+; all db installed attributes are under :db.install/attribute. schema attr has no namespace.
+; (d/q '[:find ?attr-name :where [?ref :comments] [?ref ?attr] [?attr :db/ident ?attr-name]]
+;   [:story/title] [:comment/body] [:story/url]
 ;;==========================================================================
 ; get attr details by attr ident. 
 ; {:db/id :db/ident :community/url :db/valueType :db.type/string }

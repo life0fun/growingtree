@@ -100,7 +100,7 @@
   (fn [response]
     ; parse response body into json and convert json to cljs PersistentVector
     (when-let [body (:body response)] ; only when we have valid body
-      ;(.log js/console (str "response " body))
+      (.log js/console (str "app service receive response :" body))
       (let [bodyjson (JSON/parse body)  
             ; parse js json object to cljs.core.PersisitentVector data structre.
             result (js->clj bodyjson :keywordize-keys true)
