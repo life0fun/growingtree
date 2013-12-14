@@ -249,14 +249,14 @@
 ; find a course
 (defn find-course
   "find course by subject, ret a list of course entity"
-  []
-  (course/find-course))
+  [qpath]
+  (course/find-course qpath))
 
 
 (defn find-lecture
   "find all lectures, ret a vector of lecture entities"
-  []
-  (course/find-lecture))
+  [qpath]
+  (course/find-lecture qpath))
 
 
 ; linking a lecture to a course, ref attr's val is numeric id value.

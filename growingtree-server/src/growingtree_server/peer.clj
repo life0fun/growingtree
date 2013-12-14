@@ -103,8 +103,8 @@
 (defmethod get-things
   :courses
   [type qpath]
-  (let [courses (dda/find-course)]
-    (prn "peer get all courses " courses)
+  (let [courses (dda/find-course qpath)]
+    (prn "peer get all courses " qpath courses)
     courses))
 
 

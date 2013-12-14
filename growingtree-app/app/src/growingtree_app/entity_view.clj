@@ -21,7 +21,8 @@
               [io.pedestal.app.util.log :as log]
               [io.pedestal.app.render.push.handlers :as h]
               [io.pedestal.app.render.push.handlers.automatic :as auto]
-              [growingtree-app.selector :as sel])
+              [growingtree-app.selector :as sel]
+              [growingtree-app.util :as util])
     (:require-macros [growingtree-app.html-templates :as html-templates]))
 
 
@@ -205,11 +206,14 @@
   (assoc entity :title (:homework/title entity)))
 
 
+; embeded ref object can be de-refed directly.
 (defmethod thing-view
   :assignments
   [path entity]
   (let [hmwk (:assignment/homework entity)
-        content (:homework/content hmwk)]
-    (.log js/console entity hmwk content)
-    (assoc entity :title (:homework/content (:assigment/homework entity)))))
+        ident (util/thing-ident hmwk)
+        titlekey (keyword (str (name ident) "/title"))
+        title (titlekey hmwk)
+        ]
+    (assoc entity :title title)))
 

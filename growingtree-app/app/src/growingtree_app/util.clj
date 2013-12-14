@@ -24,3 +24,12 @@
     (str (pad (.getHours d)) ":"
          (pad (.getMinutes d)) ":"
          (pad (.getSeconds d)))))
+
+
+; get the namespace of thing 
+(defn thing-ident
+  "get thing type of the entity, the namespace, or ident of entity. remove :db/id"
+  [entity]
+  (let [e (dissoc entity :db/id)  ; remove :db/id
+        ident (keyword (namespace (ffirst e)))]
+    ident))

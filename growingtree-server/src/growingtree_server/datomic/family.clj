@@ -13,7 +13,8 @@
   (:require [datomic.api :as d])
   (:require [growingtree-server.datomic.dbschema :as dbschema]
             [growingtree-server.datomic.dbconn :as dbconn :refer :all]
-            [growingtree-server.xpathqrule :as xpathqrule]))
+            [growingtree-server.xpathqrule :as xpathqrule]
+            [growingtree-server.datomic.util :as util]))
 
 ;
 ; http://blog.datomic.com/2013/05/a-whirlwind-tour-of-datomic-query_16.html
@@ -193,7 +194,6 @@
   (let [entities (util/get-entities-by-rule qpath get-parent-by)
         projkeys (keys (dissoc parent-schema :parent/children))
         parents (map #(select-keys % projkeys) entities)
-        parent-attrs (list-attr :parent)
         ]
     (doseq [e parents]
       (prn "parent --> " e))

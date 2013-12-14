@@ -135,22 +135,22 @@
 
 ; ; get entities by qpath, formulate query rules from qpath
 ; ; qpath is [:all 0 :children] or [:parent 1 :children] or [:parents 1 :parents]
-(defn get-entities-by-rule
-  "get entities by qpath and rule-set, formulate query rules from qpath"
-  [qpath rule-set]
-  (if (= (first qpath) (last qpath))
-    (let [eid (second qpath)
-          e (d/entity db eid)]
-      [e])
-    (let [pid (second qpath)
-          rule-name (first qpath)  ; parent thing type is rule name
-          parent-rule (list rule-name '?e '?val)
-          q (conj '[:find ?e :in $ % ?val :where ] parent-rule)
-          eids (d/q q (get-db) rule-set pid)
-          entities (map (comp get-entity first) eids)
-          ]
-      (prn "get entities by rule " rule-name pid parent-rule q eids)
-      entities)))
+; (defn get-entities-by-rule
+;   "get entities by qpath and rule-set, formulate query rules from qpath"
+;   [qpath rule-set]
+;   (if (= (first qpath) (last qpath))
+;     (let [eid (second qpath)
+;           e (d/entity db eid)]
+;       [e])
+;     (let [pid (second qpath)
+;           rule-name (first qpath)  ; parent thing type is rule name
+;           parent-rule (list rule-name '?e '?val)
+;           q (conj '[:find ?e :in $ % ?val :where ] parent-rule)
+;           eids (d/q q (get-db) rule-set pid)
+;           entities (map (comp get-entity first) eids)
+;           ]
+;       (prn "get entities by rule " rule-name pid parent-rule q eids)
+;       entities)))
 
 
 ;;==================================================================================
@@ -173,10 +173,9 @@
 (defn homework-to-attr
   "convert from homework value map to entity attr"
   [homework-map]
-  (let [type-enum-map (update-in homework-map [:type] thing-type-enum)
-        ; for now, do not project ref attr for insertion
+  (let [; for now, do not project ref attr for insertion
         projkeys (dissoc homework-key-attr-map :id :author :lecture :comments)
-        homework-attr (-> type-enum-map 
+        homework-attr (-> homework-map
                         (set/rename-keys projkeys)
                         (select-keys (vals projkeys))
                         (assoc :db/id (d/tempid :db.part/user)))]
@@ -227,11 +226,10 @@
 ;;================================================================================
 ;; assignment
 ;;================================================================================
-
 (defn create-assignment
   "new assignment form the submitted form data"
   [details]
-  (let [author (dbconn/find-by :parent/name (:author details))
+  (let [author (dbconn/find-by :parent/name (:author details))  ; should be login name
         author-id (:db/id author)
         ; this find all children whose parent is author-di
         assignee-id (:db/id (dbconn/find-by :child/parents author-id))
@@ -239,9 +237,9 @@
                 (select-keys (keys assignment-schema))
                 (assoc :assignment/author author-id)
                 (assoc :assignment/assignee assignee-id)
-                (util/entity-date)
+                (util/entity-date)   ; convert to date
                 (assoc :db/id (d/tempid :db.part/user)))
-        trans (submit-transact [entity])
+        trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
     (prn "submit assignment entity " author-id assignee-id " entity " entity)

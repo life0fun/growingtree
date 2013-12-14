@@ -169,6 +169,12 @@
   (d/touch (d/entity (get-db) eid)))
 
 
+(defn ident 
+  "ret the keyword associated with the entity id"
+  [eid]
+  (ident (get-db) eid))
+
+
 (defn entity-attr
   "display all attributes of an entity by its id, passed in eid is in a list [eid]"
   [eid]
@@ -177,6 +183,7 @@
         tostr (reduce (fn [o c] (str o " " c "=" (c e))) (str (first eid) " = ") attrs)]
     ;(pprint/pprint tostr)
     tostr))
+
 
 ; show entity by id
 (defn show-entity-by-id
@@ -415,6 +422,7 @@
 
 
 ; given a schema name, find all the attr of the schema
+; Deprecated, use list-attr.
 (defn schema-attrs
   [schema-name]
   (let [attr-types

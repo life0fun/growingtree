@@ -100,30 +100,31 @@
 (declare create-course-coding)
 
 
-; this map between course map to entity attr
-(def course-key-attr-map 
-  {:id :db/id
-   :title :course/title
-   :author :course/author
-   :content :course/content
-   :type :course/type
-   :url :course/url 
-   :email :course/email
-   :comments :course/comments})
+; schema attr-name value type map for parent schema and child schema
+(def course-schema (assoc (list-attr :course) :db/id :db.type/id))
+(def lecture-schema (assoc (list-attr :lecture) :db/id :db.type/id))
 
 
-; given a map of course attr, rename to datomic schema ns for inserting
-; for now, comment out ref attrs.
-(defn insert-course-map
-  [course-map]
-  (let [type-enum-map (update-in course-map [:type] thing-type-enum)
-        ; for now, do not project ref attr for insertion
-        projkeys (dissoc course-key-attr-map :id :author :comments)
-        course-attr (-> type-enum-map 
-                        (set/rename-keys projkeys)
-                        (select-keys (vals projkeys))
-                        (assoc :db/id (d/tempid :db.part/user)))]
-    course-attr))
+(def get-course-by
+  '[[(:all ?e ?val) [?e :course/title]]   ; select all 
+    [(:author ?e ?val) [?e :course/author ?val]]
+    [(:lecture ?e ?val) [?e :course/lecture ?val]]
+    [(:type ?e ?val) [?e :course/type ?val]]
+    [(:content ?e ?val) [?e :course/content ?val]]
+    [(:title ?e ?val) [?e :course/title ?val]]
+  ])
+
+
+; rule set for get parent by. rule name is the parent thing type.
+(def get-lecture-by
+  '[[(:all ?e ?val) [?e :lecture/title]]   ; select all
+    [(:course ?e ?val) [?e :lecture/course ?val]]
+    [(:title ?e ?val) [?e :lecture/title ?val]]
+    [(:author ?e ?val) [?e :lecture/author ?val]]
+    [(:type ?e ?val) [?e :lecture/type ?val]]
+    [(:date ?e ?val) [?e :lecture/date ?val]]
+    [(:content ?e ?val) [?e :lecture/content ?val]]
+  ])
 
 
 ; create course
@@ -132,7 +133,7 @@
 (defn create-course
   "create a course with details "
   [details]
-  (let [insert-map (insert-course-map details)
+  (let [insert-map details
         trans (submit-transact [insert-map])]
     (prn "create course " insert-map)
     trans))
@@ -140,16 +141,15 @@
 
 ; find a course
 (defn find-course
-  "find course by subject, ret a list of course entity"
-  []
-  (let [cs (d/q '[:find ?c :where [?c :course/title]] (get-db))
-        entities (map (comp get-entity first) cs)
-        courses entities
+  "find course by query path "
+  [qpath]
+  (let [entities (util/get-entities-by-rule qpath get-course-by)
+        projkeys (keys (dissoc course-schema :course/lecture)) ; no circular ref
+        courses (map #(select-keys % projkeys) entities)
         ]
-    (doseq [c courses]
-      (prn " course --> " c))
+    (doseq [e courses]
+      (prn "course --> " e))
     courses))
-
 
 
 (defn lecture-attr
@@ -195,6 +195,9 @@
     subject))
 
 
+;;===============================================================
+; lecture
+;;===============================================================
 ; create an online course
 (defn create-lecture
   "create a course lecture for certain course id"
@@ -210,15 +213,17 @@
 
 
 
-
-
+; find a course
 (defn find-lecture
-  "find all lectures, ret a vector of lecture entities"
-  []
-  (let [lids (d/q '[:find ?l :where [?l :lecture/course]] db)
-        entities (map (comp get-entity first) lids)]  ; eid is the first of result tuple
-    (map (comp show-entity-by-id first) lids)
-    entities))
+  "find lecture by query path "
+  [qpath]
+  (let [entities (util/get-entities-by-rule qpath get-lecture-by)
+        projkeys (keys (dissoc lecture-schema :lecture/lecture)) ; no circular ref
+        lectures (map #(select-keys % projkeys) entities)
+        ]
+    (doseq [e lectures]
+      (prn "lecture --> " e))
+    lectures))
 
 
 ; linking a lecture to a course, ref attr's val is numeric id value.
