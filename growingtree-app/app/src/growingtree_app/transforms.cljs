@@ -121,9 +121,9 @@
 (def enable-sidebar-nav
   "wire sidebar click event to all things transform fn"
   (fn [r [_ p transform-name messages] input-queue]
-    (let [sidebars [:parents :children :courses :lectures :homeworks
-                    :assignments :topquestions :topanswers :ask :answer
-                    :contributions :nowledges :activities :locations]]
+    (let [sidebars [:parent :child :course :lecture :homework
+                    :assignment :topquestion :topanswer :ask :answer
+                    :contribution :nowledge :activity :location]]
       (doseq [s sidebars]
         (events/send-on :click
                         (dom/by-id (str "sidenav-" (name s)))
@@ -138,7 +138,7 @@
 ;; action bar multimethod dispatches by transkey/action, path [:setup :transkey]
 ;; transkey, when setup from emitter, is next link, when come back to behavior, is transkey.
 ;;==================================================================================
-;; [:transform-enable [:setup :children 17592186045496 :assignments] :assignments]
+;; [:transform-enable [:setup :child 17592186045496 :assignment] :assignment]
 (defmulti enable-setup-action
   (fn [render [target path transkey messages] input-queue]
     transkey))
@@ -288,51 +288,51 @@
 
 
 ;;==================================================================================
-;; nav anywhere to -> parents, transkey is children, 
-;; [:transform-enable [:nav :children 17592186045496 :parents]]
+;; nav anywhere to -> parent, transkey is child, 
+;; [:transform-enable [:nav :child 17592186045496 :parent]]
 ;;==================================================================================
 (defmethod enable-thing-nav 
-  :parents
+  :parent
   [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:parent 1 :children]
+  (let [navpath (rest path)  ; [:parent 1 :child]
         thingid (first (reverse (butlast navpath)))
         thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thingid))
         ; thing nav link class set inside entity view class
         thing-link (dom/by-class (str "parents-" thingid))]
-    (.log js/console (str "in parent thing, enable nav event " path messages))
+    (.log js/console (str "enable parents link click " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! thing-link
                 :click 
                 (fn [evt]
                   (let [; deprected ! not used. emitter already set it up.
                         new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
-                    (.log js/console (str "in thing parent " navpath " link clicked " messages))
+                    (.log js/console (str "parents link clicked " messages))
                     (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
                       (p/put-message input-queue m)))))
   ))
 
 ;;==================================================================================
-;; nav anywhere -> children , transkey is children, 
-;; [:transform-enable [:nav :parents 17592186045498 :children] :children
+;; nav anywhere -> child , transkey is child, 
+;; [:transform-enable [:nav :parent 17592186045498 :child] :child
 ;;==================================================================================
 (defmethod enable-thing-nav 
-  :children
+  :child
   [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:parent 1 :children]
+  (let [navpath (rest path)  ; [:parent 1 :child]
         thingid (first (reverse (butlast navpath)))
         thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thingid))
         ; thing nav link class set inside entity view class
         thing-link (dom/by-class (str "children-" thingid))]
-    (.log js/console (str "in child thing, enable nav event " path messages))
+    (.log js/console (str "enable children link click " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! thing-link
                 :click 
                 (fn [evt]
                   (let [; deprected ! not used. emitter already set it up.
                         new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
-                    (.log js/console (str "in thing child " navpath " link clicked " messages))
+                    (.log js/console (str "children link clicked " messages))
                     (doseq [m messages]  ;[m new-msgs]  do not need render to fill anything
                       (p/put-message input-queue m)))))
   ))
@@ -340,7 +340,7 @@
 ;;==================================================================================
 ;; enable assignto-toggle and assignto-submit form with link and form event handler.
 ;; nav anywhere -> assignto-submit , transkey is assignto-submit, 
-;; [:transform-enable [:nav :courses 17592186045496 :assign-toggle] :assign-toggle
+;; [:transform-enable [:nav :course 17592186045496 :assign-toggle] :assign-toggle
 ;;==================================================================================
 (defmethod enable-thing-nav 
   :assign-toggle
@@ -397,12 +397,12 @@
   ))
 
 ;;==================================================================================
-;; nav event, for assignments
+;; nav event, for assignment
 ;;==================================================================================
 (defmethod enable-thing-nav 
-  :assignments
+  :assignment
   [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:parent 1 :children]
+  (let [navpath (rest path)  ; [:parent 1 :child]
         thingid (first (reverse (butlast navpath)))
         thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thingid))

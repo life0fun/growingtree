@@ -134,7 +134,7 @@
 ; only update template when new value exists.
 (defn value-thing-node
   [r [op path oldv newv] input-queue]
-  (.log js/console (str "updating new thing value " path newv))
+  (.log js/console (str "update thing node value " path " new-value " newv))
   (when newv
     (let [id (render/get-id r path)    ; node destroy, get-id will blow off
           view-vec (entity-view/thing-view path newv)
@@ -163,7 +163,7 @@
 ; the render two sections, parent data at upper layer and list of children
 (defn render-filtered-page
   "render thing details parent header and a list of children, delete main children first"
-  [r path]  ; path=[:header :parents]
+  [r path]  ; path=[:header :parent]
   (let [id (render/new-id! r (vec path))
         templ (:thing-details templates)
         html (templates/add-template r path templ)
@@ -185,7 +185,7 @@
     (.log js/console (str "add filtered parent node " thingid path))
     ; first, clear all children
     ;(dom/destroy-children! (dom/by-id "main"))
-    (render-filtered-page r (butlast path)) ; [:header :parents]
+    (render-filtered-page r (butlast path)) ; [:header :parent]
     ; append parent
     (dom/append! (dom/by-id "thing-root") thing-div)))
 
@@ -196,39 +196,10 @@
   (let [thingid (last path)
         thing (entity-view/thing-node-html path r)
         ]
-    ; [:data :parents 17592186045498 :children 17592186045497]
+    ; [:data :parent 17592186045498 :child 17592186045497]
     (.log js/console (str "append thing nav child node " thingid path))
     (dom/append! (dom/by-id "subthings-list") thing)))
     
-
-; info model value transformed, update template attached to node path.
-; oldv contains old value map and newv contains new value map.
-; path =  [:header :parents 17592186045498]
-(defn value-filtered-parent-node
-  [r [op path oldv newv] input-queue]
-  (let [id (render/get-id r path)    ; node destroy, get-id will blow off
-        view-vec (entity-view/thing-view path newv)
-        title (:title view-vec)
-        thing-map {:thing-entry-title title 
-                   :thumbhref "thumbhref" 
-                   :entryhref path}]
-    (.log js/console (str "value filtered parent node " path title view-map newv))
-    (templates/update-t r path thing-map)
-    ))
-
-
-(defn value-filtered-child-node
-  [r [op path oldv newv] input-queue]
-  (.log js/console (str "value thing nav child node " path newv))
-  (let [id (render/get-id r path)    ; node destroy, get-id will blow off
-        view-vec (entity-view/thing-view path newv)
-        title (:title view-vec)
-        thing-map {:thing-entry-title title 
-                   :thumbhref "thumbhref" 
-                   :entryhref path}]
-    (templates/update-t r path thing-map)
-    ))
-
 
 (defn del-thing-nav-node
   [r [op path] input-queue]
@@ -295,12 +266,14 @@
     [:node-destroy [:main] clear-all-things]  ; clear all children under main div
 
     ;; ============== thing data thing node from thing nav click ============
-    ;; thing nav [:filtered :parent 1 :children 2] two sections, head for parent and list of children.
+    ;; thing nav [:filtered :parent 1 :child 2] two sections, head for parent and list of child.
     [:node-create [:header :* :*] add-filtered-parent-node]  
-    [:value       [:header :* :*] value-filtered-parent-node]
+    ;[:value       [:header :* :*] value-filtered-parent-node]
+    [:value       [:header :* :*] value-thing-node]
     [:node-create [:filtered :* :* :* :*] append-filtered-child-node]
-    [:value       [:filtered :* :* :* :*] value-filtered-child-node]
-    [:node-destroy [:filtered] clear-all-things]  ; clear all children under main div
+    ;[:value       [:filtered :* :* :* :*] value-filtered-child-node]
+    [:value       [:filtered :* :* :* :*] value-thing-node]
+    [:node-destroy [:filtered] clear-all-things]  ; clear all child under main div
     
 
     ;; ============== other thing nav links setup and submit handling ============

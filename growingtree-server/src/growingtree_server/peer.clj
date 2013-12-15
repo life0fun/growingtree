@@ -86,7 +86,7 @@
 
 
 (defmethod get-things
-  :parents
+  :parent
   [type qpath]
   (let [parents (dda/find-parent qpath)]
     (prn "peer dda find parent " qpath parents)
@@ -94,15 +94,15 @@
 
 
 (defmethod get-things
-  :children
+  :child
   [type qpath]
-  (let [children (dda/find-children qpath)]
+  (let [children (dda/find-child qpath)]
     (prn "peer dda find children " qpath children)
     children))
 
 
 (defmethod get-things
-  :courses
+  :course
   [type qpath]
   (let [courses (dda/find-course qpath)]
     (prn "peer get all courses " qpath courses)
@@ -110,7 +110,7 @@
 
 
 (defmethod get-things
-  :homeworks
+  :homework
   [type qpath]
   (let [homeworks (dda/find-homework)]
     (prn "peer get all homeworks " homeworks)
@@ -118,7 +118,7 @@
 
 
 (defmethod get-things
-  :assignments
+  :assignment
   [type qpath]
   (let [assignments (dda/find-assignment qpath)]
     (prn "peer get all assignments " qpath assignments)

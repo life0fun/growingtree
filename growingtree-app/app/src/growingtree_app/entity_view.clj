@@ -27,13 +27,11 @@
 
 
 ; this module defines how entity attributes maps to view map.
-; for example, view div title maps fname of parents, and course title for course.
+; for example, view div title maps fname of parent, and course title for course.
 
 ; Load templates macro.
 (def templates (html-templates/growingtree-app-templates))
 
-
-(def children-prefix "children-")
 
 (def assignto "assignto-")
 (def assign-form "assign-form-")
@@ -43,10 +41,10 @@
 ;;===============================================================
 ;; generate thing template based on thing type
 ;; when rendering node-create with thing-type and id, ret thing node div html
-;; [:node-create [:main :all 0 :parents 17592186045505] :map]
-;; [:node-create [:main :parents 1 :children 17592186045505] :map]
-;; path = (:main :all 0 :parents 17592186045498) or 
-;;        (:header :parents 17592186045498)
+;; [:node-create [:main :all 0 :parent 17592186045505] :map]
+;; [:node-create [:main :parent 1 :child 17592186045505] :map]
+;; path = (:main :all 0 :parent 17592186045498) or 
+;;        (:header :parent 17592186045498)
 ;;===============================================================
 (defmulti thing-node-html
   (fn [path render]  ; the last segment of path
@@ -55,7 +53,7 @@
 
 ; dispatch by thing type, type is plural b/c sidebar list item name is plura.
 (defmethod thing-node-html
-  :parents
+  :parent
   [path render]
   (let [thingid (last path)
         templ (:thing-parent templates)
@@ -73,7 +71,7 @@
 
 
 (defmethod thing-node-html
-  :children
+  :child
   [path render]
   (let [thingid (last path)
         templ (:thing-child templates)
@@ -91,7 +89,7 @@
 
 
 (defmethod thing-node-html
-  :courses
+  :course
   [path render]
   (let [thingid (last path)
         templ (:thing-course templates)
@@ -133,7 +131,7 @@
 ;; shall use selector for hardcoded dom class name
 ;; ------------------------------------------------------------------------
 (defmethod thing-node-html
-  :homeworks
+  :homework
   [path render] 
   (let [thingid (last path)
         templ (:thing-homework templates)
@@ -151,7 +149,7 @@
 
 
 (defmethod thing-node-html
-  :assignments
+  :assignment
   [path render]
   (let [thingid (last path)
         templ (:thing-assignment templates)
@@ -177,38 +175,38 @@
 
 
 (defmethod thing-view
-  :parents
+  :parent
   [path entity]
   (assoc entity :title (:parent/name entity)))
 
 
 (defmethod thing-view
-  :children
+  :child
   [path entity]
   (assoc entity :title (:child/name entity)))
 
 
 (defmethod thing-view
-  :courses
+  :course
   [path entity]
   (assoc entity :title (:course/title entity)))
 
 
 (defmethod thing-view
-  :lectures
+  :lecture
   [path entity]
   (assoc entity :title (:lecture/title entity)))
 
 
 (defmethod thing-view
-  :homeworks
+  :homework
   [path entity]
   (assoc entity :title (:homework/title entity)))
 
 
 ; embeded ref object can be de-refed directly.
 (defmethod thing-view
-  :assignments
+  :assignment
   [path entity]
   (let [hmwk (:assignment/homework entity)
         ident (util/thing-ident hmwk)

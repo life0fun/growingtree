@@ -157,10 +157,10 @@
 
 
 ; list all children, to find one entity with id, use (get-entity id)
-(defn find-children
+(defn find-child
   "find all children who has parents"
   [qpath]
-  (family/find-children qpath))
+  (family/find-child qpath))
 
 
 

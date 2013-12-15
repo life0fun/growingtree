@@ -150,20 +150,20 @@
 ; rule set for get child by. rule name is the parent thing type.
 (def get-child-by
   '[[(:all ?e ?val) [?e :child/name]]   ; select all 
-    [(:parents ?e ?val) [?e :child/parents ?val]]
+    [(:parent ?e ?val) [?e :child/parents ?val]]
     [(:name ?e ?val) [?e :child/name ?val]]
     [(:phone ?e ?val) [?e :child/phone ?val]]
-    [(:groups ?e ?val) [?e :child/groups ?val]]
+    [(:group ?e ?val) [?e :child/groups ?val]]
   ])
 
 
 ; rule set for get parent by. rule name is the parent thing type.
 (def get-parent-by
   '[[(:all ?e ?val) [?e :parent/name]]   ; select all
-    [(:children ?e ?val) [?e :parent/children ?val]]
+    [(:child ?e ?val) [?e :parent/children ?val]]
     [(:name ?e ?val) [?e :parent/name ?val]]
     [(:phone ?e ?val) [?e :parent/phone ?val]]
-    [(:groups ?e ?val) [?e :parent/groups ?val]]
+    [(:group ?e ?val) [?e :parent/groups ?val]]
   ])
 
 
@@ -200,7 +200,7 @@
 ; child related
 ;;==========================================================================
 ;; find children with qpath. use rule from get-child-by rule set by parent name in qpath.
-(defn find-children
+(defn find-child
   "find children by passed in query path"
   [qpath]
   (let [entities (util/get-entities-by-rule qpath get-child-by)

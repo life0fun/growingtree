@@ -103,12 +103,12 @@
   [oldv message]
   (let [path (:path message)  ; :path is a vector
         npath (vec (conj oldv path))]
-    (.log js/console (str "set-nav-path newpath " npath message))
+    (.log js/console (str "set-nav-path newpath " (take-last 2 npath) path))
     npath))
 
 
 ; setup in effect, and callback by xhr respond handler, store list of all things data into 
-; [:data :all 0 :parent] or [:data :parent 1 :children]
+; [:data :all 0 :parent] or [:data :parent 1 :child]
 ; we store cljs.core.Vector data structure into path node. when clj get the ds out,
 ; no more parse needed. We only need one parse at response-handler.
 (defn set-thing-data
@@ -119,7 +119,7 @@
         thing-type (:thing-type message)  ; for all, thing-type is all
         things-vec (:data message)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
     (.log js/console (str "set thing data at " msg-topic " thing-type " thing-type " things-vec " things-vec))
-    things-vec))  ; now vector is stored in [:all :parents]
+    things-vec))  ; now vector is stored in [:all :parent]
 
 
 ; Path is [:action :setup :thing-type thingid], stores details map {:action :assign :id 12}
@@ -206,7 +206,7 @@
 ; clear all things by type upon nav type change, as we will restful request from service.
 ; input specifier defines what inputs var is, i.e., what upstream inputs are
 ; to get the clicked thing, [:old-model :data parent id child]
-; from [:parents 17592186045498 :parents] to [:parents 17592186045498 :children] parent () 
+; from [:parent 17592186045498 :parent] to [:parent 17592186045498 :child] parent () 
 ;-----------------------------------------------------------------------------------------
 (defn refresh-thing-data
   "remove stale things vec under [:data :all 0 :parent] upon nav path change"
@@ -220,7 +220,7 @@
         parent-thing-id (second (reverse newpath))
         parent (filter #(= parent-thing-id (:db/id %)) old-thing-vec)
        ]
-    (.log js/console (str " nav path refresh from " oldpath " to " newpath " parent " parent))
+    (.log js/console (str " nav path refresh from " oldpath " to " newpath " squash all [:data] "))
     (if oldv
       ; ret new map to stored [:all], squash everything in old path so all nodes get deleted
       (assoc-in oldv oldpath []))))
@@ -269,7 +269,7 @@
                 ; UI event sent to outbound node, then derive to [:nav :path] node
                 [:set-nav-path [:nav :path] set-nav-path]
 
-                ; db response data goes here. [:data :all 0 :parent] [:data :parent 1 :children]
+                ; db response data goes here. [:data :all 0 :parent] [:data :parent 1 :child]
                 [:set-thing-data [:data :**] set-thing-data]
                 [:submitted-form [:data :form] submitted-form]
 
@@ -330,7 +330,7 @@
            ; upon nav path changes, clear the topthings div and destroy path nodes.
            {:in #{[:nav :path]} :fn emitter/nav-path-emitter :mode :always}
 
-           ; [:data :all 0 :parent] or [:data :parent 1 :children]
+           ; [:data :all 0 :parent] or [:data :parent 1 :child]
            {:in #{[:data :* :* :*]} :fn emitter/thing-data-emitter :mode :always}
            {:in #{[:data :form]} :fn emitter/submitted-form-emitter :mode :always}
 
@@ -342,7 +342,7 @@
 
            {:in #{[:sse-data]} :fn emitter/sse-data-emitter :mode :always}
 
-           ; when xdata back, create nodes, [:xdata :parent 123 :children]
+           ; when xdata back, create nodes, [:xdata :parent 123 :child]
            {:in #{[:xdata :* :* :*]} :fn emitter/xdata-emitter :mode :always}
 
 
