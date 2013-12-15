@@ -130,17 +130,19 @@
     
 
 ; info model value transformed, update template attached to node path.
-; oldv contains old value map and newv contains new value map.
+; oldv contains old value map and newv contains new value map. 
+; only update template when new value exists.
 (defn value-thing-node
   [r [op path oldv newv] input-queue]
   (.log js/console (str "updating new thing value " path newv))
-  (let [id (render/get-id r path)    ; node destroy, get-id will blow off
-        view-vec (entity-view/thing-view path newv)
-        title (:title view-vec)
-        thing-map {:thing-entry-title title 
-                   :thumbhref "thumbhref" 
-                   :entryhref path}]
-    (templates/update-t r path thing-map)))
+  (when newv
+    (let [id (render/get-id r path)    ; node destroy, get-id will blow off
+          view-vec (entity-view/thing-view path newv)
+          title (:title view-vec)
+          thing-map {:thing-entry-title title 
+                     :thumbhref "thumbhref" 
+                     :entryhref path}]
+      (templates/update-t r path thing-map))))
 
 
 (defn del-thing-node
@@ -205,10 +207,11 @@
 (defn value-filtered-parent-node
   [r [op path oldv newv] input-queue]
   (let [id (render/get-id r path)    ; node destroy, get-id will blow off
-        type-path (butlast path)   ; bad code. [:header :parents]
-        view-map (entity-view/view-value type-path newv)
-        title (:title view-map)
-        thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
+        view-vec (entity-view/thing-view path newv)
+        title (:title view-vec)
+        thing-map {:thing-entry-title title 
+                   :thumbhref "thumbhref" 
+                   :entryhref path}]
     (.log js/console (str "value filtered parent node " path title view-map newv))
     (templates/update-t r path thing-map)
     ))
@@ -218,10 +221,11 @@
   [r [op path oldv newv] input-queue]
   (.log js/console (str "value thing nav child node " path newv))
   (let [id (render/get-id r path)    ; node destroy, get-id will blow off
-        type-path (butlast path)
-        view-vec (entity-view/view-value type-path newv)
+        view-vec (entity-view/thing-view path newv)
         title (:title view-vec)
-        thing-map {:thing-entry-title title :thumbhref "thumbhref" :entryhref path}]
+        thing-map {:thing-entry-title title 
+                   :thumbhref "thumbhref" 
+                   :entryhref path}]
     (templates/update-t r path thing-map)
     ))
 

@@ -58,6 +58,7 @@
 
 ; project non-circular ref attrs of datomic entityMap to simple map to avoid infinit loop in json stringify
 ; usage: data (map (partial entity->map coursekeys) courses)
+; Deprecated !
 (defn entity->map 
   "given a list of attributes in convert-data, find their values from entity and put as map attr"
   [entity-keys entity]
@@ -159,10 +160,10 @@
   :parent
   [type details]
   (let [user (:user details) ; thing-type value is json string.
-        result (dda/add-family details)
+        result (dda/create-parent details)
        ]
-    (prn "peer add thing " type " details " details " result " result)
-    details))
+    (prn "peer add parent " type " details " details " result " result)
+    result))
 
 
 ; watch non ref-ed attr entity. :transact/bad-data Unable to resolve entity: rich

@@ -233,7 +233,6 @@
         result {:status 200 :data added-things}
         jsonresp (bootstrap/json-response result)
         ]
-
     (log/info :message "received message" :request request :msg-data postdata)
     (prn "service got peer adding thing done " added-things)
     jsonresp))

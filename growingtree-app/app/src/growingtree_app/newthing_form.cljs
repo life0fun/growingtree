@@ -18,50 +18,67 @@
 ;; this ns contains code for handling ui event for newthing template.
 ;; see newthing.html for the template definition and db schema for attrs.
 
+;;==================================================================================
+; a map of thing type to a map of entity attribute, form dom id
+; refer to newthing.html for dom elements
+;;==================================================================================
+(def thing-type-attr
+  {
+    :parent {:parent/name "parent-name"
+             :parent/lname "parent-lname"
+             :parent/gender "parent-type"
+             :parent/address "parent-address"
+             :parent/email "parent-email"
+             :parent/phone "parent-phone"
+             :parent/status "parent-status"
+             :parent/openid "parent-url"
+            }
+
+    :course {:course/title "course-title"
+             :course/author "course-author"
+             :course/type "course-type"
+             :course/content "course-content" 
+             :course/url "course-url"
+             :course/email "course-email"
+            }
+
+    :homework {:homework/title "homework-title" 
+               :homework/author "homework-author"
+               :homework/type "homework-type"
+               :homework/content "homework-content"
+               :homework/url "homework-url"
+               :homework/difficulty "homework-difficulty"
+              }
+
+    :group {:group/title "group-title"
+            :group/author "group-author"
+            :group/type "group-type"
+            :group/url "group-url"
+            :group/wiki "group-wiki"
+           }
+  })
+
+
 
 ;;==================================================================================
-;; create new thing form submit handler, dispatch on thing type
+;; submt fn for new thing form save btn, called from submit action transoform event
 ;;==================================================================================
-
-(defmulti submit-fn
-  (fn [thing-type domform messages]
-    thing-type))
-
-
-;;==================================================================================
-;; course template, refer to newthing.html for page element
-;;==================================================================================
-(defmethod submit-fn
-  :course
-  [type form messages]
-  (.log js/console "submit-fn for " type)
+(defn submit-fn
+  [thing-type form messages]
+  (.log js/console "new thing form submit-fn " thing-type)
   (fn [_]
-    (let [
-          input-fields [:title :author :type :content :url :email :comments]
-          input-fieldname (map #(str (name type) "-" (name %)) input-fields)
-          input-domids (map #(dom/by-id %) input-fieldname)
-          input-vals (map #(.-value %) input-domids)
-          details (zipmap input-fields input-vals)
-          ]
-      (.log js/console (str "submit-handler " type " val " details))
-      (dom/destroy! form)
-      (msgs/fill :creatething messages {:details details}))))
-
-
-(defmethod submit-fn
-  :homework
-  [type form messages]
-  (.log js/console "submit-fn for " type)
-  (fn [_]
-    (let [
-          input-fields [:title :author :type :content :url :difficulty :comments]
-          input-fieldname (map #(str (name type) "-" (name %)) input-fields)
-          input-domids (map #(dom/by-id %) input-fieldname)
-          input-vals (map #(.-value %) input-domids)
-          ; read-string to parse string to num, use no exception version later               
+    (let [type-attr (get thing-type-attr thing-type)
+          input-fields (keys type-attr)
+          input-vals (->> (vals type-attr)
+                          (map #(dom/by-id %))
+                          (map #(.-value %)))
           details (-> (zipmap input-fields input-vals)
-                      (update-in [:difficulty] cljs.reader/read-string))
-          ]
-      (.log js/console (str "submit-handler " type " val " details))
+                      (util/update-enum thing-type "status" true)
+                      (util/update-enum thing-type "gender" false)
+                      )
+         ]
+      (.log js/console (str "new form submitted details " details))
       (dom/destroy! form)
-      (msgs/fill :creatething messages {:details details}))))
+      (msgs/fill :create-thing messages {:details details}))))
+
+

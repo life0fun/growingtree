@@ -149,7 +149,7 @@
 
 ; rule set for get child by. rule name is the parent thing type.
 (def get-child-by
-  '[[(:all ?e ?val) [?e :child/parents]]   ; select all 
+  '[[(:all ?e ?val) [?e :child/name]]   ; select all 
     [(:parents ?e ?val) [?e :child/parents ?val]]
     [(:name ?e ?val) [?e :child/name ?val]]
     [(:phone ?e ?val) [?e :child/phone ?val]]
@@ -159,31 +159,12 @@
 
 ; rule set for get parent by. rule name is the parent thing type.
 (def get-parent-by
-  '[[(:all ?e ?val) [?e :parent/children]]   ; select all
+  '[[(:all ?e ?val) [?e :parent/name]]   ; select all
     [(:children ?e ?val) [?e :parent/children ?val]]
     [(:name ?e ?val) [?e :parent/name ?val]]
     [(:phone ?e ?val) [?e :parent/phone ?val]]
     [(:groups ?e ?val) [?e :parent/groups ?val]]
   ])
-
-
-
-; create a parent entity, does not link child yet
-(defn create-parent
-  "create a parent entity, id is random"
-  [name]
-  (let [pid (getPersonId)
-        m {:db/id (d/tempid :db.part/user)
-           :parent/name name
-           :parent/lname name
-           :parent/age (+ 30 (rand-int 20))
-           :parent/address (str "addr-" name)
-           :parent/gender (rand-nth [:M :F])
-           :parent/email (str name "@email.com")
-           :parent/phone (str pid)
-           :parent/status :parent.status/active
-           :parent/popularity (rand-int 10)}]
-    m))
 
 
 ; :find rets entity id, find all parent's pid and name.
@@ -199,27 +180,25 @@
       (prn "parent --> " e))
     parents))
 
+
+(defn create-parent
+  "create parent from the submitted new thing form details"
+  [details]
+  (let [entity (-> details
+                (select-keys (keys (dissoc parent-schema :parent/children)))
+                (assoc :db/id (d/tempid :db.part/user)))
+        trans (submit-transact [entity])  ; transaction is a list of entity
+      ]
+    (newline)
+    (prn "submit parent entity " entity)
+    (prn "submit parent trans " trans)
+    [entity]))
+
+
+
 ;;==========================================================================
 ; child related
 ;;==========================================================================
-
-(defn create-child
-  "create a parent entity, id is random"
-  [name]
-  (let [pid (getPersonId)
-        m {:db/id (d/tempid :db.part/user)
-           :child/name name
-           :child/lname name
-           :child/age (+ 5 (rand-int 15))
-           :child/address (str "addr-" name)
-           :child/gender (rand-nth [:M :F])
-           :child/email (str name "@email.com")
-           :child/phone (str pid)
-           :child/status :child.status/active
-           :child/popularity (rand-int 10)}]
-    m))
-
-
 ;; find children with qpath. use rule from get-child-by rule set by parent name in qpath.
 (defn find-children
   "find children by passed in query path"
@@ -230,6 +209,29 @@
     (doseq [e children]
       (prn "child --> " e))
     children))
+
+
+(defn create-child
+  "new child form the submitted form data"
+  [details]
+  (let [parent (dbconn/find-by :child/name (:parent details))  ; should be login name
+        parent-id (:db/id parent)
+        ; this find all children whose child is parent-di
+        assignee-id (:db/id (dbconn/find-by :child/parents parent-id))
+        entity (-> details
+                (select-keys (keys child-schema))
+                (assoc :child/parent parent-id)
+                (assoc :child/assignee assignee-id)
+                (util/entity-date)   ; convert to date
+                (assoc :db/id (d/tempid :db.part/user)))
+        trans (submit-transact [entity])  ; transaction is a list of entity
+      ]
+    (newline)
+    (prn "submit child entity " parent-id assignee-id " entity " entity)
+    (prn "submit child trans " trans)
+    entity))
+
+
 
 
 ; use :db/add to upsert child attr to parent. find parent eid by list-parent.

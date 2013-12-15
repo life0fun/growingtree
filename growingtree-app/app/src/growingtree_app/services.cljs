@@ -126,7 +126,7 @@
   (let [{:keys [msg-topic msg-type thing-type path]} body
         api (str "/api/" (name thing-type))
         resp (response-handler thing-type msg-topic msg-type input-queue)]
-    (.log js/console (str "app service request things" api msg-topic msg-type body))
+    (.log js/console (str "app service request things " api msg-topic msg-type body))
     (xhr-request api "POST" body resp xhr-log)))
 
 

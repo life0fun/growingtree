@@ -74,7 +74,7 @@
 (def person-status [:pending :active :inactive :cancelled])
 (def child-grade [:first :second :third :fourth :fifth :sixth :seventh :freshman :junior :senior])
 (def thing-type [:math :science :reading :coding :art :gym :reporting :game :sports])
-(def course-schedule [:M :T :W :TH :F :SA :S])
+(def course-schedule [:monday :tuesday :wednesday :thursday :friday :saturday :sunday])
 (def assignment-type [:homework :course])
 (def assignment-status [:pending :active :overdue :cancelled])
 (def digit-type [:call :sms :mms :app :browse :game :stream :download :lock :study])
@@ -136,7 +136,7 @@
   (part app)
   (fields
     [title :string :fulltext " the title "]
-    [author :ref :many "the admin, organizer of the group"]
+    [author :ref :many :indexed "the admin, organizer of the group"]
     [type :enum thing-type "learning type of the group"]
     [likes :long "who likes"]
     [url :string "url of the group"]
@@ -150,11 +150,11 @@
   (part app)
   (fields
     [title :string :fulltext]
-    [author :ref :many "the author, teacher of the course"]
+    [author :ref :many :indexed "the author, teacher of the course"]
     [type :enum thing-type "course type, math, art, reading, etc"]
     [content :string :fulltext "content of the course, what it covers"]
     [references :string :fulltext "references, brief content"]
-    [lectures :ref :many "all the lectures on this course"]
+    [lectures :ref :many :indexed "all the lectures on this course"]
     [likes :long "who likes"]
     [url :string "content url of the course, can be video, audio, weburl"]
     [wiki :string "the discussion group, wiki and url"]
@@ -168,16 +168,16 @@
   (part app)
   (fields
     [title :string :fulltext "the title of the lecture"]
-    [author :ref :many "the author, teacher of the course"]
+    [author :ref :many :indexed "the author, teacher of the course"]
     [type :enum thing-type "course type, math, art, reading, etc"]
     [content :string :fulltext "all related content"]
     [references :string :fulltext "references, brief content"]
-    [course :ref :one "the course of this lecture"]
+    [course :ref :one :indexed "the course of this lecture"]
     [seqno :string :one "lecture sequence number, 1a, 1b, 2a, 2b, etc"]
     [date :instant :one "the date time the lecture scheduled"]
     [likes :long "who likes"]
     [url :string "the content url, include slides, handouts"]
-    [homework :ref :many "the homework of the lecture"]
+    [homework :ref :many :indexed "the homework of the lecture"]
     [video :string "the video url"]
     [wiki :string "the discussion group, wiki and url"]
     [deliverable :string "which homework to due, any labs"]
@@ -188,10 +188,10 @@
   (part app)
   (fields
     [title :string :indexed :fulltext]
-    [author :ref :many "the author of the homework"]
+    [author :ref :many :indexed "the author of the homework"]
     [type :enum thing-type "homework type, math, art, reading, etc"]
     [content :string :fulltext]
-    [lecture :ref :many "which course lecture this homework related to"]
+    [lecture :ref :many :indexed "which course lecture this homework related to"]
     [likes :long "who likes"]
     [url :string "url of the homework, if any"]
     [difficulty :long "difficulty level, 5 star"]
@@ -204,10 +204,10 @@
   (part app)
   (fields
     [title :string :fulltext "the title of the assignment"]
-    [author :ref :one "assignment created from who"]
-    [homework :ref :one "assignment always comes from homework"]
+    [author :ref :one :indexed "assignment created from who"]
+    [homework :ref :one :indexed "assignment always comes from homework"]
     [priority :long :one "the priority of the assignment"]
-    [assignee :ref :one "make one assignment to one child, one to one mapping"]
+    [assignee :ref :one :indexed "make one assignment to one child, one to one mapping"]
     [status :enum assignment-status "status of assignment"]
     [tag :string :many "the tag to the assignment"]
     [hint :string :many "hints to the assignment"]
@@ -223,9 +223,9 @@
   (part app)
   (fields
     [title :string :fulltext " the answer to the assignment"]
-    [author :ref :one "the author of this answer"]
-    [assignment :ref :one "one answer to one child assignment"]
-    [homework :ref :one "can answer a homework without being assigned"]
+    [author :ref :one :indexed "the author of this answer"]
+    [assignment :ref :one :indexed "one answer to one child assignment"]
+    [homework :ref :one :indexed "can answer a homework without being assigned"]
     [score :long "score of the answer"]
     [likes :long "who likes"]
     [submittime :instant "the submit time"]
@@ -237,8 +237,8 @@
   (part app)
   (fields
     [title :string :fulltext "the title of the comment"] 
-    [author :ref :one "the author of the comments"]
-    [thingid :ref :one "the thing id this comment made to"]
+    [author :ref :one :indexed "the author of the comments"]
+    [thingid :ref :one :indexed "the thing id this comment made to"]
     [likes :long "how many likes"]))
 
 

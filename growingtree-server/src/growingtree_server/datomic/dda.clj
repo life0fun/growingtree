@@ -147,12 +147,21 @@
   [qpath]
   (family/find-parent qpath))
 
+(defn create-parent
+  "create an parent from new thing form submission" 
+  ([]
+    (family/create-parent))
+
+  ([details]
+    (family/create-parent details)))
+
 
 ; list all children, to find one entity with id, use (get-entity id)
 (defn find-children
   "find all children who has parents"
   [qpath]
   (family/find-children qpath))
+
 
 
 (defn insert-child

@@ -149,8 +149,8 @@
       (concat 
         ;((app/default-emitter nil) inputs)
         (mapcat (fn [entity]
-                  (.log js/console (str "nav path emitter del " (concat datapath [(:id entity)]) ))
-                  [[ :node-destroy (concat datapath [(:id entity)]) ]])
+                  (.log js/console (str "nav path emitter del " (concat datapath [(:db/id entity)]) ))
+                  [[ :node-destroy (concat datapath [(:db/id entity)]) ]])
                 old-things-vec)
         [[:node-destroy datapath]]
         [[:node-destroy [:main]]]  ; this cause dom/destroy-children! main section.
@@ -158,24 +158,24 @@
       ))))
 
 
-; user wants to create new thing of type
+; user click create btn, input thing type to create, transform into :nav create-modal
+; now flow to emitter after transform. put on new thing template and setup msg topic.
 (defn create-modal-emitter
   [inputs]
   (when-let [thing-type (get-in inputs [:new-model :nav :create-modal])]
-    (.log js/console "create modal emitter type " thing-type)
     (let [user (get-in inputs [:new-model :login :name])
           path (conj [:create] (keyword thing-type))]
-      (.log js/console (str "create modal emitter " user thing-type))
+      (.log js/console (str user " create modal emitter msg for " thing-type))
       [
-        ;enable setup newthing create button with transform key :newthing
+        ; setup form submit transform msg topic
         [:node-create path]
         [:transform-enable path
-                           :creatething  ; can be :submit
-                           [{msgs/topic path
-                             msgs/type :creatething
-                            (msgs/param :details) {:user user}}]]
+                           :create-thing
+                           [{msgs/type :create-thing
+                             msgs/topic path
+                             (msgs/param :details) {:user user}}]]
 
-     ])))
+      ])))
 
 
 ;;==================================================================================
@@ -248,6 +248,24 @@
 ; multimethod for enable thing nav action bar links
 ; render fills the msg with type set-nav-path and topic to [:nav :path], and path vector
 ;;==================================================================================
+(def thing-nav-links
+  {
+    :parent {:child {:path [:parent :child]}
+              :assignment {:path [:parent :assignment]}
+             }
+
+    :child {:parent {:path [:child :parent]}
+            :assignment {:path [:child :assignment]}
+           }
+  })
+
+
+; (defn thing-navpath-transforms
+;   [thing-type thing-id]
+;   (let [transkeys (get thing-nav-links thing-type)])
+;   )
+
+
 (defmulti thing-navpath-transforms
   (fn [thing-type thing-id]
     thing-type))
@@ -262,22 +280,22 @@
        ]
     (mapcat 
       ; [:nav :parents 17592186045499 :children] :children
-      (fn [[nav type id transkey :as navpath]]
-        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:parents 17592186045499 :parent]
-          (.log js/console (str "thing navpath transform self " self-path " sublink " (rest navpath)))
+      (fn [[nav type id transkey :as filtered-path]]
+        (let [header-path (concat (butlast (rest filtered-path)) [thing-type])] ; [:parents 17592186045499 :parent]
+          (.log js/console (str "thing nav transform header " header-path " filtered " (rest filtered-path)))
           (vector 
-            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
-            [:node-destroy navpath]
-            [:transform-enable navpath    ; [:nav :parents 17592186045499 :children]
+            [:transform-disable filtered-path]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy filtered-path]
+            [:transform-enable filtered-path    ; [:nav :parents 17592186045499 :children]
                                transkey   ; transkey
                                [ ; first msg, request current thing as parent after nav
                                 {msgs/topic [:nav :path] 
                                  msgs/type :set-nav-path
-                                 :path (vec self-path)}  ; no need to wrap to (msgs/param :path)
+                                 :path (vec header-path)}  ; no need to wrap to (msgs/param :path)
                                 ; second msg, the child list of nav
                                 {msgs/topic [:nav :path]
                                  msgs/type :set-nav-path 
-                                 :path (vec (rest navpath))} 
+                                 :path (vec (rest filtered-path))} 
                                 ]] )))
       navpaths)))
 
@@ -291,25 +309,24 @@
        ]
     (mapcat 
       ; [:nav :parents 17592186045499 :children] :children
-      (fn [[nav type id transkey :as navpath]]
-        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:parents 17592186045499 :parent]
-          (.log js/console (str "thing navpath transform " self-path (rest navpath)))
+      (fn [[nav type id transkey :as filtered-path]]
+        (let [header-path (concat (butlast (rest filtered-path)) [thing-type])] ; [:parents 17592186045499 :parent]
+          (.log js/console (str "thing nav transform header " header-path " filtered " (rest filtered-path)))
           (vector 
-            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
-            [:node-destroy navpath]
-            [:transform-enable navpath    ; [:nav :parents 17592186045499 :children]
+            [:transform-disable filtered-path]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy filtered-path]
+            [:transform-enable filtered-path    ; [:nav :parents 17592186045499 :children]
                                transkey   ; transkey
                                [ ; first msg, request current thing as parent after nav
                                 {msgs/topic [:nav :path] 
                                  msgs/type :set-nav-path
-                                 :path (vec self-path)}  ; no need to wrap to (msgs/param :path) if you do not msgs/fill
+                                 :path (vec header-path)}  ; no need to wrap to (msgs/param :path) if you do not msgs/fill
                                 ; second msg, the child list of nav
                                 {msgs/topic [:nav :path]
                                  msgs/type :set-nav-path 
-                                 :path (vec (rest navpath))} 
+                                 :path (vec (rest filtered-path))} 
                                 ]] )))
       navpaths)))
-
 
 
 (defmethod thing-navpath-transforms

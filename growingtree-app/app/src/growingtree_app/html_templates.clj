@@ -39,7 +39,8 @@
 
    :thing-details  (dtfn (tnodes "thing.html" "thing-details") #{:id})
    
-   :user (dtfn (tnodes "newthing.html" "user") #{:id})
+   :parent (dtfn (tnodes "newthing.html" "parent") #{:id})
+   :child (dtfn (tnodes "newthing.html" "child") #{:id})
    :course (dtfn (tnodes "newthing.html" "course") #{:id})
    :homework (dtfn (tnodes "newthing.html" "homework") #{:id})
    :group (dtfn (tnodes "newthing.html" "group") #{:id})

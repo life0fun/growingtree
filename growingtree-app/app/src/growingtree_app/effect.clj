@@ -81,7 +81,7 @@
 
 
 ;;==================================================================================
-;; XXX we specific tranform msg topic and type here so response data got dispatch 
+;; XXX we specify tranform msg topic and type here so response data got dispatch 
 ;; to the right locaton in data model directly.
 ;;==================================================================================
 ; effect processing. create new thing form submitted
@@ -92,15 +92,16 @@
   "create new thing form submitted, [:create :*] form transformed"
   [inputs]
   (let [user (get-login-name inputs)
-        msg (:message inputs)    ; the msg sent when create new thing form submitted
-        topic (msgs/topic msg)   ;[:create :course]
-        action (second topic)    ; :creatething is msg type
-        thing-type (last topic)
-        details (:details msg)   ; details
-        body (assoc details :user user)]  ; user is author
-    (.log js/console (str user " created new thing " thing-type " body " body))
-    ; msg type :assign
-    [{msgs/topic [:server] msgs/type action (msgs/param :body) body}]
+        msg (:message inputs)    ; the active msg when create new thing form submitted
+        thing-type (last (msgs/topic msg))  ;[:create :course]
+        details (assoc (:details msg) :user user)
+        ; after create new thing, change nav path to [:all 0 thing-type]
+        resp-msg-topic [:created-thing thing-type]  ; created thing
+        resp-msg-type :created-thing-data
+        body {:msg-topic resp-msg-topic :msg-type resp-msg-type 
+              :thing-type thing-type :details details}]
+    (.log js/console (str user " post create thing " thing-type " body " body))
+    [{msgs/topic [:server] msgs/type :add-thing (msgs/param :body) body}]
     ))
 
 ; request timeline

@@ -162,9 +162,17 @@
   "create thing from create new thing modal"
   [oldv message]
   (let [details (:details message)]
-    (.log js/console (str "create thing type " details))
+    (.log js/console (str "create thing form submitted details " details))
     details))
 
+(defn created-thing-data
+  "store list of things that just created at [:created thing-type]"
+  [oldv message] ; message [:status 200 :data thing-vec]
+  (let [msg-topic (msgs/topic message)
+        thing-type (last msg-topic)  ; [:created-thing thing-type]
+        things-vec (:data message)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
+    (.log js/console (str "set created thing data at " msg-topic " things-vec " things-vec))
+    things-vec))  
 
 ;; submit thing from inline submit form under parent thing
 (defn submit-thing
@@ -194,29 +202,29 @@
 ;                        courses)))))
 
 
+;-----------------------------------------------------------------------------------------
 ; clear all things by type upon nav type change, as we will restful request from service.
 ; input specifier defines what inputs var is, i.e., what upstream inputs are
+; to get the clicked thing, [:old-model :data parent id child]
+; from [:parents 17592186045498 :parents] to [:parents 17592186045498 :children] parent () 
+;-----------------------------------------------------------------------------------------
 (defn refresh-thing-data
   "remove stale things vec under [:data :all 0 :parent] upon nav path change"
   [oldv inputs] 
   (let [activemsg (:message inputs)
         oldpath (vec (last (get-in inputs [:old-model :nav :path])))
-        newpath (vec (last (get-in inputs [:new-model :nav :path])))]
-    (.log js/console (str " nav path refresh from " oldpath " to " newpath " old val " oldv))
+        newpath (vec (last (get-in inputs [:new-model :nav :path])))
+
+        ; not used, just for experiments.
+        old-thing-vec (get-in inputs (concat [:old-model :data] oldpath))
+        parent-thing-id (second (reverse newpath))
+        parent (filter #(= parent-thing-id (:db/id %)) old-thing-vec)
+       ]
+    (.log js/console (str " nav path refresh from " oldpath " to " newpath " parent " parent))
     (if oldv
-      ; ret the new map to be stored in [:all] path node, which is oldv
+      ; ret new map to stored [:all], squash everything in old path so all nodes get deleted
       (assoc-in oldv oldpath []))))
 
-
-; derive fn, first arg is the old value at output path, 2nd arg is tracking map.
-; the :message key contains the msg that triggered the derive fn.
-; when xpath changed, clear up all xdata, so xdata emitter can always emit always
-; topic [:xpath :parents 17592186045502 :children], :details {:xpath (:parents 17592186045502 :children)}
-(defn refresh-xdata
-  [oldv inputs]
-  (let [msg (:message inputs)]
-    (.log js/console (str "refresh xdata " oldv msg))
-    {}))
 
 
 ;;==================================================================================
@@ -265,6 +273,7 @@
                 [:set-thing-data [:data :**] set-thing-data]
                 [:submitted-form [:data :form] submitted-form]
 
+
                 ; assign action setup transform
                 [:assign [:setup :assign :* :*] setup-assign]
                 [:assign [:submit :assign :* :*] submit-assign]
@@ -273,8 +282,10 @@
                 [:newthing [:setup :newthing] setup-newthing]
                 [:newthing [:submit :newthing] submit-newthing]
 
-                ; create thing page handler
-                [:creatething [:create :*] create-thing]
+                ; new thing template form submitted
+                [:create-thing [:create :*] create-thing]
+                ; app model node store just creatd thing
+                [:created-thing [:created :*] created-thing-data]
 
                 ; submit single thing form under parent thing, lecture, homework, 
                 ; assignment, question, answer, comment
@@ -300,7 +311,7 @@
               ; dispatch to the right data model directly.
               [#{[:nav :path]} effect/request-navpath-things :mode :always]
 
-              ; create thing type change [:create :course]
+              ; create thing template form submitted, post data to server.
               [#{[:create :*]} effect/post-create-thing :mode :always]
               
               ; submit action effect, action is from topic and send details to backend.

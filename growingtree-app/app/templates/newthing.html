@@ -3,76 +3,75 @@
 <div id="content">
 
   <!-- family -->
-  <div template="user" field="id:id">
-    <form class="form-horizontal user-form">
+  <div template="parent" field="id:id">
+    <form class="form-horizontal parent-form">
       <fieldset>
-        <legend>Create User</legend>
+        <legend>Create parent</legend>
         
         <div class="control-group">
-          <label class="control-label" for="user-name">Name</label>
+          <label class="control-label" for="parent-name">Name</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="user-name">
+            <input type="text" class="input-xlarge" id="parent-name">
             <p class="help-block">First Name</p>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="user-lname">Last Name</label>
+          <label class="control-label" for="parent-lname">Last Name</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="user-lname">
+            <input type="text" class="input-xlarge" id="parent-lname">
             <p class="help-block">Last Name</p>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="user-type">Type</label>
+          <label class="control-label" for="parent-type">Type</label>
           <div class="controls">
-            <select id="user-type">
-              <option>Dad</option>
-              <option>Mom</option>
-              <option>Son</option>
-              <option>Daughter</option>
+            <select id="parent-type">
+              <option value="M">Dad</option>
+              <option value="F">Mom</option>
+              <option value="T">Teacher</option>
             </select>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="user-address">Address</label>
+          <label class="control-label" for="parent-address">Address</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="user-address">
+            <input type="text" class="input-xlarge" id="parent-address">
             <p class="help-block">The Address</p>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="user-email">Email</label>
+          <label class="control-label" for="parent-email">Email</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="user-email">
+            <input type="text" class="input-xlarge" id="parent-email">
             <p class="help-block">Email</p>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="user-phone">Phone</label>
+          <label class="control-label" for="parent-phone">Phone</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="user-phone">
+            <input type="text" class="input-xlarge" id="parent-phone">
             <p class="help-block">Phone </p>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="user-status">Active</label>
+          <label class="control-label" for="parent-status">Active</label>
           <div class="controls">
             <label class="checkbox">
-              <input type="checkbox" id="user-status">Mark as Active
+              <input type="checkbox" id="parent-status" value="active" checked="active">Mark as Active
             </label>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="user-url">Home Page</label>
+          <label class="control-label" for="parent-url">Home Page</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="user-url">
+            <input type="text" class="input-xlarge" id="parent-url">
             <p class="help-block">Home page or social network url</p>
           </div>
         </div>
@@ -80,7 +79,7 @@
         <div class="control-group">
           <label class="control-label" for="textarea">Comments</label>
           <div class="controls">
-            <textarea class="input-xlarge" id="user-comments" rows="2"></textarea>
+            <textarea class="input-xlarge" id="parent-comments" rows="2"></textarea>
           </div>
         </div>
 
@@ -91,6 +90,94 @@
       </fieldset>
     </form>
   </div>
+
+  <div template="child" field="id:id">
+    <form class="form-horizontal child-form">
+      <fieldset>
+        <legend>Create child</legend>
+        
+        <div class="control-group">
+          <label class="control-label" for="child-name">Name</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="child-name">
+            <p class="help-block">First Name</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="child-lname">Last Name</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="child-lname">
+            <p class="help-block">Last Name</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="child-type">Type</label>
+          <div class="controls">
+            <select id="child-type">
+              <option value="M">Son</option>
+              <option value="F">Daughter</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="child-address">Address</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="child-address">
+            <p class="help-block">The Address</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="child-email">Email</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="child-email">
+            <p class="help-block">Email</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="child-phone">Phone</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="child-phone">
+            <p class="help-block">Phone </p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="child-status">Active</label>
+          <div class="controls">
+            <label class="checkbox">
+              <input type="checkbox" id="child-status" value="active" checked="active">Mark as Active
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="child-url">Home Page</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="child-url">
+            <p class="help-block">Home page or social network url</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="textarea">Comments</label>
+          <div class="controls">
+            <textarea class="input-xlarge" id="child-comments" rows="2"></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button class="btn">Cancel</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
 
   <!-- course -->
   <div template="course" field="id:id">
@@ -119,11 +206,11 @@
           <label class="control-label" for="course-type">Type</label>
           <div class="controls">
             <select id="course-type">
-              <option>Math</option>
-              <option>Science</option>
-              <option>Reading/Writing</option>
-              <option>Art</option>
-              <option>Sports</option>
+              <option value="math">Math</option>
+              <option value="science">Science</option>
+              <option value="reading">Reading/Writing</option>
+              <option value="art">Art</option>
+              <option value="sports">Sports</option>
             </select>
           </div>
         </div>
@@ -194,11 +281,11 @@
           <label class="control-label" for="homework-type">Type</label>
           <div class="controls">
             <select id="homework-type">
-              <option>Math</option>
-              <option>Science</option>
-              <option>Reading/Writing</option>
-              <option>Art</option>
-              <option>Sports</option>
+              <option value="math">Math</option>
+              <option value="science">Science</option>
+              <option value="reading">Reading/Writing</option>
+              <option value="art">Art</option>
+              <option value="sports">Sports</option>
             </select>
           </div>
         </div>
@@ -269,12 +356,11 @@
           <label class="control-label" for="group-type">Type</label>
           <div class="controls">
             <select id="group-type">
-              <option>Math</option>
-              <option>Science</option>
-              <option>Reading/Writing</option>
-              <option>Art</option>
-              <option>Game</option>
-              <option>Sports</option>
+              <option value="math">Math</option>
+              <option value="science">Science</option>
+              <option value="reading">Reading/Writing</option>
+              <option value="art">Art</option>
+              <option value="sports">Sports</option>
             </select>
           </div>
         </div>

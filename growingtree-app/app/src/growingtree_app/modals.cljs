@@ -94,17 +94,18 @@
 (defmethod auto/modal-field [:create-modal "type"]
   [_ field-name]
   {:field-name (str "Enter " field-name)
-   :placeholder (str field-name " can be user, course, homework, group")
+   :placeholder (str field-name " can be parent, child, course, homework, group")
    :input-class "input-xlarge"
    :default nil
    :validation-fn 
     (fn [x] (not 
               (or (nil? x) 
                   (= x "") 
-                  (not (contains? #{"user" "course" "homework" "group"} x)))))
-   :inline-help "You can create user, course, homework, group"
+                  (not (contains? #{"parent" "child" "course" "homework" "group"} x)))))
+   :inline-help "You can create parent, child, course, homework, group"
    :inline-help-error (str field-name " is required")
   })
+
 
 ; add listener for upper right login btn and show login modal
 ; path is login modal, transkey is login-modal, msg has 2 keys, login-name and pass
@@ -113,7 +114,7 @@
     (let [create-btn (dom/by-id "newthing")
           modal-evt
             (fn [evt]
-                (.log js/console (str "create modal clicked " path " parent-id " parent-id))
+                (.log js/console (str "create modal clicked " path))
                 (auto/generic-modal-collect-input "content" (gensym) 
                   ; (reify p/PutMessage
                   ;   (put-message [q message]

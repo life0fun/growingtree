@@ -33,3 +33,19 @@
   (let [e (dissoc entity :db/id)  ; remove :db/id
         ident (keyword (namespace (ffirst e)))]
     ident))
+
+; update status enum
+(defn update-enum
+  "update in status enum value from string to keyword"
+  [thing-val thing-type keyname enum] 
+  (let [key-key (keyword (str (name thing-type) "/" keyname))
+        enum-key (str (name thing-type) "." keyname)
+        enum-fn (fn [v & args] (keyword (str enum-key "/" v)))
+        new-val (if enum
+                  (-> thing-val
+                      (update-in [key-key] enum-fn))
+                  (-> thing-val
+                      (update-in [key-key] keyword)))
+          ]
+    new-val))
+    

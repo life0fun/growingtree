@@ -148,9 +148,9 @@
     transkey))
 
 
-;;==================================================================================
+;; ---------------------------------------------------------------------------------
 ;; assign btn setup and submit
-;;==================================================================================
+;; ---------------------------------------------------------------------------------
 ; ; setup assign link event listen, when link clicked, render assign form actionbar 
 ; ; and attach it to thing node div. Thing node div id is thing id. fill details msg.
 (defmethod enable-setup-action 
@@ -200,9 +200,9 @@
 
 
 
-;;==================================================================================
+;; ---------------------------------------------------------------------------------
 ;; newthing btn setup and submit, Deprecated ! not used !
-;;==================================================================================
+;; ---------------------------------------------------------------------------------
 ; ; create new thing btn event listen, when clicked, display input newthing template
 ; ; under main div. messages is cljs PersistentVector, hence doseq to process each.
 (defmethod enable-setup-action 
@@ -256,12 +256,12 @@
     (events/send-on :submit form input-queue submit-fn)))
  
 
-;;==================================================================================
+;; ---------------------------------------------------------------------------------
 ;; create new thing btn clicked event handler
-;;==================================================================================
+;; ---------------------------------------------------------------------------------
 ; wire submit button click on new thing to fill newthing message
 (defmethod enable-submit-action 
-  :creatething
+  :create-thing
   [r [target path transkey messages] input-queue]
   (let [type (last path)
         form (dom/by-class (str (name type) "-form"))
@@ -270,20 +270,18 @@
     (events/send-on :submit form input-queue submit-fn)))
 
 
-;;==================================================================================
+;; ---------------------------------------------------------------------------------
 ;; share btn setup and submit event handlers
-;;==================================================================================
-
-; ;; Handle add-tasks 
+;; ---------------------------------------------------------------------------------
 (defmethod enable-setup-action 
   :share 
   [r [target path transkey messages] input-queue]
   (.log js/console (str "share setup clicked " target path messages)))
 
 
-;;==================================================================================
+;; ---------------------------------------------------------------------------------
 ;; enable thing nav sub link, transkey is thing sub link thing type
-;;==================================================================================
+;; ---------------------------------------------------------------------------------
 (defmulti enable-thing-nav
   (fn [render [op path transkey messages] input-queue]
     transkey))
@@ -302,14 +300,14 @@
         thing-node (dom/by-id (str thingid))
         ; thing nav link class set inside entity view class
         thing-link (dom/by-class (str "parents-" thingid))]
-    (.log js/console (str "enable thing nav event " path messages))
+    (.log js/console (str "in parent thing, enable nav event " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! thing-link
                 :click 
                 (fn [evt]
-                  (let [; fill msg to set-nav-path [:nav :path] topic
+                  (let [; deprected ! not used. emitter already set it up.
                         new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
-                    (.log js/console (str navpath " link clicked " messages))
+                    (.log js/console (str "in thing parent " navpath " link clicked " messages))
                     (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
                       (p/put-message input-queue m)))))
   ))
@@ -327,15 +325,15 @@
         thing-node (dom/by-id (str thingid))
         ; thing nav link class set inside entity view class
         thing-link (dom/by-class (str "children-" thingid))]
-    (.log js/console (str "enable thing nav event " path messages))
+    (.log js/console (str "in child thing, enable nav event " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! thing-link
                 :click 
                 (fn [evt]
-                  (let [; fill msg to set-nav-path [:nav :path] topic
+                  (let [; deprected ! not used. emitter already set it up.
                         new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
-                    (.log js/console (str navpath " link clicked " messages))
-                    (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
+                    (.log js/console (str "in thing child " navpath " link clicked " messages))
+                    (doseq [m messages]  ;[m new-msgs]  do not need render to fill anything
                       (p/put-message input-queue m)))))
   ))
 
