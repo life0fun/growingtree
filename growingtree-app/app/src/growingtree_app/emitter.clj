@@ -251,39 +251,34 @@
 ;;==================================================================================
 (def thing-nav-links
   {
-    :parent {:child {:path [:parent :child]}
-              :assignment {:path [:parent :assignment]}
-             }
+    :parent 
+      {:child {:path [:parent :child]}
+       :assignment {:path [:parent :assignment]}
+      }
 
-    :child {:parent {:path [:child :parent]}
-            :assignment {:path [:child :assignment]}
-           }
+    :child 
+      {:parent {:path [:child :parent]}
+       :assignment {:path [:child :assignment]}
+      }
+
+    :assignment 
+      {:child {:path [:assignment :child]}
+       :homework {:path [:assignment :homework]}
+      }
+
   })
 
 
-; (defn thing-navpath-transforms
-;   [thing-type thing-id]
-;   (let [transkeys (get thing-nav-links thing-type)])
-;   )
-
-
-(defmulti thing-navpath-transforms
-  (fn [thing-type thing-id]
-    thing-type))
-
-
-; enable thing nav action bar links for parent entity.
-(defmethod thing-navpath-transforms
-  :parent
-  [thing-type thing-id]  ; thing-id is id of parent
-  (let [transkeys [:child]  ; transkeys are thing links
-        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
-       ]
-    (mapcat 
+(defn thing-navpath-transforms
+  [thing-type thing-id]
+  (let [transkeys (keys (get thing-nav-links thing-type))
+        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)]
+    (mapcat
       ; [:nav :parent 17592186045499 :child] :child
       (fn [[nav type id transkey :as filtered-path]]
-        (let [header-path (concat (butlast (rest filtered-path)) [thing-type])] ; [:parent 17592186045499 :parent]
-          (.log js/console (str "thing nav transform header " header-path " filtered " (rest filtered-path)))
+        (let [ ; header-path next link ref back to itself [:parent 17592186045499 :parent]
+              header-path (concat (butlast (rest filtered-path)) [thing-type])] 
+          (.log js/console (str "thing nav transform emitter header " header-path " filtered " (rest filtered-path)))
           (vector 
             [:transform-disable filtered-path]  ; fucking need to clean up your shit before re-enable.
             [:node-destroy filtered-path]
@@ -297,115 +292,6 @@
                                 {msgs/topic [:nav :path]
                                  msgs/type :set-nav-path 
                                  :path (vec (rest filtered-path))} 
-                                ]] )))
-      navpaths)))
-
-
-; all action bar links for child entity, assignment, etc.
-(defmethod thing-navpath-transforms
-  :child
-  [thing-type thing-id]
-  (let [transkeys [:parent :assignment]  ; transkeys are thing links
-        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
-       ]
-    (mapcat 
-      ; [:nav :parent 17592186045499 :child] :child
-      (fn [[nav type id transkey :as filtered-path]]
-        (let [header-path (concat (butlast (rest filtered-path)) [thing-type])] ; [:parent 17592186045499 :parent]
-          (.log js/console (str "thing nav transform header " header-path " filtered " (rest filtered-path)))
-          (vector 
-            [:transform-disable filtered-path]  ; fucking need to clean up your shit before re-enable.
-            [:node-destroy filtered-path]
-            [:transform-enable filtered-path    ; [:nav :parent 17592186045499 :child]
-                               transkey   ; transkey
-                               [ ; first msg, request current thing as parent after nav
-                                {msgs/topic [:nav :path] 
-                                 msgs/type :set-nav-path
-                                 :path (vec header-path)}  ; no need to wrap to (msgs/param :path) if you do not msgs/fill
-                                ; second msg, the child list of nav
-                                {msgs/topic [:nav :path]
-                                 msgs/type :set-nav-path 
-                                 :path (vec (rest filtered-path))} 
-                                ]] )))
-      navpaths)))
-
-
-(defmethod thing-navpath-transforms
-  :course
-  [thing-type thing-id]
-  (let [transkeys [:assign-toggle :assign-form]
-        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
-       ]
-    (mapcat 
-      ; [:nav :course 17592186045499 :assign-toggle]
-      (fn [[nav type id transkey :as navpath]]
-        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:course 17592186045499 :assign-form]
-          (.log js/console (str "thing navpath transform " self-path (rest navpath)))
-          (vector 
-            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
-            [:node-destroy navpath]
-            [:transform-enable navpath    ; [:nav :parent 17592186045499 :child]
-                               transkey   ; transkey
-                               [ ; first msg, request current thing as parent after nav
-                                {msgs/topic [:submit transkey] 
-                                 msgs/type :submit
-                                 (msgs/param :details) {}} ; if msgs/fill, need to wrap into param
-                                ]] )))
-  
-      navpaths)))
-    
-
-
-(defmethod thing-navpath-transforms
-  :homework
-  [thing-type thing-id]
-  (let [transkeys [:assign-toggle :assign-form]
-        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
-       ]
-    (mapcat 
-      ; [:nav :homework 17592186045499 :assign-toggle]
-      (fn [[nav type id transkey :as navpath]]
-        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:homework 17592186045499 :assign-form]
-          (.log js/console (str "thing navpath transform " self-path (rest navpath)))
-          (vector 
-            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
-            [:node-destroy navpath]
-            [:transform-enable navpath    ; [:nav :parent 17592186045499 :child]
-                               transkey   ; transkey
-                               [ ; first msg, request current thing as parent after nav
-                                {msgs/topic [:submit transkey] 
-                                 msgs/type :submit
-                                 (msgs/param :details) {}} ; if msgs/fill, need to wrap into param
-                                ]] )))
-  
-      navpaths)))
-
-
-(defmethod thing-navpath-transforms
-  :assignment
-  [thing-type thing-id]  ; thing-id is id of parent
-  (.log js/console "delta " thing-type thing-id)
-  (let [transkeys [:child]  ; transkeys are thing links
-        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
-       ]
-    (mapcat 
-      ; [:nav :assignment 17592186045499 :child] :child
-      (fn [[nav type id transkey :as navpath]]
-        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:assignment 17592186045499 :parent]
-          (.log js/console (str "thing navpath transform self " self-path " sublink " (rest navpath)))
-          (vector 
-            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
-            [:node-destroy navpath]
-            [:transform-enable navpath    ; [:nav :assignment 17592186045499 :child]
-                               transkey   ; transkey
-                               [ ; first msg, request current thing as parent after nav
-                                {msgs/topic [:nav :path] 
-                                 msgs/type :set-nav-path
-                                 :path (vec self-path)}  ; no need to wrap to (msgs/param :path)
-                                ; second msg, the child list of nav
-                                {msgs/topic [:nav :path]
-                                 msgs/type :set-nav-path 
-                                 :path (vec (rest navpath))} 
                                 ]] )))
       navpaths)))
 

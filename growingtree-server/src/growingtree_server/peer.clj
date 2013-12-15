@@ -112,8 +112,8 @@
 (defmethod get-things
   :homework
   [type qpath]
-  (let [homeworks (dda/find-homework)]
-    (prn "peer get all homeworks " homeworks)
+  (let [homeworks (dda/find-homework qpath)]
+    (prn "peer get all homeworks " qpath homeworks)
     homeworks))
 
 
@@ -173,8 +173,7 @@
   (let [details (assoc details :author (:user details))]  ; make the user as author
     (newline)
     (prn "peer add thing " type details)
-    ;(dda/create-assignment task-id details)
-    (dda/create-assignment details)
+    ;(dda/create-assignment details)
     ))
 
 

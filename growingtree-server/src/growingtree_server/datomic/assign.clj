@@ -157,37 +157,20 @@
 ; create homework
 ;;==================================================================================
 ; this map between course map to entity attr
-(def homework-key-attr-map 
-  {:id :db/id
-   :title :homework/title
-   :author :homework/author
-   :content :homework/content
-   :type :homework/type
-   :lecture :homework/lecture
-   :difficulty :homework/difficulty
-   :url :homework/url 
-   :email :homework/email
-   :comments :homework/comments})
 
-
-(defn homework-to-attr
-  "convert from homework value map to entity attr"
-  [homework-map]
-  (let [; for now, do not project ref attr for insertion
-        projkeys (dissoc homework-key-attr-map :id :author :lecture :comments)
-        homework-attr (-> homework-map
-                        (set/rename-keys projkeys)
-                        (select-keys (vals projkeys))
-                        (assoc :db/id (d/tempid :db.part/user)))]
-    homework-attr))
-
-; convert a homework entity to map
-(defn homework-to-map
-  [e]
-  (let [lectures (:homework/lectures e)
-        homework-map (zipmap (keys homework-key-attr-map)
-                             (util/entity-value-vec e (vals homework-key-attr-map)))]
-    homework-map))
+; find all assignment
+(defn find-homework
+  "find all homework by query path "
+  [qpath]
+  (let [entities (util/get-entities-by-rule qpath get-homework-by) ; a list of entity tuples
+        projkeys (keys (dissoc homework-schema :homework/lecture))
+        homeworks (map #(select-keys % projkeys) entities)
+        ]
+    (prn projkeys homeworks)
+    (doseq [e homeworks]
+      (prn "homework --> " e))
+    homeworks
+    ))
 
 
 ; the enum must be fully qualified, :homework.subject/math
@@ -199,19 +182,6 @@
         ]
     (prn "create homework " insert-map " trans " trans)
     trans))
-
-
-; find a homework
-(defn find-homework
-  "find homework by subject, ret a list of homework entity"
-  []
-  (let [hw (d/q '[:find ?h :where [?h :homework/title]] (get-db))
-        entities (map (comp get-entity first) hw)
-        homeworks (map homework-to-map entities)
-        ]
-    (doseq [h homeworks]
-      (prn " homework --> " h))
-    homeworks))
 
  
 (defn inc-homework-popularity

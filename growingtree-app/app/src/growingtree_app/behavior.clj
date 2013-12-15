@@ -275,12 +275,12 @@
 
 
                 ; assign action setup transform
-                [:assign [:setup :assign :* :*] setup-assign]
-                [:assign [:submit :assign :* :*] submit-assign]
+                ;[:assign [:setup :assign :* :*] setup-assign]
+                ;[:assign [:submit :assign :* :*] submit-assign]
 
                 ; new thing setup, each key in the value map will create a new node.
-                [:newthing [:setup :newthing] setup-newthing]
-                [:newthing [:submit :newthing] submit-newthing]
+                ;[:newthing [:setup :newthing] setup-newthing]
+                ;[:newthing [:submit :newthing] submit-newthing]
 
                 ; new thing template form submitted
                 [:create-thing [:create :*] create-thing]
@@ -341,9 +341,6 @@
            {:in #{[:setup :newthing]} :fn emitter/newthing-emitter :mode :always}
 
            {:in #{[:sse-data]} :fn emitter/sse-data-emitter :mode :always}
-
-           ; when xdata back, create nodes, [:xdata :parent 123 :child]
-           {:in #{[:xdata :* :* :*]} :fn emitter/xdata-emitter :mode :always}
 
 
            [#{[:pedestal :debug :dataflow-time]

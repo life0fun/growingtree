@@ -32,11 +32,26 @@
 ; Load templates macro.
 (def templates (html-templates/growingtree-app-templates))
 
+(defn parent-class [thing-id] (str "parent-" thing-id))
+(defn child-class [thing-id] (str "child-" thing-id))
+(defn course-class [thing-id] (str "course-" thing-id))
+(defn lecture-class [thing-id] (str "lecture-" thing-id))
+(defn homework-class [thing-id] (str "homework-" thing-id))
+(defn assignment-class [thing-id] (str "assignment-" thing-id))
+(defn comment-class [thing-id] (str "comment-" thing-id))
+(defn share-class [thing-id] (str "share-" thing-id))
+(defn answer-class [thing-id] (str "answer-" thing-id))
+(defn follower-class [thing-id] (str "follower-" thing-id))
+(defn classmate-class [thing-id] (str "classmate-" thing-id))
+(defn like-class [thing-id] (str "like-" thing-id))
+(defn enroll-class [thing-id] (str "enroll-" thing-id))
 
-(def assignto "assignto-")
-(def assign-form "assign-form-")
-(def assignto-name "assignto-name-")
-(def assignto-hint "assignto-hint-")
+(defn assignto-class [thing-id] (str "assignto-" thing-id))
+(defn assign-form-class [thing-id] (str "assign-form-" thing-id))
+(defn assignto-name-class [thing-id] (str "assignto-name-" thing-id))
+(defn assignto-hint-class [thing-id] (str "assignto-hint-" thing-id))
+(defn submit-class [thing-id] (str "submit-" thing-id))
+
 
 ;;===============================================================
 ;; generate thing template based on thing type
@@ -60,11 +75,11 @@
         ; make a template attached to path node
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
-                         :children-class (str "children-" thingid)
-                         :assignments-class (str "like-" thingid)
-                         :likes-class (str "likes-" thingid)
-                         :comments-class (str "comments-" thingid)
-                         :followers-class (str "followers-" thingid)})
+                         :children-class (child-class thingid)
+                         :assignments-class (assignment-class thingid)
+                         :likes-class (like-class thingid)
+                         :comments-class (comment-class thingid)
+                         :followers-class (follower-class thingid)})
         ]
     (.log js/console (str "thing-node-html " path))
     thing-div))
@@ -78,11 +93,11 @@
         ; make a template attached to path node
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
-                         :parents-class (str "parents-" thingid)
-                         :courses-class (str "courses-" thingid)
-                         :assignments-class (str "assignments-" thingid)
-                         :comments-class (str "comments-" thingid)
-                         :classmates-class (str "classmates-" thingid)})
+                         :parents-class (parent-class thingid)
+                         :courses-class (course-class thingid)
+                         :assignments-class (assignment-class thingid)
+                         :comments-class (comment-class thingid)
+                         :classmates-class (classmate-class thingid)})
         ]
     (.log js/console (str "thing-node-html " path))
     thing-div))
@@ -96,31 +111,31 @@
         ; make a template attached to path node
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
-                         :lectures-class (str "lectures-" thingid)
-                         :comments-class (str "comments-" thingid)
-                         :share-class (str "share-" thingid)
-                         :assignto-class (str assignto thingid)
-                         :assign-form-class (str assign-form thingid)
-                         :enroll-class (str "enroll-" thingid)})
+                         :lectures-class (lecture-class thingid)
+                         :comments-class (comment-class thingid)
+                         :share-class (share-class thingid)
+                         :assignto-class (assignto-class thingid)
+                         :assign-form-class (assign-form-class thingid)
+                         :enroll-class (enroll-class thingid)})
         ]
     (.log js/console (str "thing-node-html " path))
     thing-div))
 
 
 (defmethod thing-node-html
-  :lectures
+  :lecture
   [path render]
   (let [thingid (last path)
         templ (:thing-lecture templates)
         ; make a template attached to path node
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
-                         :homeworks-class (str "homeworks-" thingid)
-                         :comments-class (str "comments-" thingid)
-                         :assignto-class (str assignto thingid)
-                         :assign-form-class (str assign-form thingid)
-                         :share-class (str "share-" thingid)
-                         :enroll-class (str "enroll-" thingid)})
+                         :homeworks-class (homeworks-class thingid)
+                         :comments-class (comment-class thingid)
+                         :assignto-class (assignto-class thingid)
+                         :assign-form-class (assign-form-class thingid)
+                         :share-class (share-class thingid)
+                         :enroll-class (enroll-class thingid)})
         ]
     (.log js/console (str "thing-node-html " path))
     thing-div))
@@ -137,11 +152,11 @@
         templ (:thing-homework templates)
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
-                         :lectures-class (str "lectures-" thingid)
-                         :comments-class (str "comments-" thingid)
-                         :share-class (str "share-" thingid)
-                         :assignto-class (str assignto thingid)
-                         :assign-form-class (str assign-form thingid)
+                         :lectures-class (lecture-class thingid)
+                         :comments-class (comment-class thingid)
+                         :share-class (share-class thingid)
+                         :assignto-class (assignto-class thingid)
+                         :assign-form-class (assign-form-class thingid)
                          })
         ]
     (.log js/console (str "thing-node-html " path thingid))
@@ -156,10 +171,10 @@
         ; make a template attached to path node
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
-                         :answers-class (str "answers-" thingid)
-                         :comments-class (str "comments-" thingid)
-                         :submit-class (str "submit-" thingid)
-                         :share-class (str "share-" thingid)})
+                         :answers-class (answer-class thingid)
+                         :comments-class (comment-class thingid)
+                         :submit-class (submit-class thingid)
+                         :share-class (share-class thingid)})
         ]
     (.log js/console (str "thing-node-html " path))
     thing-div))

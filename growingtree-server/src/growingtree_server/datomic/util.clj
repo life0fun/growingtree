@@ -89,12 +89,12 @@
           ks))
 
 
+; Deprecated, framework already convert hashset to vector during json.
 (defn entity-value
   "convert tuple hash set to vector"
   [entity]
   (reduce (fn [tot [k v]]
             (let [curtype (type v)]
-              (prn "entity value vec " k v curtype tot)
               (cond
                 ; hashset #{} to vector []
                 (= clojure.lang.PersistentHashSet curtype)

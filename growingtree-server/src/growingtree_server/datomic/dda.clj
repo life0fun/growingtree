@@ -163,7 +163,6 @@
   (family/find-child qpath))
 
 
-
 (defn insert-child
   "insert a children to parent by parent id, pid must be num, not string"
   [pid]  ; passed in pid is a num
@@ -285,6 +284,13 @@
 ;;==============================================================
 ;; homework related, should use multi-method to dispatch
 ;;==============================================================
+
+(defn find-homework
+  "find homework by subject"
+  [qpath]
+  (assign/find-homework qpath))
+
+
 ; create homework to be assigned
 (defn create-homework
   "create a homework"
@@ -296,12 +302,6 @@
     (assign/create-homework details)))
 
 
-(defn find-homework
-  "find homework by subject"
-  []
-  (assign/find-homework))
-
-
 (defn inc-homework-popularity
   "increase homework popularity"
   []
@@ -311,6 +311,14 @@
 ;;==============================================================
 ; assignment 
 ;;==============================================================
+
+; :find rets entity id, find all assignments
+(defn find-assignment
+  "find all assignments by query path"
+  [qpath]
+  (assign/find-assignment qpath))
+
+
 ; create an assignment for any homework that 
 (defn create-assignment
   "create an assignment from a homework to a child"
@@ -319,14 +327,6 @@
 
   ([details]
     (assign/create-assignment details)))
-
-
-
-; :find rets entity id, find all assignments
-(defn find-assignment
-  "find all assignments by query path"
-  [qpath]
-  (assign/find-assignment qpath))
 
 
 ;;==============================================================
