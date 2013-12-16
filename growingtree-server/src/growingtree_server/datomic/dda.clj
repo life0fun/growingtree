@@ -163,10 +163,10 @@
   (family/find-child qpath))
 
 
-(defn insert-child
-  "insert a children to parent by parent id, pid must be num, not string"
-  [pid]  ; passed in pid is a num
-  (family/insert-child pid))
+(defn create-child
+  "create a child from new thing form submission"
+  [details]
+  (family/create-child details))
 
 
 ; [:db/add entity-id attribute value]
@@ -223,6 +223,13 @@
 ;;==============================================================
 ;; course related, should use multi-method to dispatch
 ;;==============================================================
+; find a course
+(defn find-course
+  "find course by subject, ret a list of course entity"
+  [qpath]
+  (course/find-course qpath))
+
+
 ; create homework to be assigned
 (defn create-course
   "create a course "
@@ -247,24 +254,19 @@
   []
   (course/create-course-coding))
 
-; create an online course
-(defn create-lecture
-  "create a course lecture for certain course id"
-  [cid]
-  (course/create-lecture cid))
 
-
-; find a course
-(defn find-course
-  "find course by subject, ret a list of course entity"
-  [qpath]
-  (course/find-course qpath))
-
-
+; --------------------------------------------------------------------
 (defn find-lecture
   "find all lectures, ret a vector of lecture entities"
   [qpath]
   (course/find-lecture qpath))
+
+
+; create an online course
+(defn create-lecture
+  "create a course lecture for certain course id"
+  [details]
+  (course/create-lecture details))
 
 
 ; linking a lecture to a course, ref attr's val is numeric id value.

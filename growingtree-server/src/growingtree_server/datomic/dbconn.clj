@@ -405,9 +405,11 @@
            seq boolean)))
 
 
-(defn type-card
-  "Returns the type :db.type/instant and cardinality (:db.cardinality/one or
-   :db.cardinality/many) of the attribute"
+; -----------------------------------------------------------------------------
+; get attribute type and card, everything is querable, schema, transaction !
+; -----------------------------------------------------------------------------
+(defn attr-type-card
+  "Returns attributes datomic type and cardinality (:db.cardinality/one, many "
   [attr]
   (->>
    (d/q '[:find ?t ?v
@@ -420,9 +422,10 @@
         (get-db) attr)
    first))
 
-
-; given a schema name, find all the attr of the schema
+; -----------------------------------------------------------------------------
+; given a schema name, ret a list of [[attr-name attr-type] ...] of the schema.
 ; Deprecated, use list-attr.
+; -----------------------------------------------------------------------------
 (defn schema-attrs
   [schema-name]
   (let [attr-types
@@ -435,7 +438,6 @@
                 (get-db))
         ]
     (prn "find schema attra " attr-types)))
-
 
 
 ;;==========================================================================

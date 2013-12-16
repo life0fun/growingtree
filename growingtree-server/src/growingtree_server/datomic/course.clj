@@ -127,24 +127,12 @@
   ])
 
 
-; create course
-; {:title "aa", :author "bb", :type "Math", :content "", 
-;  :url "", :email "", :comments "", :user "rich"}
-(defn create-course
-  "create a course with details "
-  [details]
-  (let [insert-map details
-        trans (submit-transact [insert-map])]
-    (prn "create course " insert-map)
-    trans))
-  
-
 ; find a course
 (defn find-course
   "find course by query path "
   [qpath]
   (let [entities (util/get-entities-by-rule qpath get-course-by)
-        projkeys (keys (dissoc course-schema :course/lecture)) ; no circular ref
+        projkeys (keys (dissoc course-schema :course/lecture :course/author)) ; no circular ref
         courses (map #(select-keys % projkeys) entities)
         ]
     (doseq [e courses]
@@ -152,6 +140,25 @@
     courses))
 
 
+(defn create-course
+  "create a course with details "
+  [details]
+  (let [author (dbconn/find-by :parent/name (:author details))  ; should be login name
+        author-id (:db/id author)
+        entity (-> details
+                (select-keys (keys (dissoc course-schema :course/lectures)))
+                (assoc :course/author author-id)
+                (assoc :db/id (d/tempid :db.part/user)))
+        trans (submit-transact [entity])  ; transaction is a list of entity
+      ]
+    (newline)
+    (prn "create course entity " author author-id entity)
+    (prn "submit course trans " trans)
+    [entity]))
+
+
+; ----------------------------------------------------
+; deprecated
 (defn lecture-attr
   "compose a map of attrs for a course lecture"
   [course seqno date topic content videouri]
@@ -198,6 +205,19 @@
 ;;===============================================================
 ; lecture
 ;;===============================================================
+; find a course
+(defn find-lecture
+  "find lecture by query path "
+  [qpath]
+  (let [entities (util/get-entities-by-rule qpath get-lecture-by)
+        projkeys (keys (dissoc lecture-schema :lecture/lecture)) ; no circular ref
+        lectures (map #(select-keys % projkeys) entities)
+        ]
+    (doseq [e lectures]
+      (prn "lecture --> " e))
+    lectures))
+
+
 ; create an online course
 (defn create-lecture
   "create a course lecture for certain course id"
@@ -210,20 +230,6 @@
         lecturem (lecture-attr cid lectseq lecdate topic content videouri)]
     ;(d/transact conn [lecturem])
     lecturem)) ; tx-data is a list of write datoms
-
-
-
-; find a course
-(defn find-lecture
-  "find lecture by query path "
-  [qpath]
-  (let [entities (util/get-entities-by-rule qpath get-lecture-by)
-        projkeys (keys (dissoc lecture-schema :lecture/lecture)) ; no circular ref
-        lectures (map #(select-keys % projkeys) entities)
-        ]
-    (doseq [e lectures]
-      (prn "lecture --> " e))
-    lectures))
 
 
 ; linking a lecture to a course, ref attr's val is numeric id value.

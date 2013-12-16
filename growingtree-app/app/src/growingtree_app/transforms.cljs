@@ -84,9 +84,10 @@
 ; too bad (dom/toggle-class! form "hide") is not available.
 (defn toggle-hide-fn
   "return an event handler fn that toggen hide css class of the form"
-  [form]
+  [form clz]
   (fn [_] 
     (let [hidden (dom/has-class? form "hide")]
+      (.log js/console (str "link clicked " clz))
       (if hidden
         (dom/remove-class! form "hide")
         (dom/add-class! form "hide")))))
@@ -201,7 +202,7 @@
 
 
 ;; ---------------------------------------------------------------------------------
-;; newthing btn setup and submit, Deprecated ! not used !
+;; Deprecated ! not used ! newthing btn setup and submit, 
 ;; ---------------------------------------------------------------------------------
 ; ; create new thing btn event listen, when clicked, display input newthing template
 ; ; under main div. messages is cljs PersistentVector, hence doseq to process each.
@@ -265,9 +266,13 @@
   [r [target path transkey messages] input-queue]
   (let [type (last path)
         form (dom/by-class (str (name type) "-form"))
+        btn-cancel (-> form 
+                       (dx/xpath "//button[@id='cancel']"))
         submit-fn (newthing-form/submit-fn type form messages)]
     (.log js/console (str "enable submit on create thing page " path transkey messages form))
-    (events/send-on :submit form input-queue submit-fn)))
+    (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))
+    (events/send-on :submit form input-queue submit-fn)
+    ))
 
 
 ;; ---------------------------------------------------------------------------------
@@ -285,11 +290,13 @@
 ; path = [:transform-enable [:nav :child 17592186045496 :parent]] 
 ; path, transkey and messages setup in emitter thing-navpath-transforms, [nav type id transkey]
 ;;==================================================================================
-; (defmulti enable-thing-nav
-;   (fn [render [op path transkey messages] input-queue]
-;     transkey))
+(defmulti enable-thing-nav
+  (fn [render [op path transkey messages] input-queue]
+    transkey))
 
-(defn enable-thing-nav 
+
+(defmethod enable-thing-nav
+  :default 
   [r [_ path transkey messages] input-queue]
   (let [navpath (rest path)  ; [:parent 1 :child]
         thingid (first (reverse (butlast navpath)))
@@ -308,3 +315,74 @@
                     (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
                       (p/put-message input-queue m)))))
   ))
+
+
+; ------------------------------------------------------------------------------------
+; enable assignto-toggle and assignto-submit form with link and form event handler.                                                                                              
+; nav anywhere -> assignto-submit , transkey is assignto-submit,.
+; [:transform-enable [:nav :courses 17592186045496 :assign-toggle] :assign-toggle
+; ------------------------------------------------------------------------------------
+(defmethod enable-thing-nav  ; transkey = assign-toggle
+  :assign-toggle
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:parent 1 :assign-toggle]
+        thingid (first (reverse (butlast navpath)))
+        thing-node (dom/by-id (str thingid))
+        assignto-link (dom/by-class (entity-view/assignto-sel thingid))
+        ;toggle-fn (-> (dom/by-class (entity-view/assign-form-class thingid))
+        ;              (dx/xpath "//form[@class='assign-form']")
+        ;              (toggle-hide-fn (entity-view/assign-form-class thingid)))
+
+        toggle-fn (-> (entity-view/assign-form-sel thingid)
+                      (dx/xpath)
+                      (toggle-hide-fn (entity-view/assign-form-class thingid)))
+
+       ]
+    (.log js/console (str "enable thing nav assign toggle " path " "
+                          (entity-view/assign-form-sel thingid)))
+    (de/listen! assignto-link :click toggle-fn)
+  ))
+ 
+
+; use xpath with id selector to find assignto-name and assignto-hint ele and.
+; submit transform messsage upon clicked.
+(defmethod enable-thing-nav  ; transkey = :assign-form
+  :assign-form
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:parent 1 :assign-form]
+        thingid (first (reverse (butlast navpath)))
+        thing-node (dom/by-id (str thingid))
+ 
+        ; select form by class and then xpath within the node
+        ; form (-> (dom/by-class (entity-view/assign-form-class thingid))
+        ;          (dx/xpath "//form[@id='assign-form']"))
+        ; assignto-name (dx/xpath form "//input[@id='assignto-name']")
+        ; assignto-hint (dx/xpath form "//input[@id='assignto-hint']")
+        form (-> (entity-view/assign-form-sel thingid)
+                 (dx/xpath))
+        assignto-name (-> (entity-view/assign-input-sel thingid "assignto-name")
+                          (dx/xpath))
+        assignto-hint (-> (entity-view/assign-input-sel thingid "assignto-hint")
+                          (dx/xpath))
+        ; form submit handler, fill msg and ret the msg
+        submit-fn 
+          (fn [_]
+            (let [to-val (dom/value assignto-name)
+                  hint-val (dom/value assignto-hint)
+                  details {:thing-type :assignment   ; single thing-type for add thing
+                           :assignment/task-id thingid  ; homework, course, lecture, etc.
+                           :assignment/homework thingid  ; homework, course, lecture, etc.
+                           :assignment/assignee to-val.
+                           :assignment/hint hint-val
+                           :assignment/status :assignment.status/active
+                           :assignment/start (.unix (js/moment))
+                           :assignment/due (.unix (.add (js/moment) "hours" 4))
+                           }]
+              (.log js/console (str "assign form submitted " details))
+              ((toggle-hide-fn form) nil)  ; hide the form
+              (msgs/fill :submit messages {:details details})))
+        ]
+    (.log js/console (str "enable thing nav assign-form " path messages))
+    ; wrap assign link with div and use class selector
+    (events/send-on :submit form input-queue submit-fn)
+  ))                                                                                                                                                                            

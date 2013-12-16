@@ -190,8 +190,8 @@
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "submit parent entity " entity)
-    (prn "submit parent trans " trans)
+    (prn "create parent entity " entity)
+    (prn "create parent trans " trans)
     [entity]))
 
 
@@ -214,24 +214,20 @@
 (defn create-child
   "new child form the submitted form data"
   [details]
-  (let [parent (dbconn/find-by :child/name (:parent details))  ; should be login name
-        parent-id (:db/id parent)
+  (let [author (dbconn/find-by :parent/name (:author details))  ; should be login name
+        author-id (:db/id author)
         ; this find all children whose child is parent-di
-        assignee-id (:db/id (dbconn/find-by :child/parents parent-id))
         entity (-> details
-                (select-keys (keys child-schema))
-                (assoc :child/parent parent-id)
-                (assoc :child/assignee assignee-id)
-                (util/entity-date)   ; convert to date
+                (select-keys (keys (dissoc child-schema :child/parents)))
+                (assoc :child/parents author-id)
+                (util/to-datomic-attr-vals)   ; coerce value type
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "submit child entity " parent-id assignee-id " entity " entity)
-    (prn "submit child trans " trans)
+    (prn "create child entity " author-id " entity " entity)
+    (prn "create child trans " trans)
     entity))
-
-
 
 
 ; use :db/add to upsert child attr to parent. find parent eid by list-parent.

@@ -54,6 +54,25 @@
 
 
 ;;===============================================================
+; xpath selector for assign to form
+;;===============================================================
+(defn assignto-sel
+  [thing-id]
+  (assignto-class thing-id))
+
+(defn assign-form-sel
+  [thing-id]
+  (let [assignform (assign-form-class thing-id)]
+    (str "//div[@class='" assignform "']/form[@id='assign-form']")))
+
+(defn assign-input-sel
+  [thing-id field-name]
+  (let [form-sel (assign-form-sel thing-id)]
+    (str form-sel "/input[@id='" field-name"']")))
+
+
+
+;;===============================================================
 ;; generate thing template based on thing type
 ;; when rendering node-create with thing-type and id, ret thing node div html
 ;; [:node-create [:main :all 0 :parent 17592186045505] :map]

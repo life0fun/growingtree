@@ -164,12 +164,14 @@
 ; now flow to emitter after transform. put on new thing template and setup msg topic.
 (defn create-modal-emitter
   [inputs]
-  (when-let [thing-type (get-in inputs [:new-model :nav :create-modal])]
+  (when-let [thing-type (last (get-in inputs [:new-model :nav :create-modal]))]
     (let [user (get-in inputs [:new-model :login :name])
           path (conj [:create] (keyword thing-type))]
       (.log js/console (str user " create modal emitter msg for " thing-type))
       [
         ; setup form submit transform msg topic
+        [:node-destroy [:main]]
+        [:node-destroy path]
         [:node-create path]
         [:transform-enable path
                            :create-thing
@@ -261,15 +263,36 @@
        :assignment {:path [:child :assignment]}
       }
 
+    :course 
+      {:homework {:path [:course :homework]}
+       :assign-toggle {:path [:course :assign-toggle]}
+       ;:assign-form {:path [:course :assign-form]}
+      }
+
+    :homework 
+      {:course {:path [:course :course]}
+       :assign-toggle {:path [:homework :assign-toggle]}
+       ;:assign-form {:path [:homework :assign-form]}
+      }
+
     :assignment 
       {:child {:path [:assignment :child]}
        :homework {:path [:assignment :homework]}
       }
-
   })
 
 
-(defn thing-navpath-transforms
+;;==================================================================================
+; multimethod for enable thing nav action bar links
+; render fills the msg with type set-nav-path and topic to [:nav :path], and path vector
+;;==================================================================================
+(defmulti thing-navpath-transforms
+  (fn [thing-type thing-id]
+    thing-type))
+
+
+(defmethod thing-navpath-transforms
+  :default
   [thing-type thing-id]
   (let [transkeys (keys (get thing-nav-links thing-type))
         navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)]
@@ -295,6 +318,30 @@
                                 ]] )))
       navpaths)))
 
+
+(defmethod thing-navpath-transforms
+  :course
+  [thing-type thing-id]
+  (let [transkeys [:assign-toggle :assign-form]
+        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
+       ]
+    (mapcat 
+      ; [:nav :courses 17592186045499 :assign-toggle]
+      (fn [[nav type id transkey :as navpath]]
+        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:courses 17592186045499 :assign-form]
+          (.log js/console (str "thing navpath transform " self-path (rest navpath)))
+          (vector 
+            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy navpath]
+            [:transform-enable navpath    ; [:nav :parents 17592186045499 :children]
+                               transkey   ; transkey
+                               [ ; first msg, request current thing as parent after nav
+                                {msgs/topic [:submit transkey] 
+                                 msgs/type :submit
+                                 (msgs/param :details) {}} ; if msgs/fill, need to wrap into param
+                                ]] )))
+  
+      navpaths)))
 
 (defn- removed-thing-deltas
   "the removed path node from removed-inputs, arg is node path"

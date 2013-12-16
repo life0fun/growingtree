@@ -90,9 +90,10 @@
 
 (defn set-create-modal
   [oldv message]
-  (let [newthing-type (:type message)]
-    (.log js/console "set create newthing modal " newthing-type)
-    newthing-type))
+  (let [newthing-type (:type message)
+        npath (vec (conj oldv newthing-type))]
+    (.log js/console (str "set create newthing modal " (take-last 2 npath)))
+    npath))
 
 
 ; extract the user clicked nav path from msg, and store it in [:nav :path] node
@@ -275,8 +276,8 @@
 
 
                 ; assign action setup transform
-                ;[:assign [:setup :assign :* :*] setup-assign]
-                ;[:assign [:submit :assign :* :*] submit-assign]
+                ; [:assign [:setup :assign :* :*] setup-assign]
+                ; [:assign [:submit :assign :* :*] submit-assign]
 
                 ; new thing setup, each key in the value map will create a new node.
                 ;[:newthing [:setup :newthing] setup-newthing]

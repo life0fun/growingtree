@@ -75,10 +75,10 @@
           entity-keys))
 
 
-;;======================================================
-;; get all things multi method
+;;===========================================================================
+;; get all things multi method, return data is thing-vec. [{tuple1} {tuple2}]
 ;; (defmulti name docstring? attr-map? dispatch-fn & options)
-;;======================================================
+;;===========================================================================
 ; defmulti needs a name and a dispatch fn, which rets value for dispatching
 (defmulti get-things
   (fn [thing-type qpath] 
@@ -110,6 +110,14 @@
 
 
 (defmethod get-things
+  :lecture
+  [type qpath]
+  (let [lectures (dda/find-lecture qpath)]
+    (prn "peer get all lectures " qpath lectures)
+    lectures))
+
+
+(defmethod get-things
   :homework
   [type qpath]
   (let [homeworks (dda/find-homework qpath)]
@@ -125,26 +133,6 @@
     assignments))
 
 
-;;======================================================
-;; create new thing multi method
-;;======================================================
-; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
-; add new things, subtype, eventually, should merge with add-things
-(defmulti create-new-thing
-  (fn [new-thing-type details]
-    new-thing-type))
-
-
-(defmethod create-new-thing
-  :course
-  [type details]
-  (let [user (:user details)
-        ;result (dda/create-course details)
-        result details
-        ]
-    (prn "adding new course " user " transact " result)
-    details))
-
 
 ;;======================================================
 ;; add things multi method
@@ -159,10 +147,20 @@
 (defmethod add-thing
   :parent
   [type details]
-  (let [user (:user details) ; thing-type value is json string.
+  (let [author (:author details) ; thing-type value is json string.
         result (dda/create-parent details)
        ]
     (prn "peer add parent " type " details " details " result " result)
+    result))
+
+
+(defmethod add-thing
+  :child
+  [type details]
+  (let [author (:author details) ; thing-type value is json string.
+        result (dda/create-child details)
+       ]
+    (prn "peer add child " type " details " details " result " result)
     result))
 
 
@@ -170,34 +168,33 @@
 (defmethod add-thing
   :assignment
   [type details]
-  (let [details (assoc details :author (:user details))]  ; make the user as author
+  (let [author (:author details)
+        result (dda/create-assignment details)
+        ]  
     (newline)
-    (prn "peer add thing " type details)
-    ;(dda/create-assignment details)
-    ))
+    (prn "peer add thing " type " details " details " result " result)
+    result))
 
 
-;; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
+;; type:newthing {:action :newthing, :type "course", :title "", :content "", :author "rich"} 
 (defmethod add-thing
   :course
   [type details]
-  (let [user (:user details) ; thing-type value is json string.
+  (let [author (:author details) ; thing-type value is json string.
         result (dda/create-course details)
        ]
-    (prn "peer add thing " type " details " details " result " result)
-    details))
+    (prn "peer add thing " type " author " author " details " details " result " result)
+    result))
 
-;; type:newthing {:action :newthing, :type "course", :title "", :content "", :user "rich"} 
+;; type:newthing {:action :newthing, :type "course", :title "", :content "", :author "rich"} 
 (defmethod add-thing
   :homework
   [type details]
-  (let [user (:user details) ; thing-type value is json string.
+  (let [author (:author details) ; thing-type value is json string.
         result (dda/create-homework details)
        ]
     (prn "peer add thing " type " details " details " result ")
     details))
-
-
 
 
 

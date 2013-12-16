@@ -114,7 +114,7 @@
 ;---------------------------------------------------------------------------------
 ; rule set for get child by. rule name is the parent thing type.
 (def get-homework-by
-  '[[(:all ?e ?val) [?e :homework/author]]   ; select all homework that has author
+  '[[(:all ?e ?val) [?e :homework/content]]   ; select all homework that has author
     [(:title ?e ?val) [?e :homework/title ?val]]
     [(:author ?e ?val) [?e :homework/author ?val]]
     [(:lecture ?e ?val) [?e :homework/lecture ?val]]
@@ -163,7 +163,7 @@
   "find all homework by query path "
   [qpath]
   (let [entities (util/get-entities-by-rule qpath get-homework-by) ; a list of entity tuples
-        projkeys (keys (dissoc homework-schema :homework/lecture))
+        projkeys (keys (dissoc homework-schema :homework/lecture :homework/author))
         homeworks (map #(select-keys % projkeys) entities)
         ]
     (prn projkeys homeworks)
@@ -177,11 +177,19 @@
 (defn create-homework
   "create homework with details"
   [details]
-  (let [insert-map (homework-to-attr details)
-        trans (submit-transact [insert-map])
-        ]
-    (prn "create homework " insert-map " trans " trans)
-    trans))
+  (let [author (dbconn/find-by :parent/name (:author details))  ; should be login name
+        author-id (:db/id author)
+        entity (-> details
+                (select-keys (keys homework-schema))
+                (assoc :homework/author author-id)
+                (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
+                (assoc :db/id (d/tempid :db.part/user)))
+        trans (submit-transact [entity])  ; transaction is a list of entity
+      ]
+    (newline)
+    (prn "create homework entity " author-id " entity " entity)
+    (prn "create homework trans " trans)
+    entity))
 
  
 (defn inc-homework-popularity
@@ -207,13 +215,13 @@
                 (select-keys (keys assignment-schema))
                 (assoc :assignment/author author-id)
                 (assoc :assignment/assignee assignee-id)
-                (util/entity-date)   ; convert to date
+                (util/to-datomic-attr-vals) 
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "submit assignment entity " author-id assignee-id " entity " entity)
-    (prn "submit assignment trans " trans)
+    (prn "create assignment entity " author-id assignee-id " entity " entity)
+    (prn "create assignment trans " trans)
     entity))
 
 
@@ -228,8 +236,7 @@
     (prn projkeys assignments)
     (doseq [e assignments]
       (prn "assignment --> " e))
-    assignments
-    ))
+    assignments))
 
 
 ;;================================================================================

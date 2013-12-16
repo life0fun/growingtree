@@ -50,32 +50,18 @@
 ; ============================================================================
 (defn mills-date [mills] (to-date (from-long mills)))
 
-(defn attr-date
-  "coerce the map entry to :instant java.util.Date"
-  [k v]
-  (let [[type card] (type-card k)]
-    (if (= :db.type/instant type)
-      [k (mills-date (* 1000 v))]
-      [k v])))
-
-; go through each map entry, if type is :instant, convert mills to date
-(defn entity-date
-  [entity]
-  (reduce (fn [tot [k v]]
-            (into tot (vector (attr-date k v))))
-          {} entity))
-
 
 ; ============================================================================
-; coerce entity attr value
+; coerce datomic entity attribute value to entity key value
+; actually, we do not need this, framework already handles it.
 ; ============================================================================
-(defn entity-value-vec
-  "reduce to a list of tuple while convert hash set to vector"
+(defn to-entity-key-vals
+  "coerce "
   [entity ks]
   (reduce (fn [tot curk]
             (let [curv (curk entity)
-                  curtype (type curv)]
-              (prn "entity value vec " curk curv curtype tot)
+                  curtype (type curv)]  ; get the type of entity attribute
+              (prn "to entity key vals " curk curv curtype tot)
               (cond
                 ; hashset #{} to vector []
                 (= clojure.lang.PersistentHashSet curtype)
@@ -89,23 +75,27 @@
           ks))
 
 
-; Deprecated, framework already convert hashset to vector during json.
-(defn entity-value
-  "convert tuple hash set to vector"
-  [entity]
+; ============================================================================
+; coerce inserted details key value map to datomic entity attribute values.
+; ============================================================================
+(defn to-datomic-attr-vals
+  "coerce details value map to datomic db schema attr type values"
+  [details]
   (reduce (fn [tot [k v]]
-            (let [curtype (type v)]
+            (let [[type card] (attr-type-card k)]  ; use dbconn schema query
               (cond
-                ; hashset #{} to vector []
-                (= clojure.lang.PersistentHashSet curtype)
-                  (conj tot (vec v))
-                ; instant to unix epoch
-                (= java.util.Date curtype) 
-                  (conj tot (to-long (from-date v))) ; conver to epoch
-                ; default use value
-                :else (conj tot v))))
+                ; for instant data type, convert from epoch to java.util.Date
+                (= :db.type/instant type)
+                  (into tot (vector [k (mills-date (* 1000 v))]))
+
+                ; for number type, read-string to convert it.
+                (= :db.type/long type)
+                  (into tot (vector [k (read-string v)]))
+
+                :else 
+                  (into tot (vector [k v])))))
           {}
-          entity))
+          details))
 
 
 ; ============================================================================

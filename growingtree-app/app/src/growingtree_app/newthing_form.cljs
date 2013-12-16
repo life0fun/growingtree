@@ -32,6 +32,17 @@
              :parent/phone "parent-phone"
              :parent/status "parent-status"
              :parent/openid "parent-url"
+             :parent/children "parent-child"
+            }
+
+    :child {:child/name "child-name"
+             :child/lname "child-lname"
+             :child/gender "child-type"
+             :child/address "child-address"
+             :child/email "child-email"
+             :child/phone "child-phone"
+             :child/status "child-status"
+             :child/openid "child-url"
             }
 
     :course {:course/title "course-title"
@@ -66,15 +77,18 @@
 (defn submit-fn
   [thing-type form messages]
   (.log js/console "new thing form submit-fn " thing-type)
-  (fn [_]
+  (fn [e]
     (let [type-attr (get thing-type-attr thing-type)
           input-fields (keys type-attr)
           input-vals (->> (vals type-attr)
                           (map #(dom/by-id %))
                           (map #(.-value %)))
           details (-> (zipmap input-fields input-vals)
+                      ; transform parent status and gender
                       (util/update-enum thing-type "status" true)
                       (util/update-enum thing-type "gender" false)
+                      ; transform thing type enum
+                      (util/update-enum thing-type "type" true)
                       )
          ]
       (.log js/console (str "new form submitted details " details))

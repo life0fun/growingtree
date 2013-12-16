@@ -91,15 +91,18 @@
 (defn post-create-thing
   "create new thing form submitted, [:create :*] form transformed"
   [inputs]
-  (let [user (get-login-name inputs)
+  (let [
         msg (:message inputs)    ; the active msg when create new thing form submitted
         thing-type (last (msgs/topic msg))  ;[:create :course]
-        details (assoc (:details msg) :user user)
+        ; assoc current user to post details
+        user (get-login-name inputs)
+        details (assoc (:details msg) :author user)   ; currrent user as author
         ; after create new thing, change nav path to [:all 0 thing-type]
         resp-msg-topic [:created-thing thing-type]  ; created thing
         resp-msg-type :created-thing-data
         body {:msg-topic resp-msg-topic :msg-type resp-msg-type 
-              :thing-type thing-type :details details}]
+              :thing-type thing-type :details details}
+       ]
     (.log js/console (str user " post create thing " thing-type " body " body))
     [{msgs/topic [:server] msgs/type :add-thing (msgs/param :body) body}]
     ))
