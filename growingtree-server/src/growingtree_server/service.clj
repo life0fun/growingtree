@@ -42,6 +42,11 @@
 ; store subscribe user id map to SSE context in atom {}
 (def ^{:doc "Map of subscriber IDs to SSE contexts"} subscribers (atom {}))
 
+; create schema
+(defn create-schema
+  []
+  (peer/init-db))
+
 ; gen uuid session id
 (defn- gen-session-id [] (.toString (java.util.UUID/randomUUID)))
 

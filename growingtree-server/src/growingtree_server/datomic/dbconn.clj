@@ -152,6 +152,7 @@
   (d/db (get-conn)))
 
 
+; ------------------------------------------------
 ; create attr schema thru conn
 (defn create-schema
   "create schema with connection to db"

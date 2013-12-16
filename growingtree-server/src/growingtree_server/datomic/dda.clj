@@ -96,7 +96,7 @@
 ;   (-> (d/entity db 17592186045476) :child/_parent)
 ; this reverse look-up might be time consuming, use explicit linking might be better.
 ;
-; (map (fn [id] (d/touch (d/entity db (:db/id id)))) 
+; (map (fn [id] (d/t
 ;   (-> (d/entity db 17592186045476) :child/_parent))
 ;
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
