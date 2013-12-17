@@ -9,7 +9,7 @@
   [& args]
   (dev/init service/service #'service/routes)
   ; create db schema
-  (service/create-schema)
+  ; (service/create-schema)
   (apply dev/-main args))
 
 ;; To implement your own server, copy io.pedestal.service-tools.server and

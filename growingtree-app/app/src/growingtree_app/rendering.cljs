@@ -134,7 +134,6 @@
 ; only update template when new value exists.
 (defn value-thing-node
   [r [op path oldv newv] input-queue]
-  (.log js/console (str "update thing node value " path " new-value " newv))
   (when newv
     (let [id (render/get-id r path)    ; node destroy, get-id will blow off
           view-vec (entity-view/thing-view path newv)
@@ -142,6 +141,7 @@
           thing-map {:thing-entry-title title 
                      :thumbhref "thumbhref" 
                      :entryhref path}]
+      (.log js/console (str "update thing node value " path " new-value " newv))
       (templates/update-t r path thing-map))))
 
 

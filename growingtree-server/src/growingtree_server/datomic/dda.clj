@@ -135,10 +135,10 @@
 ;;==============================================================
 ;; family related, should use multi-method to dispatch
 ;;==============================================================
-(defn add-family
-  "insert two parents with two children"
-  [name]
-  (family/add-family name))
+(defn create-family
+  "create a family with either or both parent name and child name"
+  [qpath]
+  (family/create-family qpath))
 
 
 ; :find rets entity id, find all parent's pid and name.

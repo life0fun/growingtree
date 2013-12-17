@@ -420,7 +420,7 @@
   "Returns attributes datomic type and cardinality (:db.cardinality/one, many "
   [attr]
   (->>
-   (d/q '[:find ?t ?v
+    (d/q '[:find ?t ?v
           :in $ ?attr
           :where
           [?attr :db/valueType ?vt]
@@ -428,7 +428,7 @@
           [?attr :db/cardinality ?card]
           [?card :db/ident ?v]]  ; ident is keyword, :db.cardinality/one, many.
         (get-db) attr)
-   first))
+    first))
 
 ; -----------------------------------------------------------------------------
 ; given a schema name, ret a list of [[attr-name attr-type] ...] of the schema.

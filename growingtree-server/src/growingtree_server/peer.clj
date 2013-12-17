@@ -163,6 +163,14 @@
     (prn "peer add child " type " details " details " result " result)
     result))
 
+(defmethod add-thing
+  :family
+  [type details]
+  (let [author (:author details) ; thing-type value is json string.
+        result (dda/create-family details)
+       ]
+    (prn "peer add family " type " details " details " result " result)
+    result))
 
 ; watch non ref-ed attr entity. :transact/bad-data Unable to resolve entity: rich
 (defmethod add-thing

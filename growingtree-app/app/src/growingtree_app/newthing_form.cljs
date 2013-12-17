@@ -24,25 +24,32 @@
 ;;==================================================================================
 (def thing-type-attr
   {
-    :parent {:parent/name "parent-name"
-             :parent/lname "parent-lname"
-             :parent/gender "parent-type"
-             :parent/address "parent-address"
-             :parent/email "parent-email"
-             :parent/phone "parent-phone"
-             :parent/status "parent-status"
-             :parent/openid "parent-url"
-             :parent/children "parent-child"
+    :parent {:person/title "person-name"
+             :person/lname "person-lname"
+             :person/address "person-address"
+             :person/email "person-email"
+             :person/phone "person-phone"
+             :person/status "person-status"
+             :person/url "person-url"
+             :person/gender "person-type"
             }
 
-    :child {:child/name "child-name"
-             :child/lname "child-lname"
-             :child/gender "child-type"
-             :child/address "child-address"
-             :child/email "child-email"
-             :child/phone "child-phone"
-             :child/status "child-status"
-             :child/openid "child-url"
+    :child { :person/title "person-name"
+             :person/lname "person-lname"
+             :person/address "person-address"
+             :person/email "person-email"
+             :person/phone "person-phone"
+             :person/status "person-status"
+             :person/url "person-url"
+             :person/gender "person-type"
+            }
+
+    :family {:family/title "family-name"
+             :family/parent "family-parent"
+             :family/child "family-child"
+             :family/address "family-address"
+             :family/email "family-email"
+             :family/url "family-url"
             }
 
     :course {:course/title "course-title"
@@ -53,18 +60,20 @@
              :course/email "course-email"
             }
 
-    :homework {:homework/title "homework-title" 
-               :homework/author "homework-author"
-               :homework/type "homework-type"
-               :homework/content "homework-content"
-               :homework/url "homework-url"
-               :homework/difficulty "homework-difficulty"
+    :question {:question/title "question-title" 
+               :question/author "question-author"
+               :question/type "question-type"
+               :question/content "question-content"
+               :question/url "question-url"
+               :question/difficulty "question-difficulty"
+               :question/tag "question-tag"
               }
 
     :group {:group/title "group-title"
             :group/author "group-author"
             :group/type "group-type"
             :group/url "group-url"
+            :group/email "group-email"
             :group/wiki "group-wiki"
            }
   })
@@ -76,22 +85,22 @@
 ;;==================================================================================
 (defn submit-fn
   [thing-type form messages]
-  (.log js/console "new thing form submit-fn " thing-type)
   (fn [e]
     (let [type-attr (get thing-type-attr thing-type)
           input-fields (keys type-attr)
           input-vals (->> (vals type-attr)
                           (map #(dom/by-id %))
                           (map #(.-value %)))
+          nmsp (namespace (first input-fields))
           details (-> (zipmap input-fields input-vals)
                       ; transform parent status and gender
-                      (util/update-enum thing-type "status" true)
-                      (util/update-enum thing-type "gender" false)
+                      (util/update-enum nmsp "status" false)
+                      (util/update-enum nmsp "gender" false)
                       ; transform thing type enum
-                      (util/update-enum thing-type "type" true)
+                      (util/update-enum nmsp "type" true)
                       )
          ]
-      (.log js/console (str "new form submitted details " details))
+      (.log js/console (str thing-type " new form submitted details " details))
       (dom/destroy! form)
       (msgs/fill :create-thing messages {:details details}))))
 

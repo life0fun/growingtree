@@ -113,6 +113,8 @@
 (declare find-parent-by-cid)
 (declare find-parent-by-cname)
 
+(declare add-to-family)
+
 ; the global id, gened from unix epoch in milliseconds
 (def PersonId (atom (to-long (clj-time/now))))
 
@@ -212,7 +214,8 @@
   "create parent from the submitted new thing form details"
   [details]
   (let [entity (-> details
-                ;(select-keys (keys (dissoc parent-schema :parent/children)))
+                (select-keys (keys person-schema))
+                (assoc :person/type :parent)
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
@@ -220,7 +223,6 @@
     (prn "create parent entity " entity)
     (prn "create parent trans " trans)
     [entity]))
-
 
 
 ;;==========================================================================
@@ -244,7 +246,8 @@
   "create child from the submitted new thing form details"
   [details]
   (let [entity (-> details
-                ;(select-keys (keys (dissoc child-schema :child/children)))
+                (select-keys (keys person-schema))
+                (assoc :person/type :child)
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
@@ -258,22 +261,23 @@
 ;;==========================================================================
 
 (defn create-family
-  "create a family with parent child pair"
-  [{:keys [title parent child address url email wiki] :as details}]
-  (let [parent (dbconn/find-by :person/title parent)  ; should be login name
-        child (dbconn/find-by :person/title child)
+  "create a family with parent child title, assume person title is unique"
+  [details]
+  (let [parent (dbconn/find-by :person/title (:family/parent details)) 
+        child (dbconn/find-by :person/title (:family/child details))
         family-by-parent (if parent (dbconn/find-by :family/parent (:db/id parent)) nil)
         family-by-child (if child (dbconn/find-by :family/child (:db/id child)) nil)]
     (cond
-      (not-nil? family-parent)
+      (not-nil? family-by-parent)
         (add-to-family family-by-parent :family/child (:db/id child))
       
-      (not-nil? family-child)
+      (not-nil? family-by-child)
         (add-to-family family-by-child :family/parent (:db/id parent))
 
       :else
         (do 
           (let [entity (-> details
+                           (select-keys (keys family-schema))
                            (assoc :family/parent (:db/id parent))
                            (assoc :family/child (:db/id child))
                            (util/to-datomic-attr-vals)   ; coerce value type
@@ -281,17 +285,20 @@
                 trans (submit-transact [entity])  ; transaction is a list of entity
                ]
             (newline)
-            (prn "create child entity " author-id " entity " entity)
-            (prn "create child trans " trans)
+            (prn "create family parent " (:db/id parent) " child " (:db/id child) " entity " entity)
+            (prn "create family trans " trans)
             entity)))))
 
 
+; add either :family/child or :family/parent to family
 (defn add-to-family
   [family ref-attr ref-id]
   (let [fid (:db/id family)
         entity [:db/add fid ref-attr ref-id]
-        trans (submit-transact [entity])]
-    (prn "add to family " fid " " ref-attr " " ref-id)))
+        trans (submit-transact [entity])
+       ]
+    (prn "add to family " fid " " ref-attr " " ref-id " ")
+    entity))
 
 
 ; use :db/add to upsert child attr to parent. find parent eid by list-parent.

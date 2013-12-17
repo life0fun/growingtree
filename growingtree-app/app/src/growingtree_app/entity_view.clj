@@ -27,7 +27,7 @@
 
 
 ; this module defines how entity attributes maps to view map.
-; for example, view div title maps fname of parent, and course title for course.
+; for example, view div title maps fname of persontitleand course title for course.
 
 ; Load templates macro.
 (def templates (html-templates/growingtree-app-templates))
@@ -211,13 +211,13 @@
 (defmethod thing-view
   :parent
   [path entity]
-  (assoc entity :title (:parent/name entity)))
+  (assoc entity :title (:person/title entity)))
 
 
 (defmethod thing-view
   :child
   [path entity]
-  (assoc entity :title (:child/name entity)))
+  (assoc entity :title (:person/title entity)))
 
 
 (defmethod thing-view

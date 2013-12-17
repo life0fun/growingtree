@@ -35,7 +35,7 @@
     ident))
 
 ; update enum, only update when enum key present.
-; thing-val = {:course/title "aa", :course/author "bb", :course/type "math", }
+; thing-val = {:course/title "aa", :course/author "bb", :course/type "math" }
 (defn update-enum
   "update in status enum value from string to keyword"
   [thing-val thing-type keyname enum]
@@ -49,6 +49,6 @@
                       (-> thing-val
                           (update-in [schema-key] keyword)))
             ]
-        new-val)
+        new-val)  ; return updated new val if value map contains schema key
       thing-val)))
     
