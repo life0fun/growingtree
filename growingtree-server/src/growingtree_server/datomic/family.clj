@@ -127,45 +127,71 @@
 ;(def data-tx (read-string (slurp "./resource/schema/seattle-data0.dtm")))
 
 ; schema attr-name value type map for parent schema and child schema
-(def parent-schema (assoc (list-attr :parent) :db/id :db.type/id))
-(def child-schema (assoc (list-attr :child) :db/id :db.type/id))
+; (def parent-schema (assoc (list-attr :parent) :db/id :db.type/id))
+; (def child-schema (assoc (list-attr :child) :db/id :db.type/id))
+
+;
+; a list of attrs in schema, [ [attr-name attr-type], [], ]
+(def person-schema (assoc (list-attr :person) :db/id :db.type/id))
+(def family-schema (assoc (list-attr :family) :db/id :db.type/id))
 
 
-; rules to find all parent or child with the name, 
+; rules to find person by any name, 
 ; for all rule lists with the same name, results are OR logic.
 (def nameruleset '[[[byname ?e ?n] 
-                   [?e :parent/name ?n]]  ; multiple tuples within a rule are AND.
+                   [?e :person/title ?n]]  ; multiple tuples within a rule are AND.
                   [[byname ?e ?n]
-                   [?e :parent/lname ?n]]
-                  [[byname ?e ?n]
-                   [?e :child/name ?n]]
-                  [[byname ?e ?n]
-                   [?e :child/lname ?n]]])
+                   [?e :person/lname ?n]]])
 
 
 ; rule set is a set of list. each entry in the list is a rule.
 ; a rule is a list, the head of list is rule name, with other items are rule content.
 ; any single item in the rule list is a list, hence, rule set are list of rules, list of list.
 
-; rule set for get child by. rule name is the parent thing type.
-(def get-child-by
-  '[[(:all ?e ?val) [?e :child/name]]   ; select all 
-    [(:parent ?e ?val) [?e :child/parents ?val]]
-    [(:name ?e ?val) [?e :child/name ?val]]
-    [(:phone ?e ?val) [?e :child/phone ?val]]
-    [(:group ?e ?val) [?e :child/groups ?val]]
+; rule set for get person by.
+(def get-person-by
+  '[[(:all ?e ?val) [?e :person/title]]   ; select all
+    [(:title ?e ?val) [?e :person/title ?val]]
+    [(:lname ?e ?val) [?e :person/lname ?val]]
+    [(:phone ?e ?val) [?e :person/phone ?val]]
+    [(:email ?e ?val) [?e :person/email ?val]]
+    [(:type ?e ?val) [?e :person/type ?val]]
+    [(:occupation ?e ?val) [?e :person/occupation ?val]]
+  ])
+
+
+; rule set for get family by.
+(def get-family-by
+  '[[(:all ?e ?val) [?e :family/title]]  
+    [(:title ?e ?val) [?e :family/title ?val]]
+    [(:parent ?e ?val) [?e :family/parent ?val]]
+    [(:child ?e ?val) [?e :family/child ?val]]
+    [(:address ?e ?val) [?e :family/address ?val]]
   ])
 
 
 ; rule set for get parent by. rule name is the parent thing type.
 (def get-parent-by
-  '[[(:all ?e ?val) [?e :parent/name]]   ; select all
-    [(:child ?e ?val) [?e :parent/children ?val]]
-    [(:name ?e ?val) [?e :parent/name ?val]]
-    [(:phone ?e ?val) [?e :parent/phone ?val]]
-    [(:group ?e ?val) [?e :parent/groups ?val]]
+  '[[(:all ?e ?val) [?e :person/title] [?e :person/type :parent]] ; all persons type is :parent
+    [(:child ?e ?val) [?f :family/child ?val] [?f :family/parent ?e]]
+    [(:title ?e ?val) [?e :person/title ?val] [?e :person/type :parent]]
+    [(:lname ?e ?val) [?e :person/lname ?val] [?e :person/type :parent]]
+    [(:email ?e ?val) [?e :person/email ?val] [?e :person/type :parent]]
+    [(:phone ?e ?val) [?e :person/phone ?val] [?e :person/type :parent]]
+    [(:group ?e ?val) [?g :group/title ?val] [?g :group/person ?e] [?e :person/type :parent]]
   ])
 
+
+; rule set for get parent by. rule name is the parent thing type.
+(def get-child-by
+  '[[(:all ?e ?val) [?e :person/title] [?e :person/type :child]] ; all persons type is :child
+    [(:parent ?e ?val) [?f :family/parent ?val] [?f :family/parent ?e]]
+    [(:title ?e ?val) [?e :person/title ?val] [?e :person/type :child]]
+    [(:lname ?e ?val) [?e :person/lname ?val] [?e :person/type :child]]
+    [(:email ?e ?val) [?e :person/email ?val] [?e :person/type :child]]
+    [(:phone ?e ?val) [?e :person/phone ?val] [?e :person/type :child]]
+    [(:schoolclass ?e ?val) [?c :schoolclass/title ?val] [?c :schoolclass/person ?e]]
+  ])
 
 ; :find rets entity id, find all parent's pid and name.
 ; the parent thing type in qpath is used as rule name selector.
@@ -173,8 +199,9 @@
   "find parent by query path "
   [qpath]
   (let [entities (util/get-entities-by-rule qpath get-parent-by)
-        projkeys (keys (dissoc parent-schema :parent/children))
-        parents (map #(select-keys % projkeys) entities)
+        ;projkeys (keys (dissoc parent-schema :parent/children))
+        ;parents (map #(select-keys % projkeys) entities)
+        parents entities
         ]
     (doseq [e parents]
       (prn "parent --> " e))
@@ -185,7 +212,7 @@
   "create parent from the submitted new thing form details"
   [details]
   (let [entity (-> details
-                (select-keys (keys (dissoc parent-schema :parent/children)))
+                ;(select-keys (keys (dissoc parent-schema :parent/children)))
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
@@ -204,30 +231,67 @@
   "find children by passed in query path"
   [qpath]
   (let [entities (util/get-entities-by-rule qpath get-child-by)
-        projkeys (keys (dissoc child-schema :child/parents))
-        children (map #(select-keys % projkeys) entities)]
+        ;projkeys (keys (dissoc child-schema :child/parents))
+        ;children (map #(select-keys % projkeys) entities)
+        children entities
+        ]
     (doseq [e children]
       (prn "child --> " e))
     children))
 
 
 (defn create-child
-  "new child form the submitted form data"
+  "create child from the submitted new thing form details"
   [details]
-  (let [author (dbconn/find-by :parent/name (:author details))  ; should be login name
-        author-id (:db/id author)
-        ; this find all children whose child is parent-di
-        entity (-> details
-                (select-keys (keys (dissoc child-schema :child/parents)))
-                (assoc :child/parents author-id)
-                (util/to-datomic-attr-vals)   ; coerce value type
+  (let [entity (-> details
+                ;(select-keys (keys (dissoc child-schema :child/children)))
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "create child entity " author-id " entity " entity)
+    (prn "create child entity " entity)
     (prn "create child trans " trans)
-    entity))
+    [entity]))
+
+;;==========================================================================
+; family
+;;==========================================================================
+
+(defn create-family
+  "create a family with parent child pair"
+  [{:keys [title parent child address url email wiki] :as details}]
+  (let [parent (dbconn/find-by :person/title parent)  ; should be login name
+        child (dbconn/find-by :person/title child)
+        family-by-parent (if parent (dbconn/find-by :family/parent (:db/id parent)) nil)
+        family-by-child (if child (dbconn/find-by :family/child (:db/id child)) nil)]
+    (cond
+      (not-nil? family-parent)
+        (add-to-family family-by-parent :family/child (:db/id child))
+      
+      (not-nil? family-child)
+        (add-to-family family-by-child :family/parent (:db/id parent))
+
+      :else
+        (do 
+          (let [entity (-> details
+                           (assoc :family/parent (:db/id parent))
+                           (assoc :family/child (:db/id child))
+                           (util/to-datomic-attr-vals)   ; coerce value type
+                           (assoc :db/id (d/tempid :db.part/user)))
+                trans (submit-transact [entity])  ; transaction is a list of entity
+               ]
+            (newline)
+            (prn "create child entity " author-id " entity " entity)
+            (prn "create child trans " trans)
+            entity)))))
+
+
+(defn add-to-family
+  [family ref-attr ref-id]
+  (let [fid (:db/id family)
+        entity [:db/add fid ref-attr ref-id]
+        trans (submit-transact [entity])]
+    (prn "add to family " fid " " ref-attr " " ref-id)))
 
 
 ; use :db/add to upsert child attr to parent. find parent eid by list-parent.

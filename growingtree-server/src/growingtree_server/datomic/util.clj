@@ -100,7 +100,7 @@
 
 ; ============================================================================
 ; get entities by qpath, formulate query rules from qpath
-; qpath is [:all 0 :children] or [:parent 1 :children] or [:parents 1 :parents]
+; qpath is [:all 0 :child] or [:parent 1 :child] or [:parent 1 :parent]
 ; ============================================================================
 (defn get-entities-by-rule
   "get entities by qpath and rule-set, formulate query rules from qpath"
@@ -109,11 +109,11 @@
     (let [eid (second qpath)
           e (d/entity db eid)]
       [e])
-    (let [pid (second qpath)
-          rule-name (first qpath)  ; parent thing type is rule name
-          parent-rule (list rule-name '?e '?val)
-          q (conj '[:find ?e :in $ % ?val :where ] parent-rule)
-          eids (d/q q (get-db) rule-set pid)
+    (let [thing-id (second qpath)
+          rule-name (first qpath)
+          rule (list rule-name '?e '?val)
+          q (conj '[:find ?e :in $ % ?val :where ] rule)
+          eids (d/q q (get-db) rule-set thing-id)
           entities (map (comp get-entity first) eids)  ; touch to not lazy.
           ]
       entities)))

@@ -70,13 +70,13 @@
 (defpart app)
 
 ; for enum value in datomic is represented as entity with :db/ident attribute.
-; :db/ident :homework/type == :db/ident :homework.type/math
+; :db/ident :question/type == :db/ident :question.type/math
 (def person-type [:parent :child :teacher])
 (def person-status [:pending :active :inactive :cancelled])
 (def classof [:first :second :third :fourth :fifth :sixth :seventh :freshman :junior :senior])
 (def thing-type [:math :science :reading :coding :art :gym :reporting :game :sports])
 (def course-schedule [:monday :tuesday :wednesday :thursday :friday :saturday :sunday])
-(def assignment-type [:homework :course])
+(def assignment-type [:question :course])
 (def assignment-status [:pending :active :overdue :cancelled])
 (def digit-type [:call :sms :mms :app :browse :game :stream :download :lock :study])
 
@@ -89,12 +89,13 @@
     [lname :string :indexed :fulltext] 
     [type :keyword  " one of person-type, :parent, :child, :teacher :author"]
     [status :keyword "person-status keys, pending, active, etc"]
+    [url :string :many :fulltext " facebook url, linkedin url, im ids"]
+    [email :string :many :indexed :fulltext "unique identify of the person"]
+    [im :string :many :fulltext "im ids"]
+    [phone :string :many :indexed :fulltext "use phone # or use email address ?"]
     [age :long]
     [address :string :fulltext]
     [gender :keyword "use :M and :F repr gender string"]
-    [url :string :many :fulltext " facebook url, linkedin url, im ids"]
-    [email :string :many :indexed :fulltext]
-    [phone :string :many :indexed :fulltext]
     [contact :string :fulltext "contact names and phone number"]
     [occupation :string :many :fulltext "parent's occupation"]
     [popularity :long "persons popularity"]
@@ -104,10 +105,13 @@
 (defschema family
   (part app)
   (fields
-    [title :string "short description of the family"]
+    [title :string :unique-value :indexed "name of the family, uniquely identify the family ?"]
     [parent :ref :many :indexed "parent of a family"]
     [child :ref :many :indexed "child of a family"]
     [address :string "address of the family"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
   ))
 
 
@@ -116,29 +120,35 @@
   (fields
     [title :string "the name of follow, why follow"]
     [followee :ref :one :indexed "person being followed"]
-    [follower :ref :many :indexed "all followers"]
+    [person :ref :many :indexed "all followers"]
   ))
 
 
 (defschema school
   (part app)
   (fields
-    [title :string "school name"]
+    [title :string :unique-value "school name"]
     [district :string "school district"]
-    [rate :long "rate of school"]
+    [rate :float "rate of school"]
     [address :string "school address"]
     [teacher :ref :many "all school teacher staff"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
   ))
 
 
 (defschema schoolclass
   (part app)
   (fields
-    [title :string "schoolclass name"]
+    [title :string :unique-value "schoolclass name"]
     [school :ref :one "which school"]
     [classof :keyword "key from classof keyword first grade, second grade"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
     [teacher :ref :many "teacher of the schoolclass"]
-    [child :ref :many "child student"]
+    [person :ref :many "child student"]
     [classroom :string "classroom"]
   ))
 
@@ -146,69 +156,80 @@
 (defschema group
   (part app)
   (fields
-    [title :string :fulltext " the title "]
+    [title :string :fulltext :unique-value " the title, "]
     [author :ref :many :indexed "the admin, organizer of the group"]
     [type :keyword "learning type of the group, from thing-type"]
     [person :ref :many "person in the group"]
-    [url :string "url of the group"]
-    [wiki :string]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
   ))
 
 
 (defschema like
   (part app)
   (fields
-    [title :string :fulltext " the title of like "]
-    [thing :ref :one :indexed "the thing this like is to"]
+    [title :string :fulltext :unique-value " the title of like "]
+    [origin :ref :one :indexed "the origin thing this like is to"]
     [person :ref :many "person who like this thing"]
-    [url :string "url of the like"]
-    [wiki :string]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
   ))
 
 
 ; comment tree models conversation, engaging all participants, most important part!
-(defschema comment
+(defschema comments
   (part app)
   (fields
-    [title :string :fulltext "the title of the comment"] 
-    [author :ref :one :indexed "the author of the comments"]
-    [thing :ref :one :indexed "the thing id this comment made to"]
-    [source :ref :one :indexed "the parent source id this comment made to"]
+    [title :string :fulltext "the title of the comments"] 
+    [author :ref :one :indexed "the author of the commentss"]
+    [thingroot :ref :one :indexed "the thingroot id this comments made to"]
+    [origin :ref :one :indexed "the parent origin id this comment made to"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
   ))
 
 
-; activity, links two entity
 (defschema activity
   (part app)
   (fields
-    [title :string :one "activity content"]
+    [title :string :one :unique-value "activity content"]
     [author :ref :one :indexed "who created the activity"]
     [type :keyword "the thing-type of the activity"]
+    [origin :ref :one "the origin thing that triggers this activity, if any"]
+    [target :ref :many "target entity, not sure about this"]
     [content :string :fulltext]
-    [location :string "where the activity will be held"]
-    [person :ref :many "person of this activity"]
     [tag :string :many :fulltext]
+    [person :ref :many "person of this activity"]
+    [location :string "where the activity will be held"]
     [digittype :keyword "digit activity type"]
     [appname :string :one "the app name"]
     [message :string :many "message content"]
-    [origin :ref :one "origin entity"]
-    [target :ref :many "target entity"]
     [start :long "start time of activity"]
     [end :long "end time of activity"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
   ))
 
-; comment tree models conversation, engaging all participants, most important part!
+
 (defschema location
   (part app)
   (fields
     [title :string :fulltext "the title of the location"] 
+    [address :string :fulltext "the address of the location"]
+    [latlng :double :many "the latlng of the location in a vector"]
     [person :ref :many :indexed " persons in this location"]
     [start :long "start time at this location"]
     [end :long "end time at this location"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
   ))
 
 
-; online streaming a course, each course repr one section of 
 (defschema course
   (part app)
   (fields
@@ -217,14 +238,15 @@
     [type :keyword "course type, math, art, reading, etc"]
     [content :string :fulltext "content of the course, what it covers"]
     [reference :string :fulltext "references, brief content"]
-    [url :string "content url of the course, can be video, audio, weburl"]
-    [wiki :string "the discussion group, wiki and url"]
-    [email :string :many "group email"]
+    [prerequisite :ref :many "the prerequisite courses"]
     [credit :long "the credit of the course"]
     [grading :string "how the grading policy"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
   ))
 
-; lectures for a course, each course must have 1+ lectures
+
 (defschema lecture
   (part app)
   (fields
@@ -237,24 +259,46 @@
     [seqno :string :one "lecture sequence number, 1a, 1b, 2a, 2b, etc"]
     [start :long "the start time the lecture scheduled"]
     [end :long "the end time the lecture scheduled"]
-    [url :string "the content url, include slides, handouts"]
     [video :string "the video url"]
-    [wiki :string "the discussion group, wiki and url"]
-    [deliverable :string "which homework to due, any labs"]
+    [deliverable :string "which question to due, any labs"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
   ))
 
+
+(defschema enrollment
+  (part app)
+  (fields
+    [title :string :fulltext " the title enrollment of the enrollment"]
+    [content :string :fulltext " the content of the enrollment"]
+    [course :ref :one :indexed "the course of this enrollment"]
+    [lecture :ref :one :indexed "you can enroll to a lecture, if needed"]
+    [person :ref :many :indexed "a list of persons in the enrollment"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
+  ))
+
+
 ; so questions or github project or online streaming course lecture
-(defschema homework
+(defschema question
   (part app)
   (fields
     [title :string :indexed :fulltext]
-    [author :ref :many :indexed "the author of the homework"]
-    [type :keyword " thing-type homework type, math, art, reading, etc"]
     [content :string :fulltext]
-    [source :ref :many :indexed "which course lecture this homework related to"]
-    [url :string "url of the homework, if any"]
+    [author :ref :many :indexed "the author of the question"]
+    [status :keyword "closed, no editable, etc."]
+    [type :keyword " thing-type question type, math, art, reading, etc"]
+    [origin :ref :many :indexed "which course lecture this question related to"]
+    [tag :string :many "the tag to the question"]
     [difficulty :long "difficulty level, 5 star"]
-    [solved :long "how many kids solved the problem in total"]
+    [hint :string :many "hints to the question"]
+    [related :ref :many "similar or related question"]
+    [watcher :ref :many "watchers of the question"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
   ))
 
 
@@ -263,10 +307,10 @@
   (fields
     [title :string :fulltext "the title of the assignment"]
     [author :ref :one :indexed "assignment created from who"]
-    [source :ref :one :indexed "which source assignment comes from, homework, course"]
+    [origin :ref :one :indexed "which origin assignment comes from, question, course"]
     [priority :long "the priority of the assignment"]
     [person :ref :one :indexed "make one assignment to one child, one to one mapping"]
-    [type :keyword " assignment-type source type of assignment, "]
+    [type :keyword " assignment-type origin type of assignment, "]
     [status :keyword " assignment-status status of assignment"]
     [tag :string :many "the tag to the assignment"]
     [hint :string :many "hints to the assignment"]
@@ -274,17 +318,24 @@
     [watcher :ref :many "watchers of the assignment"]
     [start :long "starting time of the assignment"]
     [end :long "due time"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
   ))
 
 
 (defschema answer
   (part app)
   (fields
-    [title :string :fulltext " the answer to the assignment"]
+    [title :string :fulltext " the title answer of the answer"]
+    [content :string :fulltext " the content of the answer"]
     [author :ref :one :indexed "the author of this answer"]
-    [source :ref :one :indexed "one answer to one child assignment"]
+    [origin :ref :one :indexed "one answer to one question, assignment"]
     [score :long "score of the answer"]
     [start :long "the submit time"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
   ))
 
 

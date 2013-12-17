@@ -141,6 +141,10 @@
 (declare submit-transact)
 
 
+; handy not nil check
+(def not-nil? (complement nil?))
+
+
 (defn get-conn
   []
   (d/connect uri))
@@ -250,12 +254,15 @@
     (d/entity db (first-entity res))))
 
 
+
+; find unique entity by attr and attr val. so caller make sure attr is unique
 (defn find-by
   "Returns the unique entity identified by attr and val."
-  [attr val]
+  [attr attr-val]
   (qe '[:find ?e :in $ ?attr ?val
         :where [?e ?attr ?val]]
-      (get-db) attr val))
+      (get-db) attr attr-val))
+
 
 
 ; find entity by its attr and value
@@ -360,7 +367,7 @@
       (prn "list all attr " eid)
       (map entity-attr eid)))
 
-  ; list schema attr name and attr valueType
+  ; ret a list of attrs in schema, ret val is [ [attr-name attr-type], [], ]
   ([schema-name]
     (let [attr-types
             (d/q '[:find ?attr-name ?val-type
