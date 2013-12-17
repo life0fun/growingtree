@@ -104,7 +104,7 @@
   [oldv message]
   (let [path (:path message)  ; :path is a vector
         npath (vec (conj oldv path))]
-    (.log js/console (str "set-nav-path newpath " (take-last 2 npath) path))
+    (.log js/console (str "set-nav-path newpath " (take-last 2 npath)))
     npath))
 
 

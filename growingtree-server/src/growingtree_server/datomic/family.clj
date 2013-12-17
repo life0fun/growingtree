@@ -128,12 +128,11 @@
 ;; parse seed data dtm file
 ;(def data-tx (read-string (slurp "./resource/schema/seattle-data0.dtm")))
 
-; schema attr-name value type map for parent schema and child schema
-; (def parent-schema (assoc (list-attr :parent) :db/id :db.type/id))
-; (def child-schema (assoc (list-attr :child) :db/id :db.type/id))
-
-;
+;---------------------------------------------------------------------------------
+; schema attr-name value type map for person schema and family schema
 ; a list of attrs in schema, [ [attr-name attr-type], [], ]
+; XXX  must select-keys with schema keys before sending back to xhr request.
+;---------------------------------------------------------------------------------
 (def person-schema (assoc (list-attr :person) :db/id :db.type/id))
 (def family-schema (assoc (list-attr :family) :db/id :db.type/id))
 
@@ -175,6 +174,7 @@
 ; rule set for get parent by. rule name is the parent thing type.
 (def get-parent-by
   '[[(:all ?e ?val) [?e :person/title] [?e :person/type :parent]] ; all persons type is :parent
+    [(:parent ?e ?val) [?e :person/type :parent] [?e :db/id ?val] ]  ; filtered nav, head, get by itself
     [(:child ?e ?val) [?f :family/child ?val] [?f :family/parent ?e]]
     [(:title ?e ?val) [?e :person/title ?val] [?e :person/type :parent]]
     [(:lname ?e ?val) [?e :person/lname ?val] [?e :person/type :parent]]
@@ -187,7 +187,8 @@
 ; rule set for get parent by. rule name is the parent thing type.
 (def get-child-by
   '[[(:all ?e ?val) [?e :person/title] [?e :person/type :child]] ; all persons type is :child
-    [(:parent ?e ?val) [?f :family/parent ?val] [?f :family/parent ?e]]
+    [(:child ?e ?val) [?e :person/type :child] [?e :db/id ?val] ]  ; filtered nav, head, get by itself
+    [(:parent ?e ?val) [?f :family/parent ?val] [?f :family/child ?e]]
     [(:title ?e ?val) [?e :person/title ?val] [?e :person/type :child]]
     [(:lname ?e ?val) [?e :person/lname ?val] [?e :person/type :child]]
     [(:email ?e ?val) [?e :person/email ?val] [?e :person/type :child]]
@@ -195,15 +196,17 @@
     [(:schoolclass ?e ?val) [?c :schoolclass/title ?val] [?c :schoolclass/person ?e]]
   ])
 
+;;==========================================================================
+; parent related
+;;==========================================================================
 ; :find rets entity id, find all parent's pid and name.
 ; the parent thing type in qpath is used as rule name selector.
 (defn find-parent
   "find parent by query path "
   [qpath]
   (let [entities (util/get-entities-by-rule qpath get-parent-by)
-        ;projkeys (keys (dissoc parent-schema :parent/children))
-        ;parents (map #(select-keys % projkeys) entities)
-        parents entities
+        projkeys (keys person-schema)  ; must select-keys from datum entity attributes
+        parents (map #(select-keys % projkeys) entities)
         ]
     (doseq [e parents]
       (prn "parent --> " e))
@@ -233,9 +236,8 @@
   "find children by passed in query path"
   [qpath]
   (let [entities (util/get-entities-by-rule qpath get-child-by)
-        ;projkeys (keys (dissoc child-schema :child/parents))
-        ;children (map #(select-keys % projkeys) entities)
-        children entities
+        projkeys (keys person-schema)  ; must select-keys from datum entity attributes
+        children (map #(select-keys % projkeys) entities)
         ]
     (doseq [e children]
       (prn "child --> " e))
@@ -259,7 +261,6 @@
 ;;==========================================================================
 ; family
 ;;==========================================================================
-
 (defn create-family
   "create a family with parent child title, assume person title is unique"
   [details]
@@ -291,10 +292,12 @@
 
 
 ; add either :family/child or :family/parent to family
+; use [:db/add entity-id attr-name attr-value]
 (defn add-to-family
   [family ref-attr ref-id]
   (let [fid (:db/id family)
-        entity [:db/add fid ref-attr ref-id]
+        ;entity [:db/add fid ref-attr ref-id]
+        entity (add-entity-attr fid ref-attr ref-id)
         trans (submit-transact [entity])
        ]
     (prn "add to family " fid " " ref-attr " " ref-id " ")

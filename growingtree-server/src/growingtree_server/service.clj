@@ -206,7 +206,7 @@
         result {:status 200 :data things}
         jsonresp (bootstrap/json-response result)]
     (newline)  
-    (println (str "service got peer get-things " type thing-type path things))
+    (println (str "service got peer get-things " type thing-type path (:db/id (first things)) things))
     jsonresp))
 
 

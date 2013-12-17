@@ -105,9 +105,10 @@
 (defn get-entities-by-rule
   "get entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
+  (prn "get entities by rule " qpath rule-set)
   (if (= (first qpath) (last qpath))
     (let [eid (second qpath)
-          e (d/entity db eid)]
+          e (get-entity eid)]
       [e])
     (let [thing-id (second qpath)
           rule-name (first qpath)

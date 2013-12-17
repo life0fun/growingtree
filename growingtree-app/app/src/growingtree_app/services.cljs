@@ -106,8 +106,9 @@
             result (js->clj bodyjson :keywordize-keys true)
             status (:status result)
             things-vec (:data result)  ; alway ret a list of things
+            dbid (:db/id (first things-vec))
             ]
-        (.log js/console (str "xhr response tuples " thing-type msg-topic msg-type things-vec))
+        (.log js/console (str "xhr response tuples " dbid " type " thing-type msg-topic msg-type things-vec))
         ; dispatch to different transformer in behavior directly.
         (p/put-message input-queue
                        {msgs/topic msg-topic  ; store vec in [:all :parent]

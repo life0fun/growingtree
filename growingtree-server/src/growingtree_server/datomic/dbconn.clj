@@ -229,6 +229,16 @@
     alltxs))
 
 
+; add entity attribute value. 
+; build a transaction using :db/add implicitly with the map structure or list structure
+; an existing entity id or entity identifier, and the attributes and values being added.
+; if adding entity reference, the attr value must be entity id, or iden keyword.
+; if attr is ref type, attr-val must be entity id, or 
+; return a vector of operation for transaction. 
+(defn add-entity-attr
+  [entity-id attr-key attr-val]
+  [:db/add entity-id attr-key attr-val])
+
 ;;==========================================================================
 ; datomic query 
 ;;==========================================================================
