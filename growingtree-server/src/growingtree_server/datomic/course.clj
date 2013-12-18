@@ -105,10 +105,11 @@
 (def lecture-schema (assoc (list-attr :lecture) :db/id :db.type/id))
 
 
+; course does not have lecture, use in-bound query from lecture to course.
 (def get-course-by
   '[[(:all ?e ?val) [?e :course/title]]   ; select all 
     [(:author ?e ?val) [?e :course/author ?val]]
-    [(:lecture ?e ?val) [?e :course/lecture ?val]]
+    [(:lecture ?e ?val) [?e :lecture/_course ?val]]
     [(:type ?e ?val) [?e :course/type ?val]]
     [(:content ?e ?val) [?e :course/content ?val]]
     [(:title ?e ?val) [?e :course/title ?val]]
