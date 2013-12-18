@@ -84,15 +84,15 @@
 ;; XXX we specify tranform msg topic and type here so response data got dispatch 
 ;; to the right locaton in data model directly.
 ;;==================================================================================
-; effect processing. create new thing form submitted
 ; inputs contains {:mesage {topic [] :details} :new-model {} :old-model {}}
-;; rich post submit thing [:submit :assignn] action :assign details {:action :create-assignment, :hwid 17592186045485, :toid "a", :hint "b"}
-;; rich post submit thing [:submit :newthing] action :newthing details {:action :newthing, :type "course", :title "", :content "", :user "rich"}
+; rich-dad post submit thing [:submit :assignn] action :assign details {:action :create-assignment, :hwid 17592186045485, :toid "a", :hint "b"}
+; rich-dad post submit thing [:submit :newthing] action :newthing details {:action :newthing, :type "course", :title "", :content "", :user "rich"}
+; we assoc current login user as author to create details.
 (defn post-create-thing
   "create new thing form submitted, [:create :*] form transformed"
   [inputs]
   (let [
-        msg (:message inputs)    ; the active msg when create new thing form submitted
+        msg (:message inputs)  ; the active msg triggers create new thing form submission
         thing-type (last (msgs/topic msg))  ;[:create :course]
         ; assoc current user to post details
         user (get-login-name inputs)

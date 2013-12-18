@@ -230,7 +230,7 @@
   (course/find-course qpath))
 
 
-; create homework to be assigned
+; create question to be assigned
 (defn create-course
   "create a course "
   ([]
@@ -239,20 +239,6 @@
 
   ([details]
     (course/create-course details)))
-
-
-; create course and lecture together
-(defn create-course-and-lecture
-  "create a course, and a batch of lecture in one transaction"
-  []
-  (course/create-course-and-lecture))
-
-
-; the enum must be fully qualified, :homework.subject/math
-(defn create-course-coding
-  "create a simple math course and lectures"
-  []
-  (course/create-course-coding))
 
 
 ; --------------------------------------------------------------------
@@ -269,45 +255,31 @@
   (course/create-lecture details))
 
 
-; linking a lecture to a course, ref attr's val is numeric id value.
-(defn add-course-lecture
-  "adding a lecture to a course by setting ref attr with id numeric value"
-  [cid lid]
-  (course/add-course-lecture cid lid))
-
-
-; retract the lecture from a course
-(defn rm-course-lecture
-  "remove a lecture from a course by setting ref attr with id numeric value"
-  [cid lid]
-  (course/rm-course-lecture cid lid))
-
-
 ;;==============================================================
-;; homework related, should use multi-method to dispatch
+;; question related, should use multi-method to dispatch
 ;;==============================================================
 
-(defn find-homework
-  "find homework by subject"
+(defn find-question
+  "find question by subject"
   [qpath]
-  (assign/find-homework qpath))
+  (assign/find-question qpath))
 
 
-; create homework to be assigned
-(defn create-homework
-  "create a homework"
+; create question to be assigned
+(defn create-question
+  "create a question"
   ([]
-    (create-homework {:title "aa", :author "bb", :type "Math", :content "cc", 
+    (create-question {:title "aa", :author "bb", :type "Math", :content "cc", 
                       :url "dd", :difficulty "4", :comments "ff", :user "rich"}))
 
   ([details]
-    (assign/create-homework details)))
+    (assign/create-question details)))
 
 
-(defn inc-homework-popularity
-  "increase homework popularity"
+(defn inc-question-popularity
+  "increase question popularity"
   []
-  (assign/inc-homework-popularity))
+  (assign/inc-question-popularity))
 
 
 ;;==============================================================
@@ -321,9 +293,9 @@
   (assign/find-assignment qpath))
 
 
-; create an assignment for any homework that 
+; create an assignment for any question that 
 (defn create-assignment
-  "create an assignment from a homework to a child"
+  "create an assignment from a question to a child"
   ([]
     (assign/create-assignment))
 

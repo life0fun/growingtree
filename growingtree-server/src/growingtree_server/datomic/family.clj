@@ -217,9 +217,9 @@
   "create parent from the submitted new thing form details"
   [details]
   (let [entity (-> details
-                (select-keys (keys person-schema))
-                (assoc :person/type :parent)
-                (assoc :db/id (d/tempid :db.part/user)))
+                   (select-keys (keys person-schema))
+                   (assoc :person/type :parent)
+                   (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)

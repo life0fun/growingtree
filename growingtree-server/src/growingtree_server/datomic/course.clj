@@ -103,6 +103,7 @@
 ; schema attr-name value type map for parent schema and child schema
 (def course-schema (assoc (list-attr :course) :db/id :db.type/id))
 (def lecture-schema (assoc (list-attr :lecture) :db/id :db.type/id))
+(def enrollment-schema (assoc (list-attr :enrollment) :db/id :db.type/id))
 
 
 ; course does not have lecture, use in-bound query from lecture to course.
@@ -123,84 +124,40 @@
     [(:title ?e ?val) [?e :lecture/title ?val]]
     [(:author ?e ?val) [?e :lecture/author ?val]]
     [(:type ?e ?val) [?e :lecture/type ?val]]
-    [(:date ?e ?val) [?e :lecture/date ?val]]
+    [(:start ?e ?val) [?e :lecture/start ?val]]
     [(:content ?e ?val) [?e :lecture/content ?val]]
   ])
 
 
 ; find a course
 (defn find-course
-  "find course by query path "
+  "find course by query path"
   [qpath]
   (let [entities (util/get-entities-by-rule qpath get-course-by)
-        projkeys (keys (dissoc course-schema :course/lecture :course/author)) ; no circular ref
+        projkeys (keys course-schema)  ; must select-keys from datum entity attributes
         courses (map #(select-keys % projkeys) entities)
-        ]
+       ]
     (doseq [e courses]
       (prn "course --> " e))
     courses))
 
 
+; for now, all courses are created and lectured by person 
 (defn create-course
   "create a course with details "
   [details]
-  (let [author (dbconn/find-by :parent/name (:author details))  ; should be login name
-        author-id (:db/id author)
+  (let [author-id (:db/id (find-by :person/title (:author details)))
         entity (-> details
-                (select-keys (keys (dissoc course-schema :course/lectures)))
-                (assoc :course/author author-id)
-                (assoc :db/id (d/tempid :db.part/user)))
+                   (select-keys (keys course-schema))
+                   (assoc :course/author author-id)  ; replace input :course/author
+                   (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "create course entity " author author-id entity)
+    (prn "create course entity " author-id entity)
     (prn "submit course trans " trans)
     [entity]))
 
-
-; ----------------------------------------------------
-; deprecated
-(defn lecture-attr
-  "compose a map of attrs for a course lecture"
-  [course seqno date topic content videouri]
-  (let [m {:db/id (d/tempid :db.part/user)
-          :lecture/course course
-          :lecture/seqno seqno
-          :lecture/date date
-          :lecture/topic topic
-          :lecture/content content
-          :lecture/videouri videouri}]
-    (prn m)
-    m))
-
-; create course and lecture together
-(defn create-course-and-lecture
-  "create a course, and a batch of lecture in one transaction"
-  []
-  (let [cm (create-course)
-        cid (:db/id cm)
-        lecm (create-lecture cid)
-        lid (:db/id lecm)
-        clm (assoc cm :course/lectures [lid])]  ; for :many field, add with [lid] or lid, db will handle it.
-    (prn clm)
-    (prn lecm)
-    (submit-transact [clm lecm])))
-
-
-; the enum must be fully qualified, :homework.subject/math
-(defn create-course-coding
-  "create a simple math course and lectures"
-  []
-  (let [subject :course.subject/coding
-        title "learning datomic"
-        credit 3
-        overview (str "datomic is a database as value based on clojure, awesome !")
-        materials (str "http://docs.datomic.com/tutorial.html")
-        contenturi (URI. "http://docs.datomic.com/")
-        ;coursem (course-attr subject title overview materials contenturi)
-        ]
-    ;(d/transact conn [coursem])
-    subject))
 
 
 ;;===============================================================
@@ -211,7 +168,7 @@
   "find lecture by query path "
   [qpath]
   (let [entities (util/get-entities-by-rule qpath get-lecture-by)
-        projkeys (keys (dissoc lecture-schema :lecture/lecture)) ; no circular ref
+        projkeys (keys lecture-schema)
         lectures (map #(select-keys % projkeys) entities)
         ]
     (doseq [e lectures]
@@ -219,37 +176,26 @@
     lectures))
 
 
-; create an online course
+; for now, all courses are created and lectured by person 
 (defn create-lecture
-  "create a course lecture for certain course id"
-  [cid]
-  (let [lectseq (str "1b")
-        lecdate (.toDate (clj-time/date-time 2013 11 25 10 20))
-        topic (str "The day of datomic")
-        content (str "The Day of Datomic project is a collection of samples and tutorials for learning Datomic")
-        videouri (URI. "https://github.com/Datomic/day-of-datomic")
-        lecturem (lecture-attr cid lectseq lecdate topic content videouri)]
-    ;(d/transact conn [lecturem])
-    lecturem)) ; tx-data is a list of write datoms
+  "create a lecture with details "
+  [details]
+  (let [author-id (:db/id (find-by :person/title (:author details)))
+        course-id (:db/id (find-by :course/title (:lecture/course details)))
+        entity (-> details
+                   (select-keys (keys lecture-schema))
+                   (assoc :lecture/author author-id)  ; replace input :lecture/author
+                   (assoc :lecture/course course-id)  ; replace input :lecture/author
+                   (assoc :db/id (d/tempid :db.part/user)))
+        ;trans (submit-transact [entity])  ; transaction is a list of entity
+      ]
+    (newline)
+    (prn "create lecture entity " author-id course-id entity)
+    ;(prn "submit lecture trans " trans)
+    [entity]))
 
 
-; linking a lecture to a course, ref attr's val is numeric id value.
-(defn add-course-lecture
-  "adding a lecture to a course by setting ref attr with id numeric value"
-  [cid lid]
-  (let [ccode [:db/add cid :course/lectures lid]
-        lcode [:db/add lid :lecture/course cid]]
-    (submit-transact [ccode lcode])
-    (show-entity-by-id cid)
-    (show-entity-by-id lid)))
+;;===============================================================
+; enrollment
+;;===============================================================
 
-
-; retract the lecture from a course
-(defn rm-course-lecture
-  "remove a lecture from a course by setting ref attr with id numeric value"
-  [cid lid]
-  (let [ccode [:db/retract cid :course/lectures lid]
-        lcode [:db/retract lid :lecture/curse cid]]
-    (submit-transact [ccode])
-    (show-entity-by-id cid)
-    (show-entity-by-id lid)))

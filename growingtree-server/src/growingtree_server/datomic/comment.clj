@@ -116,10 +116,10 @@
               (comment-attr subid authorid text)))]
 
     (let [assgns (d/q '[:find ?e ?to ?content
-                        :where [?e :assignment/homework]
+                        :where [?e :assignment/question]
                                [?e :assignment/to ?to]
-                               [?e :assignment/homework ?hwid]
-                               [?hwid :homework/content ?content]] 
+                               [?e :assignment/question ?hwid]
+                               [?hwid :question/content ?content]] 
                     db)
         comments (map commdata assgns)
         ]

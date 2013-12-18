@@ -43,6 +43,7 @@
    :child (dtfn (tnodes "newthing.html" "child") #{:id})
    :family (dtfn (tnodes "newthing.html" "family") #{:id})
    :course (dtfn (tnodes "newthing.html" "course") #{:id})
+   :lecture (dtfn (tnodes "newthing.html" "lecture") #{:id})
    :question (dtfn (tnodes "newthing.html" "question") #{:id})
    :group (dtfn (tnodes "newthing.html" "group") #{:id})
   })

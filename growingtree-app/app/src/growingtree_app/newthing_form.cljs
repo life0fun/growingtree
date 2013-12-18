@@ -60,6 +60,19 @@
              :course/email "course-email"
             }
 
+    :lecture {:lecture/title "lecture-title"
+             :lecture/author "lecture-author"
+             :lecture/course "lecture-course"
+             :lecture/type "lecture-type"
+             :lecture/content "lecture-content" 
+             :lecture/start "lecture-start"
+             :lecture/end "lecture-end"
+             :lecture/seqno "lecture-seqno"
+             :lecture/url "lecture-url"
+             :lecture/email "lecture-email"
+             :lecture/wiki "lecture-wiki"
+            }
+
     :question {:question/title "question-title" 
                :question/author "question-author"
                :question/type "question-type"
@@ -97,7 +110,7 @@
                       (util/update-enum nmsp "status" false)
                       (util/update-enum nmsp "gender" false)
                       ; transform thing type enum
-                      (util/update-enum nmsp "type" true)
+                      (util/update-enum nmsp "type" false)
                       )
          ]
       (.log js/console (str thing-type " new form submitted details " details))

@@ -25,8 +25,8 @@
 ;     "find-by-name" (dda/find-by-name (second args))
 ;     "timeline" (dda/timeline (read-string (second args)) (last args))
 ;     "person-timeline" (dda/person-timeline (read-string (second args)))
-;     "create-homework" (dda/create-homework)
-;     "find-homework" (dda/find-homework)
+;     "create-question" (dda/create-question)
+;     "find-question" (dda/find-question)
 ;     "create-assignment" (dda/create-assignment)
 ;     "find-assignment" (dda/find-assignment)
 ;     "fake-comment" (dda/fake-comment)
@@ -118,11 +118,11 @@
 
 
 (defmethod get-things
-  :homework
+  :question
   [type qpath]
-  (let [homeworks (dda/find-homework qpath)]
-    (prn "peer get all homeworks " qpath homeworks)
-    homeworks))
+  (let [questions (dda/find-question qpath)]
+    (prn "peer get all questions " qpath questions)
+    questions))
 
 
 (defmethod get-things
@@ -172,17 +172,6 @@
     (prn "peer add family " type " details " details " result " result)
     result))
 
-; watch non ref-ed attr entity. :transact/bad-data Unable to resolve entity: rich
-(defmethod add-thing
-  :assignment
-  [type details]
-  (let [author (:author details)
-        result (dda/create-assignment details)
-        ]  
-    (newline)
-    (prn "peer add thing " type " details " details " result " result)
-    result))
-
 
 ;; type:newthing {:action :newthing, :type "course", :title "", :content "", :author "rich"} 
 (defmethod add-thing
@@ -194,15 +183,39 @@
     (prn "peer add thing " type " author " author " details " details " result " result)
     result))
 
+
 ;; type:newthing {:action :newthing, :type "course", :title "", :content "", :author "rich"} 
 (defmethod add-thing
-  :homework
+  :lecture
   [type details]
   (let [author (:author details) ; thing-type value is json string.
-        result (dda/create-homework details)
+        result (dda/create-lecture details)
+       ]
+    (prn "peer add thing " type " author " author " details " details " result " result)
+    result))
+
+
+;; type:newthing {:action :newthing, :type "course", :title "", :content "", :author "rich"} 
+(defmethod add-thing
+  :question
+  [type details]
+  (let [author (:author details) ; thing-type value is json string.
+        result (dda/create-question details)
        ]
     (prn "peer add thing " type " details " details " result ")
     details))
+
+; watch non ref-ed attr entity. :transact/bad-data Unable to resolve entity: rich
+(defmethod add-thing
+  :assignment
+  [type details]
+  (let [author (:author details)
+        result (dda/create-assignment details)
+        ]  
+    (newline)
+    (prn "peer add thing " type " details " details " result " result)
+    result))
+
 
 
 

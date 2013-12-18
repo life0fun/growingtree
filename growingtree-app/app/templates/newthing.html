@@ -319,7 +319,114 @@
     </form>
   </div>
 
-  <!-- homework -->
+  <div template="lecture" field="id:id">
+    <form class="form-horizontal lecture-form">
+      <fieldset>
+
+        <legend>Create lecture</legend>
+
+        <div class="control-group">
+          <label class="control-label" for="lecture-title">Title</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="lecture-title">
+            <p class="help-block">The title of the lecture</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="lecture-author">Author</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="lecture-author">
+            <p class="help-block">The author of the lecture</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="lecture-course">Course</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="lecture-course">
+            <p class="help-block">The course of the lecture</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="lecture-type">Type</label>
+          <div class="controls">
+            <select id="lecture-type">
+              <option value="math">Math</option>
+              <option value="science">Science</option>
+              <option value="reading">Reading/Writing</option>
+              <option value="art">Art</option>
+              <option value="sports">Sports</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="lecture-content">Content</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="lecture-content">
+            <p class="help-block">The brief content of the lecture</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="lecture-start">start time</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="lecture-start">
+            <p class="help-block">The start time of the lecture</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="lecture-end">end time</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="lecture-end">
+            <p class="help-block">The end time of the lecture</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="lecture-seqno">lecture number</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="lecture-seqno">
+            <p class="help-block">The seqence number of the lecture</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="lecture-url">Url</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="lecture-url">
+            <p class="help-block">The url of the lecture</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="lecture-email">lecture Group Email</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="lecture-email">
+            <p class="help-block">The group email of the lecture</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="lecture-wiki">lecture Wiki</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" id="lecture-wiki">
+            <p class="help-block">The wiki page of the lecture</p>
+          </div>
+        </div>
+       
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button id="cancel" type="button" class="btn">Cancel</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
+  <!-- question -->
   <div template="question" field="id:id">
     <form class="form-horizontal question-form">
       <fieldset>

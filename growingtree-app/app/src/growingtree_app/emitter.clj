@@ -251,7 +251,7 @@
 ; multimethod for enable thing nav action bar links
 ; render fills the msg with type set-nav-path and topic to [:nav :path], and path vector
 ;;==================================================================================
-(def thing-nav-links
+(def thing-nav-message
   {
     :parent 
       {:child {:path [:parent :child]}
@@ -285,6 +285,7 @@
 ;;==================================================================================
 ; multimethod for enable thing nav action bar links
 ; render fills the msg with type set-nav-path and topic to [:nav :path], and path vector
+; transkeys are map keys inside each thing. We also define msgs for each transkey in thing nav meta.
 ;;==================================================================================
 (defmulti thing-navpath-transforms
   (fn [thing-type thing-id]
@@ -294,13 +295,15 @@
 (defmethod thing-navpath-transforms
   :default
   [thing-type thing-id]
-  (let [transkeys (keys (get thing-nav-links thing-type))
+  (let [nav-msg (get thing-nav-message thing-type)
+        transkeys (keys nav-msg)
         navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)]
     (mapcat
       ; [:nav :parent 17592186045499 :child] :child
       (fn [[nav type id transkey :as filtered-path]]
         (let [ ; header-path next link ref back to itself [:parent 17592186045499 :parent]
-              header-path (concat (butlast (rest filtered-path)) [thing-type])] 
+              header-path (concat (butlast (rest filtered-path)) [thing-type])
+              msg (:messages nav-msg)] 
           (.log js/console (str "thing nav transform emitter header " header-path " filtered " (rest filtered-path)))
           (vector 
             [:transform-disable filtered-path]  ; fucking need to clean up your shit before re-enable.
@@ -315,31 +318,31 @@
                                 {msgs/topic [:nav :path]
                                  msgs/type :set-nav-path 
                                  :path (vec (rest filtered-path))} 
-                                ]] )))
+                               ]] )))
       navpaths)))
 
 
 (defmethod thing-navpath-transforms
   :course
   [thing-type thing-id]
-  (let [transkeys [:assign-toggle :assign-form]
+  (let [transkeys [:lecture :add-lecture :assign-toggle :assign-form]
         navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
        ]
     (mapcat 
       ; [:nav :courses 17592186045499 :assign-toggle]
-      (fn [[nav type id transkey :as navpath]]
-        (let [self-path (concat (butlast (rest navpath)) [thing-type])] ; [:courses 17592186045499 :assign-form]
-          (.log js/console (str "thing navpath transform " self-path (rest navpath)))
+      (fn [[nav type id transkey :as filtered-path]]
+        (let [header-path (concat (butlast (rest filtered-path)) [thing-type])] ; [:courses 17592186045499 :assign-form]
+          (.log js/console (str "thing nav transform emitter header " header-path " filtered " (rest filtered-path)))
           (vector 
-            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
-            [:node-destroy navpath]
-            [:transform-enable navpath    ; [:nav :parents 17592186045499 :children]
+            [:transform-disable filtered-path]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy filtered-path]
+            [:transform-enable filtered-path    ; [:nav :parents 17592186045499 :children]
                                transkey   ; transkey
                                [ ; first msg, request current thing as parent after nav
                                 {msgs/topic [:submit transkey] 
                                  msgs/type :submit
                                  (msgs/param :details) {}} ; if msgs/fill, need to wrap into param
-                                ]] )))
+                               ]] )))
   
       navpaths)))
 

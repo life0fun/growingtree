@@ -99,13 +99,14 @@
 
 ;; this module contains database operations for task and assignment.
 
-(declare inc-homework-popularity)
-(declare create-homework-math)
+(declare inc-question-popularity)
+(declare create-question-math)
 
 
-; schema attr-name value type map for homework schema and assignment schema
-(def homework-schema (assoc (list-attr :homework) :db/id :db.type/id))
+; schema attr-name value type map for question schema and assignment schema
+(def question-schema (assoc (list-attr :question) :db/id :db.type/id))
 (def assignment-schema (assoc (list-attr :assignment) :db/id :db.type/id))
+(def answer-schema (assoc (list-attr :answer) :db/id :db.type/id))
 
 
 ;---------------------------------------------------------------------------------
@@ -113,20 +114,20 @@
 ; for all rule lists with the same name, results are OR logic.
 ;---------------------------------------------------------------------------------
 ; rule set for get child by. rule name is the parent thing type.
-(def get-homework-by
-  '[[(:all ?e ?val) [?e :homework/content]]   ; select all homework that has author
-    [(:title ?e ?val) [?e :homework/title ?val]]
-    [(:author ?e ?val) [?e :homework/author ?val]]
-    [(:lecture ?e ?val) [?e :homework/lecture ?val]]
-    [(:type ?e ?val) [?e :homework/type ?val]]
-    [(:content ?e ?val) [?e :homework/content ?val]]
+(def get-question-by
+  '[[(:all ?e ?val) [?e :question/content]]   ; select all question that has author
+    [(:title ?e ?val) [?e :question/title ?val]]
+    [(:author ?e ?val) [?e :question/author ?val]]
+    [(:lecture ?e ?val) [?e :question/lecture ?val]]
+    [(:type ?e ?val) [?e :question/type ?val]]
+    [(:content ?e ?val) [?e :question/content ?val]]
   ])
 
 (def get-assignment-by
   '[[(:all ?e ?val) [?e :assignment/author]]   ; select all assignment that has author
     [(:title ?e ?val) [?e :assignment/title ?val]]
     [(:author ?e ?val) [?e :assignment/author ?val]]
-    [(:homework ?e ?val) [?e :assignment/homework ?val]]
+    [(:question ?e ?val) [?e :assignment/question ?val]]
     [(:assignee ?e ?val) [?e :assignment/assignee ?val]]
     [(:status ?e ?val) [?e :assignment/status ?val]]
     [(:due ?e ?val) [?e :assignment/due ?val]]
@@ -154,50 +155,50 @@
 
 
 ;;==================================================================================
-; create homework
+; create question
 ;;==================================================================================
 ; this map between course map to entity attr
 
 ; find all assignment
-(defn find-homework
-  "find all homework by query path "
+(defn find-question
+  "find all question by query path "
   [qpath]
-  (let [entities (util/get-entities-by-rule qpath get-homework-by) ; a list of entity tuples
-        projkeys (keys (dissoc homework-schema :homework/lecture :homework/author))
-        homeworks (map #(select-keys % projkeys) entities)
+  (let [entities (util/get-entities-by-rule qpath get-question-by) ; a list of entity tuples
+        projkeys (keys (dissoc question-schema :question/lecture :question/author))
+        question (map #(select-keys % projkeys) entities)
         ]
-    (prn projkeys homeworks)
-    (doseq [e homeworks]
-      (prn "homework --> " e))
-    homeworks
+    (prn projkeys question)
+    (doseq [e question]
+      (prn "question --> " e))
+    question
     ))
 
 
-; the enum must be fully qualified, :homework.subject/math
-(defn create-homework
-  "create homework with details"
+; the enum must be fully qualified, :question.subject/math
+(defn create-question
+  "create question with details"
   [details]
   (let [author (dbconn/find-by :parent/name (:author details))  ; should be login name
         author-id (:db/id author)
         entity (-> details
-                (select-keys (keys homework-schema))
-                (assoc :homework/author author-id)
+                (select-keys (keys question-schema))
+                (assoc :question/author author-id)
                 (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "create homework entity " author-id " entity " entity)
-    (prn "create homework trans " trans)
+    (prn "create question entity " author-id " entity " entity)
+    (prn "create question trans " trans)
     entity))
 
  
-(defn inc-homework-popularity
-  "increase homework popularity"
+(defn inc-question-popularity
+  "increase question popularity"
   []
-  (let [hwids (find-homework)
-        incstmt (map #(incby-stmt % :homework/popularity 1) hwids)]
-    (prn "inc-homework-popularity " incstmt)
+  (let [hwids (find-question)
+        incstmt (map #(incby-stmt % :question/popularity 1) hwids)]
+    (prn "inc-question-popularity " incstmt)
     (submit-transact (vec incstmt))))
 
 
@@ -259,8 +260,8 @@
   "submit an answer to an assignment"
   [assid authorid]
   (let [asse (d/entity db assid)   ; reify ass entity
-        hwe (->> asse :assignment/homework :db/id (d/entity db))
-        answ (str (:homework/content hwe) " == " (rand-int 100))
+        hwe (->> asse :assignment/question :db/id (d/entity db))
+        answ (str (:question/content hwe) " == " (rand-int 100))
         nowd (.toDate (clj-time/now))
         answmap (answer-attr assid authorid answ nowd)]
     (prn (d/touch asse))

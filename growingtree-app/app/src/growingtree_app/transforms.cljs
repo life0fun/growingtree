@@ -122,7 +122,7 @@
 (def enable-sidebar-nav
   "wire sidebar click event to all things transform fn"
   (fn [r [_ p transform-name messages] input-queue]
-    (let [sidebars [:parent :child :course :lecture :homework
+    (let [sidebars [:parent :child :course :lecture :question
                     :assignment :topquestion :topanswer :ask :answer
                     :contribution :nowledge :activity :location]]
       (doseq [s sidebars]
@@ -258,9 +258,10 @@
  
 
 ;; ---------------------------------------------------------------------------------
-;; create new thing btn clicked event handler
+; create new thing btn clicked event handler, listen submit event and fill details
+; create-thing type is from nav path, keyword from create-modal. 
+; messages/topic [:create :course], effect triggered by [:create :*]
 ;; ---------------------------------------------------------------------------------
-; wire submit button click on new thing to fill newthing message
 (defmethod enable-submit-action 
   :create-thing
   [r [target path transkey messages] input-queue]
@@ -269,7 +270,7 @@
         btn-cancel (-> form 
                        (dx/xpath "//button[@id='cancel']"))
         submit-fn (newthing-form/submit-fn type form messages)]
-    (.log js/console (str "enable submit on create thing page " path transkey messages form))
+    (.log js/console (str "enable submit action :create-thing page " path transkey messages))
     (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))
     (events/send-on :submit form input-queue submit-fn)
     ))

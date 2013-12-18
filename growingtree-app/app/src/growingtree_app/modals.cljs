@@ -94,15 +94,15 @@
 (defmethod auto/modal-field [:create-modal "type"]
   [_ field-name]
   {:field-name (str "Enter " field-name)
-   :placeholder (str field-name " can be parent, child, family, course, homework, group")
+   :placeholder (str field-name " can be parent, child, family, course, lecture, question, group")
    :input-class "input-xlarge"
    :default nil
    :validation-fn 
     (fn [x] (not 
               (or (nil? x) 
                   (= x "") 
-                  (not (contains? #{"parent" "child" "family" "course" "homework" "group"} x)))))
-   :inline-help "You can create parent, child, course, homework, group"
+                  (not (contains? #{"parent" "child" "family" "course" "lecture" "question" "group"} x)))))
+   :inline-help "You can create parent, child, course, lecture, question, group"
    :inline-help-error (str field-name " is required")
   })
 
