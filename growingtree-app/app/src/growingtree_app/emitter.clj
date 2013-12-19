@@ -144,20 +144,33 @@
   (let [oldpath (vec (last (get-in inputs [:old-model :nav :path])))
         newpath (vec (last (get-in inputs [:new-model :nav :path])))
         datapath (concat [:data] oldpath)
-        old-things-vec (get-in inputs (concat [:old-model] datapath))]
-    (.log js/console (str "nav path emitter from " oldpath " to " newpath " delete old data path things-vec " datapath))
-    (vec 
-      (concat 
-        ;((app/default-emitter nil) inputs)
-        (mapcat (fn [entity]
-                  (let [renderpath (navpath->renderpath oldpath (:db/id entity))]
-                    (.log js/console (str "nav path emitter del renderpath " renderpath))
-                    [[:node-destroy renderpath ]]))
-                old-things-vec)
-        [[:node-destroy datapath]]
-        [[:node-destroy [:main]]]  ; this cause dom/destroy-children! main section.
-        [[:node-destroy [:filtered]]]  ; this cause dom/destroy-children! main section.
-      ))))
+        old-things-vec (get-in inputs (concat [:old-model] datapath))
+        destroy-old-thing 
+          (if old-things-vec
+            (mapcat (fn [entity]
+                    (let [renderpath (navpath->renderpath oldpath (:db/id entity))]
+                      (.log js/console (str "nav path emitter del renderpath " renderpath))
+                      [[:node-destroy renderpath]]))
+                  old-things-vec)
+            [[:node-destroy [:main]]])
+        ]
+    (.log js/console (str "nav path emitter from " oldpath " to " newpath 
+                          " delete old data " datapath))
+    ; (vec 
+    ;   (concat
+    ;     ;((app/default-emitter nil) inputs)
+    ;     ; (mapcat (fn [entity]
+    ;     ;           (let [renderpath (navpath->renderpath oldpath (:db/id entity))]
+    ;     ;             (.log js/console (str "nav path emitter del renderpath " renderpath))
+    ;     ;             [[:node-destroy renderpath]]))
+    ;     ;         old-things-vec)
+    ;     ;[[:node-destroy datapath]] ; (:data :course 17592186045425 :lecture) 
+    ;     [[:node-destroy [:main]]]  ; this cause dom/destroy-children! main section.
+    ;     [[:node-destroy [:filtered]]]  ; this cause dom/destroy-children! main section.
+    ;   ))
+
+    [[:node-destroy [:main]]]
+    ))
 
 
 ; user click create btn, input thing type to create, transform into :nav create-modal
@@ -224,7 +237,7 @@
                 thing-type (last input-path)
                 ; [:main :parent 12 :child 34]
                 render-path (navpath->renderpath navpath id)
-                actiontransforms (thing-navpath-transforms thing-type id)
+                actiontransforms (thing-navpath-transforms thing-type entity-map)
                ]
             ; render-path [:header :child 17592186045497]
             (.log js/console (str "thing data delta render-path " render-path entity-map))
@@ -298,13 +311,13 @@
 ; [:nav :parent 17592186045499 :child] :child
 ; ------------------------------------------------------------------------
 (defmulti thing-nav-messages
-  (fn [[nav type id transkey :as navpath]]
+  (fn [[nav type id transkey :as navpath] entity-map]
     transkey))
 
 
 (defmethod thing-nav-messages
   :default
-  [[nav type id transkey :as nav-path]]
+  [[nav type id transkey :as nav-path] entity-map]
   (let [header-path (concat (butlast (rest nav-path)) [type])
         filter-path (rest nav-path)
         messages [{
@@ -323,7 +336,7 @@
 
 (defmethod thing-nav-messages
   :assign-toggle
-  [[nav type id transkey :as nav-path]]
+  [[nav type id transkey :as nav-path] entity-map]
   (let [messages [{
                     msgs/topic [:submit transkey] 
                     msgs/type :submit
@@ -335,11 +348,11 @@
 
 (defmethod thing-nav-messages
   :assign-form
-  [[nav type id transkey :as nav-path]]
+  [[nav type id transkey :as nav-path] entity-map]
   (let [messages [{
                     msgs/topic [:submit transkey] 
                     msgs/type :submit
-                    (msgs/param :details) {}
+                    (msgs/param :details) entity-map
                   }]
         ]
     ;(.log js/console (str "thing-nav-messages " msgs))
@@ -347,22 +360,15 @@
 
 (defmethod thing-nav-messages
   :add-lecture
-  [[nav type id transkey :as nav-path]]
+  [[nav type id transkey :as nav-path] entity-map]
   (let [messages [
-                  ; {
-                  ;  msgs/topic [:nav :path] 
-                  ;  msgs/type :set-nav-path
-                  ;  :path (vec header-path)} 
-                  ; {
-                  ;  msgs/topic [:nav :path] 
-                  ;  msgs/type :set-nav-path
-                  ;  :path (vec filter-path)
-                  ; }
                   {
                     msgs/topic [:submit transkey] 
                     msgs/type :submit
+                    (msgs/param :thing-map) entity-map
                     (msgs/param :details) {}
-                  }]
+                  }
+                 ]
         ]
     ;(.log js/console (str "thing-nav-messages " msgs))
     messages))
@@ -373,21 +379,22 @@
 ; transkeys are map keys inside each thing. We also define msgs for each transkey in thing nav meta.
 ;;==================================================================================
 (defmulti thing-navpath-transforms
-  (fn [thing-type thing-id]
+  (fn [thing-type entity-map]
     thing-type))
 
 
 ; always emits transforms to render [:nav :* :** ] :transkey, triggers enable-thing-nav
 (defmethod thing-navpath-transforms
   :default
-  [thing-type thing-id]
-  (let [transkeys (keys (get thing-nav-links thing-type))
+  [thing-type entity-map]
+  (let [thing-id (:db/id entity-map)
+        transkeys (keys (get thing-nav-links thing-type))
         navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
        ]
     (mapcat
       ; [:nav :parent 17592186045499 :child] :child
       (fn [[nav type id transkey :as filtered-path]]
-        (let [messages (thing-nav-messages filtered-path)] 
+        (let [messages (thing-nav-messages filtered-path entity-map)] 
           (.log js/console (str "thing nav transform emitter " type " " transkey " " messages))
           (vector 
             [:transform-disable filtered-path]  ; fucking need to clean up your shit before re-enable.

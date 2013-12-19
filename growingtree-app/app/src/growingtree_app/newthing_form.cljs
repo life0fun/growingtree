@@ -95,12 +95,11 @@
   })
 
 
-
 ;;==================================================================================
 ;; submt fn for new thing form save btn, called from submit action transoform event
 ;;==================================================================================
 (defn submit-fn
-  [thing-type form messages]
+  [thing-type form override-map messages]
   (fn [e]
     (let [type-attr (get thing-type-attr thing-type)
           input-fields (keys type-attr)
@@ -114,7 +113,7 @@
                       (util/update-enum nmsp "gender" false)
                       ; transform thing type enum
                       (util/update-enum nmsp "type" false)
-                      )
+                      (merge override-map))
          ]
       (.log js/console (str thing-type " new form submitted details " details))
       (dom/destroy! form)
@@ -122,36 +121,37 @@
 
 
 ;;================================================================================
-; display add new thing template inside filtered thing
+; display add thing template inside filtered thing
 ; path is [:nav :course 1 :add-lecture]
 ;;================================================================================
 (defn add-thing-form
   "instantiate new thing form for thing-type, return div code to be appended to parent"
-  [new-thing-type r path]
+  [add-thing-type r path]
   (let [thing-type (last path)
         id (render/new-id! r path)   ; new id for []
         
-        templ (new-thing-type templates)
+        templ (add-thing-type templates)
         html (templates/add-template r path templ)
         divcode (html {:id id})
        ]
-    (.log js/console (str "add thing form at " path " type " new-thing-type))
+    (.log js/console (str "add thing form at " path " type " add-thing-type))
     divcode))
 
 
 ;
-; handle new thing form from nav filtered thing div.
-(defn enable-submit-new-thing-form 
-  [thing-type path input-queue]
-  (let [form (dom/by-class (str (name thing-type) "-form"))
-        messages {msgs/topic [:submit thing-type]
+; handle add thing form from nav filtered thing div.
+(defn enable-submit-add-thing-form 
+  [add-thing-type path override-map input-queue]
+  (let [form (dom/by-class (str (name add-thing-type) "-form"))
+        messages [{msgs/topic [:submit add-thing-type]
                   msgs/type :submit
-                  (msgs/param :details) {}
-                 }
-        btn-cancel (-> form 
+                  (msgs/param :details) {}}]
+        btn-cancel (-> form
                        (dx/xpath "//button[@id='cancel']"))
-        submit-fn (submit-fn thing-type form messages)]
-    (.log js/console (str "enable submit form " thing-type " path " path))
+        submit-fn (submit-fn add-thing-type form override-map messages)]
+    (.log js/console (str "enable submit form " add-thing-type " path " path))
     (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))
     (events/send-on :submit form input-queue submit-fn)
     ))
+
+

@@ -93,23 +93,26 @@
         (dom/add-class! form "hide")))))
 
 
-; toggle to display new thing form
+; toggle to display new thing form, and enable submit button.
 (defn toggle-add-thing-form-fn
   "return an event handler fn that toggen hide css class of the form"
-  [thing-type r path input-queue]
+  [add-thing-type r path override-map input-queue]
   (fn [_] 
     (let [parent-div-id "new-subthing"
           parent (dom/by-id parent-div-id)
           nchild (count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']"))))
-          add-thing-form (newthing-form/add-thing-form thing-type r path)  ; add lecture
+          add-thing-form (newthing-form/add-thing-form add-thing-type r path)  ; add lecture
           ]
-      (.log js/console (str thing-type " link clicked " nchild))
+      (.log js/console (str add-thing-type " link clicked " nchild))
       (if (= nchild 0)
         (dom/append! parent add-thing-form)
         (dom/destroy-children! parent))
       ; enable event must live outside the same block of dom append displaying form.
       (if (= nchild 0)
-        (newthing-form/enable-submit-new-thing-form thing-type path input-queue)))))
+        (newthing-form/enable-submit-add-thing-form add-thing-type 
+                                                    path 
+                                                    override-map
+                                                    input-queue)))))
 
 
 
@@ -289,7 +292,8 @@
         form (dom/by-class (str (name type) "-form"))
         btn-cancel (-> form 
                        (dx/xpath "//button[@id='cancel']"))
-        submit-fn (newthing-form/submit-fn type form messages)]
+        thing-map {}  ; empty thing-map for fresh create thing
+        submit-fn (newthing-form/submit-fn type form thing-map messages)]
     (.log js/console (str "enable submit action :create-thing page " path transkey messages))
     (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))
     (events/send-on :submit form input-queue submit-fn)
@@ -420,13 +424,12 @@
         thing-id (first (reverse (butlast navpath)))
         thing-node (dom/by-id (str thing-id))
         add-lecture-link (dom/by-class (entity-view/add-lecture-sel thing-id))
-        ;toggle-fn (-> (dom/by-class (entity-view/assign-form-class thing-id))
-        ;              (dx/xpath "//form[@class='assign-form']")
-        ;              (toggle-hide-fn (entity-view/assign-form-class thing-id)))
-
-        
-        toggle-fn (toggle-add-thing-form-fn :lecture r path input-queue)
+        ; get the current thing map, and create override map
+        thing-map ((msgs/param :thing-map) (first messages))
+        override-map {:lecture/course (:db/id thing-map)
+                      :lecture/type (:course/type thing-map)}
+        toggle-fn (toggle-add-thing-form-fn :lecture r path override-map input-queue)
        ]
-    (.log js/console (str "enable thing nav " transkey " " path " " thing-id))
+    (.log js/console (str "enable thing nav " transkey " " path " " thing-map))
     (de/listen! add-lecture-link :click toggle-fn)
   ))
