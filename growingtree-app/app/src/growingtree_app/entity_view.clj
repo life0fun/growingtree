@@ -52,6 +52,9 @@
 (defn assignto-hint-class [thing-id] (str "assignto-hint-" thing-id))
 (defn submit-class [thing-id] (str "submit-" thing-id))
 
+(defn add-child-class [thing-id] (str "add-child-" thing-id))
+(defn add-lecture-class [thing-id] (str "add-lecture-" thing-id))
+(defn add-question-class [thing-id] (str "add-question-" thing-id))
 
 ;;===============================================================
 ; xpath selector for assign to form
@@ -70,6 +73,15 @@
   (let [form-sel (assign-form-sel thing-id)]
     (str form-sel "/input[@id='" field-name"']")))
 
+
+(defn add-lecture-sel
+  [thing-id]
+  (add-lecture-class thing-id))
+
+(defn add-lecture-form-sel
+  [thing-id]
+  (let [addlectureform (assign-form-class thing-id)]
+    (str "//div[@class='" assignform "']/form[@id='assign-form']")))
 
 
 ;;===============================================================
@@ -135,6 +147,7 @@
                          :share-class (share-class thingid)
                          :assignto-class (assignto-class thingid)
                          :assign-form-class (assign-form-class thingid)
+                         :add-lecture-class (add-lecture-class thingid)
                          :enroll-class (enroll-class thingid)})
         ]
     (.log js/console (str "thing-node-html " path))
@@ -233,16 +246,16 @@
 
 
 (defmethod thing-view
-  :homework
+  :question
   [path entity]
-  (assoc entity :title (:homework/title entity)))
+  (assoc entity :title (:question/title entity)))
 
 
 ; embeded ref object can be de-refed directly.
 (defmethod thing-view
   :assignment
   [path entity]
-  (let [hmwk (:assignment/homework entity)
+  (let [hmwk (:assignment/question entity)
         ident (util/thing-ident hmwk)
         titlekey (keyword (str (name ident) "/title"))
         title (titlekey hmwk)

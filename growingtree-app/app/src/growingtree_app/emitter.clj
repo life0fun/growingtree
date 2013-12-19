@@ -246,12 +246,12 @@
       (= child :id) (vec (concat [:detail] (butlast navpath)))  ; [:detail :parent 1]
       :else (vec (concat [:filtered] navpath [thing-id])))))
 
-
+  
 ;;==================================================================================
 ; multimethod for enable thing nav action bar links
 ; render fills the msg with type set-nav-path and topic to [:nav :path], and path vector
 ;;==================================================================================
-(def thing-nav-message
+(def thing-nav-links
   {
     :parent 
       {:child {:path [:parent :child]}
@@ -264,23 +264,108 @@
       }
 
     :course 
-      {:homework {:path [:course :homework]}
+      {
+       :lecture {:path [:course :lecture] }
+       :question {:path [:course :question] }
        :assign-toggle {:path [:course :assign-toggle]}
-       ;:assign-form {:path [:course :assign-form]}
+       :assign-form {:path [:course :assign-form]}
+       :add-lecture {:path [:course :add-lecture]}
       }
 
-    :homework 
+    :lecture 
+      {
+       :question {:path [:lecture :question] }
+       :assign-toggle {:path [:lecture :assign-toggle]}
+       :assign-form {:path [:lecture :assign-form]}
+       :add-question {:path [:lecture :add-question]}
+      }
+
+    :question 
       {:course {:path [:course :course]}
-       :assign-toggle {:path [:homework :assign-toggle]}
-       ;:assign-form {:path [:homework :assign-form]}
+       :assign-toggle {:path [:question :assign-toggle]}
+       ;:assign-form {:path [:question :assign-form]}
       }
 
     :assignment 
       {:child {:path [:assignment :child]}
-       :homework {:path [:assignment :homework]}
+       :question {:path [:assignment :question]}
       }
   })
 
+
+; ------------------------------------------------------------------------
+; generate nav path transform messages for each thing nav link click.
+; [:nav :parent 17592186045499 :child] :child
+; ------------------------------------------------------------------------
+(defmulti thing-nav-messages
+  (fn [[nav type id transkey :as navpath]]
+    transkey))
+
+
+(defmethod thing-nav-messages
+  :default
+  [[nav type id transkey :as nav-path]]
+  (let [header-path (concat (butlast (rest nav-path)) [type])
+        filter-path (rest nav-path)
+        messages [{
+                   msgs/topic [:nav :path] 
+                   msgs/type :set-nav-path
+                   :path (vec header-path)} 
+                  {
+                   msgs/topic [:nav :path] 
+                   msgs/type :set-nav-path
+                   :path (vec filter-path)
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " msgs))
+    messages))
+
+
+(defmethod thing-nav-messages
+  :assign-toggle
+  [[nav type id transkey :as nav-path]]
+  (let [messages [{
+                    msgs/topic [:submit transkey] 
+                    msgs/type :submit
+                    (msgs/param :details) {}
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " msgs))
+    messages))
+
+(defmethod thing-nav-messages
+  :assign-form
+  [[nav type id transkey :as nav-path]]
+  (let [messages [{
+                    msgs/topic [:submit transkey] 
+                    msgs/type :submit
+                    (msgs/param :details) {}
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " msgs))
+    messages))
+
+(defmethod thing-nav-messages
+  :add-lecture
+  [[nav type id transkey :as nav-path]]
+  (let [messages [
+                  ; {
+                  ;  msgs/topic [:nav :path] 
+                  ;  msgs/type :set-nav-path
+                  ;  :path (vec header-path)} 
+                  ; {
+                  ;  msgs/topic [:nav :path] 
+                  ;  msgs/type :set-nav-path
+                  ;  :path (vec filter-path)
+                  ; }
+                  {
+                    msgs/topic [:submit transkey] 
+                    msgs/type :submit
+                    (msgs/param :details) {}
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " msgs))
+    messages))
 
 ;;==================================================================================
 ; multimethod for enable thing nav action bar links
@@ -292,59 +377,27 @@
     thing-type))
 
 
+; always emits transforms to render [:nav :* :** ] :transkey, triggers enable-thing-nav
 (defmethod thing-navpath-transforms
   :default
   [thing-type thing-id]
-  (let [nav-msg (get thing-nav-message thing-type)
-        transkeys (keys nav-msg)
-        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)]
+  (let [transkeys (keys (get thing-nav-links thing-type))
+        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
+       ]
     (mapcat
       ; [:nav :parent 17592186045499 :child] :child
       (fn [[nav type id transkey :as filtered-path]]
-        (let [ ; header-path next link ref back to itself [:parent 17592186045499 :parent]
-              header-path (concat (butlast (rest filtered-path)) [thing-type])
-              msg (:messages nav-msg)] 
-          (.log js/console (str "thing nav transform emitter header " header-path " filtered " (rest filtered-path)))
+        (let [messages (thing-nav-messages filtered-path)] 
+          (.log js/console (str "thing nav transform emitter " type " " transkey " " messages))
           (vector 
             [:transform-disable filtered-path]  ; fucking need to clean up your shit before re-enable.
             [:node-destroy filtered-path]
-            [:transform-enable filtered-path    ; [:nav :parent 17592186045499 :child]
-                               transkey   ; transkey
-                               [ ; first msg, request current thing as parent after nav
-                                {msgs/topic [:nav :path] 
-                                 msgs/type :set-nav-path
-                                 :path (vec header-path)}  ; no need to wrap to (msgs/param :path)
-                                ; second msg, the child list of nav
-                                {msgs/topic [:nav :path]
-                                 msgs/type :set-nav-path 
-                                 :path (vec (rest filtered-path))} 
-                               ]] )))
+            [:transform-enable filtered-path ; always [:nav :parent 17592186045499 :child]
+                               transkey   ; nav next thing, :child, :coure
+                               messages
+                               ] )))
       navpaths)))
 
-
-(defmethod thing-navpath-transforms
-  :course
-  [thing-type thing-id]
-  (let [transkeys [:lecture :add-lecture :assign-toggle :assign-form]
-        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
-       ]
-    (mapcat 
-      ; [:nav :courses 17592186045499 :assign-toggle]
-      (fn [[nav type id transkey :as filtered-path]]
-        (let [header-path (concat (butlast (rest filtered-path)) [thing-type])] ; [:courses 17592186045499 :assign-form]
-          (.log js/console (str "thing nav transform emitter header " header-path " filtered " (rest filtered-path)))
-          (vector 
-            [:transform-disable filtered-path]  ; fucking need to clean up your shit before re-enable.
-            [:node-destroy filtered-path]
-            [:transform-enable filtered-path    ; [:nav :parents 17592186045499 :children]
-                               transkey   ; transkey
-                               [ ; first msg, request current thing as parent after nav
-                                {msgs/topic [:submit transkey] 
-                                 msgs/type :submit
-                                 (msgs/param :details) {}} ; if msgs/fill, need to wrap into param
-                               ]] )))
-  
-      navpaths)))
 
 (defn- removed-thing-deltas
   "the removed path node from removed-inputs, arg is node path"

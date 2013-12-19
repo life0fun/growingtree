@@ -28,7 +28,7 @@
    :thing-child  (dtfn (tnodes "thing.html" "thing-child") #{:id})
    :thing-course  (dtfn (tnodes "thing.html" "thing-course") #{:id})
    :thing-lecture  (dtfn (tnodes "thing.html" "thing-lecture") #{:id})
-   :thing-homework  (dtfn (tnodes "thing.html" "thing-homework") #{:id})
+   :thing-question  (dtfn (tnodes "thing.html" "thing-question") #{:id})
    :thing-assignment  (dtfn (tnodes "thing.html" "thing-assignment") #{:id})
 
    :thing-thumbnail (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})

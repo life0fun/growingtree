@@ -93,6 +93,26 @@
         (dom/add-class! form "hide")))))
 
 
+; toggle to display new thing form
+(defn toggle-add-thing-form-fn
+  "return an event handler fn that toggen hide css class of the form"
+  [thing-type r path input-queue]
+  (fn [_] 
+    (let [parent-div-id "new-subthing"
+          parent (dom/by-id parent-div-id)
+          nchild (count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']"))))
+          add-thing-form (newthing-form/add-thing-form thing-type r path)  ; add lecture
+          ]
+      (.log js/console (str thing-type " link clicked " nchild))
+      (if (= nchild 0)
+        (dom/append! parent add-thing-form)
+        (dom/destroy-children! parent))
+      ; enable event must live outside the same block of dom append displaying form.
+      (if (= nchild 0)
+        (newthing-form/enable-submit-new-thing-form thing-type path input-queue)))))
+
+
+
 ;;==================================================================================
 ;; login btn event handler
 ;;==================================================================================
@@ -286,7 +306,7 @@
 
 
 ;;==================================================================================
-; enable click on thing link to trigger nav path change to this thing type.
+; app model [:nav :*] transformer, event click on thing link to trigger nav path change.
 ; nav from child id to parent, show filtered parent that is parent of this child
 ; path = [:transform-enable [:nav :child 17592186045496 :parent]] 
 ; path, transkey and messages setup in emitter thing-navpath-transforms, [nav type id transkey]
@@ -387,3 +407,26 @@
     ; wrap assign link with div and use class selector
     (events/send-on :submit form input-queue submit-fn)
   ))                                                                                                                                                                            
+
+
+
+; ------------------------------------------------------------------------------------
+; transform enable for [transforms [:nav :course 1 :add-lecture] :add-lecture
+; ------------------------------------------------------------------------------------
+(defmethod enable-thing-nav  ; transkey = assign-toggle
+  :add-lecture
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:course 1 :add-lecture]
+        thing-id (first (reverse (butlast navpath)))
+        thing-node (dom/by-id (str thing-id))
+        add-lecture-link (dom/by-class (entity-view/add-lecture-sel thing-id))
+        ;toggle-fn (-> (dom/by-class (entity-view/assign-form-class thing-id))
+        ;              (dx/xpath "//form[@class='assign-form']")
+        ;              (toggle-hide-fn (entity-view/assign-form-class thing-id)))
+
+        
+        toggle-fn (toggle-add-thing-form-fn :lecture r path input-queue)
+       ]
+    (.log js/console (str "enable thing nav " transkey " " path " " thing-id))
+    (de/listen! add-lecture-link :click toggle-fn)
+  ))

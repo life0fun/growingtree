@@ -157,6 +157,7 @@
 ;;================================================================================
 ;; add thing nav parent node. we should take the last thing id path segment, 
 ;; and render it as top section parent node, and the list of children
+;; attach thing-details template to main div
 ;;================================================================================
 
 ; render thing details page for thing nave, first, delete main div childrens.
@@ -165,7 +166,7 @@
   "render thing details parent header and a list of children, delete main children first"
   [r path]  ; path=[:header :parent]
   (let [id (render/new-id! r (vec path))
-        templ (:thing-details templates)
+        templ (:thing-details templates)  ; attach thing-details template to main div
         html (templates/add-template r path templ)
         divcode (html {:id id})
         main (dom/by-id "main")]
@@ -253,7 +254,7 @@
     [:transform-enable [:nav :create-modal] modals/enable-create-modal]
 
     ; thing nav path event bindings, match any path, setup in thing navpath transforms
-    [:transform-enable [:nav :* :**] transforms/enable-thing-nav]
+    [:transform-enable  [:nav :* :**] transforms/enable-thing-nav]
     [:transform-disable [:nav :* :**] h/default-destroy]
 
 

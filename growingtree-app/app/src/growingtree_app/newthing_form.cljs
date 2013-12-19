@@ -2,6 +2,7 @@
   (:require [domina :as dom]
             [domina.css :as dc]
             [domina.events :as de]
+            [domina.xpath :as dx]
             [io.pedestal.app.render.push :as render]
             [io.pedestal.app.render.events :as events]
             [io.pedestal.app.render.push.templates :as templates]
@@ -12,11 +13,13 @@
             [io.pedestal.app.render.push.handlers.automatic :as auto]
             [growingtree-app.util :as util]
             [growingtree-app.entity-view :as entity-view]
-            [growingtree-app.selector :as sel]))
-
+            [growingtree-app.selector :as sel])
+  (:require-macros [growingtree-app.html-templates :as html-templates]))
 
 ;; this ns contains code for handling ui event for newthing template.
 ;; see newthing.html for the template definition and db schema for attrs.
+
+(def templates (html-templates/growingtree-app-templates))
 
 ;;==================================================================================
 ; a map of thing type to a map of entity attribute, form dom id
@@ -118,3 +121,37 @@
       (msgs/fill :create-thing messages {:details details}))))
 
 
+;;================================================================================
+; display add new thing template inside filtered thing
+; path is [:nav :course 1 :add-lecture]
+;;================================================================================
+(defn add-thing-form
+  "instantiate new thing form for thing-type, return div code to be appended to parent"
+  [new-thing-type r path]
+  (let [thing-type (last path)
+        id (render/new-id! r path)   ; new id for []
+        
+        templ (new-thing-type templates)
+        html (templates/add-template r path templ)
+        divcode (html {:id id})
+       ]
+    (.log js/console (str "add thing form at " path " type " new-thing-type))
+    divcode))
+
+
+;
+; handle new thing form from nav filtered thing div.
+(defn enable-submit-new-thing-form 
+  [thing-type path input-queue]
+  (let [form (dom/by-class (str (name thing-type) "-form"))
+        messages {msgs/topic [:submit thing-type]
+                  msgs/type :submit
+                  (msgs/param :details) {}
+                 }
+        btn-cancel (-> form 
+                       (dx/xpath "//button[@id='cancel']"))
+        submit-fn (submit-fn thing-type form messages)]
+    (.log js/console (str "enable submit form " thing-type " path " path))
+    (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))
+    (events/send-on :submit form input-queue submit-fn)
+    ))
