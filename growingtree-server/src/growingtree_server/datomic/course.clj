@@ -191,7 +191,7 @@
                    (select-keys (keys lecture-schema))
                    (assoc :lecture/author author-id)  ; replace input :lecture/author
                    (assoc :lecture/course course-id)  ; replace input :lecture/author
-                   (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
+                   ;(util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
                    (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]

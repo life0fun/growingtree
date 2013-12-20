@@ -79,44 +79,6 @@
 
 
 ;;==================================================================================
-;; utility functions for toggle hide of form
-;;==================================================================================
-; too bad (dom/toggle-class! form "hide") is not available.
-(defn toggle-hide-fn
-  "return an event handler fn that toggen hide css class of the form"
-  [form clz]
-  (fn [_] 
-    (let [hidden (dom/has-class? form "hide")]
-      (.log js/console (str "link clicked " clz))
-      (if hidden
-        (dom/remove-class! form "hide")
-        (dom/add-class! form "hide")))))
-
-
-; toggle to display new thing form, and enable submit button.
-(defn toggle-add-thing-form-fn
-  "return an event handler fn that toggen hide css class of the form"
-  [add-thing-type r path override-map input-queue]
-  (fn [_] 
-    (let [parent-div-id "new-subthing"
-          parent (dom/by-id parent-div-id)
-          nchild (count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']"))))
-          add-thing-form (newthing-form/add-thing-form add-thing-type r path)  ; add lecture
-          ]
-      (.log js/console (str add-thing-type " link clicked " nchild))
-      (if (= nchild 0)
-        (dom/append! parent add-thing-form)
-        (dom/destroy-children! parent))
-      ; enable event must live outside the same block of dom append displaying form.
-      (if (= nchild 0)
-        (newthing-form/enable-submit-add-thing-form add-thing-type 
-                                                    path 
-                                                    override-map
-                                                    input-queue)))))
-
-
-
-;;==================================================================================
 ;; login btn event handler
 ;;==================================================================================
 (defn enable-login-submit
@@ -200,6 +162,7 @@
                       (p/put-message input-queue m)))))
   ))
 
+
 ; wire submit button click on assignment form to fill assign message
 ; dispatch on transkey, :assign
 (defmethod enable-submit-action 
@@ -264,7 +227,7 @@
         thing-node (dom/by-id (str thingid))
         ; thing nav link class set inside entity view class
         thing-link (dom/by-class (str (name transkey) "-" thingid))]
-    (.log js/console (str "enable " (str (name transkey) "-" thingid) " link click " path messages))
+    (.log js/console (str "enable " (str (name transkey) "-" thingid) " " path messages))
     ; wrap assign link with div and use class selector
     (de/listen! thing-link
                 :click 
@@ -295,7 +258,7 @@
 
         toggle-fn (-> (entity-view/assign-form-sel thingid)
                       (dx/xpath)
-                      (toggle-hide-fn (entity-view/assign-form-class thingid)))
+                      (newthing-form/toggle-hide-fn (entity-view/assign-form-class thingid)))
 
        ]
     (.log js/console (str "enable thing nav assign toggle " path " "))
@@ -349,53 +312,21 @@
 (defmethod enable-thing-nav  ; transkey = :assign-form
   :assign-form
   [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:parent 1 :assign-form]
-        thingid (first (reverse (butlast navpath)))
-        thing-node (dom/by-id (str thingid))
- 
-        ; select form by class and then xpath within the node
-        ; form (-> (dom/by-class (entity-view/assign-form-class thingid))
-        ;          (dx/xpath "//form[@id='assign-form']"))
-        ; assignto-name (dx/xpath form "//input[@id='assignto-name']")
-        ; assignto-hint (dx/xpath form "//input[@id='assignto-hint']")
-        form (-> (entity-view/assign-form-sel thingid)
+  (let [thing-id (first (reverse (butlast path)))
+        thing-map ((msgs/param :thing-map) (first messages))
+        form (-> (entity-view/assign-form-sel thing-id)
                  (dx/xpath))
-        assignto-name (-> (entity-view/assign-input-sel thingid "assignto-name")
-                          (dx/xpath))
-        assignto-hint (-> (entity-view/assign-input-sel thingid "assignto-hint")
-                          (dx/xpath))
-        ; form submit handler, fill msg and ret the msg
-        submit-fn 
-          (fn [_]
-            (let [to-val (dom/value assignto-name)
-                  hint-val (dom/value assignto-hint)
-                  details {:thing-type :assignment   ; single thing-type for add thing
-                           :assignment/task-id thingid  ; homework, course, lecture, etc.
-                           :assignment/homework thingid  ; homework, course, lecture, etc.
-                           :assignment/assignee to-val.
-                           :assignment/hint hint-val
-                           :assignment/status :assignment.status/active
-                           :assignment/start (.unix (js/moment))
-                           :assignment/due (.unix (.add (js/moment) "hours" 4))
-                           }]
-              (.log js/console (str "assign form submitted " details))
-              ((toggle-hide-fn form) nil)  ; hide the form
-              (msgs/fill :submit messages {:details details})))
-
-          override-map {:lecture/course (:db/id thing-map)
-                      :lecture/type (keyword (:course/type thing-map))}
-          (newthing-form/enable-submit-add-thing-form :assignment 
-                                                      path 
-                                                      override-map
-                                                      input-queue)
-        ]
-    (.log js/console (str "enable thing nav assign-form " path messages))
-    ; wrap assign link with div and use class selector
-    (events/send-on :submit form input-queue submit-fn)
-  ))                                      
-
-
-
+        override-map {:assignment/origin (:db/id thing-map)
+                      :assignment/title (:question/title thing-map)
+                      :assignment/tag (:question/tag thing-map)
+                      :assignment/start (.unix (js/moment))
+                      :assignment/end (.unix (.add (js/moment) "hours" 1))                        :assignment/type (keyword (:question/type thing-map))
+                     }
+       ]
+    (.log js/console (str "enable thing nav assign-form " thing-id messages))
+    (newthing-form/handle-inline-form-submit :assignment thing-id form
+                                             override-map input-queue)
+  ))
 
 ; ------------------------------------------------------------------------------------
 ; transform enable for [transforms [:nav :course 1 :add-lecture] :add-lecture
@@ -412,7 +343,8 @@
         override-map {:lecture/course (:db/id thing-map)
                       :lecture/type (keyword (:course/type thing-map))  ;
                      }
-        toggle-fn (toggle-add-thing-form-fn :lecture r path override-map input-queue)
+        toggle-fn (newthing-form/toggle-add-thing-form-fn :lecture r path 
+                                                          override-map input-queue)
        ]
     (.log js/console (str "enable thing nav " transkey " " path " " thing-map))
     (de/listen! add-lecture-link :click toggle-fn)
@@ -432,7 +364,8 @@
         ; get the current thing map, and create override map
         thing-map ((msgs/param :thing-map) (first messages))
         override-map {:question/origin (:db/id thing-map)}
-        toggle-fn (toggle-add-thing-form-fn :question r path override-map input-queue)
+        toggle-fn (newthing-form/toggle-add-thing-form-fn :question r path 
+                                                          override-map input-queue)
        ]
     (.log js/console (str "enable thing nav " transkey " " path " " thing-map))
     (de/listen! add-question-link :click toggle-fn)

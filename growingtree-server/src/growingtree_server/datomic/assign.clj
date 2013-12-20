@@ -215,7 +215,7 @@
                 (select-keys (keys assignment-schema))
                 (assoc :assignment/author author-id)
                 (assoc :assignment/person person-id)
-                (util/to-datomic-attr-vals) 
+                ;(util/to-datomic-attr-vals) 
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]

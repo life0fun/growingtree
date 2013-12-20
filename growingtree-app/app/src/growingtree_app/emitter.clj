@@ -279,7 +279,7 @@
     :course 
       {
        :lecture {:path [:course :lecture] }
-       :question {:path [:course :question] }
+       ;:question {:path [:course :question] }
        :assign-toggle {:path [:course :assign-toggle]}
        :assign-form {:path [:course :assign-form]}
        :add-lecture {:path [:course :add-lecture]}
@@ -350,10 +350,11 @@
 (defmethod thing-nav-messages
   :assign-form
   [[nav type id transkey :as nav-path] entity-map]
-  (let [messages [{
-                    msgs/topic [:submit transkey] 
-                    msgs/type :submit
-                    (msgs/param :details) entity-map
+  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
+                    msgs/topic [:create transkey]  
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :details) {}
                   }]
         ]
     ;(.log js/console (str "thing-nav-messages " msgs))

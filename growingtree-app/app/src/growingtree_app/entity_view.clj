@@ -146,6 +146,7 @@
         thing-div (html {:id thingid 
                          :lectures-class (lecture-class thingid)
                          :add-lecture-class (add-lecture-class thingid)
+                         :questions-class (question-class thingid)
                          :comments-class (comment-class thingid)
                          :share-class (share-class thingid)
                          :assignto-class (assignto-class thingid)
@@ -254,15 +255,19 @@
   [path entity]
   (assoc entity :title (:question/title entity)))
 
-
-; embeded ref object can be de-refed directly.
 (defmethod thing-view
   :assignment
   [path entity]
-  (let [hmwk (:assignment/question entity)
-        ident (util/thing-ident hmwk)
-        titlekey (keyword (str (name ident) "/title"))
-        title (titlekey hmwk)
-        ]
-    (assoc entity :title title)))
+  (assoc entity :title (:assignment/title entity)))
+
+; embeded ref object can be de-refed directly.
+; (defmethod thing-view
+;   :assignment
+;   [path entity]
+;   (let [hmwk (:assignment/question entity)
+;         ident (util/thing-ident hmwk)
+;         titlekey (keyword (str (name ident) "/title"))
+;         title (titlekey hmwk)
+;         ]
+;     (assoc entity :title title)))
 

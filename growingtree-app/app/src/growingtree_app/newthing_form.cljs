@@ -22,8 +22,46 @@
 (def templates (html-templates/growingtree-app-templates))
 
 ;;==================================================================================
-; a map of thing type to a map of entity attribute, form dom id
-; refer to newthing.html for dom elements
+;; utility functions for toggle hide of form
+;;==================================================================================
+; too bad (dom/toggle-class! form "hide") is not available.
+(defn toggle-hide-fn
+  "return an event handler fn that toggen hide css class of the form"
+  [form clz]
+  (fn [_] 
+    (let [hidden (dom/has-class? form "hide")]
+      (.log js/console (str "toggle hide link clicked " clz))
+      (if hidden
+        (dom/remove-class! form "hide")
+        (dom/add-class! form "hide")))))
+
+
+; toggle to display new thing form, and enable submit button.
+(defn toggle-add-thing-form-fn
+  "return an event handler fn that toggen hide css class of the form"
+  [add-thing-type r path override-map input-queue]
+  (fn [_] 
+    (let [parent-div-id "new-subthing"
+          parent (dom/by-id parent-div-id)
+          nchild (count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']"))))
+          add-thing-form (add-thing-form add-thing-type r path)  ; add lecture
+          ]
+      (.log js/console (str add-thing-type " link clicked " nchild))
+      (if (= nchild 0)
+        (dom/append! parent add-thing-form)
+        (dom/destroy-children! parent))
+
+      ; enable event must live outside the same block of dom append displaying form.
+      (if (= nchild 0)
+        (do
+          (handle-add-thing-submit add-thing-type path override-map input-queue)
+          (handle-add-thing-cancel add-thing-type)))
+    )))
+
+
+;;==================================================================================
+; submit-fn uses this map to id dom input fields and collect input value to entity attr.
+; form dom id refer to newthing.html for dom elements
 ;;==================================================================================
 (def thing-type-attr
   {
@@ -86,14 +124,18 @@
                :question/tag "question-tag"
               }
 
-    :assignment {:assignment/title "assignment-title" 
-                 :assignment/origin "assignment-origin"
-                 :assignment/author "assignment-author"
-                 :assignment/person "assignment-person"
-                 :assignment/type "assignment-type"
-                 :assignment/hint "assignment-hint"
-                 :assignment/start "assignment-start"
-                 :assignment/end "assignment-end"
+    :assignment {:assignment/person 
+                    (fn [thing-id]
+                      (-> (entity-view/assign-input-sel thing-id "assignto-name")
+                          (dx/xpath)))
+                 :assignment/hint 
+                    (fn [thing-id]
+                      (-> (entity-view/assign-input-sel thing-id "assignto-hint")
+                          (dx/xpath)))
+                 :assignment/end 
+                    (fn [thing-id]
+                      (-> (entity-view/assign-input-sel thing-id "assignto-end")
+                          (dx/xpath)))
                 }
 
     :group {:group/title "group-title"
@@ -112,7 +154,8 @@
 (defn submit-fn
   [add-thing-type form override-map messages]
   (fn [e]
-    (let [type-attr (get thing-type-attr add-thing-type)
+    (let [ ; input-field defined in thing type attr map
+          type-attr (get thing-type-attr add-thing-type)
           input-fields (keys type-attr)
           input-vals (->> (vals type-attr)
                           (map #(dom/by-id %))
@@ -152,21 +195,84 @@
     divcode))
 
 
-;
-; handle add thing form from nav filtered thing div.
-(defn enable-submit-add-thing-form 
-  [add-thing-type path override-map input-queue]
+;--------------------------------------------------------------------
+; handle add thing form submit
+;--------------------------------------------------------------------
+(defn handle-add-thing-submit
+  ([add-thing-type path override-map input-queue]
+    (let [messages [{msgs/topic [:create add-thing-type]
+                     msgs/type :create-thing
+                     (msgs/param :details) {}}] ]
+      (handle-add-thing-submit add-thing-type path messages 
+                               override-map input-queue)))
+  
+  ([add-thing-type path messages override-map input-queue]
+    (let [form (dom/by-class (str (name add-thing-type) "-form"))
+          submit-fn (submit-fn add-thing-type form override-map messages)]
+      (.log js/console (str "enable add thing form submit " add-thing-type path))
+      (handle-add-thing-submit form input-queue submit-fn)))
+
+  ([form input-queue submit-fn]
+    (events/send-on :submit form input-queue submit-fn)))
+
+
+; handle add thing form cancel
+(defn handle-add-thing-cancel
+  [add-thing-type]
   (let [form (dom/by-class (str (name add-thing-type) "-form"))
-        ; go to create-thing [:create :lecture] path
-        messages [{msgs/topic [:create add-thing-type]
-                  msgs/type :create-thing
-                  (msgs/param :details) {}}]
-        btn-cancel (-> form
-                       (dx/xpath "//button[@id='cancel']"))
-        submit-fn (submit-fn add-thing-type form override-map messages)]
-    (.log js/console (str "enable submit form " add-thing-type " path " path))
-    (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))
-    (events/send-on :submit form input-queue submit-fn)
-    ))
+        btn-cancel (-> form 
+                       (dx/xpath "//button[@id='cancel']"))]
+    (.log js/console (str "enable add thing form cancel path " path))
+    (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))))
+  
+
+;--------------------------------------------------------------------
+; inline form submit handling
+; inline form needs thing-id to id dom element.
+;--------------------------------------------------------------------
+(defn inline-form-submit-fn
+  [add-thing-type thing-id form override-map messages]
+  (fn [e]
+    (let [type-attr (get thing-type-attr add-thing-type)
+          input-fields (keys type-attr)
+          input-vals (->> (vals type-attr)
+                          (map #(% thing-id))
+                          (map #(dom/value %)))
+          details (-> (zipmap input-fields input-vals)
+                      ; transform parent status and gender
+                      (util/update-enum add-thing-type "status" false)
+                      (util/update-enum add-thing-type "gender" false)
+                      ; transform thing type enum
+                      (util/update-enum add-thing-type "type" false)
+                      (util/update-time add-thing-type "start" false)
+                      (util/update-time add-thing-type "end" false)
+                      (assoc :thing-type add-thing-type) ; required for post-submit-thing dispatch
+                      (merge override-map))
+          ]
+        (.log js/console (str add-thing-type " override-map" override-map))
+        (.log js/console (str add-thing-type " inline form details " details))
+        ((toggle-hide-fn form) nil)  ; hide the form
+        (msgs/fill :create-thing messages {:details details}))))
+
+
+; handle inline form submit
+(defn handle-inline-form-submit
+  ([add-thing-type thing-id form override-map input-queue]
+    (let [messages [{msgs/topic [:create add-thing-type]
+                     msgs/type :create-thing
+                     (msgs/param :details) {}}] ]
+      (handle-inline-form-submit add-thing-type thing-id form messages 
+                                 override-map input-queue)))
+  
+  ([add-thing-type thing-id form messages override-map input-queue]
+    (let [submit-fn 
+            (inline-form-submit-fn add-thing-type thing-id form override-map messages)]
+      (.log js/console (str "enable add thing form submit " add-thing-type thing-id))
+      (handle-inline-form-submit form input-queue submit-fn)))
+
+  ([form input-queue submit-fn]
+    (events/send-on :submit form input-queue submit-fn)))
+
+
 
 
