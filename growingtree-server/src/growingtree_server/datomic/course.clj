@@ -150,6 +150,7 @@
         entity (-> details
                    (select-keys (keys course-schema))
                    (assoc :course/author author-id)  ; replace input :course/author
+                   (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
                    (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
@@ -181,17 +182,22 @@
   "create a lecture with details "
   [details]
   (let [author-id (:db/id (find-by :person/title (:author details)))
-        course-id (:db/id (find-by :course/title (:lecture/course details)))
+        course (:lecture/course details)
+        course-id (if (= java.lang.String (type course))
+                    (:db/id (find-by :course/title (:lecture/course details)))
+                    course)
+
         entity (-> details
                    (select-keys (keys lecture-schema))
                    (assoc :lecture/author author-id)  ; replace input :lecture/author
                    (assoc :lecture/course course-id)  ; replace input :lecture/author
+                   (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
                    (assoc :db/id (d/tempid :db.part/user)))
-        ;trans (submit-transact [entity])  ; transaction is a list of entity
+        trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
     (prn "create lecture entity " author-id course-id entity)
-    ;(prn "submit lecture trans " trans)
+    (prn "submit lecture trans " trans)
     [entity]))
 
 

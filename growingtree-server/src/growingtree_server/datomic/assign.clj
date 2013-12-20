@@ -118,19 +118,19 @@
   '[[(:all ?e ?val) [?e :question/content]]   ; select all question that has author
     [(:title ?e ?val) [?e :question/title ?val]]
     [(:author ?e ?val) [?e :question/author ?val]]
-    [(:lecture ?e ?val) [?e :question/lecture ?val]]
+    [(:lecture ?e ?val) [?e :question/origin ?val]]
     [(:type ?e ?val) [?e :question/type ?val]]
-    [(:content ?e ?val) [?e :question/content ?val]]
+    [(:content ?e ?val) [?e :question/content ?val]]  ; (fulltext $ [])
   ])
 
 (def get-assignment-by
   '[[(:all ?e ?val) [?e :assignment/author]]   ; select all assignment that has author
     [(:title ?e ?val) [?e :assignment/title ?val]]
     [(:author ?e ?val) [?e :assignment/author ?val]]
-    [(:question ?e ?val) [?e :assignment/question ?val]]
-    [(:assignee ?e ?val) [?e :assignment/assignee ?val]]
+    [(:question ?e ?val) [?e :assignment/origin ?val]]
+    [(:child ?e ?val) [?e :assignment/person ?val]]
     [(:status ?e ?val) [?e :assignment/status ?val]]
-    [(:due ?e ?val) [?e :assignment/due ?val]]
+    [(:end ?e ?val) [?e :assignment/end ?val]]
   ])
 
 
@@ -175,11 +175,11 @@
 
 
 ; the enum must be fully qualified, :question.subject/math
+; {:question/author "bb", :question/origin 17592186045430, :author "rich-dad", :thing-type :question }
 (defn create-question
   "create question with details"
   [details]
-  (let [author (dbconn/find-by :parent/name (:author details))  ; should be login name
-        author-id (:db/id author)
+  (let [author-id (:db/id (find-by :person/title (:author details)))
         entity (-> details
                 (select-keys (keys question-schema))
                 (assoc :question/author author-id)
@@ -188,7 +188,7 @@
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "create question entity " author-id " entity " entity)
+    (prn "create question author " author-id " entity " entity)
     (prn "create question trans " trans)
     entity))
 
@@ -208,20 +208,19 @@
 (defn create-assignment
   "new assignment form the submitted form data"
   [details]
-  (let [author (dbconn/find-by :parent/name (:author details))  ; should be login name
-        author-id (:db/id author)
+  (let [author-id (:db/id (dbconn/find-by :person/title (:author details)))
         ; this find all children whose parent is author-di
-        assignee-id (:db/id (dbconn/find-by :child/parents author-id))
+        person-id (:db/id (dbconn/find-by :person/title (:assignment/person details)))
         entity (-> details
                 (select-keys (keys assignment-schema))
                 (assoc :assignment/author author-id)
-                (assoc :assignment/assignee assignee-id)
+                (assoc :assignment/person person-id)
                 (util/to-datomic-attr-vals) 
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "create assignment entity " author-id assignee-id " entity " entity)
+    (prn author-id "create assignment to " person-id " entity " entity)
     (prn "create assignment trans " trans)
     entity))
 
@@ -231,10 +230,9 @@
   "find all assignment by query path "
   [qpath]
   (let [entities (util/get-entities-by-rule qpath get-assignment-by) ; a list of entity tuples
-        projkeys (keys (dissoc assignment-schema :assignment/assignee :assignment/author))
+        projkeys (keys assignment-schema)
         assignments (map #(select-keys % projkeys) entities)
         ]
-    (prn projkeys assignments)
     (doseq [e assignments]
       (prn "assignment --> " e))
     assignments))

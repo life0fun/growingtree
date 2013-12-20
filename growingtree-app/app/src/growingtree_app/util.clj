@@ -51,4 +51,19 @@
             ]
         new-val)  ; return updated new val if value map contains schema key
       thing-val)))
+
+
+; convert time stamp field to unix epoch
+; start time format 2013-02-08 09:30
+(defn update-time
+  "update in time value from string to keyword"
+  [thing-map thing-type keyname]
+  (let [schema-key (keyword (str (name thing-type) "/" keyname))]
+    (if (contains? thing-map schema-key)
+      (let [update-fn (fn [v & args] (.unix (js/moment v)))
+            new-map (-> thing-map
+                        (update-in [schema-key] update-fn))
+            ]
+        new-map)  ; return updated new val if value map contains schema key
+      thing-map)))
     

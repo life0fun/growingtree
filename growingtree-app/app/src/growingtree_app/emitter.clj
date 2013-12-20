@@ -261,7 +261,7 @@
 
   
 ;;==================================================================================
-; multimethod for enable thing nav action bar links
+; all clickable sub thing links with current thing.
 ; render fills the msg with type set-nav-path and topic to [:nav :path], and path vector
 ;;==================================================================================
 (def thing-nav-links
@@ -295,8 +295,9 @@
 
     :question 
       {:course {:path [:course :course]}
+       :assignment {:path [:question :assignment]}
        :assign-toggle {:path [:question :assign-toggle]}
-       ;:assign-form {:path [:question :assign-form]}
+       :assign-form {:path [:question :assign-form]}
       }
 
     :assignment 
@@ -358,20 +359,39 @@
     ;(.log js/console (str "thing-nav-messages " msgs))
     messages))
 
+
+; always go :create-thing [:create :lecture] path, do not go post thing path.
 (defmethod thing-nav-messages
   :add-lecture
   [[nav type id transkey :as nav-path] entity-map]
-  (let [messages [
+  (let [ ; add lecture, parent thing map is course
+        messages [
                   {
-                    msgs/topic [:submit transkey] 
-                    msgs/type :submit
+                    msgs/topic [:create :lecture]
+                    msgs/type :create-thing
                     (msgs/param :thing-map) entity-map
                     (msgs/param :details) {}
                   }
                  ]
         ]
-    ;(.log js/console (str "thing-nav-messages " msgs))
     messages))
+
+
+(defmethod thing-nav-messages
+  :add-question
+  [[nav type id transkey :as nav-path] entity-map]
+  (let [ ; add question, parent thing map is course
+        messages [
+                  {
+                    msgs/topic [:create :question]
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :details) {}
+                  }
+                 ]
+        ]
+    messages))
+
 
 ;;==================================================================================
 ; multimethod for enable thing nav action bar links

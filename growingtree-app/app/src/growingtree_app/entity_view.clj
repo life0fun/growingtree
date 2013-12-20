@@ -36,15 +36,16 @@
 (defn child-class [thing-id] (str "child-" thing-id))
 (defn course-class [thing-id] (str "course-" thing-id))
 (defn lecture-class [thing-id] (str "lecture-" thing-id))
-(defn homework-class [thing-id] (str "homework-" thing-id))
+(defn question-class [thing-id] (str "question-" thing-id))
 (defn assignment-class [thing-id] (str "assignment-" thing-id))
-(defn comment-class [thing-id] (str "comment-" thing-id))
+(defn comment-class [thing-id] (str "comments-" thing-id))
 (defn share-class [thing-id] (str "share-" thing-id))
 (defn answer-class [thing-id] (str "answer-" thing-id))
 (defn follower-class [thing-id] (str "follower-" thing-id))
 (defn classmate-class [thing-id] (str "classmate-" thing-id))
 (defn like-class [thing-id] (str "like-" thing-id))
 (defn enroll-class [thing-id] (str "enroll-" thing-id))
+(defn schedule-class [thing-id] (str "schedule-" thing-id))
 
 (defn assignto-class [thing-id] (str "assignto-" thing-id))
 (defn assign-form-class [thing-id] (str "assign-form-" thing-id))
@@ -55,6 +56,7 @@
 (defn add-child-class [thing-id] (str "add-child-" thing-id))
 (defn add-lecture-class [thing-id] (str "add-lecture-" thing-id))
 (defn add-question-class [thing-id] (str "add-question-" thing-id))
+(defn add-comment-class [thing-id] (str "add-comment-" thing-id))
 
 ;;===============================================================
 ; xpath selector for assign to form
@@ -78,10 +80,10 @@
   [thing-id]
   (add-lecture-class thing-id))
 
-(defn add-lecture-form-sel
+
+(defn add-question-sel
   [thing-id]
-  (let [addlectureform (assign-form-class thing-id)]
-    (str "//div[@class='" assignform "']/form[@id='assign-form']")))
+  (add-question-class thing-id))
 
 
 ;;===============================================================
@@ -94,7 +96,7 @@
 ;;===============================================================
 (defmulti thing-node-html
   (fn [path render]  ; the last segment of path
-    (second (reverse path))))  
+    (second (reverse path))))
 
 
 ; dispatch by thing type, type is plural b/c sidebar list item name is plura.
@@ -106,13 +108,13 @@
         ; make a template attached to path node
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
-                         :children-class (child-class thingid)
+                         :children-class (child-class thingid) 
                          :assignments-class (assignment-class thingid)
                          :likes-class (like-class thingid)
                          :comments-class (comment-class thingid)
                          :followers-class (follower-class thingid)})
         ]
-    (.log js/console (str "thing-node-html " path))
+    (.log js/console (str "thing-node-html " path html))
     thing-div))
 
 
@@ -143,11 +145,11 @@
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
                          :lectures-class (lecture-class thingid)
+                         :add-lecture-class (add-lecture-class thingid)
                          :comments-class (comment-class thingid)
                          :share-class (share-class thingid)
                          :assignto-class (assignto-class thingid)
                          :assign-form-class (assign-form-class thingid)
-                         :add-lecture-class (add-lecture-class thingid)
                          :enroll-class (enroll-class thingid)})
         ]
     (.log js/console (str "thing-node-html " path))
@@ -162,7 +164,9 @@
         ; make a template attached to path node
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
-                         :homeworks-class (homeworks-class thingid)
+                         :questions-class (question-class thingid)
+                         :add-question-class (add-question-class thingid)
+                         :schedule-class (schedule-class thingid)
                          :comments-class (comment-class thingid)
                          :assignto-class (assignto-class thingid)
                          :assign-form-class (assign-form-class thingid)
@@ -174,14 +178,14 @@
 
 
 ;; ------------------------------------------------------------------------
-;; instantiate homework thing template and gen html for rendering
+;; instantiate question thing template and gen html for rendering
 ;; shall use selector for hardcoded dom class name
 ;; ------------------------------------------------------------------------
 (defmethod thing-node-html
-  :homework
+  :question
   [path render] 
   (let [thingid (last path)
-        templ (:thing-homework templates)
+        templ (:thing-question templates)
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
                          :lectures-class (lecture-class thingid)

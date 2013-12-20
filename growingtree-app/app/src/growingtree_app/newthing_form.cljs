@@ -76,6 +76,7 @@
              :lecture/wiki "lecture-wiki"
             }
 
+
     :question {:question/title "question-title" 
                :question/author "question-author"
                :question/type "question-type"
@@ -84,6 +85,16 @@
                :question/difficulty "question-difficulty"
                :question/tag "question-tag"
               }
+
+    :assignment {:assignment/title "assignment-title" 
+                 :assignment/origin "assignment-origin"
+                 :assignment/author "assignment-author"
+                 :assignment/person "assignment-person"
+                 :assignment/type "assignment-type"
+                 :assignment/hint "assignment-hint"
+                 :assignment/start "assignment-start"
+                 :assignment/end "assignment-end"
+                }
 
     :group {:group/title "group-title"
             :group/author "group-author"
@@ -99,23 +110,26 @@
 ;; submt fn for new thing form save btn, called from submit action transoform event
 ;;==================================================================================
 (defn submit-fn
-  [thing-type form override-map messages]
+  [add-thing-type form override-map messages]
   (fn [e]
-    (let [type-attr (get thing-type-attr thing-type)
+    (let [type-attr (get thing-type-attr add-thing-type)
           input-fields (keys type-attr)
           input-vals (->> (vals type-attr)
                           (map #(dom/by-id %))
                           (map #(.-value %)))
-          nmsp (namespace (first input-fields))
           details (-> (zipmap input-fields input-vals)
                       ; transform parent status and gender
-                      (util/update-enum nmsp "status" false)
-                      (util/update-enum nmsp "gender" false)
+                      (util/update-enum add-thing-type "status" false)
+                      (util/update-enum add-thing-type "gender" false)
                       ; transform thing type enum
-                      (util/update-enum nmsp "type" false)
+                      (util/update-enum add-thing-type "type" false)
+                      (util/update-time add-thing-type "start" false)
+                      (util/update-time add-thing-type "end" false)
+                      (assoc :thing-type add-thing-type) ; required for post-submit-thing dispatch
                       (merge override-map))
          ]
-      (.log js/console (str thing-type " new form submitted details " details))
+      (.log js/console (str add-thing-type " override-map" override-map))
+      (.log js/console (str add-thing-type " new form submitted details " details))
       (dom/destroy! form)
       (msgs/fill :create-thing messages {:details details}))))
 
@@ -143,8 +157,9 @@
 (defn enable-submit-add-thing-form 
   [add-thing-type path override-map input-queue]
   (let [form (dom/by-class (str (name add-thing-type) "-form"))
-        messages [{msgs/topic [:submit add-thing-type]
-                  msgs/type :submit
+        ; go to create-thing [:create :lecture] path
+        messages [{msgs/topic [:create add-thing-type]
+                  msgs/type :create-thing
                   (msgs/param :details) {}}]
         btn-cancel (-> form
                        (dx/xpath "//button[@id='cancel']"))

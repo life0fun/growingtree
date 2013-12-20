@@ -225,62 +225,6 @@
 
 
 ;; ---------------------------------------------------------------------------------
-;; Deprecated ! not used ! newthing btn setup and submit, 
-;; ---------------------------------------------------------------------------------
-; ; create new thing btn event listen, when clicked, display input newthing template
-; ; under main div. messages is cljs PersistentVector, hence doseq to process each.
-(defmethod enable-setup-action 
-  :newthing
-  [r [t path transkey messages] input-queue]  ; for newthing, only one msg in vector.
-  (let [newthing-sel (str "newthing")
-        newthing-li (dom/by-id newthing-sel)  ; newthing btn id in top nav bar
-        ; when clicked, closure user id.
-        click-fn
-          (fn [evt]
-            (let [id (render/new-id! r path)   ; new id for [:action :setup :newthing]
-                  parent (dom/by-id "main")    ; put the template  
-                  html (templates/add-template r path (:newthing templates))
-                  divcode (html {:id id})
-                  details-orig ((msgs/param :details) (first messages))
-                  details (assoc details-orig :action :newthing) ; :time (.unix js/moment)) ; ensure new
-                  new-msgs (msgs/fill :newthing messages {:details details})]
-              (.log js/console (str "render newthing at " path " id " id " " (render/get-id r path)))
-              
-              (dom/destroy-children! parent)
-              (dom/append! parent divcode)
-              (doseq [m new-msgs]
-                (p/put-message input-queue m))))
-        ]
-  
-    (.log js/console (str "enable setup newthing " path " details " ((msgs/param :details) (first messages))))
-    ; wrap assign link with div and use class selector
-    (de/listen! newthing-li :click click-fn)
-  ))
-    
-
-; wire submit button click on new thing template to fill newthing message
-(defmethod enable-submit-action 
-  :newthing
-  [r [target path transkey messages] input-queue]
-  (let [form (dom/by-class "newthing-form") ; must use dom by-class to select form ?!
-        type (dom/by-id "newthing-type")
-        title (dom/by-id "newthing-title")
-        content (dom/by-id "newthing-content")
-        submit-fn (fn [_]   ; form submit handler, fill msg and ret the msg
-                    (let [type-val (.-value type)
-                          title-val (.-value title)
-                          content-val (.-value content)
-                          details {:action :newthing :type type-val 
-                                   :title title-val :content content-val}]
-                      (.log js/console (str "newthing submitted " details))
-                      (dom/destroy! form)
-                      (msgs/fill :newthing messages {:details details})))]
-
-    (.log js/console (str "enable newthing submit " path transkey messages form))
-    (events/send-on :submit form input-queue submit-fn)))
- 
-
-;; ---------------------------------------------------------------------------------
 ; create new thing btn clicked event handler, listen submit event and fill details
 ; create-thing type is from nav path, keyword from create-modal. 
 ; messages/topic [:create :course], effect triggered by [:create :*]
@@ -298,15 +242,6 @@
     (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))
     (events/send-on :submit form input-queue submit-fn)
     ))
-
-
-;; ---------------------------------------------------------------------------------
-;; share btn setup and submit event handlers
-;; ---------------------------------------------------------------------------------
-(defmethod enable-setup-action 
-  :share 
-  [r [target path transkey messages] input-queue]
-  (.log js/console (str "share setup clicked " target path messages)))
 
 
 ;;==================================================================================
@@ -363,14 +298,54 @@
                       (toggle-hide-fn (entity-view/assign-form-class thingid)))
 
        ]
-    (.log js/console (str "enable thing nav assign toggle " path " "
-                          (entity-view/assign-form-sel thingid)))
+    (.log js/console (str "enable thing nav assign toggle " path " "))
     (de/listen! assignto-link :click toggle-fn)
   ))
  
 
 ; use xpath with id selector to find assignto-name and assignto-hint ele and.
 ; submit transform messsage upon clicked.
+; (defmethod enable-thing-nav  ; transkey = :assign-form
+;   :assign-form
+;   [r [_ path transkey messages] input-queue]
+;   (let [navpath (rest path)  ; [:parent 1 :assign-form]
+;         thingid (first (reverse (butlast navpath)))
+;         thing-node (dom/by-id (str thingid))
+ 
+;         ; select form by class and then xpath within the node
+;         ; form (-> (dom/by-class (entity-view/assign-form-class thingid))
+;         ;          (dx/xpath "//form[@id='assign-form']"))
+;         ; assignto-name (dx/xpath form "//input[@id='assignto-name']")
+;         ; assignto-hint (dx/xpath form "//input[@id='assignto-hint']")
+;         form (-> (entity-view/assign-form-sel thingid)
+;                  (dx/xpath))
+;         assignto-name (-> (entity-view/assign-input-sel thingid "assignto-name")
+;                           (dx/xpath))
+;         assignto-hint (-> (entity-view/assign-input-sel thingid "assignto-hint")
+;                           (dx/xpath))
+;         ; form submit handler, fill msg and ret the msg
+;         submit-fn 
+;           (fn [_]
+;             (let [to-val (dom/value assignto-name)
+;                   hint-val (dom/value assignto-hint)
+;                   details {:thing-type :assignment   ; single thing-type for add thing
+;                            :assignment/task-id thingid  ; homework, course, lecture, etc.
+;                            :assignment/homework thingid  ; homework, course, lecture, etc.
+;                            :assignment/assignee to-val.
+;                            :assignment/hint hint-val
+;                            :assignment/status :assignment.status/active
+;                            :assignment/start (.unix (js/moment))
+;                            :assignment/due (.unix (.add (js/moment) "hours" 4))
+;                            }]
+;               (.log js/console (str "assign form submitted " details))
+;               ((toggle-hide-fn form) nil)  ; hide the form
+;               (msgs/fill :submit messages {:details details})))
+;         ]
+;     (.log js/console (str "enable thing nav assign-form " path messages))
+;     ; wrap assign link with div and use class selector
+;     (events/send-on :submit form input-queue submit-fn)
+;   ))                                                                                                                                                                            
+
 (defmethod enable-thing-nav  ; transkey = :assign-form
   :assign-form
   [r [_ path transkey messages] input-queue]
@@ -406,18 +381,26 @@
               (.log js/console (str "assign form submitted " details))
               ((toggle-hide-fn form) nil)  ; hide the form
               (msgs/fill :submit messages {:details details})))
+
+          override-map {:lecture/course (:db/id thing-map)
+                      :lecture/type (keyword (:course/type thing-map))}
+          (newthing-form/enable-submit-add-thing-form :assignment 
+                                                      path 
+                                                      override-map
+                                                      input-queue)
         ]
     (.log js/console (str "enable thing nav assign-form " path messages))
     ; wrap assign link with div and use class selector
     (events/send-on :submit form input-queue submit-fn)
-  ))                                                                                                                                                                            
+  ))                                      
+
 
 
 
 ; ------------------------------------------------------------------------------------
 ; transform enable for [transforms [:nav :course 1 :add-lecture] :add-lecture
 ; ------------------------------------------------------------------------------------
-(defmethod enable-thing-nav  ; transkey = assign-toggle
+(defmethod enable-thing-nav  ; transkey = :add-lecture
   :add-lecture
   [r [_ path transkey messages] input-queue]
   (let [navpath (rest path)  ; [:course 1 :add-lecture]
@@ -427,9 +410,30 @@
         ; get the current thing map, and create override map
         thing-map ((msgs/param :thing-map) (first messages))
         override-map {:lecture/course (:db/id thing-map)
-                      :lecture/type (:course/type thing-map)}
+                      :lecture/type (keyword (:course/type thing-map))  ;
+                     }
         toggle-fn (toggle-add-thing-form-fn :lecture r path override-map input-queue)
        ]
     (.log js/console (str "enable thing nav " transkey " " path " " thing-map))
     (de/listen! add-lecture-link :click toggle-fn)
+  ))
+
+
+; ------------------------------------------------------------------------------------
+; transform enable for [transforms [:nav :lecture 1 :add-question] :add-question
+; ------------------------------------------------------------------------------------
+(defmethod enable-thing-nav  ; transkey = add-question
+  :add-question
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:lecture 1 :add-question]
+        thing-id (first (reverse (butlast navpath)))
+        thing-node (dom/by-id (str thing-id))
+        add-question-link (dom/by-class (entity-view/add-question-sel thing-id))
+        ; get the current thing map, and create override map
+        thing-map ((msgs/param :thing-map) (first messages))
+        override-map {:question/origin (:db/id thing-map)}
+        toggle-fn (toggle-add-thing-form-fn :question r path override-map input-queue)
+       ]
+    (.log js/console (str "enable thing nav " transkey " " path " " thing-map))
+    (de/listen! add-question-link :click toggle-fn)
   ))

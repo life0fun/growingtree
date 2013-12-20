@@ -254,6 +254,7 @@
     [:transform-enable [:nav :create-modal] modals/enable-create-modal]
 
     ; thing nav path event bindings, match any path, setup in thing navpath transforms
+    ; all thing nav sub link click events are wired inside here. 
     [:transform-enable  [:nav :* :**] transforms/enable-thing-nav]
     [:transform-disable [:nav :* :**] h/default-destroy]
 

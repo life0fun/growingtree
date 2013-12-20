@@ -65,6 +65,7 @@
 ; details setup in enable-thing-nav with :action :thing-id :assignto-name and :assignto-hint.
 ; we get the current login user as the user id
 ;;==================================================================================
+; XXX this should be deprecated !
 (defn post-submit-thing
   "assign form submitted, post thing details data to add to database"
   [inputs]
@@ -72,7 +73,7 @@
         msg (:message inputs)  ; active msg that triggered this effect flow
         msg-topic [:data :form]   ; single bucket to FIFO all submitted forms
         msg-type :submitted-form
-        details (assoc (:details msg) :user user)
+        details (assoc (:details msg) :author user)
         body {:msg-topic msg-topic :msg-type msg-type 
               :thing-type (:thing-type details) :details details}]
     (.log js/console (str user " submit form details " body))

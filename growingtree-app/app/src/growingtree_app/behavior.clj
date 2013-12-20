@@ -112,6 +112,7 @@
 ; [:data :all 0 :parent] or [:data :parent 1 :child]
 ; we store cljs.core.Vector data structure into path node. when clj get the ds out,
 ; no more parse needed. We only need one parse at response-handler.
+; all keyword field coerced to string after json stringify and stored here.
 (defn set-thing-data
   "store list of all things vec in [:all navpath] node specified by msg topic"
   [oldv message]
