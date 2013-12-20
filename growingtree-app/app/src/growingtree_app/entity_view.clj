@@ -114,7 +114,7 @@
                          :comments-class (comment-class thingid)
                          :followers-class (follower-class thingid)})
         ]
-    (.log js/console (str "thing-node-html " path html))
+    (.log js/console (str "thing-node-html " path thingid))
     thing-div))
 
 

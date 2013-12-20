@@ -154,8 +154,10 @@
                   old-things-vec)
             [[:node-destroy [:main]]])
         ]
-    (.log js/console (str "nav path emitter from " oldpath " to " newpath 
-                          " delete old data " datapath))
+    (.log js/console (str "nav path emitter from " oldpath " to " newpath))
+
+    ; do not need this, squash [:data] will emit [:value [:data] oldv nil], which effectively
+    ; remove all the nodes along the path.
     ; (vec 
     ;   (concat
     ;     ;((app/default-emitter nil) inputs)
@@ -164,12 +166,13 @@
     ;     ;             (.log js/console (str "nav path emitter del renderpath " renderpath))
     ;     ;             [[:node-destroy renderpath]]))
     ;     ;         old-things-vec)
-    ;     ;[[:node-destroy datapath]] ; (:data :course 17592186045425 :lecture) 
-    ;     [[:node-destroy [:main]]]  ; this cause dom/destroy-children! main section.
-    ;     [[:node-destroy [:filtered]]]  ; this cause dom/destroy-children! main section.
     ;   ))
 
-    [[:node-destroy [:main]]]
+    [
+      [:node-destroy [:header]]
+      [:node-destroy [:filtered]]
+      [:node-destroy [:main]]
+    ]
     ))
 
 
@@ -240,7 +243,7 @@
                 actiontransforms (thing-navpath-transforms thing-type entity-map)
                ]
             ; render-path [:header :child 17592186045497]
-            (.log js/console (str "thing data delta render-path " render-path entity-map))
+            (.log js/console (str "thing data delta node-create render-path " render-path))
             (concat [ [:node-create render-path :map]
                       [:value render-path entity-map] ]
                     actiontransforms)))
@@ -294,7 +297,9 @@
       }
 
     :question 
-      {:course {:path [:course :course]}
+      {
+       :lecture {:path [:course :lecture] }
+       :course {:path [:course :course]}
        :assignment {:path [:question :assignment]}
        :assign-toggle {:path [:question :assign-toggle]}
        :assign-form {:path [:question :assign-form]}
@@ -416,7 +421,7 @@
       ; [:nav :parent 17592186045499 :child] :child
       (fn [[nav type id transkey :as filtered-path]]
         (let [messages (thing-nav-messages filtered-path entity-map)] 
-          (.log js/console (str "thing nav transform emitter " type " " transkey " " messages))
+          (.log js/console (str "thing nav path emitter " type " " transkey " " filtered-path))
           (vector 
             [:transform-disable filtered-path]  ; fucking need to clean up your shit before re-enable.
             [:node-destroy filtered-path]

@@ -182,7 +182,7 @@
                       (dom/destroy! form)
                       (msgs/fill :assign messages {:details details})))]
 
-    (.log js/console (str "enable submit action assign" path  messages))
+    (.log js/console (str "enable submit action assign" path  " " thingid))
     (events/send-on :submit form input-queue submit-fn)))
 
 
@@ -227,7 +227,7 @@
         thing-node (dom/by-id (str thingid))
         ; thing nav link class set inside entity view class
         thing-link (dom/by-class (str (name transkey) "-" thingid))]
-    (.log js/console (str "enable " (str (name transkey) "-" thingid) " " path messages))
+    (.log js/console (str "enable thing nav " path " " thing-id " " transkey " " ))
     ; wrap assign link with div and use class selector
     (de/listen! thing-link
                 :click 
@@ -323,7 +323,7 @@
                       :assignment/end (.unix (.add (js/moment) "hours" 1))                        :assignment/type (keyword (:question/type thing-map))
                      }
        ]
-    (.log js/console (str "enable thing nav assign-form " thing-id messages))
+    (.log js/console (str "enable thing nav assign-form " thing-id path))
     (newthing-form/handle-inline-form-submit :assignment thing-id form
                                              override-map input-queue)
   ))
@@ -346,7 +346,7 @@
         toggle-fn (newthing-form/toggle-add-thing-form-fn :lecture r path 
                                                           override-map input-queue)
        ]
-    (.log js/console (str "enable thing nav " transkey " " path " " thing-map))
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " path " " ))
     (de/listen! add-lecture-link :click toggle-fn)
   ))
 
@@ -367,6 +367,6 @@
         toggle-fn (newthing-form/toggle-add-thing-form-fn :question r path 
                                                           override-map input-queue)
        ]
-    (.log js/console (str "enable thing nav " transkey " " path " " thing-map))
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " path " "))
     (de/listen! add-question-link :click toggle-fn)
   ))

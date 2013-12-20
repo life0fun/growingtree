@@ -44,6 +44,10 @@
 ;; util fns for attr convertion between map and entity attr.
 
 
+; forward declarations
+(declare attr-included?)
+
+
 ; ============================================================================
 ; convert unix mills to Date object as the value to #inst attr.
 ; clj-time expect unix offset in mills, moment().unix() only get seconds.
@@ -77,6 +81,7 @@
 
 ; ============================================================================
 ; coerce inserted details key value map to datomic entity attribute values.
+; XXX need to make sure value is already long, before doing read-string
 ; ============================================================================
 (defn to-datomic-attr-vals
   "coerce details value map to datomic db schema attr type values"
@@ -88,8 +93,8 @@
                 (= :db.type/instant type)
                   (into tot (vector [k (mills-date (* 1000 v))]))
 
-                ; for number type, read-string to convert it.
-                (= :db.type/long type)
+                ; for number type, read-string to convert it, only when val type is String.
+                (and (= :db.type/long type) (= java.lang.String (type v))) 
                   (into tot (vector [k (read-string v)]))
 
                 :else 
@@ -102,10 +107,10 @@
 ; get entities by qpath, formulate query rules from qpath
 ; qpath is [:all 0 :child] or [:parent 1 :child] or [:parent 1 :parent]
 ; ============================================================================
-(defn get-entities-by-rule
+(defn get-entities-by-rule-query
   "get entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
-  (prn "get entities by rule " qpath rule-set)
+  (prn "get entities by rule query " qpath rule-set)
   (if (= (first qpath) (last qpath))
     (let [eid (second qpath)
           e (get-entity eid)]
@@ -120,4 +125,29 @@
       entities)))
 
 
+(defn get-entities-by-rule
+  "get entities by qpath and rule-set, formulate query rules from qpath"
+  [qpath rule-set]
+  (prn "get entities by rule " qpath rule-set)
+  (let [eid (second qpath)
+        src (first qpath)
+        dst (last qpath)
+        e (get-entity eid)
+        included (attr-included? e src dst)]
+  (cond
+    (= src dst) [e] 
+    (not-nil? included) (map (comp get-entity :db/id) included)
+    :else (get-entities-by-rule-query qpath rule-set))))
+
+
+(defn attr-included?
+  [e e-ns attr]
+  (let [e-attr (keyword (str (name e-ns) "/" (name attr)))
+        e-origin (keyword (str (name e-ns) "/" (name :origin)))
+        e-attr-val (e-attr e)
+        e-origin-val (e-origin e)]
+    (prn "attr-included " e-ns e-attr e-origin e-attr-val e-origin-val)
+    (if e-attr-val
+      e-attr-val
+      e-origin-val)))
 

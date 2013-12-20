@@ -100,7 +100,7 @@
   (fn [response]
     ; parse response body into json and convert json to cljs PersistentVector
     (when-let [body (:body response)] ; only when we have valid body
-      (.log js/console (str "app service receive response :" body))
+      ;(.log js/console (str "app service receive response :" body))
       (let [bodyjson (JSON/parse body)  
             ; parse js json object to cljs.core.PersisitentVector data structre.
             result (js->clj bodyjson :keywordize-keys true)
@@ -108,7 +108,8 @@
             things-vec (:data result)  ; alway ret a list of things
             dbid (:db/id (first things-vec))
             ]
-        (.log js/console (str "xhr response tuples " dbid " type " thing-type msg-topic msg-type things-vec))
+        ;(.log js/console (str "xhr response tuples " dbid " type " thing-type msg-topic msg-type things-vec))
+        (.log js/console (str "xhr response tuples " dbid " type " thing-type msg-topic msg-type))
         ; dispatch to different transformer in behavior directly.
         (p/put-message input-queue
                        {msgs/topic msg-topic  ; store vec in [:all :parent]

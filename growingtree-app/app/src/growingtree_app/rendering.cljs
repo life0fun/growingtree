@@ -162,19 +162,23 @@
 
 ; render thing details page for thing nave, first, delete main div childrens.
 ; the render two sections, parent data at upper layer and list of children
+; render this page when it was not there.
 (defn render-filtered-page
   "render thing details parent header and a list of children, delete main children first"
   [r path]  ; path=[:header :parent]
-  (let [id (render/new-id! r (vec path))
-        templ (:thing-details templates)  ; attach thing-details template to main div
-        html (templates/add-template r path templ)
-        divcode (html {:id id})
-        main (dom/by-id "main")]
-    (.log js/console (str "render detail page " path id))
-    (dom/destroy-children! main)
-    (dom/append! main divcode)))
+  (when-not (dom/by-id "thing-root") ;(count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']")))
+    (let [id (render/new-id! r (vec path))
+          templ (:thing-details templates)  ; attach thing-details template to main div
+          html (templates/add-template r path templ)
+          divcode (html {:id id})
+          main (dom/by-id "main")]
+      (.log js/console (str "render detail page " path id))
+      (dom/destroy-children! main)
+      (dom/append! main divcode))))
 
 
+;
+; [:header :question 17592186045432] 
 (defn add-filtered-parent-node
   "render parent header in thing nav details"
   [r [op path] input-queue]
@@ -183,7 +187,7 @@
         ; get parent node
         ;div (dom/by-id (str thingid))
         ]
-    (.log js/console (str "add filtered parent node " thingid path))
+    (.log js/console (str "add header node " thingid path))
     ; first, clear all children
     ;(dom/destroy-children! (dom/by-id "main"))
     (render-filtered-page r (butlast path)) ; [:header :parent]
@@ -191,13 +195,15 @@
     (dom/append! (dom/by-id "thing-root") thing-div)))
 
 
+; [:filtered :question 17592186045432 :lecture 17592186045430]
 (defn append-filtered-child-node
   "append child node to thing nav children list panel"
   [r [op path] input-queue]
   (let [thingid (last path)
-        thing (entity-view/thing-node-html path r)
-        ]
-    ; [:data :parent 17592186045498 :child 17592186045497]
+        thing (entity-view/thing-node-html path r)]
+    ; render thing-details template if it is not rendered yet
+    (render-filtered-page r path)
+    ; [:filtered :question 17592186045432 :lecture 17592186045430]
     (.log js/console (str "append thing nav child node " thingid path))
     (dom/append! (dom/by-id "subthings-list") thing)))
     
@@ -272,6 +278,8 @@
     [:node-create [:header :* :*] add-filtered-parent-node]  
     ;[:value       [:header :* :*] value-filtered-parent-node]
     [:value       [:header :* :*] value-thing-node]
+    [:node-destroy [:header] clear-all-things]  ; clear all child under main div
+
     [:node-create [:filtered :* :* :* :*] append-filtered-child-node]
     ;[:value       [:filtered :* :* :* :*] value-filtered-child-node]
     [:value       [:filtered :* :* :* :*] value-thing-node]
