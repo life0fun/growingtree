@@ -229,11 +229,11 @@
 
 ; ret a vector of delta tuples of node-create and value delat from a vector of 
 ; thing data value. value is a vector of entity tuples, mapcat vec is de-pack and re-pack vec.
+; data for navpath stored in [:data :thing 1 :next-thing]
 (defn- thing-data-deltas
   [inputs input-path things-vec]   ; input-path = [:data :* :* :*] = [:data :all 0 :parent]
-  (let [navpath (rest input-path)]
+  (let [navpath (rest input-path)] ; [:data :course 1 :lecture] stores data for nav path [:course 1 :lecture]
     (vec (concat
-      ;(filtered-parent-deltas inputs render-type navpath)
       (mapcat
         (fn [entity-map]
           (let [id (:db/id entity-map)  ; :db/id is entity id
@@ -262,7 +262,41 @@
       (= child :id) (vec (concat [:detail] (butlast navpath)))  ; [:detail :parent 1]
       :else (vec (concat [:filtered] navpath [thing-id])))))
 
-  
+ 
+;;==================================================================================
+; multimethod for enable thing nav action bar links
+; render fills the msg with type set-nav-path and topic to [:nav :path], and path vector
+; transkeys are map keys inside each thing. We also define msgs for each transkey in thing nav meta.
+;;==================================================================================
+(defmulti thing-navpath-transforms
+  (fn [thing-type entity-map]
+    thing-type))
+
+
+; created node path for render at [:nav :thing-type :thing-id :extra ] :transkey, 
+; triggers enable-thing-nav
+(defmethod thing-navpath-transforms
+  :default
+  [thing-type entity-map]
+  (let [thing-id (:db/id entity-map)
+        transkeys (keys (get thing-nav-links thing-type))
+        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
+       ]
+    (mapcat
+      ; [:nav :parent 17592186045499 :child] :child
+      (fn [[nav type id transkey :as qpath]]
+        (let [messages (thing-nav-messages qpath entity-map)] 
+          (.log js/console (str "thing nav path emitter " type " " transkey " " qpath))
+          (vector 
+            [:transform-disable qpath]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy qpath]
+            [:transform-enable qpath ; always [:nav :parent 17592186045499 :child]
+                               transkey   ; nav next thing, :child, :coure
+                               messages
+                               ] )))
+      navpaths)))
+
+
 ;;==================================================================================
 ; all clickable sub thing links with current thing.
 ; render fills the msg with type set-nav-path and topic to [:nav :path], and path vector
@@ -314,6 +348,7 @@
 
 ; ------------------------------------------------------------------------
 ; generate nav path transform messages for each thing nav link click.
+; the navpaths is created inside (map #(conj [:nav thing-type thing-id] %) transkeys)
 ; [:nav :parent 17592186045499 :child] :child
 ; ------------------------------------------------------------------------
 (defmulti thing-nav-messages
@@ -321,19 +356,20 @@
     transkey))
 
 
+; nav-path = [:nav :parent 17592186045499 :child]
 (defmethod thing-nav-messages
   :default
   [[nav type id transkey :as nav-path] entity-map]
-  (let [header-path (concat (butlast (rest nav-path)) [type])
-        filter-path (rest nav-path)
+  (let [hdpath (concat (butlast (rest nav-path)) [type]) ; [:thing-type 1 :thing-type]
+        qpath (rest nav-path)
         messages [{
                    msgs/topic [:nav :path] 
                    msgs/type :set-nav-path
-                   :path (vec header-path)} 
+                   :path (vec hdpath)} 
                   {
                    msgs/topic [:nav :path] 
                    msgs/type :set-nav-path
-                   :path (vec filter-path)
+                   :path (vec qpath)
                   }]
         ]
     ;(.log js/console (str "thing-nav-messages " msgs))
@@ -351,6 +387,7 @@
         ]
     ;(.log js/console (str "thing-nav-messages " msgs))
     messages))
+
 
 (defmethod thing-nav-messages
   :assign-form
@@ -399,44 +436,6 @@
     messages))
 
 
-;;==================================================================================
-; multimethod for enable thing nav action bar links
-; render fills the msg with type set-nav-path and topic to [:nav :path], and path vector
-; transkeys are map keys inside each thing. We also define msgs for each transkey in thing nav meta.
-;;==================================================================================
-(defmulti thing-navpath-transforms
-  (fn [thing-type entity-map]
-    thing-type))
-
-
-; always emits transforms to render [:nav :* :** ] :transkey, triggers enable-thing-nav
-(defmethod thing-navpath-transforms
-  :default
-  [thing-type entity-map]
-  (let [thing-id (:db/id entity-map)
-        transkeys (keys (get thing-nav-links thing-type))
-        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
-       ]
-    (mapcat
-      ; [:nav :parent 17592186045499 :child] :child
-      (fn [[nav type id transkey :as filtered-path]]
-        (let [messages (thing-nav-messages filtered-path entity-map)] 
-          (.log js/console (str "thing nav path emitter " type " " transkey " " filtered-path))
-          (vector 
-            [:transform-disable filtered-path]  ; fucking need to clean up your shit before re-enable.
-            [:node-destroy filtered-path]
-            [:transform-enable filtered-path ; always [:nav :parent 17592186045499 :child]
-                               transkey   ; nav next thing, :child, :coure
-                               messages
-                               ] )))
-      navpaths)))
-
-
-(defn- removed-thing-deltas
-  "the removed path node from removed-inputs, arg is node path"
-  [input-path oldvals]
-  (.log js/console (str "removed path " input-path " oldvals " oldvals)))
-
 
 ;;==================================================================================
 ; after user submitted form data, emit a confirmation modal
@@ -475,33 +474,6 @@
                 ; concat this thing node delta
                 (concat alldeltas
                   [[:transform-enable newpath :assign [messages]]])))
-            []
-            changemap)
-    ))
-
-;;==================================================================================
-;; action bar newthing, triggered by [:setup :newthing]
-;;==================================================================================
-; after displaying new thing input page, hook up save new thing button
-(defn newthing-emitter
-  "action setup newthing transformed, emit trans enable for newthing save btn"
-  [inputs]
-  (let [changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
-        removemap (d/removed-inputs inputs)]
-    ; each change tuple consists of node-path and a vector of values
-    ; (doseq [[path oldv] changemap]
-    ;   (.log js/console (str "action changemap " path " old-value " oldv)))
-    ; (doseq [[path oldv] removemap]
-    ;   (.log js/console (str "action removemap " path " old-value " oldv)))
-
-    (reduce (fn [alldeltas [path newv]]
-              (let [newpath (conj [:submit] :newthing)
-                    messages {msgs/topic newpath 
-                              msgs/type :newthing
-                              (msgs/param :details) newv}]
-                ; concat 
-                (concat alldeltas
-                  [[:transform-enable newpath :newthing [messages]]])))
             []
             changemap)
     ))

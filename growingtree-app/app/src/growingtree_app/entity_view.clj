@@ -137,6 +137,7 @@
     thing-div))
 
 
+; path 
 (defmethod thing-node-html
   :course
   [path render]
@@ -146,7 +147,7 @@
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
                          :lectures-class (lecture-class thingid)
-                         :add-lecture-class (str (add-lecture-class thingid) " hide")
+                         :add-lecture-class (str (add-lecture-class thingid) " ")
                          :questions-class (question-class thingid)
                          :comments-class (comment-class thingid)
                          :share-class (share-class thingid)
@@ -260,6 +261,7 @@
   :assignment
   [path entity]
   (assoc entity :title (:assignment/title entity)))
+
 
 ; embeded ref object can be de-refed directly.
 ; (defmethod thing-view

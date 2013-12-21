@@ -46,6 +46,7 @@
   [inputs]  ; request path things by thing-type
   (let [msg (:message inputs)  ; get the active msg
         activepath (:path msg)   ; [:all 0 :children] or [:parent 1 :children] or [:parent 1 :parent]
+        
         thing-type (last activepath)
         ; topic = [:data :all 0 :parent], store data in location [:data :parent 1 :children]
         msg-topic (concat [:data] activepath)

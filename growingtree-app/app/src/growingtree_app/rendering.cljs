@@ -140,7 +140,8 @@
           title (:title view-vec)
           thing-map {:thing-entry-title title 
                      :thumbhref "thumbhref" 
-                     :entryhref path}]
+                     :entryhref path
+                     }]
       (.log js/console (str "update thing node value " path " new-value " newv))
       (templates/update-t r path thing-map))))
 
@@ -260,7 +261,8 @@
     [:transform-enable [:nav :create-modal] modals/enable-create-modal]
 
     ; thing nav path event bindings, match any path, setup in thing navpath transforms
-    ; all thing nav sub link click events are wired inside here. 
+    ; render path is created by thing-navpath-transforms emitter.
+    ; [:nav :thing-type :thing-id :nex-thing]
     [:transform-enable  [:nav :* :**] transforms/enable-thing-nav]
     [:transform-disable [:nav :* :**] h/default-destroy]
 

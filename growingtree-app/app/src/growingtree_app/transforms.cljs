@@ -155,8 +155,8 @@
 
 
 ;;==================================================================================
-; app model [:nav :*] transformer, event click on thing link to trigger nav path change.
-; nav from child id to parent, show filtered parent that is parent of this child
+; ; [:nav :thing-type :thing-id :nex-thing] click on next-thing event listener.
+; render path is created by thing-navpath-transforms emitter.
 ; path = [:transform-enable [:nav :child 17592186045496 :parent]] 
 ; path, transkey and messages setup in emitter thing-navpath-transforms, [nav type id transkey]
 ;;==================================================================================
@@ -165,6 +165,8 @@
     transkey))
 
 
+; default action for sublink, no params to fill, thing-nav-messages already setup
+; msg :path [:nav :thing id :next] with transkey = :next, so just send back transforms.
 (defmethod enable-thing-nav
   :default 
   [r [_ path transkey messages] input-queue]
