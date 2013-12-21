@@ -135,59 +135,6 @@
 
 
 ;; ---------------------------------------------------------------------------------
-;; assign btn setup and submit
-;; ---------------------------------------------------------------------------------
-; ; setup assign link event listen, when link clicked, render assign form actionbar 
-; ; and attach it to thing node div. Thing node div id is thing id. fill details msg.
-(defmethod enable-setup-action 
-  :assign
-  [r [t path k messages] input-queue]
-  (let [thingid (last (butlast path))   ; [:setup thing-type thing-id transkey]
-        html (templates/add-template r path (:assign-form templates))
-        div (html {:assign-form-class (sel/assign-form thingid)})
-
-        thing-node (dom/by-id (str thingid))
-        assignto-link (dom/by-class (str "assignto-" thingid))]
-  
-    (.log js/console (str "enable setup action assign " path))
-    ; wrap assign link with div and use class selector
-    (de/listen! assignto-link
-                :click 
-                (fn [evt]
-                  (dom/append! thing-node div)
-                  (let [details {:action :create-assign :id thingid}  ; close over action key
-                        new-msgs (msgs/fill :assign messages {:details details})]
-                    (.log js/console (str "assign link clicked " new-msgs))
-                    (doseq [m new-msgs]
-                      (p/put-message input-queue m)))))
-  ))
-
-
-; wire submit button click on assignment form to fill assign message
-; dispatch on transkey, :assign
-(defmethod enable-submit-action 
-  :assign
-  [r [target path transkey messages] input-queue]
-  (let [thingid (last (butlast path))
-        form (dom/by-class (sel/assign-form thingid))  ; must use dom by-class to select form ?!
-
-        to-node (dom/by-id "assign-to")
-        assignto-hint (dom/by-id "assign-hint")
-        submit-fn (fn [_]   ; form submit handler, fill msg and ret the msg
-                    (let [toid-val (.-value to-node)
-                          hint-val (.-value assignto-hint)
-                          details {:action :create-assignment 
-                                   :hwid thingid :toid toid-val :hint hint-val}]
-                      (.log js/console (str "assign submitted " details))
-                      (dom/destroy! form)
-                      (msgs/fill :assign messages {:details details})))]
-
-    (.log js/console (str "enable submit action assign" path  " " thingid))
-    (events/send-on :submit form input-queue submit-fn)))
-
-
-
-;; ---------------------------------------------------------------------------------
 ; create new thing btn clicked event handler, listen submit event and fill details
 ; create-thing type is from nav path, keyword from create-modal. 
 ; messages/topic [:create :course], effect triggered by [:create :*]

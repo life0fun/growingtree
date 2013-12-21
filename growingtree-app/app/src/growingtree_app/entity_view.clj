@@ -91,8 +91,9 @@
 ;; when rendering node-create with thing-type and id, ret thing node div html
 ;; [:node-create [:main :all 0 :parent 17592186045505] :map]
 ;; [:node-create [:main :parent 1 :child 17592186045505] :map]
-;; path = (:main :all 0 :parent 17592186045498) or 
-;;        (:header :parent 17592186045498)
+;; path = [:main :all 0 :parent 17592186045498]
+;;        [:header :parent 17592186045498]
+;;        [:filtered :course 17592186045428 :lecture 17592186045430]
 ;;===============================================================
 (defmulti thing-node-html
   (fn [path render]  ; the last segment of path
@@ -145,7 +146,7 @@
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
                          :lectures-class (lecture-class thingid)
-                         :add-lecture-class (add-lecture-class thingid)
+                         :add-lecture-class (str (add-lecture-class thingid) " hide")
                          :questions-class (question-class thingid)
                          :comments-class (comment-class thingid)
                          :share-class (share-class thingid)

@@ -124,41 +124,6 @@
     things-vec))  ; now vector is stored in [:all :parent]
 
 
-; Path is [:action :setup :thing-type thingid], stores details map {:action :assign :id 12}
-; user clicked assign link, show assign action bar, enable transform for content
-(defn setup-assign
-  "after displaying actionbar, store at [:action :setup :type id] the detail map"
-  [oldv message]
-  (let [details (:details message)]  ; details is {:action :create-assignment :id 12}
-    (.log js/console (str "setup assign details " details))
-    details))
-
-; Path is [:action :submit :thing-type thingid], stores details map {:action :assign :id 12}
-(defn submit-assign
-  "actionbar form submitted, store and write to effect queue"
-  [oldv message]
-  (let [details (:details message)] ; details is {:action :create-assignment :id xx}
-    (.log js/console (str "submitted assign details " details))
-    details))
-
-
-; newthing btn clicked, transform action setup newthing node in info model
-; each key val in details value map will create a new node under action setup newthing.
-(defn setup-newthing
-  "create new thing btn clicked, details should contains :user"
-  [oldv message]
-  (let [details (:details message)]
-    (.log js/console (str "newthing btn clicked " details))
-    details))
-
-(defn submit-newthing
-  "create new thing btn clicked "
-  [oldv message]
-  (let [details (:details message)]
-    (.log js/console (str "submit newthing " details))
-    details))
-
-
 ;; create thing from Create new thing modal
 (defn create-thing
   "create thing from create new thing modal"
@@ -176,13 +141,6 @@
     (.log js/console (str "set created thing data at " msg-topic " things-vec " things-vec))
     things-vec))  
 
-;; submit thing from inline submit form under parent thing
-(defn submit-thing
-  "submit new thing from inline submit form under parent thing"
-  [oldv message]
-  (let [details (:details message)]
-    (.log js/console (str "submit thing transform " details message))
-    details))
 
 ;;==================================================================================
 ;; derive dataflow, derive fn got 2 args, old value, and tracking map
@@ -276,22 +234,10 @@
                 [:submitted-form [:data :form] submitted-form]
 
 
-                ; assign action setup transform
-                ; [:assign [:setup :assign :* :*] setup-assign]
-                ; [:assign [:submit :assign :* :*] submit-assign]
-
-                ; new thing setup, each key in the value map will create a new node.
-                ;[:newthing [:setup :newthing] setup-newthing]
-                ;[:newthing [:submit :newthing] submit-newthing]
-
                 ; new thing template form submitted
                 [:create-thing [:create :*] create-thing]
                 ; app model node store just creatd thing
                 [:created-thing [:created :*] created-thing-data]
-
-                ; submit single thing form under parent thing, lecture, homework, 
-                ; assignment, question, answer, comment
-                [:submit [:submit :*] submit-thing]
                 
                ]
 
@@ -315,9 +261,7 @@
 
               ; create thing template form submitted, post data to server.
               [#{[:create :*]} effect/post-create-thing :mode :always]
-              
-              ; submit action effect, action is from topic and send details to backend.
-              ;[#{[:submit]} effect/post-submit-thing :mode :always]
+
             }
 
     ; emitter
