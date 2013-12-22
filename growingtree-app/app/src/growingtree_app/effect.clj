@@ -41,24 +41,57 @@
 ;; XXX we specific tranform msg topic and type here so response data got dispatch 
 ;; to the right locaton in data model directly.
 ;;==================================================================================
+; (defn request-navpath-things
+;   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
+;   [inputs]  ; request path things by thing-type
+;   (let [msg (:message inputs)  ; get the active msg
+;         activepath (:path msg)   ; [:all 0 :children] or [:parent 1 :children] or [:parent 1 :parent]
+        
+;         thing-type (last activepath)
+;         ; topic = [:data :all 0 :parent], store data in location [:data :parent 1 :children]
+;         msg-topic (concat [:data] activepath)
+;         msg-type :set-thing-data
+;         body {:msg-topic msg-topic :msg-type msg-type 
+;               :thing-type thing-type :path activepath}]
+;     ;{:msg-topic (:data :all 0 :children), :msg-type :set-thing-data, :thing-type :children, :path [:all 0 :children]} 
+;     (.log js/console (str "effect request nav path things " body))
+;     (if thing-type
+;       ;[{msgs/topic [:server] msgs/type thing-type (msgs/param :body) body}])))
+;       [{msgs/topic [:server] msgs/type :request-things (msgs/param :body) body}])))
+
 (defn request-navpath-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [inputs]  ; request path things by thing-type
   (let [msg (:message inputs)  ; get the active msg
-        activepath (:path msg)   ; [:all 0 :children] or [:parent 1 :children] or [:parent 1 :parent]
-        
-        thing-type (last activepath)
-        ; topic = [:data :all 0 :parent], store data in location [:data :parent 1 :children]
-        msg-topic (concat [:data] activepath)
-        msg-type :set-thing-data
-        body {:msg-topic msg-topic :msg-type msg-type 
-              :thing-type thing-type :path activepath}]
-    ;{:msg-topic (:data :all 0 :children), :msg-type :set-thing-data, :thing-type :children, :path [:all 0 :children]} 
-    (.log js/console (str "effect request nav path things " body))
-    (if thing-type
-      ;[{msgs/topic [:server] msgs/type thing-type (msgs/param :body) body}])))
-      [{msgs/topic [:server] msgs/type :request-things (msgs/param :body) body}])))
+        curpath (:path msg)   ; [:all 0 :children] or [:parent 1 :parent]
+        nxtpath (:qpath msg)  ; [:parent 1 :children]
+        allpath (filter (comp not nil?) [curpath nxtpath]) ; filter out no qpath case
 
+        bodies (map (fn [p]
+                    (let [thing-type (last p)
+                          ; set data store topic [:data :thing id :next-thing]
+                          body {:msg-type :set-thing-data
+                                :msg-topic (vec (concat [:data] p))
+                                :thing-type thing-type
+                                :path p   ; service side service need path for query
+                                :details {:path (vec p) :qpath (vec nxtpath)}
+                               }
+                         ]
+                      body)) 
+                  allpath)
+
+        requests (vec 
+                  (mapcat (fn [body]
+                            [{msgs/topic [:server]
+                              msgs/type :request-things
+                              (msgs/param :body) body}])
+                          bodies))
+        ]
+    (.log js/console (str "effect request nav things " requests))
+    (if (last curpath)
+      ;[{msgs/topic [:server] msgs/type :request-things (msgs/param :body) body}]
+      requests)
+    ))
 
 ;;==================================================================================
 ; after input form submitted, app model transform stores details in [:submit :thing-type]

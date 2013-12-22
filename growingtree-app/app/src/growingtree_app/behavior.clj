@@ -98,13 +98,15 @@
 
 ; extract the user clicked nav path from msg, and store it in [:nav :path] node
 ; nav path store a list of paths, each path is a list of target id. id=0 mean no filter.
-; [ [:current-thing current-thing-id :next ] [:current-thing current-thing-id :next] ... ]
-; for sidebar, it is [:sidebar 0 :thing-tyep]
+; [:course 17592186045425 :course] and [:course 17592186045425 :lecture]
+; for sidebar nav, it is [:all 0 :thing-tyep]
 (defn set-nav-path
   [oldv message]
-  (let [path (:path message)  ; :path is a vector
-        npath (vec (conj oldv path))]
-    (.log js/console (str "set-nav-path newpath " (take-last 2 npath)))
+  ; :path was setup in thing-nav-messages and init-nav-emitter for sidebar
+  (let [path (:path message)
+        qpath (:qpath message)   ; in thing nav filtered view, we have qpath
+        npath (take-last 6 (vec (conj (vec (conj oldv path)) qpath)))]
+    (.log js/console (str "set-nav-path newpath " (take-last 4 npath)))
     npath))
 
 
@@ -121,6 +123,7 @@
         thing-type (:thing-type message)  ; for all, thing-type is all
         things-vec (:data message)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
     (.log js/console (str "set thing data at " msg-topic " thing-type " thing-type " things-vec " things-vec))
+    (.log js/console (str "old value " oldv))
     things-vec))  ; now vector is stored in [:all :parent]
 
 
@@ -143,7 +146,9 @@
 
 
 ;;==================================================================================
-;; derive dataflow, derive fn got 2 args, old value, and tracking map
+; derive dataflow, derive fn got 2 args, old value, and tracking map
+; derive flow is still within the same dataflow that process the message.
+; the (:message inputs) is the current msg that triggeres the dataflow transform, derive, effect,...
 ;; [inputs output-path derive-fn input-spec] ;; input-spec is optional
 ;; derive-fn gets the old state of the *output* state, and the tracking map, map, single-val
 ;;==================================================================================
@@ -169,21 +174,29 @@
 ; from [:parent 17592186045498 :parent] to [:parent 17592186045498 :child] parent () 
 ;-----------------------------------------------------------------------------------------
 (defn refresh-thing-data
-  "remove stale things vec under [:data :all 0 :parent] upon nav path change"
+  "remove stale things vec under [:data nav-path] upon nav path change"
   [oldv inputs] 
-  (let [activemsg (:message inputs)
+  (let [; the activemsg is the dataflow msg that triggers nav path transform.
+        activemsg (:message inputs) 
+        path (:path activemsg)
+        qpath (:qpath activemsg)
+        
         oldpath (vec (last (get-in inputs [:old-model :nav :path])))
         newpath (vec (last (get-in inputs [:new-model :nav :path])))
-
         ; not used, just for experiments.
         old-thing-vec (get-in inputs (concat [:old-model :data] oldpath))
         parent-thing-id (second (reverse newpath))
         parent (filter #(= parent-thing-id (:db/id %)) old-thing-vec)
        ]
-    (.log js/console (str " nav path refresh from " oldpath " to " newpath " squash all [:data] "))
+    (.log js/console (str " nav path refresh from " oldpath " to " newpath " " activemsg))
     (if oldv
       ; ret new map to stored [:all], squash everything in old path so all nodes get deleted
-      (assoc-in oldv oldpath []))))
+      (-> oldv
+        (assoc-in path [])
+        (assoc-in qpath [])
+        (assoc-in oldpath [])   ; paranoid programming, not needed
+        (assoc-in newpath [])   ; paranoid programming, not needed
+      ))))
 
 
 
@@ -264,7 +277,7 @@
 
             }
 
-    ; emitter
+    ; emitter, all emitter fn must be defined, otherwise, NPE.
     :emit [;{:init emitter/init-app-model}
            {:init emitter/login-emitter}
 
@@ -278,7 +291,6 @@
 
            ; [:data :all 0 :parent] or [:data :parent 1 :child]
            {:in #{[:data :* :* :*]} :fn emitter/thing-data-emitter :mode :always}
-           {:in #{[:data :form]} :fn emitter/submitted-form-emitter :mode :always}
 
            ; when actionbar displayed, action, setup, assign, thing enable transform
            {:in #{[:setup :assign :* :*]} :fn emitter/assign-emitter :mode :always}
@@ -287,7 +299,6 @@
            {:in #{[:setup :newthing]} :fn emitter/newthing-emitter :mode :always}
 
            {:in #{[:sse-data]} :fn emitter/sse-data-emitter :mode :always}
-
 
            [#{[:pedestal :debug :dataflow-time]
               [:pedestal :debug :dataflow-time-max]

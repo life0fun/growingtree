@@ -199,19 +199,24 @@
 
 
 ;;==================================================================================
-;; thing data from xhr request, we do not look at changes, just blindly emit new nodes
-;; single filter triggered by changemap path [:data :parent 12 :child], and thing-vec. 
-;; this is b/c emitter defined at [:data :* :* :*]
+; received thing data from xhr request and stored in [:data nav-path]
+; XXX the meat is [:node-create render-path :map] [:value render-path entity-map]
+; render-path = [:main :all 0 :course 17592186045425]
+;        [:header :parent 17592186045498]
+;        [:filtered :course 17592186045428 :lecture 17592186045430]
+; thing-map is db entity {:db/id 17592186045425, :course/url "math.com/Math-I", 
+; :course/author [{:person/lname "rich", :person/title "rich-dad",}] ..
 ;;==================================================================================
 (defn thing-data-emitter
   "emit node-create and value delta for list of things from xhr response"
   [inputs]
   (let [msg (:message inputs)
+        qpath (:qpath (:details msg))  ; qpath is used for enable add thing of qpath link
         changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         removed (d/removed-inputs inputs)]
     ; each change tuple consists of node-path and a vector of values
     ;(removed-thing-deltas removed)
-    ; (.log js/console (str "thing data emit changemap " changemap))
+    (.log js/console (str "thing data emit qpath " qpath " changemap " changemap))
     ; (.log js/console (str "thing data emit removed " removed))
     ; (.log js/console (str "thing data emit msg " msg))
     (vec 
@@ -222,7 +227,7 @@
         (reduce  ; input path is [:data :all 0 :parent] as emitter is [:data :* :* :*]
           (fn [deltas [input-path newvals]] 
             ; concat is vec de-pack and re-pack, enable :assign action for now
-            (concat deltas (thing-data-deltas inputs input-path newvals)))
+            (concat deltas (thing-data-deltas inputs input-path qpath newvals)))
           []
           changemap)))))
 
@@ -231,7 +236,7 @@
 ; thing data value. value is a vector of entity tuples, mapcat vec is de-pack and re-pack vec.
 ; data for navpath stored in [:data :thing 1 :next-thing]
 (defn- thing-data-deltas
-  [inputs input-path things-vec]   ; input-path = [:data :* :* :*] = [:data :all 0 :parent]
+  [inputs input-path qpath things-vec]   ; input-path = [:data :* :* :*] = [:data :all 0 :parent]
   (let [navpath (rest input-path)] ; [:data :course 1 :lecture] stores data for nav path [:course 1 :lecture]
     (vec (concat
       (mapcat
@@ -242,10 +247,11 @@
                 render-path (navpath->renderpath navpath id)
                 actiontransforms (thing-navpath-transforms thing-type entity-map)
                ]
-            ; render-path [:header :child 17592186045497]
-            (.log js/console (str "thing data delta node-create render-path " render-path))
-            (concat [ [:node-create render-path :map]
-                      [:value render-path entity-map] ]
+            (.log js/console (str "node-create and value thing data at render-path " render-path))
+            ; XXX the meat is create and value node at render-path [:header :child 17592186045497]
+            (concat [ [:node-destroy render-path]
+                      [:node-create render-path :map]
+                      [:value render-path {:qpath qpath :thing-map entity-map}] ]
                     actiontransforms)))
         things-vec)
       ))))
@@ -254,47 +260,13 @@
 ; fill the render dispatch type for render node create to render proper template.
 ; XXX render path must be vector, otherwise, render/new-id! fail
 (defn navpath->renderpath
-  [navpath thing-id]
+  [navpath thing-id]  ; thing-id is passed in, to avoid [:all 0 :course] case.
   (let [[parent _ child] navpath]
     (cond 
       (= parent :all) (vec (concat [:main] navpath [thing-id]))
       (= parent child) (vec (concat [:header] (butlast navpath))) ; [:header :parent 1]
       (= child :id) (vec (concat [:detail] (butlast navpath)))  ; [:detail :parent 1]
-      :else (vec (concat [:filtered] navpath [thing-id])))))
-
- 
-;;==================================================================================
-; multimethod for enable thing nav action bar links
-; render fills the msg with type set-nav-path and topic to [:nav :path], and path vector
-; transkeys are map keys inside each thing. We also define msgs for each transkey in thing nav meta.
-;;==================================================================================
-(defmulti thing-navpath-transforms
-  (fn [thing-type entity-map]
-    thing-type))
-
-
-; created node path for render at [:nav :thing-type :thing-id :extra ] :transkey, 
-; triggers enable-thing-nav
-(defmethod thing-navpath-transforms
-  :default
-  [thing-type entity-map]
-  (let [thing-id (:db/id entity-map)
-        transkeys (keys (get thing-nav-links thing-type))
-        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
-       ]
-    (mapcat
-      ; [:nav :parent 17592186045499 :child] :child
-      (fn [[nav type id transkey :as qpath]]
-        (let [messages (thing-nav-messages qpath entity-map)] 
-          (.log js/console (str "thing nav path emitter " type " " transkey " " qpath))
-          (vector 
-            [:transform-disable qpath]  ; fucking need to clean up your shit before re-enable.
-            [:node-destroy qpath]
-            [:transform-enable qpath ; always [:nav :parent 17592186045499 :child]
-                               transkey   ; nav next thing, :child, :coure
-                               messages
-                               ] )))
-      navpaths)))
+      :else (vec (concat [:filtered] navpath [thing-id]))))) ; [filtered :thing id :next-thing id]
 
 
 ;;==================================================================================
@@ -344,6 +316,40 @@
        :question {:path [:assignment :question]}
       }
   })
+ 
+;;==================================================================================
+; thing nav bar sublink transform, emit [:nav :thing 1 :next-thing] click enabler.
+; for each next-thing, we setup message from thing-nav-messages and render fills the
+; msg with details from collected input value. if next-thing is nav, update [:nav :path]
+; all nav path next-thing as transkey are defined in thing-nva links
+;;==================================================================================
+(defmulti thing-navpath-transforms
+  (fn [thing-type entity-map]
+    thing-type))
+
+; created node path for render at [:nav :thing-type :thing-id :extra ] :transkey, 
+; triggers enable-thing-nav
+(defmethod thing-navpath-transforms
+  :default
+  [thing-type entity-map]
+  (let [thing-id (:db/id entity-map)
+        transkeys (keys (get thing-nav-links thing-type))
+        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
+       ]
+    (mapcat
+      ; [:nav :parent 17592186045499 :child] :child
+      (fn [[nav type id transkey :as qpath]]
+        (let [messages (thing-nav-messages qpath entity-map)] 
+          (.log js/console (str "thing nav path emitter " type " " transkey " " qpath))
+          (vector 
+            [:transform-disable qpath]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy qpath]
+            [:transform-enable qpath ; always [:nav :parent 17592186045499 :child]
+                               transkey   ; nav next thing, :child, :coure
+                               messages
+                               ] )))
+      navpaths)))
+
 
 
 ; ------------------------------------------------------------------------
@@ -356,25 +362,31 @@
     transkey))
 
 
+; for general next thing nav, ask render to send msg to [:nav :path] to update nav path.
 ; nav-path = [:nav :parent 17592186045499 :child]
 (defmethod thing-nav-messages
   :default
   [[nav type id transkey :as nav-path] entity-map]
   (let [hdpath (concat (butlast (rest nav-path)) [type]) ; [:thing-type 1 :thing-type]
         qpath (rest nav-path)
-        messages [{
-                   msgs/topic [:nav :path] 
+        ; messages [{
+        ;            msgs/topic [:nav :path] 
+        ;            msgs/type :set-nav-path
+        ;            :path (vec hdpath)
+        ;           }
+        ;           {
+        ;            msgs/topic [:nav :path] 
+        ;            msgs/type :set-nav-path
+        ;            :path (vec qpath)
+        ;           }]
+        messages [{msgs/topic [:nav :path] 
                    msgs/type :set-nav-path
-                   :path (vec hdpath)} 
-                  {
-                   msgs/topic [:nav :path] 
-                   msgs/type :set-nav-path
-                   :path (vec qpath)
-                  }]
+                   :path (vec hdpath)    ; path is current path
+                   :qpath (vec qpath)}   ; qpath is next path with query filter
+                 ]
         ]
-    ;(.log js/console (str "thing-nav-messages " msgs))
+    ;(.log js/console (str "thing-nav-messages " messages))
     messages))
-
 
 (defmethod thing-nav-messages
   :assign-toggle
@@ -385,7 +397,7 @@
                     (msgs/param :details) {}
                   }]
         ]
-    ;(.log js/console (str "thing-nav-messages " msgs))
+    ;(.log js/console (str "thing-nav-messages " messages))
     messages))
 
 
@@ -399,7 +411,7 @@
                     (msgs/param :details) {}
                   }]
         ]
-    ;(.log js/console (str "thing-nav-messages " msgs))
+    ;(.log js/console (str "thing-nav-messages " messages))
     messages))
 
 
@@ -434,19 +446,6 @@
                  ]
         ]
     messages))
-
-
-
-;;==================================================================================
-; after user submitted form data, emit a confirmation modal
-;;==================================================================================
-(defn submitted-form-emitter
-  "emit a confirmation modal after user submitted form"
-  [inputs]
-  (let [msg (:message inputs)]  ; get the active msg that triggers this
-    (.log js/console (str "submitted-form-emitter " msg))
-    []
-    ))
 
 
 ;;==================================================================================

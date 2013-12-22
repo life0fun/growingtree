@@ -93,10 +93,12 @@
 ;
 ; server always deliver list of things, parse to cljs.core.PersistentVector.
 ; app model transformer has :thing-type / :data keys.
+; msg-topic, type, details are setup inside effect request-navpath-thing and post-create-thing.
+; for request-navpath-thing, details contains :path :qpath, for post-create-thing, not used for now
 ;;==================================================================================
 (defn response-handler
   "dispatch RESTful json array response to app model set by effect nav path data"
-  [thing-type msg-topic msg-type input-queue]
+  [thing-type msg-topic msg-type details input-queue]
   (fn [response]
     ; parse response body into json and convert json to cljs PersistentVector
     (when-let [body (:body response)] ; only when we have valid body
@@ -109,14 +111,15 @@
             dbid (:db/id (first things-vec))
             ]
         ;(.log js/console (str "xhr response tuples " dbid " type " thing-type msg-topic msg-type things-vec))
-        (.log js/console (str "xhr response tuples " dbid " type " thing-type msg-topic msg-type))
+        (.log js/console (str "xhr response to input-queue " dbid " type " thing-type msg-topic msg-type))
         ; dispatch to different transformer in behavior directly.
         (p/put-message input-queue
                        {msgs/topic msg-topic  ; store vec in [:all :parent]
                         msgs/type msg-type
-                        :thing-type thing-type        ; set thing type
-                        :data things-vec  ; store cljs.core.PersistVector into path node
-                        })))))
+                        :thing-type thing-type    ; set thing type
+                        :details details      ; for request, contains [:path :qpat]
+                        :data things-vec})  ; store cljs.core.PersistVector into path node
+      ))))
 
 
 ;;=======================================================================================
@@ -125,9 +128,9 @@
 ;;=======================================================================================
 (defn request-things
   [body input-queue]
-  (let [{:keys [msg-topic msg-type thing-type path]} body
+  (let [{:keys [msg-topic msg-type thing-type path details]} body
         api (str "/api/" (name thing-type))
-        resp (response-handler thing-type msg-topic msg-type input-queue)]
+        resp (response-handler thing-type msg-topic msg-type details input-queue)]
     (.log js/console (str "app service request things " api msg-topic msg-type body))
     (xhr-request api "POST" body resp xhr-log)))
 
@@ -140,7 +143,7 @@
   [body input-queue]
   (let [{:keys [msg-topic msg-type thing-type details]} body
         api (str "/add/" (name thing-type))  ; api is /add/:thing
-        resp (response-handler thing-type msg-topic msg-type input-queue)]
+        resp (response-handler thing-type msg-topic msg-type details input-queue)]
     (.log js/console (str "app service add thing " thing-type msg-topic msg-type body))
     (xhr-request api "POST" body resp xhr-log)))
 

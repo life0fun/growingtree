@@ -174,8 +174,9 @@
         thingid (first (reverse (butlast navpath)))
         thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thingid))
+        next-thing (str (name transkey) "-" thingid)
         ; thing nav link class set inside entity view class
-        thing-link (dom/by-class (str (name transkey) "-" thingid))]
+        thing-link (dom/by-class next-thing)]
     (.log js/console (str "enable thing nav " path " " thing-id " " transkey " " ))
     ; wrap assign link with div and use class selector
     (de/listen! thing-link
@@ -183,7 +184,7 @@
                 (fn [evt]
                   (let [; deprected ! not used. emitter already set it up.
                         new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
-                    (.log js/console (str thing-type " link clicked " messages))
+                    (.log js/console (str thing-type  " nav to " next-thing " msgs " messages))
                     (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
                       (p/put-message input-queue m)))))
   ))

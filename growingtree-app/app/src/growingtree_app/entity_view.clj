@@ -29,22 +29,37 @@
 ; this module defines how entity attributes maps to view map.
 ; for example, view div title maps fname of persontitleand course title for course.
 
+(declare toggle-nav-add-subthing-class)
+
 ; Load templates macro.
 (def templates (html-templates/growingtree-app-templates))
 
 (defn parent-class [thing-id] (str "parent-" thing-id))
 (defn child-class [thing-id] (str "child-" thing-id))
+(defn add-child-class [thing-id] (str "add-child-" thing-id))
 (defn course-class [thing-id] (str "course-" thing-id))
 (defn lecture-class [thing-id] (str "lecture-" thing-id))
+(defn add-lecture-class [thing-id] (str "add-lecture-" thing-id))
 (defn question-class [thing-id] (str "question-" thing-id))
+(defn add-question-class [thing-id] (str "add-question-" thing-id))
 (defn assignment-class [thing-id] (str "assignment-" thing-id))
-(defn comment-class [thing-id] (str "comments-" thing-id))
+(defn add-assignment-class [thing-id] (str "add-assignment-" thing-id))
+(defn comments-class [thing-id] (str "comments-" thing-id))
+(defn add-comments-class [thing-id] (str "add-comments-" thing-id))
 (defn share-class [thing-id] (str "share-" thing-id))
 (defn answer-class [thing-id] (str "answer-" thing-id))
+(defn add-answer-class [thing-id] (str "add-answer-" thing-id))
 (defn follower-class [thing-id] (str "follower-" thing-id))
-(defn classmate-class [thing-id] (str "classmate-" thing-id))
+(defn add-follower-class [thing-id] (str "add-follower-" thing-id))
+(defn schoolclass-class [thing-id] (str "schoolclass-" thing-id))
+(defn add-schoolclass-class [thing-id] (str "add-schoolclass-" thing-id))
 (defn like-class [thing-id] (str "like-" thing-id))
-(defn enroll-class [thing-id] (str "enroll-" thing-id))
+(defn add-like-class [thing-id] (str "like-" thing-id))
+(defn enrollment-class [thing-id] (str "enrollment-" thing-id))
+(defn add-enrollment-class [thing-id] (str "add-enrollment-" thing-id))
+(defn activity-class [thing-id] (str "activity-" thing-id))
+(defn add-activity-class [thing-id] (str "add-activity-" thing-id))
+
 (defn schedule-class [thing-id] (str "schedule-" thing-id))
 
 (defn assignto-class [thing-id] (str "assignto-" thing-id))
@@ -53,10 +68,6 @@
 (defn assignto-hint-class [thing-id] (str "assignto-hint-" thing-id))
 (defn submit-class [thing-id] (str "submit-" thing-id))
 
-(defn add-child-class [thing-id] (str "add-child-" thing-id))
-(defn add-lecture-class [thing-id] (str "add-lecture-" thing-id))
-(defn add-question-class [thing-id] (str "add-question-" thing-id))
-(defn add-comment-class [thing-id] (str "add-comment-" thing-id))
 
 ;;===============================================================
 ; xpath selector for assign to form
@@ -87,6 +98,48 @@
 
 
 ;;===============================================================
+; get thing-map attr, attr passed in as string
+;;===============================================================
+(defn thing-attr-val
+  [thing-type thing-map attr]
+  (cond 
+    (= :parent thing-type) ((keyword (str "person/" attr)) thing-map)
+    (= :child thing-type) ((keyword (str "person/" attr)) thing-map)
+    :else ((keyword (str (name thing-type) "/" attr)) thing-map)))
+
+
+; get thing template map
+(defn thing-template-class
+  [thing-id sublink-meta]
+  (reduce 
+    (fn [tot [attr-key hide]]
+      (let [k (keyword (str (name attr-key) "-class")) 
+            clz (str (name attr-key) "-" thing-id hide)]
+        (assoc-in tot [k] clz)))
+    {}
+    sublink-meta))
+
+;;===============================================================
+; toggle to display whether nav-subthing or add-subthing. 
+; return class for template to show whether 
+;;===============================================================
+(defn toggle-nav-add-subthing-class
+  [thing-id thing-type qpath]
+  (when-let [nxt-thing-type (last qpath)]
+    (let [nmsp (keyword (str (name thing-type)))
+          ; hide nav subthing
+          nav-key (keyword (str (name nxt-thing-type) "-class"))
+          nav-clz (str (name nxt-thing-type) "-" thing-id " hide")
+
+          add-key (keyword (str "add-" (name nxt-thing-type) "-class"))
+          add-clz (str "add-" (name nxt-thing-type) "-" thing-id)
+
+          nav-add-clz (hash-map nav-key nav-clz add-key add-clz)
+         ]
+      (.log js/console "toggle nav add subthing " nav-key nav-clz add-key add-clz)
+      nav-add-clz)))
+
+;;===============================================================
 ;; generate thing template based on thing type
 ;; when rendering node-create with thing-type and id, ret thing node div html
 ;; [:node-create [:main :all 0 :parent 17592186045505] :map]
@@ -95,86 +148,58 @@
 ;;        [:header :parent 17592186045498]
 ;;        [:filtered :course 17592186045428 :lecture 17592186045430]
 ;;===============================================================
+
+; action key for each thing nav sublink type
+(def thing-nav-actionkey
+  {
+    :parent {:child "" :add-child " hide" :assignment "" :like ""
+             :comments "" :follow "" :group "" :add-group " hide"
+             :activity "" }
+
+    :child {:parent "" :add-parent " hide" :assignment "" :like ""
+            :comments "" :follow "" :schoolclass "" :add-schoolclass " hide"
+            :activity "" }
+
+    :course {:lecture "" :add-lecture " hide" 
+             :question "" :add-question " hide" 
+             :comments "" :add-comments " hide" 
+             :enrollment "" :add-enrollment " hide" 
+             :schedule "" :like "" :share "" :assignto "" :assign-form ""}
+
+    :lecture {:course "" 
+             :question "" :add-question " hide" 
+             :comments "" :add-comments " hide" 
+             :enrollment "" :add-enrollment " hide" 
+             :schedule "" :like "" :share "" :assignto "" :assign-form ""}
+    
+    :question {:lecture "" :similar ""
+               :question "" :add-question " hide" 
+               :comments "" :add-comments " hide" 
+               :like "" :share "" :assignto "" :assign-form ""}
+
+    :assignment {:question "" :hint "" :similar ""
+                 :answer "" :add-answer " hide" 
+                 :comments "" :add-comments " hide" 
+                 :like "" :share "" }
+  })
+
 (defmulti thing-node-html
   (fn [path render]  ; the last segment of path
     (second (reverse path))))
 
-
-; dispatch by thing type, type is plural b/c sidebar list item name is plura.
 (defmethod thing-node-html
-  :parent
+  :default
   [path render]
-  (let [thingid (last path)
-        templ (:thing-parent templates)
+  (let [thing-id (last path)
+        thing-type (second (reverse path))
+        templ ((keyword (str "thing-" (name thing-type))) templates)
         ; make a template attached to path node
         html (templates/add-template render path templ)
-        thing-div (html {:id thingid 
-                         :children-class (child-class thingid) 
-                         :assignments-class (assignment-class thingid)
-                         :likes-class (like-class thingid)
-                         :comments-class (comment-class thingid)
-                         :followers-class (follower-class thingid)})
-        ]
-    (.log js/console (str "thing-node-html " path thingid))
-    thing-div))
-
-
-(defmethod thing-node-html
-  :child
-  [path render]
-  (let [thingid (last path)
-        templ (:thing-child templates)
-        ; make a template attached to path node
-        html (templates/add-template render path templ)
-        thing-div (html {:id thingid 
-                         :parents-class (parent-class thingid)
-                         :courses-class (course-class thingid)
-                         :assignments-class (assignment-class thingid)
-                         :comments-class (comment-class thingid)
-                         :classmates-class (classmate-class thingid)})
-        ]
-    (.log js/console (str "thing-node-html " path))
-    thing-div))
-
-
-; path 
-(defmethod thing-node-html
-  :course
-  [path render]
-  (let [thingid (last path)
-        templ (:thing-course templates)
-        ; make a template attached to path node
-        html (templates/add-template render path templ)
-        thing-div (html {:id thingid 
-                         :lectures-class (lecture-class thingid)
-                         :add-lecture-class (str (add-lecture-class thingid) " ")
-                         :questions-class (question-class thingid)
-                         :comments-class (comment-class thingid)
-                         :share-class (share-class thingid)
-                         :assignto-class (assignto-class thingid)
-                         :assign-form-class (assign-form-class thingid)
-                         :enroll-class (enroll-class thingid)})
-        ]
-    (.log js/console (str "thing-node-html " path))
-    thing-div))
-
-
-(defmethod thing-node-html
-  :lecture
-  [path render]
-  (let [thingid (last path)
-        templ (:thing-lecture templates)
-        ; make a template attached to path node
-        html (templates/add-template render path templ)
-        thing-div (html {:id thingid 
-                         :questions-class (question-class thingid)
-                         :add-question-class (add-question-class thingid)
-                         :schedule-class (schedule-class thingid)
-                         :comments-class (comment-class thingid)
-                         :assignto-class (assignto-class thingid)
-                         :assign-form-class (assign-form-class thingid)
-                         :share-class (share-class thingid)
-                         :enroll-class (enroll-class thingid)})
+        
+        actionkeys (thing-type thing-nav-actionkey)
+        templ-map (merge {:id :thing-id} 
+                          (thing-template-class thing-id actionkeys))
+        thing-div (html templ-map)
         ]
     (.log js/console (str "thing-node-html " path))
     thing-div))
@@ -192,7 +217,7 @@
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
                          :lectures-class (lecture-class thingid)
-                         :comments-class (comment-class thingid)
+                         :comments-class (comments-class thingid)
                          :share-class (share-class thingid)
                          :assignto-class (assignto-class thingid)
                          :assign-form-class (assign-form-class thingid)
@@ -211,7 +236,7 @@
         html (templates/add-template render path templ)
         thing-div (html {:id thingid 
                          :answers-class (answer-class thingid)
-                         :comments-class (comment-class thingid)
+                         :comments-class (comments-class thingid)
                          :submit-class (submit-class thingid)
                          :share-class (share-class thingid)})
         ]
@@ -219,58 +244,52 @@
     thing-div))
 
 
+;;===========================================================================
+; xhr response data stored into [:data navpath], thing data emitter
+; [:node-create render-path :map] [:value render-path entity-map]
+; we have created thing node, now value thing node and return thing-view
+; rpath = [:main :all 0 :course 17592186045425]
+;        [:header :parent 17592186045498]
+;        [:filtered :course 17592186045428 :lecture 17592186045430]
+; qpath is nav to next thing, used for enable add subthing.
+; thing-map is db entity {:db/id 17592186045425, :course/url "math.com/Math-I", 
+; :course/author [{:person/lname "rich", :person/title "rich-dad",}] 
+;;===========================================================================
+; dispatch by thing-type
+(defmulti thing-value-view
+  (fn [r rpath qpath thing-map input-queue]
+    (second (reverse rpath))))
 
-;;===============================================================
-;; ret a view map for thing type
-;;===============================================================
-(defmulti thing-view
-  (fn [path entity]
-    (second (reverse path))))  
+; return thing value view based on passed in thing-map
+(defmethod thing-value-view
+  :default
+  [r rpath qpath thing-map input-queue]
+  (let [thing-id (last rpath)
+        thing-type (second (reverse rpath))
+        
+        nav-add-clz (toggle-nav-add-subthing-class thing-id thing-type qpath)
+        thing-view (merge 
+                      {:thing-entry-title (thing-attr-val thing-type thing-map "title")
+                       :thumbhref "thumbhref" 
+                       :entryhref rpath
+                      }
+                      nav-add-clz)
+                    ]
+    (.log js/console (str "update thing node value " rpath " new-value " thing-map))
+    thing-view))
 
+; (defmethod thing-value-view
+;   :course
+;   [r rpath qpath thing-map input-queue]
+;   (let [thing-id (last rpath)
+;         thing-type (second (reverse rpath))
+;         nmsp (keyword (str (name thing-type)))
+;         thing-view {:thing-entry-title (thing-attr-val thing-type thing-map "title")
+;                     :thumbhref "thumbhref" 
+;                     :entryhref rpath
+;                     :add-lecture-class (str (add-lecture-class thingid) " hide")
+;                    }]
+;     (.log js/console (str "update thing node value " rpath " new-value " thing-map))
+;     thing-view))
 
-(defmethod thing-view
-  :parent
-  [path entity]
-  (assoc entity :title (:person/title entity)))
-
-
-(defmethod thing-view
-  :child
-  [path entity]
-  (assoc entity :title (:person/title entity)))
-
-
-(defmethod thing-view
-  :course
-  [path entity]
-  (assoc entity :title (:course/title entity)))
-
-
-(defmethod thing-view
-  :lecture
-  [path entity]
-  (assoc entity :title (:lecture/title entity)))
-
-
-(defmethod thing-view
-  :question
-  [path entity]
-  (assoc entity :title (:question/title entity)))
-
-(defmethod thing-view
-  :assignment
-  [path entity]
-  (assoc entity :title (:assignment/title entity)))
-
-
-; embeded ref object can be de-refed directly.
-; (defmethod thing-view
-;   :assignment
-;   [path entity]
-;   (let [hmwk (:assignment/question entity)
-;         ident (util/thing-ident hmwk)
-;         titlekey (keyword (str (name ident) "/title"))
-;         title (titlekey hmwk)
-;         ]
-;     (assoc entity :title title)))
 

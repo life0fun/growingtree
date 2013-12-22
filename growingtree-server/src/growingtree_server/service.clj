@@ -200,7 +200,7 @@
   "get things by type, ret from peer a list of thing in a new line sep string"
   [{postdata :edn-params :as request}]
   (let [type (get-in request [:path-params :thing])
-        path (:path postdata)
+        path (:path postdata)   ; effect msg need to have query path
         thing-type (:thing-type postdata)
         things (peer/get-things thing-type path)
         result {:status 200 :data things}

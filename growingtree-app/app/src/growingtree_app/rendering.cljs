@@ -77,12 +77,12 @@
 ;;================================================================================
 (defn create-login-template
   "node-create of [:login], add template to top template tree root."
-  [r [_ path :as delta] input-queue]
-  (let [parent (render/get-parent-id r path)
-        id (render/new-id! r path)
-        html (templates/add-template r path (:login templates))
+  [r [_ rpath :as delta] input-queue]
+  (let [parent (render/get-parent-id r rpath)
+        id (render/new-id! r rpath)
+        html (templates/add-template r rpath (:login templates))
         divcode (html {:id id :name "user" :pass "pass"})]
-    (.log js/console (str "adding login template " path " parent " parent))
+    (.log js/console (str "adding login template " rpath " parent " parent))
     (dom/append! (dom/by-id parent) divcode)
   ))
 
@@ -93,25 +93,25 @@
 ; home page template includes sidebar, leaderboard and topthings. 
 (defn render-home-page 
   "homepage template is attached to [:nav], div homepage with id stored in [:nav] node"
-  [r [_ path] input-queue]
-  (let [parent (render/get-parent-id r path)  ; root of top level is [], maps to div id=content
-        id (render/new-id! r path)  ; gen a new id to the path.
-        html (templates/add-template r path (:homepage templates)) ; stores homepage div at [:nav] 
+  [r [_ rpath] input-queue]
+  (let [parent (render/get-parent-id r rpath)  ; root of top level is [], maps to div id=content
+        id (render/new-id! r rpath)  ; gen a new id to the rpath.
+        html (templates/add-template r rpath (:homepage templates)) ; stores homepage div at [:nav] 
         divcode (html {:id id})]
 
-    (.log js/console (str "render home template at " path " id " (render/get-id r path) 
-                          " parent id " (render/get-parent-id r path) parent))
+    (.log js/console (str "render home template at " rpath " id " (render/get-id r rpath) 
+                          " parent id " (render/get-parent-id r rpath) parent))
     (dom/destroy-children! (dom/by-id parent))
     ; attach to dom using domina.
     (dom/append! (dom/by-id parent) divcode)   ; homepage no data val map
   ))
 
 
-; called upon nav path change, clear all children under main div for 
+; called upon nav rpath change, clear all children under main div for 
 (defn clear-all-things
   "upon nav type change, clear all things divs under topthings div"
-  [r [_ path oldv newv] input-queue]
-  (.log js/console (str "clear all things upon nav type change " path))
+  [r [_ rpath oldv newv] input-queue]
+  (.log js/console (str "clear all things upon nav type change " rpath))
   (dom/destroy-children! (dom/by-id "main")))
 
 
@@ -119,40 +119,49 @@
 ;; add each thing list node, and setup action bar transformer in each node.
 ;;==================================================================================
 ; info model added a new node, create a new thing node, append it to topthings div.
-; path = 
+; render rpath 
 (defn add-thing-node
-  [r [op path] input-queue]
-  (let [thingid (last path)
-        thing-div (entity-view/thing-node-html path r)
+  [r [op rpath] input-queue]
+  (let [thingid (last rpath)
+        thing-div (entity-view/thing-node-html rpath r)
         main (dom/by-id "main")]
-    (.log js/console (str "adding thing node " path thingid))
+    (.log js/console (str "adding thing node " rpath thingid))
     (dom/append! main thing-div)))
     
 
 ; info model value transformed, update template attached to node path.
 ; oldv contains old value map and newv contains new value map. 
 ; only update template when new value exists.
+; thing-map is entity {:db/id 17592186045425, :course/url "math.com/Math-I"
+; (defn value-thing-node
+;   [r [op rpath oldv thing-map] input-queue]
+;   (when thing-map
+;     (let [thing-id (last rpath)
+;           thing-type (second (reverse rpath))
+;           thing-view (entity-view/thing-value-view r rpath thing-map input-queue)
+;          ]
+;       (.log js/console (str "value thing node " rpath " view  " thing-view))
+;       (templates/update-t r rpath thing-view))))
+
 (defn value-thing-node
-  [r [op path oldv newv] input-queue]
+  [r [op rpath oldv newv] input-queue]
   (when newv
-    (let [id (render/get-id r path)    ; node destroy, get-id will blow off
-          view-vec (entity-view/thing-view path newv)
-          title (:title view-vec)
-          thing-map {:thing-entry-title title 
-                     :thumbhref "thumbhref" 
-                     :entryhref path
-                     }]
-      (.log js/console (str "update thing node value " path " new-value " newv))
-      (templates/update-t r path thing-map))))
+    (let [{:keys [thing-map qpath]} newv  ; qpath is nav to next thing, used for enable add subthing.
+          thing-id (last rpath)
+          thing-type (second (reverse rpath))
+          thing-view (entity-view/thing-value-view r rpath qpath thing-map input-queue)
+         ]
+      (.log js/console (str "value thing node " rpath " qpath " qpath " view  " thing-view))
+      (templates/update-t r rpath thing-view))))
 
 
 (defn del-thing-node
-  [r [op path] input-queue]
-  (let [thingid (last path)
-        div (dom/by-id (str thingid))]
+  [r [op rpath] input-queue]
+  (let [thingid (last rpath)
+        dom-node (dom/by-id (str thingid))]
     (.log js/console "del thing node " thingid)
-    (h/destroy! r path)
-    (dom/destroy! div)))
+    (h/destroy! r rpath)
+    (dom/destroy! dom-node)))
     
 
 ;;================================================================================
@@ -166,14 +175,14 @@
 ; render this page when it was not there.
 (defn render-filtered-page
   "render thing details parent header and a list of children, delete main children first"
-  [r path]  ; path=[:header :parent]
+  [r rpath]  ; render rpath=[:header :parent]
   (when-not (dom/by-id "thing-root") ;(count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']")))
-    (let [id (render/new-id! r (vec path))
+    (let [id (render/new-id! r (vec rpath))
           templ (:thing-details templates)  ; attach thing-details template to main div
-          html (templates/add-template r path templ)
+          html (templates/add-template r rpath templ)
           divcode (html {:id id})
           main (dom/by-id "main")]
-      (.log js/console (str "render detail page " path id))
+      (.log js/console (str "render detail page " rpath id))
       (dom/destroy-children! main)
       (dom/append! main divcode))))
 
@@ -182,16 +191,16 @@
 ; [:header :question 17592186045432] 
 (defn add-filtered-parent-node
   "render parent header in thing nav details"
-  [r [op path] input-queue]
-  (let [thingid (last path)
-        thing-div (entity-view/thing-node-html path r)
+  [r [op rpath] input-queue]
+  (let [thingid (last rpath)
+        thing-div (entity-view/thing-node-html rpath r)
         ; get parent node
         ;div (dom/by-id (str thingid))
         ]
-    (.log js/console (str "add header node " thingid path))
+    (.log js/console (str "add header node " thingid rpath))
     ; first, clear all children
     ;(dom/destroy-children! (dom/by-id "main"))
-    (render-filtered-page r (butlast path)) ; [:header :parent]
+    (render-filtered-page r (butlast rpath)) ; [:header :parent]
     ; append parent
     (dom/append! (dom/by-id "thing-root") thing-div)))
 
@@ -199,39 +208,39 @@
 ; [:filtered :question 17592186045432 :lecture 17592186045430]
 (defn append-filtered-child-node
   "append child node to thing nav children list panel"
-  [r [op path] input-queue]
-  (let [thingid (last path)
-        thing (entity-view/thing-node-html path r)]
+  [r [op rpath] input-queue]
+  (let [thingid (last rpath)
+        thing (entity-view/thing-node-html rpath r)]
     ; render thing-details template if it is not rendered yet
-    (render-filtered-page r path)
+    (render-filtered-page r rpath)
     ; [:filtered :question 17592186045432 :lecture 17592186045430]
-    (.log js/console (str "append thing nav child node " thingid path))
+    (.log js/console (str "append thing nav child node " thingid rpath))
     (dom/append! (dom/by-id "subthings-list") thing)))
     
 
 (defn del-thing-nav-node
-  [r [op path] input-queue]
-  (let [thingid (last path)
+  [r [op rpath] input-queue]
+  (let [thingid (last rpath)
         div (dom/by-id (str thingid))]
-    (.log js/console (str "del thing nav node " thingid path))
-    (h/destroy! r path)
+    (.log js/console (str "del thing nav node " thingid rpath))
+    (h/destroy! r rpath)
     (dom/destroy! div)))
 
 
 ;;================================================================================
 ;; create thing page template
 ;;================================================================================
-; the last ele of the path is the thing type
+; the last ele of the rpath is the thing type
 (defn create-thing-page
-  [r [op path] input-queue]
-  (let [thing-type (last path)
-        id (render/new-id! r path)   ; new id for [::create :course]
+  [r [op rpath] input-queue]
+  (let [thing-type (last rpath)
+        id (render/new-id! r rpath)   ; new id for [::create :course]
         parent (dom/by-id "main")    ; put the template
         templ (thing-type templates)
-        html (templates/add-template r path templ)
+        html (templates/add-template r rpath templ)
         divcode (html {:id id})]
-    (.log js/console (str "render create thing page at " path " type " thing-type
-                          " id " id " " (render/get-id r path)))
+    (.log js/console (str "render create thing page at " rpath " type " thing-type
+                          " id " id " " (render/get-id r rpath)))
     (dom/destroy-children! parent)
     (dom/append! parent divcode)))
 
@@ -280,11 +289,13 @@
     [:node-create [:header :* :*] add-filtered-parent-node]  
     ;[:value       [:header :* :*] value-filtered-parent-node]
     [:value       [:header :* :*] value-thing-node]
+    [:node-destroy [:header :* :*] del-thing-node]
     [:node-destroy [:header] clear-all-things]  ; clear all child under main div
 
     [:node-create [:filtered :* :* :* :*] append-filtered-child-node]
     ;[:value       [:filtered :* :* :* :*] value-filtered-child-node]
     [:value       [:filtered :* :* :* :*] value-thing-node]
+    [:node-destroy [:filtered :* :* :* :*] del-thing-node]
     [:node-destroy [:filtered] clear-all-things]  ; clear all child under main div
     
 
