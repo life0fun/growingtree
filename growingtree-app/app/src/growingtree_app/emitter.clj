@@ -5,10 +5,10 @@
               [io.pedestal.app.util.platform :as platform]
               [io.pedestal.app.util.log :as log]
               [io.pedestal.app.messages :as msgs]
-              [clojure.set :as set]))
+              [clojure.set :as set]
+              [growingtree-app.entity-view :as entity-view]))
 
 (comment
-  
   (defn example-emit [inputs]
     (returns rendering deltas))
 
@@ -17,8 +17,7 @@
    :derive    #{[#{[:in]} [:path] example-derive]}
    :effect    #{[#{[:in]} example-effect]}
    :continue  #{[#{[:in]} example-continue]}
-   :emit      [[#{[:in]} example-emit]]}
-  )
+   :emit      [[#{[:in]} example-emit]]})
 
 ; emitter fn destructs the path of node [:todo :tasks task-id :completed]
 ; when adding task, (assoc todo :tasks (assoc (:tasks todo) id tasks)
@@ -268,54 +267,6 @@
       (= child :id) (vec (concat [:detail] (butlast navpath)))  ; [:detail :parent 1]
       :else (vec (concat [:filtered] navpath [thing-id]))))) ; [filtered :thing id :next-thing id]
 
-
-;;==================================================================================
-; all clickable sub thing links with current thing.
-; render fills the msg with type set-nav-path and topic to [:nav :path], and path vector
-;;==================================================================================
-(def thing-nav-links
-  {
-    :parent 
-      {:child {:path [:parent :child]}
-       :assignment {:path [:parent :assignment]}
-      }
-
-    :child 
-      {:parent {:path [:child :parent]}
-       :assignment {:path [:child :assignment]}
-      }
-
-    :course 
-      {
-       :lecture {:path [:course :lecture] }
-       ;:question {:path [:course :question] }
-       :assign-toggle {:path [:course :assign-toggle]}
-       :assign-form {:path [:course :assign-form]}
-       :add-lecture {:path [:course :add-lecture]}
-      }
-
-    :lecture 
-      {
-       :question {:path [:lecture :question] }
-       :assign-toggle {:path [:lecture :assign-toggle]}
-       :assign-form {:path [:lecture :assign-form]}
-       :add-question {:path [:lecture :add-question]}
-      }
-
-    :question 
-      {
-       :lecture {:path [:course :lecture] }
-       :course {:path [:course :course]}
-       :assignment {:path [:question :assignment]}
-       :assign-toggle {:path [:question :assign-toggle]}
-       :assign-form {:path [:question :assign-form]}
-      }
-
-    :assignment 
-      {:child {:path [:assignment :child]}
-       :question {:path [:assignment :question]}
-      }
-  })
  
 ;;==================================================================================
 ; thing nav bar sublink transform, emit [:nav :thing 1 :next-thing] click enabler.
@@ -333,7 +284,8 @@
   :default
   [thing-type entity-map]
   (let [thing-id (:db/id entity-map)
-        transkeys (keys (get thing-nav-links thing-type))
+        ;transkeys (keys (get thing-nav-links thing-type))
+        transkeys (keys (get entity-view/thing-nav-actionkey thing-type))
         navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
        ]
     (mapcat
