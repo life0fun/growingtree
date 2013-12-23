@@ -2,6 +2,7 @@
   (:require [domina :as dom]
             [domina.css :as dc]
             [domina.events :as de]
+            [domina.xpath :as dx]
             [io.pedestal.app.render.push :as render]
             [io.pedestal.app.render.events :as events]
             [io.pedestal.app.render.push.templates :as templates]

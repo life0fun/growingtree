@@ -5,10 +5,10 @@
   <!-- parent thing node div -->
   <div class="offset0 thing link" template="thing-parent" field="id:id">
     <p class="parent"></p>
-    <span class="rank"> 1 </span>
+    <span class="rank" field="content:rank"> 1 </span>
     <div class="midcol unvoted">
       <div class="arrow up" role="button" arial-label="upvote" tabindex="0"></div>
-      <div class="score unvoted"> 1234 </div>
+      <span class="score unvoted" field="content:like-count">12</span>
       <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
     
@@ -25,6 +25,7 @@
       </p>
       <p class="tagline">Joined since <time> Aug 2013 </time> </p>
       
+      <!-- tag line sublink buttons -->
       <ul class="flat-list buttons">
 
         <!-- child -->
@@ -250,14 +251,15 @@
 
   <!-- course thing node div -->
   <div class="offset0 thing link" template="thing-course" field="id:id">
-    <p class="parent"></p>
-    <span class="rank"> 1 </span>
+    <p class="course"></p>
+    <span class="rank" field="content:rank"> 1 </span>
     <div class="midcol unvoted">
       <div class="arrow up" role="button" arial-label="upvote" tabindex="0"></div>
-      <div class="score unvoted"> 1234 </div>
+      <span class="score unvoted" field="content:like-count">12</span>
       <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
-    
+
+
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <a class="thumbnail" template="thing-thumbnail" field="href:thumbhref">
       <img src="#" width="70" height="52" alt="">
@@ -401,11 +403,11 @@
 
   <!-- lecture thing node div -->
   <div class="offset0 thing link" template="thing-lecture" field="id:id">
-    <p class="parent"></p>
-    <span class="rank"> 1 </span>
+    <p class="lecture"></p>
+    <span class="rank" field="content:rank"> 1 </span>
     <div class="midcol unvoted">
       <div class="arrow up" role="button" arial-label="upvote" tabindex="0"></div>
-      <div class="score unvoted"> 1234 </div>
+      <span class="score unvoted" field="content:like-count">12</span>
       <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
     
@@ -532,11 +534,11 @@
 
   <!-- question node div -->
   <div class="offset0 thing link" template="thing-question" field="id:id">
-    <p class="parent"></p>
-    <span class="rank"> 1 </span>
+    <p class="question"></p>
+    <span class="rank" field="content:rank"> 1 </span>
     <div class="midcol unvoted">
       <div class="arrow up" role="button" arial-label="upvote" tabindex="0"></div>
-      <div class="score unvoted"> 1234 </div>
+      <span class="score unvoted" field="content:like-count">12</span>
       <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
     
@@ -631,11 +633,11 @@
 
   <!-- assignment node div -->
   <div class="offset0 thing link" template="thing-assignment" field="id:id">
-    <p class="parent"></p>
-    <span class="rank"> 1 </span>
+    <p class="assignment"></p>
+    <span class="rank" field="content:rank"> 1 </span>
     <div class="midcol unvoted">
       <div class="arrow up" role="button" arial-label="upvote" tabindex="0"></div>
-      <div class="score unvoted"> 1234 </div>
+      <span class="score unvoted" field="content:like-count">12</span>
       <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
     

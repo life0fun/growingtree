@@ -170,6 +170,7 @@
 
 ; default action for sublink, no params to fill, thing-nav-messages already setup
 ; msg :path [:nav :thing id :next] with transkey = :next, so just send back transforms.
+; default for all next thing navigation, e.g, from course to lecture, to question.
 (defmethod enable-thing-nav
   :default 
   [r [_ path transkey messages] input-queue]
@@ -192,17 +193,43 @@
                       (p/put-message input-queue m)))))
   ))
 
+; ------------------------------------------------------------------------------------
+; enable upvote event handler, defined in thing-type template and entity-view
+; [:transform-enable [:nav :courses 17592186045496 :upvote] :upvote
+; ------------------------------------------------------------------------------------
+(defmethod enable-thing-nav  ; upvote 
+  :upvote
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:parent 1 :upvote]
+        thing-id (first (reverse (butlast navpath)))
+
+        thing-node (dom/by-id (str thing-id))
+        upvote-link (entity-view/upvote-sel thing-id)
+        click-fn (fn [evt]
+                    (let [; create a like upon upvote click
+                          messages [{msgs/topic [:create :like]
+                                     msgs/type :create-thing
+                                     (msgs/param :details) {}}]
+                          details {:thing-id thing-id}
+                          new-msgs (msgs/fill :create-thing messages {:details details})]
+                      (.log js/console (str "upvote clicked " new-msgs))
+                      new-msgs))
+       ]
+    (.log js/console (str "enable thing nav upvote " path " "))
+    (de/listen! upvote-link :click click-fn)
+  ))
+
 
 ; ------------------------------------------------------------------------------------
-; enable assignto-toggle and assignto-submit form with link and form event handler.                                                                                              
-; nav anywhere -> assignto-submit , transkey is assignto-submit,.
-; [:transform-enable [:nav :courses 17592186045496 :assign-toggle] :assign-toggle
+; enable assignto and assign-form with link and form event handler
+; [:transform-enable [:nav :courses 17592186045496 :assignto] :assignto
 ; ------------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; assignto, defined in thing-question and entity-view
   :assignto
   [r [_ path transkey messages] input-queue]
   (let [navpath (rest path)  ; [:parent 1 :assign-toggle]
         thing-id (first (reverse (butlast navpath)))
+
         thing-node (dom/by-id (str thing-id))
         link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
         assignto-link (dom/by-class link-clz)
@@ -218,7 +245,6 @@
     (.log js/console (str "enable thing nav assign toggle " path " " link-clz assign-form-clz))
     (de/listen! assignto-link :click toggle-fn)
   ))
- 
 
 (defmethod enable-thing-nav  ; transkey = :assign-form
   :assign-form

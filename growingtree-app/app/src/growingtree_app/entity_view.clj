@@ -13,6 +13,7 @@
     (:require [domina :as dom]
               [domina.css :as dc]
               [domina.events :as de]
+              [domina.xpath :as dx]
               [io.pedestal.app.render.push :as render]
               [io.pedestal.app.render.events :as events]
               [io.pedestal.app.render.push.templates :as templates]
@@ -42,35 +43,48 @@
 ;;==================================================================================
 (def thing-nav-actionkey
   {
-    :parent {:child "" :add-child " hide" :assignment "" :like ""
-             :comments "" :follow "" :group "" :add-group " hide"
-             :activity "" }
+    :parent {:child "" :add-child " hide" 
+             :group "" :add-group " hide"
+             :assignment "" :comments "" :activity "" 
+             :upvote "" :like "" :follow "" 
+            }
 
-    :child {:parent "" :add-parent " hide" :assignment "" :like ""
-            :comments "" :follow "" :schoolclass "" :add-schoolclass " hide"
-            :activity "" }
+    :child {:parent "" :add-parent " hide" 
+            :schoolclass "" :add-schoolclass " hide"
+            :assignment "" :comments "" :activity ""
+            :upvote "" :like "" :follow "" 
+           }
 
     :course {:lecture "" :add-lecture " hide" 
              :question "" :add-question " hide" 
              :comments "" :add-comments " hide" 
              :enrollment "" :add-enrollment " hide" 
-             :schedule "" :like "" :share "" :assignto "" :assign-form ""}
+             :schedule "" 
+             :upvote "" :like "" :share "" 
+             :assignto "" :assign-form ""
+            }
 
     :lecture {:course "" 
-             :question "" :add-question " hide" 
-             :comments "" :add-comments " hide" 
-             :enrollment "" :add-enrollment " hide" 
-             :schedule "" :like "" :share "" :assignto "" :assign-form ""}
+              :question "" :add-question " hide" 
+              :comments "" :add-comments " hide" 
+              :enrollment "" :add-enrollment " hide" 
+              :schedule "" 
+              :upvote "" :like "" :share "" 
+              :assignto "" :assign-form ""
+             }
     
     :question {:lecture "" :similar ""
                :question "" :add-question " hide" 
                :comments "" :add-comments " hide" 
-               :like "" :share "" :assignto "" :assign-form ""}
+               :upvote "" :like "" :share "" 
+               :assignto "" :assign-form ""
+              }
 
     :assignment {:question "" :hint "" :similar ""
                  :answer "" :add-answer " hide" 
                  :comments "" :add-comments " hide" 
-                 :like "" :share "" }
+                 :upvote "" :like "" :share "" 
+                }
   })
 
 
@@ -78,15 +92,25 @@
 ; xpath selector for assign to form
 ;;===============================================================
 
+; dom selector for assign form
 (defn assign-form-sel
   [thing-id]
   (let [assignform (str "assign-form-" thing-id)]
     (str "//div[@class='" assignform "']/form[@id='assign-form']")))
 
+; dom selector for individual input field within assign form
 (defn assign-input-sel
   [thing-id field-name]
   (let [form-sel (assign-form-sel thing-id)]
     (str form-sel "/input[@id='" field-name"']")))
+
+; dom selector for upvote arrow up div, ret the upvote dom element
+(defn upvote-sel
+  [thing-id]
+  (let [thing-node (dom/by-id (str thing-id))
+        xpath (str "//div[@class='arrow up']")]
+    (-> thing-node
+        (dx/xpath xpath))))
 
 ;;===============================================================
 ; get thing-map attr, attr passed in as string
@@ -111,11 +135,6 @@
   [thing-id sublink-meta]
   (reduce 
     (fn [tot [attr-key hide]]
-      ; (let [
-      ;       ; k (keyword (str (name attr-key) "-class")) 
-      ;       ; clz (str (name attr-key) "-" thing-id hide)
-      ;       {:keys [k clz]} (thing-nav-link-sel thing-id attr-key hide)]
-      ; (assoc-in tot [k] clz)))
       (merge tot (thing-nav-link-sel thing-id attr-key hide)))
     {}
     sublink-meta))
@@ -160,16 +179,17 @@
   [path render]
   (let [thing-id (last path)
         thing-type (second (reverse path))
+        ; slice templ thing-parent, thing-child, from app templates
         templ ((keyword (str "thing-" (name thing-type))) templates)
         ; make a template attached to path node
         html (templates/add-template render path templ)
         
         actionkeys (thing-type thing-nav-actionkey)
-        templ-map (merge {:id :thing-id} 
+        templ-map (merge {:id thing-id} 
                           (thing-template-class thing-id actionkeys))
         thing-div (html templ-map)
         ]
-    (.log js/console (str "thing-node-html " path))
+    (.log js/console (str "thing-node-html " path " " (keyword (str "thing-" (name thing-type)))))
     thing-div))
 
 
@@ -195,14 +215,16 @@
   [r rpath qpath thing-map input-queue]
   (let [thing-id (last rpath)
         thing-type (second (reverse rpath))
-        
+        ; use qpath to toggle thing and add-thing transkey
         nav-add-clz (toggle-nav-add-subthing-class thing-id thing-type qpath)
-        thing-view (merge 
-                      {:thing-entry-title (thing-attr-val thing-type thing-map "title")
+        
+        thing-content {:thing-entry-title (thing-attr-val thing-type thing-map "title")
                        :thumbhref "thumbhref" 
                        :entryhref rpath
+                       :rank "2"
+                       :like-count "4321"
                       }
-                      nav-add-clz)
-                    ]
+        thing-view (merge thing-content nav-add-clz)
+        ]
     (.log js/console (str "update thing node value " rpath " new-value " thing-map))
     thing-view))
