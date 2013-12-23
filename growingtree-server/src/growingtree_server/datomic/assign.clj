@@ -163,9 +163,12 @@
 (defn find-question
   "find all question by query path "
   [qpath]
-  (let [entities (util/get-entities-by-rule qpath get-question-by) ; a list of entity tuples
-        projkeys (keys (dissoc question-schema :question/lecture :question/author))
-        question (map #(select-keys % projkeys) entities)
+  (let [projkeys (keys (dissoc question-schema :question/lecture :question/author))
+        question (->> (util/get-entities-by-rule qpath get-question-by)
+                      (map #(select-keys % projkeys) )
+                      (map (fn [c]
+                             (assoc-in c [:question/upvote]
+                                       (+ (util/upvotes (:db/id c)) (rand-int 100))))))
         ]
     (prn projkeys question)
     (doseq [e question]
@@ -229,9 +232,12 @@
 (defn find-assignment
   "find all assignment by query path "
   [qpath]
-  (let [entities (util/get-entities-by-rule qpath get-assignment-by) ; a list of entity tuples
-        projkeys (keys assignment-schema)
-        assignments (map #(select-keys % projkeys) entities)
+  (let [projkeys (keys assignment-schema)
+        assignments (->> (util/get-entities-by-rule qpath get-assignment-by)
+                     (map #(select-keys % projkeys) )
+                     (map (fn [c]
+                            (assoc-in c [:assignment/upvote]
+                                      (+ (util/upvotes (:db/id c)) (rand-int 100))))))
         ]
     (doseq [e assignments]
       (prn "assignment --> " e))

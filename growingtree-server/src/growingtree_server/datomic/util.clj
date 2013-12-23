@@ -125,6 +125,11 @@
       entities)))
 
 
+; in case like assignment can be created by course or lecture, in assignment schema,
+; it only has :origin ref back to either course or lecture. 
+; if query course by assignment, or query lecture by assignment, we need to not only
+; check direct attr name, but also origin ref for those cases.
+; add origin type to diff thing created from different origin type, maybe ?
 (defn get-entities-by-rule
   "get entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
@@ -140,14 +145,32 @@
     :else (get-entities-by-rule-query qpath rule-set))))
 
 
+; either entity has the attr directly, or entity has :origin reference back
+; to the entity we want to find. 
+; for cases assignment can be created from course, or from lecture.
 (defn attr-included?
   [e e-ns attr]
   (let [e-attr (keyword (str (name e-ns) "/" (name attr)))
-        e-origin (keyword (str (name e-ns) "/" (name :origin)))
         e-attr-val (e-attr e)
+        e-origin (keyword (str (name e-ns) "/" (name :origin)))
         e-origin-val (e-origin e)]
     (prn "attr-included " e-ns e-attr e-origin e-attr-val e-origin-val)
     (if e-attr-val
       e-attr-val
       e-origin-val)))
+
+
+; ============================================================================
+; get no of likes for certain entity
+; ============================================================================
+(defn upvotes
+  [thing-id]
+  (let [like-entity (dbconn/find-by :like/origin thing-id)
+        likes (count (:like/person like-entity))
+       ]
+    (prn "upvotes for thing " thing-id " count " likes)
+    likes))
+
+
+
 

@@ -126,11 +126,11 @@
   [eid]
   (dbconn/show-entity-by-id eid))
 
-; get entity by attribute and vaule
-(defn find-entity
-  "get entity by attribute and value"
+; get entities by attribute and vaule
+(defn find-entities
+  "get entities by attribute and value"
   [attr val]
-  (dbconn/find-entity attr val))
+  (dbconn/find-entities attr val))
 
 ;;==============================================================
 ;; family related, should use multi-method to dispatch

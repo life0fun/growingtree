@@ -105,8 +105,11 @@
   ; :path was setup in thing-nav-messages and init-nav-emitter for sidebar
   (let [path (:path message)
         qpath (:qpath message)   ; in thing nav filtered view, we have qpath
-        npath (take-last 6 (vec (conj (vec (conj oldv path)) qpath)))]
-    (.log js/console (str "set-nav-path newpath " (take-last 4 npath)))
+        npath (->> (if qpath (concat oldv [path] [qpath]) (concat oldv [path]))
+                   (take-last 6)
+                   (vec))
+       ]
+    (.log js/console (str "set-nav-path newpath " npath))
     npath))
 
 

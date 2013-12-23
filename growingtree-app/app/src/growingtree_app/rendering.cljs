@@ -134,16 +134,7 @@
 ; oldv contains old value map and newv contains new value map. 
 ; only update template when new value exists.
 ; thing-map is entity {:db/id 17592186045425, :course/url "math.com/Math-I"
-; (defn value-thing-node
-;   [r [op rpath oldv thing-map] input-queue]
-;   (when thing-map
-;     (let [thing-id (last rpath)
-;           thing-type (second (reverse rpath))
-;           thing-view (entity-view/thing-value-view r rpath thing-map input-queue)
-;          ]
-;       (.log js/console (str "value thing node " rpath " view  " thing-view))
-;       (templates/update-t r rpath thing-view))))
-
+; rpath is [:main :all 0 :course 17592186045425] 
 (defn value-thing-node
   [r [op rpath oldv newv] input-queue]
   (when newv
@@ -153,6 +144,7 @@
           thing-view (entity-view/thing-value-view r rpath qpath thing-map input-queue)
          ]
       (.log js/console (str "value thing node " rpath " qpath " qpath " view  " thing-view))
+      ; thing template is attached at render path node, update it with new view map
       (templates/update-t r rpath thing-view))))
 
 
@@ -280,6 +272,10 @@
     ;; ============== all data thing node viewed on main section ============
     ;; render path is setup in navpath->render-path in thing-data-emitter
     ;; ======================================================================
+    ; there is race condition when click thing nav and before data returns, we clicked
+    ; side nav. so the header/filter will comes after side nav clear all.
+    ; the first :all node will create main, so we need to render home page again upon main.
+    [:node-create  [:main] clear-all-things]   
     [:node-create [:main :all :* :* :*] add-thing-node]  ; [:all :parent id]
     [:value       [:main :all :* :* :*] value-thing-node]
     [:node-destroy [:main :all :* :* :*] del-thing-node]

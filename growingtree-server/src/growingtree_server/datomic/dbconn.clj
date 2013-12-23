@@ -275,12 +275,12 @@
 
 
 
-; find entity by its attr and value
-(defn find-entity
-  "find entity by attr value, ret a list of matching tuples [[eid] [eid]]"
+; find a list of entity by its attr and value
+(defn find-entities
+  "find entities by attr value, ret a list of matching tuples [[eid] [eid]]"
   [attr attr-val]
-  (let [rule (conj '[?e ] attr '?val)  ; quote ?e ?val symbol
-        q (conj '[:find ?e :in $ ?val :where ] rule)
+  (let [where (conj '[?e ] attr '?val)  ; quote ?e ?val symbol
+        q (conj '[:find ?e :in $ ?val :where ] where)
         eid (d/q q (get-db) attr-val)]
     eid))
 

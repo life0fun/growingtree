@@ -112,11 +112,12 @@
     (-> thing-node
         (dx/xpath xpath))))
 
+
 ;;===============================================================
 ; get thing-map attr, attr passed in as string
 ;;===============================================================
 (defn thing-attr-val
-  [thing-type thing-map attr]
+  [thing-map thing-type attr]
   (cond 
     (= :parent thing-type) ((keyword (str "person/" attr)) thing-map)
     (= :child thing-type) ((keyword (str "person/" attr)) thing-map)
@@ -159,37 +160,37 @@
       (.log js/console "toggle nav add subthing " nav-key nav-clz add-key add-clz)
       nav-add-clz)))
 
-;;===============================================================
-;; generate thing template based on thing type
+;;=============================================================================
+;; generate thing template based on thing type, and attach template to render path.
 ;; when rendering node-create with thing-type and id, ret thing node div html
 ;; [:node-create [:main :all 0 :parent 17592186045505] :map]
 ;; [:node-create [:main :parent 1 :child 17592186045505] :map]
-;; path = [:main :all 0 :parent 17592186045498]
+;; render-path = [:main :all 0 :parent 17592186045498]
 ;;        [:header :parent 17592186045498]
 ;;        [:filtered :course 17592186045428 :lecture 17592186045430]
-;;===============================================================
-
+;;=============================================================================
 
 (defmulti thing-node-html
-  (fn [path render]  ; the last segment of path
-    (second (reverse path))))
+  (fn [render-path render]  ; the last segment of path
+    (second (reverse render-path))))
 
+; generated template html is attached to render path, and updatable from render-path
 (defmethod thing-node-html
   :default
-  [path render]
-  (let [thing-id (last path)
-        thing-type (second (reverse path))
+  [rpath render]
+  (let [thing-id (last rpath)
+        thing-type (second (reverse rpath))
         ; slice templ thing-parent, thing-child, from app templates
         templ ((keyword (str "thing-" (name thing-type))) templates)
-        ; make a template attached to path node
-        html (templates/add-template render path templ)
+        ; add the rendered template attached to rpath node
+        html (templates/add-template render rpath templ)
         
         actionkeys (thing-type thing-nav-actionkey)
         templ-map (merge {:id thing-id} 
                           (thing-template-class thing-id actionkeys))
         thing-div (html templ-map)
         ]
-    (.log js/console (str "thing-node-html " path " " (keyword (str "thing-" (name thing-type)))))
+    (.log js/console (str "thing-node-html " rpath " " (keyword (str "thing-" (name thing-type)))))
     thing-div))
 
 
@@ -218,13 +219,14 @@
         ; use qpath to toggle thing and add-thing transkey
         nav-add-clz (toggle-nav-add-subthing-class thing-id thing-type qpath)
         
-        thing-content {:thing-entry-title (thing-attr-val thing-type thing-map "title")
+        upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+        thing-content {:thing-entry-title (thing-attr-val thing-map thing-type "title")
                        :thumbhref "thumbhref" 
                        :entryhref rpath
-                       :rank "2"
-                       :like-count "4321"
+                       :rank "2"  ; not sure why values must be string.
+                       :upvote upvotes
                       }
         thing-view (merge thing-content nav-add-clz)
         ]
-    (.log js/console (str "update thing node value " rpath " new-value " thing-map))
+    (.log js/console (str "update thing node value " rpath " ^ " upvotes " new-value " thing-map))
     thing-view))

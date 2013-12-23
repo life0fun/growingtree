@@ -129,13 +129,16 @@
   ])
 
 
-; find a course
+; find a course, thread thru project keys, and fill :course/likes
 (defn find-course
   "find course by query path"
   [qpath]
-  (let [entities (util/get-entities-by-rule qpath get-course-by)
-        projkeys (keys course-schema)  ; must select-keys from datum entity attributes
-        courses (map #(select-keys % projkeys) entities)
+  (let [projkeys (keys course-schema)  ; must select-keys from datum entity attributes
+        courses (->> (util/get-entities-by-rule qpath get-course-by)
+                     (map #(select-keys % projkeys) )
+                     (map (fn [c]
+                            (assoc-in c [:course/upvote]
+                                      (+ (util/upvotes (:db/id c)) (rand-int 100))))))
        ]
     (doseq [e courses]
       (prn "course --> " e))
@@ -168,9 +171,12 @@
 (defn find-lecture
   "find lecture by query path "
   [qpath]
-  (let [entities (util/get-entities-by-rule qpath get-lecture-by)
-        projkeys (keys lecture-schema)
-        lectures (map #(select-keys % projkeys) entities)
+  (let [projkeys (keys lecture-schema)
+        lectures (->> (util/get-entities-by-rule qpath get-lecture-by)
+                     (map #(select-keys % projkeys) )
+                     (map (fn [c]
+                            (assoc-in c [:lecture/upvote]
+                                      (+ (util/upvotes (:db/id c)) (rand-int 100))))))
         ]
     (doseq [e lectures]
       (prn "lecture --> " e))

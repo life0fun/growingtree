@@ -242,9 +242,9 @@
         (fn [entity-map]
           (let [id (:db/id entity-map)  ; :db/id is entity id
                 thing-type (last input-path)
-                ; [:main :parent 12 :child 34]
+                ; [:main :parent 12 :child 34], pass render-path to transforms emit
                 render-path (navpath->renderpath navpath id)
-                actiontransforms (thing-navpath-transforms thing-type entity-map)
+                actiontransforms (thing-navpath-transforms thing-type render-path entity-map)
                ]
             (.log js/console (str "node-create and value thing data at render-path " render-path))
             ; XXX the meat is create and value node at render-path [:header :child 17592186045497]
@@ -273,16 +273,17 @@
 ; for each next-thing, we setup message from thing-nav-messages and render fills the
 ; msg with details from collected input value. if next-thing is nav, update [:nav :path]
 ; all nav path next-thing as transkey are defined in thing-nva links
+; we also pass render path to transform as thing node template is attached to render path.
 ;;==================================================================================
 (defmulti thing-navpath-transforms
-  (fn [thing-type entity-map]
+  (fn [thing-type render-path entity-map]
     thing-type))
 
 ; created node path for render at [:nav :thing-type :thing-id :extra ] :transkey, 
 ; triggers enable-thing-nav
 (defmethod thing-navpath-transforms
   :default
-  [thing-type entity-map]
+  [thing-type render-path entity-map]
   (let [thing-id (:db/id entity-map)
         ;transkeys (keys (get thing-nav-links thing-type))
         transkeys (keys (get entity-view/thing-nav-actionkey thing-type))
@@ -290,13 +291,13 @@
        ]
     (mapcat
       ; [:nav :parent 17592186045499 :child] :child
-      (fn [[nav type id transkey :as qpath]]
-        (let [messages (thing-nav-messages qpath entity-map)] 
-          (.log js/console (str "thing nav path emitter " type " " transkey " " qpath))
+      (fn [[nav type id transkey :as navpath]]
+        (let [messages (thing-nav-messages navpath render-path entity-map)] 
+          (.log js/console (str "thing nav path emitter " type " " transkey " " navpath))
           (vector 
-            [:transform-disable qpath]  ; fucking need to clean up your shit before re-enable.
-            [:node-destroy qpath]
-            [:transform-enable qpath ; always [:nav :parent 17592186045499 :child]
+            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy navpath]
+            [:transform-enable navpath ; always [:nav :parent 17592186045499 :child]
                                transkey   ; nav next thing, :child, :coure
                                messages
                                ] )))
@@ -310,7 +311,7 @@
 ; [:nav :parent 17592186045499 :child] :child
 ; ------------------------------------------------------------------------
 (defmulti thing-nav-messages
-  (fn [[nav type id transkey :as navpath] entity-map]
+  (fn [[nav type id transkey :as navpath] render-path entity-map]
     transkey))
 
 
@@ -318,7 +319,7 @@
 ; nav-path = [:nav :parent 17592186045499 :child]
 (defmethod thing-nav-messages
   :default
-  [[nav type id transkey :as nav-path] entity-map]
+  [[nav type id transkey :as nav-path] render-path entity-map]
   (let [hdpath (concat (butlast (rest nav-path)) [type]) ; [:thing-type 1 :thing-type]
         qpath (rest nav-path)
         ; messages [{
@@ -334,20 +335,9 @@
         messages [{msgs/topic [:nav :path] 
                    msgs/type :set-nav-path
                    :path (vec hdpath)    ; path is current path
-                   :qpath (vec qpath)}   ; qpath is next path with query filter
+                   :qpath (vec qpath)    ; qpath is next path with query filter
+                   :rpath (vec render-path)}   ;rpath is thing node template attached to
                  ]
-        ]
-    ;(.log js/console (str "thing-nav-messages " messages))
-    messages))
-
-(defmethod thing-nav-messages
-  :assign-toggle
-  [[nav type id transkey :as nav-path] entity-map]
-  (let [messages [{
-                    msgs/topic [:submit transkey] 
-                    msgs/type :submit
-                    (msgs/param :details) {}
-                  }]
         ]
     ;(.log js/console (str "thing-nav-messages " messages))
     messages))
@@ -355,11 +345,12 @@
 
 (defmethod thing-nav-messages
   :assign-form
-  [[nav type id transkey :as nav-path] entity-map]
+  [[nav type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
                     msgs/topic [:create transkey]  
                     msgs/type :create-thing
                     (msgs/param :thing-map) entity-map
+                    (msgs/param :rpath) render-path
                     (msgs/param :details) {}
                   }]
         ]
@@ -370,7 +361,7 @@
 ; always go :create-thing [:create :lecture] path, do not go post thing path.
 (defmethod thing-nav-messages
   :add-lecture
-  [[nav type id transkey :as nav-path] entity-map]
+  [[nav type id transkey :as nav-path] render-path entity-map]
   (let [ ; add lecture, parent thing map is course
         messages [
                   {
@@ -397,6 +388,21 @@
                   }
                  ]
         ]
+    messages))
+
+; for upvote transform msg, need both render-path and thing-map to inc and refresh view.
+(defmethod thing-nav-messages
+  :upvote
+  [[nav type id transkey :as nav-path] render-path entity-map]
+  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
+                    msgs/topic [:create transkey]  
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :rpath) render-path
+                    (msgs/param :details) {}
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " messages))
     messages))
 
 

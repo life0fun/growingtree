@@ -202,6 +202,9 @@
   [r [_ path transkey messages] input-queue]
   (let [navpath (rest path)  ; [:parent 1 :upvote]
         thing-id (first (reverse (butlast navpath)))
+        thing-map ((msgs/param :thing-map) (first messages))
+        rpath ((msgs/param :rpath) (first messages))
+        upvote (entity-view/thing-attr-val thing-map (first navpath) "upvote")
 
         thing-node (dom/by-id (str thing-id))
         upvote-link (entity-view/upvote-sel thing-id)
@@ -211,11 +214,14 @@
                                      msgs/type :create-thing
                                      (msgs/param :details) {}}]
                           details {:thing-id thing-id}
-                          new-msgs (msgs/fill :create-thing messages {:details details})]
+                          new-msgs (msgs/fill :create-thing messages {:details details})
+
+                          ]
                       (.log js/console (str "upvote clicked " new-msgs))
+                      (templates/update-t r rpath {:upvote (str (inc upvote))})
                       new-msgs))
        ]
-    (.log js/console (str "enable thing nav upvote " path " "))
+    (.log js/console (str "enable thing nav upvote " path " " rpath " votes " upvote))
     (de/listen! upvote-link :click click-fn)
   ))
 
@@ -233,9 +239,7 @@
         thing-node (dom/by-id (str thing-id))
         link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
         assignto-link (dom/by-class link-clz)
-        ;toggle-fn (-> (dom/by-class (entity-view/assign-form-class thing-id))
-        ;              (dx/xpath "//form[@class='assign-form']")
-        ;              (toggle-hide-fn (entity-view/assign-form-class thing-id)))
+       
         assign-form-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id :assign-form ""))))
         toggle-fn (-> (entity-view/assign-form-sel thing-id)
                       (dx/xpath)

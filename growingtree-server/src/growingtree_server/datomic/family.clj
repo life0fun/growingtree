@@ -204,9 +204,12 @@
 (defn find-parent
   "find parent by query path "
   [qpath]
-  (let [entities (util/get-entities-by-rule qpath get-parent-by)
-        projkeys (keys person-schema)  ; must select-keys from datum entity attributes
-        parents (map #(select-keys % projkeys) entities)
+  (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
+        parents (->> (util/get-entities-by-rule qpath get-parent-by)
+                     (map #(select-keys % projkeys) )
+                     (map (fn [c]
+                            (assoc-in c [:person/upvote]
+                                      (+ (util/upvotes (:db/id c)) (rand-int 100))))))
         ]
     (doseq [e parents]
       (prn "parent --> " e))
@@ -235,9 +238,12 @@
 (defn find-child
   "find children by passed in query path"
   [qpath]
-  (let [entities (util/get-entities-by-rule qpath get-child-by)
-        projkeys (keys person-schema)  ; must select-keys from datum entity attributes
-        children (map #(select-keys % projkeys) entities)
+  (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
+        children (->> (util/get-entities-by-rule qpath get-child-by)
+                     (map #(select-keys % projkeys) )
+                     (map (fn [c]
+                            (assoc-in c [:person/upvote]
+                                      (+ (util/upvotes (:db/id c)) (rand-int 100))))))
         ]
     (doseq [e children]
       (prn "child --> " e))
