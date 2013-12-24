@@ -260,7 +260,7 @@
 
 
 ; submit an answer to an assignment
-(defn submit-answer
+(defn create-answer
   "submit an answer to an assignment"
   [assid authorid]
   (let [asse (d/entity db assid)   ; reify ass entity

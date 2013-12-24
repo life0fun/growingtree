@@ -9,7 +9,6 @@
 
 
 (comment
-  
   (defn example-effect [inputs]
     (returns a vector of messages which effect the outside world ))
 

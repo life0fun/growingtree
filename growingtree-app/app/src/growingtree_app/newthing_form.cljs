@@ -274,5 +274,31 @@
     (events/send-on :submit form input-queue submit-fn)))
 
 
-
+;--------------------------------------------------------------------
+; upvote like submission, need to pass in push render to update vote count.
+; nav path is [:nav :parent 1], render path is [:main/:header/:filter]
+;--------------------------------------------------------------------
+(defn upvote-submit-fn
+  [r thing-type messages input-queue]
+  (fn [evt]
+    (let [; create a like upon upvote click
+          create-msgs [{msgs/topic [:create :like]
+                        msgs/type :create-thing
+                        (msgs/param :details) {}}]
+          thing-map ((msgs/param :thing-map) (first messages))
+          thing-id (:db/id thing-map)
+          rpath ((msgs/param :rpath) (first messages))
+          
+          upvote (entity-view/thing-attr-val thing-map thing-type "upvote")
+          thing-title (entity-view/thing-attr-val thing-map thing-type "title")
+          details (-> {:like/origin thing-id
+                       :like/title (str "liking " thing-title)
+                       :like/person :current-user}
+                  )
+          new-msgs (msgs/fill :create-thing create-msgs {:details details})
+          ]
+      (.log js/console (str "upvote clicked inc "  upvote new-msgs))
+      (templates/update-t r rpath {:upvote (str (inc upvote))})
+      (doseq [m new-msgs]
+        (p/put-message input-queue m)))))
 

@@ -202,26 +202,12 @@
   [r [_ path transkey messages] input-queue]
   (let [navpath (rest path)  ; [:parent 1 :upvote]
         thing-id (first (reverse (butlast navpath)))
+        thing-type (first navpath)
         thing-map ((msgs/param :thing-map) (first messages))
-        rpath ((msgs/param :rpath) (first messages))
-        upvote (entity-view/thing-attr-val thing-map (first navpath) "upvote")
-
-        thing-node (dom/by-id (str thing-id))
         upvote-link (entity-view/upvote-sel thing-id)
-        click-fn (fn [evt]
-                    (let [; create a like upon upvote click
-                          messages [{msgs/topic [:create :like]
-                                     msgs/type :create-thing
-                                     (msgs/param :details) {}}]
-                          details {:thing-id thing-id}
-                          new-msgs (msgs/fill :create-thing messages {:details details})
-
-                          ]
-                      (.log js/console (str "upvote clicked " new-msgs))
-                      (templates/update-t r rpath {:upvote (str (inc upvote))})
-                      new-msgs))
+        click-fn (newthing-form/upvote-submit-fn r thing-type messages input-queue)
        ]
-    (.log js/console (str "enable thing nav upvote " path " " rpath " votes " upvote))
+    (.log js/console (str "enable thing nav upvote " path ))
     (de/listen! upvote-link :click click-fn)
   ))
 

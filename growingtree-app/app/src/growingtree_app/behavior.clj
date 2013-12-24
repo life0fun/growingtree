@@ -276,7 +276,7 @@
               [#{[:nav :path]} effect/request-navpath-things :mode :always]
 
               ; create thing template form submitted, post data to server.
-              ;[#{[:create :*]} effect/post-create-thing :mode :always]
+              [#{[:create :*]} effect/post-create-thing :mode :always]
 
             }
 

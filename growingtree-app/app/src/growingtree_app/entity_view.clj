@@ -104,11 +104,15 @@
   (let [form-sel (assign-form-sel thing-id)]
     (str form-sel "/input[@id='" field-name"']")))
 
+
 ; dom selector for upvote arrow up div, ret the upvote dom element
+; somehow I could not get the first arg of dx/xpath work, full path with thing-id.
 (defn upvote-sel
   [thing-id]
   (let [thing-node (dom/by-id (str thing-id))
-        xpath (str "//div[@class='arrow up']")]
+        ;xpath (str "//div[@class='arrow up']")
+        xpath (str "//div[@id='" thing-id "']//div[@class='arrow up']")
+       ]
     (-> thing-node
         (dx/xpath xpath))))
 
@@ -187,7 +191,7 @@
         
         actionkeys (thing-type thing-nav-actionkey)
         templ-map (merge {:id thing-id} 
-                          (thing-template-class thing-id actionkeys))
+                         (thing-template-class thing-id actionkeys))
         thing-div (html templ-map)
         ]
     (.log js/console (str "thing-node-html " rpath " " (keyword (str "thing-" (name thing-type)))))

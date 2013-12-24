@@ -329,7 +329,6 @@
 ;       if-not)))
 
 
-
 (defn existing-values
   "Returns subset of values that already exist as unique
    attribute attr in db"

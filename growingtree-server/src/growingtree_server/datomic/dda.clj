@@ -17,7 +17,7 @@
             [growingtree-server.datomic.family :as family]
             [growingtree-server.datomic.course :as course]
             [growingtree-server.datomic.assign :as assign]
-            [growingtree-server.datomic.comment :as comment]
+            [growingtree-server.datomic.comments :as comments]
             [growingtree-server.datomic.timeline :as timeline]))
   
 ;
@@ -203,22 +203,6 @@
 ;   (family/find-by-name pname))
 
 
-;;==============================================================
-;; timeline related, should use multi-method to dispatch
-;;==============================================================
-; list an entity attribute's timeline
-(defn timeline
-  "list an entity's attribute's timeline "
-  [eid attr]
-  (timeline/timeline eid attr))
-
-
-; list a person's all transaction timeline
-(defn person-timeline
-  "list a person's transaction timeline"
-  [eid]
-  (timeline/person-timeline eid))
-
 
 ;;==============================================================
 ;; course related, should use multi-method to dispatch
@@ -307,31 +291,64 @@
 ; answer 
 ;;==============================================================
 ; submit an answer to an assignment
-(defn submit-answer
+(defn create-answer
   "submit an answer to an assignment"
   [assid authorid]
-  (assign/submit-answer assid authorid))
+  (assign/create-answer assid authorid))
 
 
 ; find all answers
 (defn find-answer
   "find all answers"
-  []
-  (assign/find-answer))
+  [qpath]
+  (assign/find-answer qpath))
 
 
 ;;==============================================================
 ;; comment related, should use multi-method to dispatch
 ;;==============================================================
 ; make a comment on any eid
-(defn fake-comment
-  "fake a comment on an assignment"
-  []
-  (comment/fake-comment))
+(defn create-comments
+  "create a comment on an assignment"
+  [details]
+  (comments/create-comments details))
 
 ; list all comments
-(defn find-comment
-  "find a comment"
-  []
-  (comment/find-comment))
+(defn find-comments
+  "find comments by query path"
+  [qpath]
+  (comments/find-comments qpath))
+
+;;==============================================================
+; like, create like, or add user to like ref person.
+; find all likes of certain 
+;;==============================================================
+(defn create-like
+  "create a like from new thing form submission"
+  [details]
+  (comments/create-like details))
+
+; find a course
+(defn find-like
+  "find like with query path"
+  [qpath]
+  (comments/find-like qpath))
+
+
+;;==============================================================
+;; timeline related, should use multi-method to dispatch
+;;==============================================================
+; list an entity attribute's timeline
+(defn timeline
+  "list an entity's attribute's timeline "
+  [eid attr]
+  (timeline/timeline eid attr))
+
+
+; list a person's all transaction timeline
+(defn person-timeline
+  "list a person's transaction timeline"
+  [eid]
+  (timeline/person-timeline eid))
+
 

@@ -217,5 +217,16 @@
     result))
 
 
+; create like thing
+(defmethod add-thing
+  :like
+  [type details]
+  (let [author (:author details)
+        result (dda/create-like details)
+        ]  
+    (newline)
+    (prn "peer add thing " type " details " details " result " result)
+    result))
+
 
 

@@ -1,5 +1,5 @@
 ;; datomic data accessor
-(ns growingtree-server.datomic.comment
+(ns growingtree-server.datomic.comments
   (:import [java.io FileReader]
            [java.net URI]
            [java.util Map Map$Entry List ArrayList Collection Iterator HashMap])
@@ -12,7 +12,8 @@
             [clj-time.coerce :refer [to-long from-long]])
   (:require [datomic.api :as d])
   (:require [growingtree-server.datomic.dbschema :as dbschema]
-            [growingtree-server.datomic.dbconn :as dbconn :refer :all]))
+            [growingtree-server.datomic.dbconn :as dbconn :refer :all]
+            [growingtree-server.datomic.util :as util]))
 
 ;
 ; http://blog.datomic.com/2013/05/a-whirlwind-tour-of-datomic-query_16.html
@@ -94,42 +95,97 @@
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
 
 
-; comment attr, subject is the id
-(defn comment-attr
-  "basic comment attr map"
-  [subid authorid content]
-  (let [m {:db/id (d/tempid :db.part/user)
-          :comments/author authorid
-          :comments/content content
-          :comments/subject subid
-          :comments/upvotes 1}]
-    (prn m)
-    m))
+; schema attr-name value type map for parent schema and child schema
+(def like-schema (assoc (list-attr :like) :db/id :db.type/id))
+(def comments-schema (assoc (list-attr :comments) :db/id :db.type/id))
 
 
-; make a comment on any eid
-(defn fake-comment
-  "fake a comment on an assignment"
-  []
-  (letfn [(commdata [[subid authorid content]]
-            (let [text (str content " is too hard !")]
-              (comment-attr subid authorid text)))]
+(def get-like-by
+  '[[(:all ?e ?val) [?e :like/origin]]   ; select all 
+    [(:person ?e ?val) [?e :like/person ?val]]
+    [(:origin ?e ?val) [?e :like/origin ?val]]
+    [(:title ?e ?val) [?e :like/title ?val]]
+    [(:url ?e ?val) [?e :like/url ?val]]
+  ])
 
-    (let [assgns (d/q '[:find ?e ?to ?content
-                        :where [?e :assignment/question]
-                               [?e :assignment/to ?to]
-                               [?e :assignment/question ?hwid]
-                               [?hwid :question/content ?content]] 
-                    db)
-        comments (map commdata assgns)
-        ]
-      (prn assgns)
-      (prn comments)
-      (submit-transact (vec comments)))))
 
-; list all comments
-(defn find-comment
-  "find a comment"
-  []
-  (let [cids (d/q '[:find ?e :where [?e :comments/author]] db)]
-    (map (comp show-entity-by-id first) cids)))
+; rule set for get parent by. rule name is the parent thing type.
+(def get-comments-by
+  '[[(:all ?e ?val) [?e :comments/author]]   ; select all
+    [(:author ?e ?val) [?e :comments/author ?val]]
+    [(:origin ?e ?val) [?e :comments/origin ?val]]
+    [(:thingroot ?e ?val) [?e :comments/thingroot ?val]]
+    [(:title ?e ?val) [?e :comments/title ?val]]
+    [(:url ?e ?val) [?e :comments/url ?val]]
+  ])
+
+
+;;==============================================================
+; comments
+;;==============================================================
+(defn find-comments
+  "find all comments by query path"
+  [qpath]
+  (let [projkeys (keys comments-schema)  ; must select-keys from datum entity attributes
+        comments (->> (util/get-entities-by-rule qpath get-comments-by)
+                   (map #(select-keys % projkeys) )
+              )
+       ]
+    (doseq [e comments]
+      (prn "comments --> " e))
+    comments))
+
+
+; for now, all courses are created and lectured by person 
+(defn create-comments
+  "create a comments with details "
+  [details]
+  (let [author-id (:db/id (find-by :person/title (:author details)))
+        entity (-> details
+                   (select-keys (keys comments-schema))
+                   (assoc :comments/author author-id)  ; append author-id to ref many person
+                   (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
+                   (assoc :db/id (d/tempid :db.part/user)))
+        ;trans (submit-transact [entity])  ; transaction is a list of entity
+      ]
+    (newline)
+    (prn "create comments entity " author-id entity)
+    ;(prn "submit comments trans " trans)
+    [entity]))
+
+
+;;==============================================================
+; like, create like, or add user to like ref person.
+; find all likes of certain 
+;;==============================================================
+; find a course, thread thru project keys, and fill :course/likes
+(defn find-like
+  "find like by query path"
+  [qpath]
+  (let [projkeys (keys like-schema)  ; must select-keys from datum entity attributes
+        likes (->> (util/get-entities-by-rule qpath get-like-by)
+                   (map #(select-keys % projkeys) )
+              )
+       ]
+    (doseq [e likes]
+      (prn "like --> " e))
+    likes))
+
+
+; for now, all courses are created and lectured by person 
+(defn create-like
+  "create a like with details "
+  [details]
+  (let [author-id (:db/id (find-by :person/title (:author details)))
+        entity (-> details
+                   (select-keys (keys like-schema))
+                   (assoc :like/person author-id)  ; append author-id to ref many person
+                   (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
+                   (assoc :db/id (d/tempid :db.part/user)))
+        trans (submit-transact [entity])  ; transaction is a list of entity
+      ]
+    (newline)
+    (prn "create like entity " author-id entity)
+    (prn "submit like trans " trans)
+    [entity]))
+
