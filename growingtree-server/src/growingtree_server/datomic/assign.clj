@@ -166,9 +166,8 @@
   (let [projkeys (keys (dissoc question-schema :question/lecture :question/author))
         question (->> (util/get-entities-by-rule qpath get-question-by)
                       (map #(select-keys % projkeys) )
-                      (map (fn [c]
-                             (assoc-in c [:question/upvote]
-                                       (+ (util/upvotes (:db/id c)) (rand-int 100))))))
+                      (map #(util/add-upvote-attr %) )
+                 )
         ]
     (prn projkeys question)
     (doseq [e question]
@@ -234,10 +233,9 @@
   [qpath]
   (let [projkeys (keys assignment-schema)
         assignments (->> (util/get-entities-by-rule qpath get-assignment-by)
-                     (map #(select-keys % projkeys) )
-                     (map (fn [c]
-                            (assoc-in c [:assignment/upvote]
-                                      (+ (util/upvotes (:db/id c)) (rand-int 100))))))
+                      (map #(select-keys % projkeys) )
+                      (map #(util/add-upvote-attr %) )
+                    )
         ]
     (doseq [e assignments]
       (prn "assignment --> " e))

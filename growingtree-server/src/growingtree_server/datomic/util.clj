@@ -110,7 +110,7 @@
 (defn get-entities-by-rule-query
   "get entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
-  (prn "get entities by rule query " qpath rule-set)
+  (prn "get entities by rule query " qpath)
   (if (= (first qpath) (last qpath))
     (let [eid (second qpath)
           e (get-entity eid)]
@@ -160,17 +160,35 @@
       e-origin-val)))
 
 
+
 ; ============================================================================
-; get no of likes for certain entity
+; (bootstrap/json-response result) convert entity to json string, including embeded refs.
+; However, the :db/id of embedded ref attr got dropped during json stringify.
+; for those ref attr where we need its :db/id, replace ref attr embeded entity with :db/id
+; ============================================================================
+(defn ref->dbid
+  [entity ref-attr]
+  (update-in entity [ref-attr] (fn [refed-e] (:db/id refed-e))))
+
+
+; ============================================================================
+; get no of likes for certain entity, and add it as upvote attr to the entity
 ; ============================================================================
 (defn upvotes
   [thing-id]
   (let [like-entity (dbconn/find-by :like/origin thing-id)
         likes (count (:like/person like-entity))
        ]
-    (prn "upvotes for thing " thing-id " count " likes)
     likes))
 
-
+; assoc 
+(defn add-upvote-attr
+  [entity]
+  (let [thing-id (:db/id entity)
+        upvotes (upvotes thing-id)
+        thing-type (entity-keyword entity)
+        upvote-attr (keyword (str (name thing-type) "/" "upvote"))]
+    (prn "upvotes for thing " thing-id " count " upvotes " entity " upvote-attr)
+    (assoc-in entity [upvote-attr] (if (zero? upvotes) (rand-int 100) upvotes))))
 
 

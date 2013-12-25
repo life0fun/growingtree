@@ -126,16 +126,15 @@
 
     :assignment {:assignment/person 
                     (fn [thing-id]
-                      (-> (entity-view/assign-input-sel thing-id "assignto-name")
-                          (dx/xpath)))
+                      (entity-view/div-form-input-sel thing-id "assign-form" "assignto-name"))
+                      
                  :assignment/hint 
                     (fn [thing-id]
-                      (-> (entity-view/assign-input-sel thing-id "assignto-hint")
-                          (dx/xpath)))
+                      (entity-view/div-form-input-sel thing-id "assign-form" "assignto-hint"))
+
                  :assignment/end 
                     (fn [thing-id]
-                      (-> (entity-view/assign-input-sel thing-id "assignto-end")
-                          (dx/xpath)))
+                      (entity-view/div-form-input-sel thing-id "assign-form" "assignto-end"))
                 }
 
     :group {:group/title "group-title"
@@ -146,8 +145,9 @@
             :group/wiki "group-wiki"
            }
 
-    :comments {:comments/title "comments-title" 
-               :comments/url "comments-url"
+    :comments {:comments/title 
+                  (fn [thing-id]  ; input field id is comments-title
+                    (entity-view/div-form-textarea-sel thing-id "reply-form" "comments-title"))
               }
   })
 
@@ -233,7 +233,7 @@
   
 
 ;--------------------------------------------------------------------
-; inline form submit handling
+; inline form submit fn collect form input fields values and ret filled msg.
 ; inline form needs thing-id to id dom element.
 ;--------------------------------------------------------------------
 (defn inline-form-submit-fn
@@ -253,7 +253,7 @@
                       (util/update-time add-thing-type "start" false)
                       (util/update-time add-thing-type "end" false)
                       (assoc :thing-type add-thing-type) ; required for post-submit-thing dispatch
-                      (merge override-map))
+                     (merge override-map))
           ]
         (.log js/console (str add-thing-type " override-map" override-map))
         (.log js/console (str add-thing-type " inline form details " details))
@@ -275,6 +275,7 @@
                                  input-queue)))
   
   ([add-thing-type thing-id form messages override-map input-queue]
+    ; create inline form submit-fn closure of all args
     (let [submit-fn 
             (inline-form-submit-fn add-thing-type thing-id form override-map messages)]
       (.log js/console (str "enable add thing form submit " add-thing-type thing-id))

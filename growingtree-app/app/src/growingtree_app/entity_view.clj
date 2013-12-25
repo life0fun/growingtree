@@ -93,37 +93,54 @@
 
 
 ;;===============================================================
-; xpath selector for assign to form
+; xpath selector for inline form
 ;;===============================================================
 
-; dom selector for assign form
-(defn assign-form-sel
-  [thing-id]
-  (let [assignform (str "assign-form-" thing-id)]
-    (str "//div[@class='" assignform "']/form[@id='assign-form']")))
-
-
 ; ret a form dom element under div with form name
-(defn div-form-sel
+(defn div-form-clz
   [thing-id form-name]
   (let [form-clz (str form-name "-" thing-id)
         form-path (str "//div[@class='" form-clz "']/form[@id='" form-name "']")]
-    (dx/xpath form-xpath)))
+    form-path))
+
+
+(defn div-form-sel
+  [thing-id form-name]
+  (let [form-path (div-form-clz thing-id form-name)]
+    (dx/xpath form-path)))
 
 
 ; dom selector for individual input field within assign form
-(defn assign-input-sel
-  [thing-id field-name]
-  (let [form-sel (assign-form-sel thing-id)]
-    (str form-sel "/input[@id='" field-name"']")))
+(defn div-form-input-sel
+  [thing-id form-name field-name]
+  (let [form-path (div-form-clz thing-id form-name)
+        input-sel (str form-path "/input[@id='" field-name"']")]
+    (dx/xpath input-sel)))
+
+
+(defn div-form-textarea-sel
+  [thing-id form-name field-name]
+  (let [form-path (div-form-clz thing-id form-name)
+        textarea-sel (str form-path "/textarea[@id='" field-name"']")]
+    (dx/xpath textarea-sel)))
 
 
 ; dom selector for upvote arrow up div, ret the upvote dom element
 ; somehow I could not get the first arg of dx/xpath work, full path with thing-id.
+; can not re-use div form sel as it is div div. div needs double //div
 (defn upvote-sel
   [thing-id]
   (let [thing-node (dom/by-id (str thing-id))
         xpath (str "//div[@id='" thing-id "']//div[@class='arrow up']")
+       ]
+    (-> thing-node
+        (dx/xpath xpath))))
+
+
+(defn div-div-clz-sel
+  [thing-id clz]
+  (let [thing-node (dom/by-id (str thing-id))
+        xpath (str "//div[@id='" thing-id "']//div[@class='" clz "']")
        ]
     (-> thing-node
         (dx/xpath xpath))))
@@ -242,7 +259,7 @@
                        :thumbhref "thumbhref" 
                        :entryhref rpath
                        :rank "2"  ; not sure why values must be string.
-                       :upvote "3"
+                       :upvote upvotes
                        :comments-time "  6 hours"
                        :author-name (get-in thing-map [:comments/author :person/title])
                       }

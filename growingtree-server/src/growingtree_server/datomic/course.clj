@@ -136,9 +136,8 @@
   (let [projkeys (keys course-schema)  ; must select-keys from datum entity attributes
         courses (->> (util/get-entities-by-rule qpath get-course-by)
                      (map #(select-keys % projkeys) )
-                     (map (fn [c]
-                            (assoc-in c [:course/upvote]
-                                      (+ (util/upvotes (:db/id c)) (rand-int 100))))))
+                     (map #(util/add-upvote-attr %) )
+                )
        ]
     (doseq [e courses]
       (prn "course --> " e))
@@ -174,9 +173,8 @@
   (let [projkeys (keys lecture-schema)
         lectures (->> (util/get-entities-by-rule qpath get-lecture-by)
                      (map #(select-keys % projkeys) )
-                     (map (fn [c]
-                            (assoc-in c [:lecture/upvote]
-                                      (+ (util/upvotes (:db/id c)) (rand-int 100))))))
+                     (map #(util/add-upvote-attr %) )
+                  )
         ]
     (doseq [e lectures]
       (prn "lecture --> " e))

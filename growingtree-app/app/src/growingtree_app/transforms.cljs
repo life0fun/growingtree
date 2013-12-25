@@ -205,6 +205,7 @@
         thing-type (first navpath)
         thing-map ((msgs/param :thing-map) (first messages))
         upvote-link (entity-view/upvote-sel thing-id)
+        ;upvote-link (entity-view/div-div-clz-sel thing-id "arrow up")
         click-fn (newthing-form/upvote-submit-fn r thing-type messages input-queue)
        ]
     (.log js/console (str "enable thing nav upvote " path ))
@@ -228,11 +229,10 @@
        
         assign-form-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id :assign-form ""))))
         ; can use class selector directly as form-clz includes thing-id
-        toggle-fn (-> (entity-view/assign-form-sel thing-id)
-                      (dx/xpath)
-                      (newthing-form/toggle-hide-fn assign-form-clz))
-
-        toggle-fn (-> (entity-view/div-form-sel "assign-form" thing-id)
+        ; toggle-fn (-> (entity-view/assign-form-sel thing-id)
+        ;               (dx/xpath)
+        ;               (newthing-form/toggle-hide-fn assign-form-clz))
+        toggle-fn (-> (entity-view/div-form-sel thing-id "assign-form")
                       (newthing-form/toggle-hide-fn assign-form-clz))
 
        ]
@@ -247,9 +247,9 @@
   (let [thing-id (first (reverse (butlast path)))
         thing-map ((msgs/param :thing-map) (first messages))
         
-        form (-> (entity-view/assign-form-sel thing-id)
-                 (dx/xpath))
-        form (entity-view/div-form-sel "assign-form" thing-id)
+        ; form (-> (entity-view/assign-form-sel thing-id)
+        ;          (dx/xpath))
+        form (entity-view/div-form-sel thing-id "assign-form")
 
         override-map {:assignment/origin (:db/id thing-map)
                       :assignment/title (:question/title thing-map)
@@ -376,7 +376,7 @@
                       :comments/thingroot (:comments/thingroot thing-map)
                      }
        ]
-    (.log js/console (str "enable thing nav reply-form " thing-id path override-map))
+    (.log js/console (str "enable thing nav reply-form " thing-id path override-map thing-map))
     (newthing-form/handle-inline-form-submit :comments 
                                              thing-id 
                                              form

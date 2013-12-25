@@ -422,6 +422,21 @@
         ]
     messages))
 
+; reply to comments form
+(defmethod thing-nav-messages
+  :reply-form
+  [[nav type id transkey :as nav-path] render-path entity-map]
+  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
+                    msgs/topic [:create transkey]  
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :rpath) render-path
+                    (msgs/param :details) {}
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " messages))
+    messages))
+
 ;;==================================================================================
 ;; action bar assign, triggered by [:setup :assign]
 ;;==================================================================================

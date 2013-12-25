@@ -173,11 +173,11 @@
   [eid]
   (d/touch (d/entity (get-db) eid)))
 
-
+; give an entity, it can not resolve to entity namespace keyword.
 (defn ident 
-  "ret the keyword associated with the entity id"
+  "ret the keyword associated with an id, or the key itself if passed"
   [eid]
-  (ident (get-db) eid))
+  (d/ident (get-db) eid))
 
 
 (defn entity-attr
@@ -188,6 +188,14 @@
         tostr (reduce (fn [o c] (str o " " c "=" (c e))) (str (first eid) " = ") attrs)]
     ;(pprint/pprint tostr)
     tostr))
+
+
+(defn entity-keyword
+  "ret the keyword of entity namespace, the same as thing-ident in app side util"
+  [entity]
+  (let [e (dissoc entity :db/id)  ; remove :db/id
+        ident (keyword (namespace (ffirst e)))]
+    ident))
 
 
 ; show entity by id
