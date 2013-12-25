@@ -377,7 +377,7 @@
 
 (defmethod thing-nav-messages
   :add-question
-  [[nav type id transkey :as nav-path] entity-map]
+  [[nav type id transkey :as nav-path] render-path entity-map]
   (let [ ; add question, parent thing map is course
         messages [
                   {
@@ -405,6 +405,22 @@
     ;(.log js/console (str "thing-nav-messages " messages))
     messages))
 
+
+; add comments, render transformer will display comments template 
+(defmethod thing-nav-messages
+  :add-comments
+  [[nav type id transkey :as nav-path] render-path entity-map]
+  (let [ ; add comments, parent thing map is course
+        messages [
+                  {
+                    msgs/topic [:create :comments]
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :details) {}
+                  }
+                 ]
+        ]
+    messages))
 
 ;;==================================================================================
 ;; action bar assign, triggered by [:setup :assign]

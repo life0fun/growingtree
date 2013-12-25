@@ -133,7 +133,7 @@
 (defn get-entities-by-rule
   "get entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
-  (prn "get entities by rule " qpath rule-set)
+  (prn "get entities by rule " qpath)
   (let [eid (second qpath)
         src (first qpath)
         dst (last qpath)

@@ -117,6 +117,17 @@
     [(:thingroot ?e ?val) [?e :comments/thingroot ?val]]
     [(:title ?e ?val) [?e :comments/title ?val]]
     [(:url ?e ?val) [?e :comments/url ?val]]
+
+    [(:child ?e ?val) [?e :comments/origin ?val]]
+    [(:course ?e ?val) [?e :comments/origin ?val]]
+    [(:lecture ?e ?val) [?e :comments/origin ?val]]
+    [(:question ?e ?val) [?e :comments/origin ?val]]
+    [(:assignment ?e ?val) [?e :comments/origin ?val]]
+    [(:answer ?e ?val) [?e :comments/origin ?val]]
+    [(:group ?e ?val) [?e :comments/origin ?val]]
+    [(:activity ?e ?val) [?e :comments/origin ?val]]
+    [(:location ?e ?val) [?e :comments/origin ?val]]
+    [(:comments ?e ?val) [?e :comments/origin ?val]]
   ])
 
 
@@ -128,9 +139,10 @@
   [qpath]
   (let [projkeys (keys comments-schema)  ; must select-keys from datum entity attributes
         comments (->> (util/get-entities-by-rule qpath get-comments-by)
-                   (map #(select-keys % projkeys) )
-              )
+                      (map #(select-keys % projkeys) )
+                  )
        ]
+    (prn "comments find-comments " comments projkeys)
     (doseq [e comments]
       (prn "comments --> " e))
     comments))
@@ -146,11 +158,11 @@
                    (assoc :comments/author author-id)  ; append author-id to ref many person
                    (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
                    (assoc :db/id (d/tempid :db.part/user)))
-        ;trans (submit-transact [entity])  ; transaction is a list of entity
+        trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
     (prn "create comments entity " author-id entity)
-    ;(prn "submit comments trans " trans)
+    (prn "submit comments trans " trans)
     [entity]))
 
 

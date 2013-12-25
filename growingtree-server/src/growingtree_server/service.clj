@@ -177,6 +177,7 @@
 ;;==================================================================================
 ; GET request to get all things without post any filters
 ; this fn is deprecated as nav path for all things is [:all 0 :parent]
+; deprecated !
 ;;==================================================================================
 (defn get-all-things
   "get things by type, ret from peer a list of thing in a new line sep string"
@@ -204,9 +205,10 @@
         thing-type (:thing-type postdata)
         things (peer/get-things thing-type path)
         result {:status 200 :data things}
-        jsonresp (bootstrap/json-response result)]
+        jsonresp (bootstrap/json-response result)
+       ]
     (newline)  
-    (println (str "service got peer get-things " type thing-type path (:db/id (first things)) things))
+    (println (str "service got peer get-things " type thing-type path things))
     jsonresp))
 
 

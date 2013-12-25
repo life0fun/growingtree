@@ -137,12 +137,13 @@
 
 ;;=======================================================================================
 ; add thing handler, post thing details to server to insert.
+; api end point is /add/:thing, on server side, it {:path-params {:thing ...}
 ; body is details map that has :thing-type
 ;;=======================================================================================
 (defn add-thing
   [body input-queue]
   (let [{:keys [msg-topic msg-type thing-type details]} body
-        api (str "/add/" (name thing-type))  ; api is /add/:thing
+        api (str "/add/" (name thing-type))  ; api is /add/:thing-type
         resp (response-handler thing-type msg-topic msg-type details input-queue)]
     (.log js/console (str "app service add thing " thing-type msg-topic msg-type body))
     (xhr-request api "POST" body resp xhr-log)))

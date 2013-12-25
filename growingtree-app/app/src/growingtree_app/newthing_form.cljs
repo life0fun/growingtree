@@ -30,13 +30,13 @@
   [form clz]
   (fn [_] 
     (let [hidden (dom/has-class? form "hide")]
-      (.log js/console (str "toggle hide link clicked " clz))
+      (.log js/console (str "toggle hide link clicked " clz hidden))
       (if hidden
         (dom/remove-class! form "hide")
         (dom/add-class! form "hide")))))
 
 
-; toggle to display new thing form, and enable submit button.
+; toggle to display new thing form, and handle add thing submit.
 (defn toggle-add-thing-form-fn
   "return an event handler fn that toggen hide css class of the form"
   [add-thing-type r path override-map input-queue]
@@ -44,9 +44,9 @@
     (let [parent-div-id "new-subthing"
           parent (dom/by-id parent-div-id)
           nchild (count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']"))))
-          add-thing-form (add-thing-form add-thing-type r path)  ; add lecture
+          add-thing-form (add-thing-form add-thing-type r path) ; render path
           ]
-      (.log js/console (str add-thing-type " link clicked " nchild))
+      (.log js/console (str add-thing-type " link clicked div " nchild))
       (if (= nchild 0)
         (dom/append! parent add-thing-form)
         (dom/destroy-children! parent))
@@ -145,6 +145,10 @@
             :group/email "group-email"
             :group/wiki "group-wiki"
            }
+
+    :comments {:comments/title "comments-title" 
+               :comments/url "comments-url"
+              }
   })
 
 
@@ -196,7 +200,9 @@
 
 
 ;--------------------------------------------------------------------
-; handle add thing form submit
+; when form submitted, we instantiate create-thing msg, collect input fields.
+; message is :create-thing thing-type, path is render path, only for logging. 
+; submit-fn use thing-type-attr to collect input field and ret filled msgs.
 ;--------------------------------------------------------------------
 (defn handle-add-thing-submit
   ([add-thing-type path override-map input-queue]
@@ -261,8 +267,12 @@
     (let [messages [{msgs/topic [:create add-thing-type]
                      msgs/type :create-thing
                      (msgs/param :details) {}}] ]
-      (handle-inline-form-submit add-thing-type thing-id form messages 
-                                 override-map input-queue)))
+      (handle-inline-form-submit add-thing-type 
+                                 thing-id 
+                                 form 
+                                 messages 
+                                 override-map 
+                                 input-queue)))
   
   ([add-thing-type thing-id form messages override-map input-queue]
     (let [submit-fn 

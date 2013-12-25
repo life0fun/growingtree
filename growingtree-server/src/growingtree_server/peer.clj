@@ -133,6 +133,21 @@
     assignments))
 
 
+(defmethod get-things
+  :comments
+  [type qpath]
+  (let [comments (dda/find-comments qpath)]
+    (prn "peer get all comments " qpath comments)
+    comments))
+
+
+(defmethod get-things
+  :like
+  [type qpath]
+  (let [likes (dda/find-like qpath)]
+    (prn "peer get all likes " qpath likes)
+    likes))
+
 
 ;;======================================================
 ;; add things multi method
@@ -150,7 +165,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-parent details)
        ]
-    (prn "peer add parent " type " details " details " result " result)
+    ;(prn "peer add parent " type " details " details " result " result)
     result))
 
 
@@ -160,7 +175,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-child details)
        ]
-    (prn "peer add child " type " details " details " result " result)
+    ;(prn "peer add child " type " details " details " result " result)
     result))
 
 (defmethod add-thing
@@ -169,7 +184,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-family details)
        ]
-    (prn "peer add family " type " details " details " result " result)
+    ;(prn "peer add family " type " details " details " result " result)
     result))
 
 
@@ -180,7 +195,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-course details)
        ]
-    (prn "peer add thing " type " author " author " details " details " result " result)
+    ;(prn "peer add thing " type " author " author " details " details " result " result)
     result))
 
 
@@ -191,7 +206,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-lecture details)
        ]
-    (prn "peer add thing " type " author " author " details " details " result " result)
+    ;(prn "peer add thing " type " author " author " details " details " result " result)
     result))
 
 
@@ -202,7 +217,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-question details)
        ]
-    (prn "peer add thing " type " details " details " result ")
+    ;(prn "peer add thing " type " details " details " result ")
     details))
 
 ; watch non ref-ed attr entity. :transact/bad-data Unable to resolve entity: rich
@@ -213,7 +228,19 @@
         result (dda/create-assignment details)
         ]  
     (newline)
-    (prn "peer add thing " type " details " details " result " result)
+    ;(prn "peer add thing " type " details " details " result " result)
+    result))
+
+
+; create like thing
+(defmethod add-thing
+  :comments
+  [type details]
+  (let [author (:author details)
+        result (dda/create-comments details)
+        ]  
+    (newline)
+    ;(prn "peer add thing " type " result " result " details " details )
     result))
 
 
@@ -225,7 +252,7 @@
         result (dda/create-like details)
         ]  
     (newline)
-    (prn "peer add thing " type " details " details " result " result)
+    ;(prn "peer add thing " type " details " details " result " result)
     result))
 
 

@@ -85,6 +85,10 @@
                  :comments "" :add-comments " hide" 
                  :upvote "" :like "" :share "" 
                 }
+
+    :comments { :reply "" :reply-form ""
+                :upvote "" :like "" :share "" 
+              }
   })
 
 
@@ -98,6 +102,15 @@
   (let [assignform (str "assign-form-" thing-id)]
     (str "//div[@class='" assignform "']/form[@id='assign-form']")))
 
+
+; ret a form dom element under div with form name
+(defn div-form-sel
+  [thing-id form-name]
+  (let [form-clz (str form-name "-" thing-id)
+        form-path (str "//div[@class='" form-clz "']/form[@id='" form-name "']")]
+    (dx/xpath form-xpath)))
+
+
 ; dom selector for individual input field within assign form
 (defn assign-input-sel
   [thing-id field-name]
@@ -110,7 +123,6 @@
 (defn upvote-sel
   [thing-id]
   (let [thing-node (dom/by-id (str thing-id))
-        ;xpath (str "//div[@class='arrow up']")
         xpath (str "//div[@id='" thing-id "']//div[@class='arrow up']")
        ]
     (-> thing-node
@@ -135,7 +147,7 @@
         clz (str (name link-key) "-" thing-id hide)]
     (hash-map k clz)))
 
-; get thing template map from a meta map
+; get thing template map from a meta map, class selector includes thing-id
 (defn thing-template-class
   [thing-id sublink-meta]
   (reduce 
@@ -189,7 +201,8 @@
         ; add the rendered template attached to rpath node
         html (templates/add-template render rpath templ)
         
-        actionkeys (thing-type thing-nav-actionkey)
+        ; all sublink class selector with thing-id is defined in thing-template-class
+        actionkeys (thing-type thing-nav-actionkey) ; all sublink meta
         templ-map (merge {:id thing-id} 
                          (thing-template-class thing-id actionkeys))
         thing-div (html templ-map)
@@ -214,6 +227,7 @@
   (fn [r rpath qpath thing-map input-queue]
     (second (reverse rpath))))
 
+
 ; return thing value view based on passed in thing-map
 (defmethod thing-value-view
   :default
@@ -228,7 +242,9 @@
                        :thumbhref "thumbhref" 
                        :entryhref rpath
                        :rank "2"  ; not sure why values must be string.
-                       :upvote upvotes
+                       :upvote "3"
+                       :comments-time "  6 hours"
+                       :author-name (get-in thing-map [:comments/author :person/title])
                       }
         thing-view (merge thing-content nav-add-clz)
         ]
