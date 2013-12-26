@@ -322,16 +322,6 @@
   [[nav type id transkey :as nav-path] render-path entity-map]
   (let [hdpath (concat (butlast (rest nav-path)) [type]) ; [:thing-type 1 :thing-type]
         qpath (rest nav-path)
-        ; messages [{
-        ;            msgs/topic [:nav :path] 
-        ;            msgs/type :set-nav-path
-        ;            :path (vec hdpath)
-        ;           }
-        ;           {
-        ;            msgs/topic [:nav :path] 
-        ;            msgs/type :set-nav-path
-        ;            :path (vec qpath)
-        ;           }]
         messages [{msgs/topic [:nav :path] 
                    msgs/type :set-nav-path
                    :path (vec hdpath)    ; path is current path

@@ -102,10 +102,23 @@
 
 (def get-like-by
   '[[(:all ?e ?val) [?e :like/origin]]   ; select all 
-    [(:person ?e ?val) [?e :like/person ?val]]
     [(:origin ?e ?val) [?e :like/origin ?val]]
     [(:title ?e ?val) [?e :like/title ?val]]
     [(:url ?e ?val) [?e :like/url ?val]]
+
+    ; can you like a person, you follow a person if you like her.
+    [(:person ?e ?val) [?e :like/person ?val]]
+    [(:child ?e ?val) [?e :like/person ?val]]
+    [(:parent ?e ?val) [?e :like/person ?val]]
+
+    [(:course ?e ?val) [?e :like/origin ?val]]
+    [(:lecture ?e ?val) [?e :like/origin ?val]]
+    [(:question ?e ?val) [?e :like/origin ?val]]
+    [(:assignment ?e ?val) [?e :like/origin ?val]]
+    [(:answer ?e ?val) [?e :like/origin ?val]]
+    [(:group ?e ?val) [?e :like/origin ?val]]
+    [(:activity ?e ?val) [?e :like/origin ?val]]
+    [(:location ?e ?val) [?e :like/origin ?val]]
   ])
 
 

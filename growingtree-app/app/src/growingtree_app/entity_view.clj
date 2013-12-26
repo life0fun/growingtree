@@ -89,6 +89,10 @@
     :comments { :reply "" :reply-form ""
                 :upvote "" :like "" :share "" 
               }
+
+    :like { :origin ""
+            :upvote ""
+          }
   })
 
 
@@ -239,13 +243,72 @@
 ; thing-map is db entity {:db/id 17592186045425, :course/url "math.com/Math-I", 
 ; :course/author [{:person/lname "rich", :person/title "rich-dad",}] 
 ;;===========================================================================
+
+; for each thing type, ret the template value that is used for instatiate template.
+(defmulti thing-template-value
+  (fn [thing-type thing-map]
+    thing-type))
+    
+(defmethod thing-template-value
+  :default
+  [thing-type thing-map]
+  (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+        value-map 
+          {:thing-entry-title (thing-attr-val thing-map thing-type "title")
+           :thumbhref "thumbhref" 
+           :entryhref "#"
+           :rank "2"  ; not sure why values must be string.
+           :upvote upvotes}
+       ]
+    value-map))
+
+
+(defmethod thing-template-value
+  :comments
+  [thing-type thing-map]
+  (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+        value-map 
+          {:thing-entry-title (thing-attr-val thing-map thing-type "title")
+           :thumbhref "thumbhref" 
+           :entryhref "#"
+           :rank "2"  ; not sure why values must be string.
+           :upvote upvotes
+           :comments-time "  6 hours"
+           :author-name (get-in thing-map [:comments/author :person/title])
+           :origin-title "kitty"}
+        ]
+    value-map))
+
+
+(defmethod thing-template-value
+  :like
+  [thing-type thing-map]
+  (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+        origin-title (-> (get-in thing-map [:like/origin])
+                         (util/thing-val-by-name "title")
+                         (second)) ; value is the second of kv vector
+        value-map 
+          {:thing-entry-title (thing-attr-val thing-map thing-type "title")
+           :thumbhref "thumbhref" 
+           :entryhref "#"
+           :rank "2"  ; not sure why values must be string.
+           :upvote upvotes
+           :comments-time "  12 hours"
+           :author-name (get-in thing-map [:like/person 0 :person/title])
+           :origin-title origin-title}
+        ]
+    (.log js/console (str "template value " origin-title))
+    value-map))
+
+
+;;===========================================================================
+
 ; dispatch by thing-type
 (defmulti thing-value-view
   (fn [r rpath qpath thing-map input-queue]
     (second (reverse rpath))))
 
 
-; return thing value view based on passed in thing-map
 (defmethod thing-value-view
   :default
   [r rpath qpath thing-map input-queue]
@@ -254,16 +317,8 @@
         ; use qpath to toggle thing and add-thing transkey
         nav-add-clz (toggle-nav-add-subthing-class thing-id thing-type qpath)
         
-        upvotes (str (thing-attr-val thing-map thing-type "upvote"))
-        thing-content {:thing-entry-title (thing-attr-val thing-map thing-type "title")
-                       :thumbhref "thumbhref" 
-                       :entryhref rpath
-                       :rank "2"  ; not sure why values must be string.
-                       :upvote upvotes
-                       :comments-time "  6 hours"
-                       :author-name (get-in thing-map [:comments/author :person/title])
-                      }
-        thing-view (merge thing-content nav-add-clz)
+        thing-val (thing-template-value thing-type thing-map)
+        thing-view (merge thing-val nav-add-clz)
         ]
     (.log js/console (str "update thing node value " rpath " ^ " upvotes " new-value " thing-map))
     thing-view))

@@ -107,9 +107,12 @@
 (def enable-sidebar-nav
   "wire sidebar click event to all things transform fn"
   (fn [r [_ p transform-name messages] input-queue]
-    (let [sidebars [:parent :child :course :lecture :question
-                    :assignment :topquestion :topanswer :ask :answer
-                    :contribution :nowledge :activity :location]]
+    (let [sidebars [:parent :child 
+                    :group :schoolclass
+                    :course :lecture :question :assignment 
+                    :comments :like 
+                    :topquestion :topanswer :ask :answer
+                    :timeline :knowledge :activity :location]]
       (doseq [s sidebars]
         (events/send-on :click
                         (dom/by-id (str "sidenav-" (name s)))

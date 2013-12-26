@@ -66,4 +66,18 @@
             ]
         new-map)  ; return updated new val if value map contains schema key
       thing-map)))
-    
+  
+
+; get thing value from thing map by name of the attr, regardless of its namespace.
+; e.g., get title from any of namespace, :course/title, :lecture/title, etc
+(defn thing-val-by-name
+  "get thing val by name, within any namespace"
+  [thing-map attr-name]
+  ; map entry after filter rets [key val] vector
+  (-> (filter (fn [entry]
+                (= (name (key entry)) attr-name))
+              thing-map)
+      (first)))  ; filter ret a list
+
+
+

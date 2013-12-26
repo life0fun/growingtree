@@ -798,9 +798,6 @@
     <p class="like"></p>
     <div class="midcol unvoted">
       <span class="rank" field="content:rank"> 1 </span>
-      <div class="arrow up" role="button" arial-label="upvote" tabindex="0"></div>
-      <span class="score unvoted" field="content:upvote">12</span>
-      <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
 
     <!-- no need to use template, maybe dom append by-idand more concise -->
@@ -810,29 +807,32 @@
 
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
+
       <p class="title">
         <a class="title" field="content:thing-entry-title,href:entryhref"></a>
         <span class="domain"></span>
       </p>
 
       <p class="tagline">
-        <a field="content:thing-entry-title,author:author-id, href:entryhref"></a>
+        <a field="content:author-name"></a>
         <span class="userattrs"></span>
         <span class="score dislikes">1021 points</span>
-        <time field="content:comments-time">2 hours</time> " ago"
+        <span> liked it </span>
+        <span field="content:comments-time">2 hours</span>
+        <span> ago </span>
+      </p>
+
+      <p class="title">
+        <a class="title" field="content:origin-title,href:originhref"></a>
+        <span class="domain"></span>
       </p>
 
       <ul class="flat-list buttons">
-
         <!-- lecture -->
         <li class="first">
           <a class="option active" href="#">permalink</a>
         </li>
 
-        <li class="first">
-          <a class="option active" href="#">give tips</a>
-        </li>
-   
         <li class="share">
           <div field="class:origin-class">
             <span class="share-button toggle" style>
@@ -843,15 +843,7 @@
       </ul>  <!-- end of flat-list buttons for action -->
     </div>
 
-    <div class="child">
-      <!-- reply form, hide first -->
-      <div field="id:id,class:reply-form-class">
-        <form id="reply-form" class="reply-form hide" style="float:left;">
-          <textarea rows="1" cols="1" name="text" class="" style="width: 500.39999997615814px; height: 100.39999997615814px;"></textarea>
-          <button class="reply-button" type="submit"> Save </button>
-        </form>
-      </div>
-    </div>
+    <div class="child"></div>
     <div class="clearleft"></div>
   </div>
 

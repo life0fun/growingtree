@@ -62,8 +62,8 @@
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [inputs]  ; request path things by thing-type
   (let [msg (:message inputs)  ; get the active msg
-        curpath (:path msg)   ; [:all 0 :children] or [:parent 1 :parent]
-        nxtpath (:qpath msg)  ; [:parent 1 :children]
+        curpath (:path msg)    ; [:all 0 :children] or [:parent 1 :parent]
+        nxtpath (:qpath msg)   ; [:parent 1 :children]
         allpath (filter (comp not nil?) [curpath nxtpath]) ; filter out no qpath case
 
         bodies (map (fn [p]
@@ -79,18 +79,18 @@
                       body)) 
                   allpath)
 
-        requests (vec 
-                  (mapcat (fn [body]
-                            [{msgs/topic [:server]
-                              msgs/type :request-things
-                              (msgs/param :body) body}])
-                          bodies))
+        ; send to [:server], type is :request-things, post data in body
+        requests (vec (mapcat 
+                        (fn [body]
+                          [{msgs/topic [:server]
+                            msgs/type :request-things
+                            (msgs/param :body) body
+                           }])
+                        bodies))
         ]
     (.log js/console (str "effect request nav things " requests))
     (if (last curpath)
-      ;[{msgs/topic [:server] msgs/type :request-things (msgs/param :body) body}]
-      requests)
-    ))
+      requests)))
 
 ;;==================================================================================
 ; after input form submitted, app model transform stores details in [:submit :thing-type]
