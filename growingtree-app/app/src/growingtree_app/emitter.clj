@@ -240,7 +240,7 @@
     (vec (concat
       (mapcat
         (fn [entity-map]
-          (let [id (:db/id entity-map)  ; :db/id is entity id
+          (let [id (:db/id entity-map)  ; get :db/id as each node render path id
                 thing-type (last input-path)
                 ; [:main :parent 12 :child 34], pass render-path to transforms emit
                 render-path (navpath->renderpath navpath id)
@@ -285,7 +285,7 @@
   :default
   [thing-type render-path entity-map]
   (let [thing-id (:db/id entity-map)
-        ;transkeys (keys (get thing-nav-links thing-type))
+        ;thing nav action keys defined in entity-view 
         transkeys (keys (get entity-view/thing-nav-actionkey thing-type))
         navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
        ]

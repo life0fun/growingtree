@@ -201,9 +201,9 @@
   "get things by type, ret from peer a list of thing in a new line sep string"
   [{postdata :edn-params :as request}]
   (let [type (get-in request [:path-params :thing])
-        path (:path postdata)   ; effect msg need to have query path
+        path (:path postdata)   ; effect msg need to have query path in body
         thing-type (:thing-type postdata)
-        things (peer/get-things thing-type path)
+        things (peer/get-things thing-type path (:details postdata))
         result {:status 200 :data things}
         jsonresp (bootstrap/json-response result)
        ]

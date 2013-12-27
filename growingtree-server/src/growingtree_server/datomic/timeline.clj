@@ -4,6 +4,7 @@
            [java.net URI]
            [java.util Map Map$Entry List ArrayList Collection Iterator HashMap])
   (:require [clojure.string :as str]
+            [clojure.set :as set]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.data.json :as json])
@@ -12,7 +13,8 @@
             [clj-time.coerce :refer [to-long from-long]])
   (:require [datomic.api :as d])
   (:require [growingtree-server.datomic.dbschema :as dbschema]
-            [growingtree-server.datomic.dbconn :as dbconn :refer :all]))
+            [growingtree-server.datomic.dbconn :as dbconn :refer :all]
+            [growingtree-server.datomic.util :as util]))
 
 
 ;
@@ -57,53 +59,89 @@
 ; for a list of write datom tuple from map, use (vec ([] [])) to wrap them.
 ; (d/transact conn (vec (map make-attr (d/q '[:find ?e :where []))))
 ;
-;
-; In general, unique temporary ids are mapped to new entity ids.
-; within the same transaction, the same tempid maps to the same real entity id.
-; when one of the attribute is :db/unique :db.unique/identity, system will map to existing entity if matches or make a new.
-; to add fact to existing entity, retrieve entity id the add using the entity id.
-; adding entity ref, must specify an entity id(could be tempid) as the attribute's value.
-; takes advantage of the fact that the same temporary id can be generated multiple times by 
-; specifying the same partition and negative number; and that all instances of a given temporary id 
-; within a transaction will resolve to a single entity id.
-;
-; (def e (d/entity (db conn) attr-id) gets all entity with ids
-; (keys e) or (:parent/child (d/entity db 17592186045703))
-; entity attr rets a map entry for all children. (:parent/child (d/entity db pid))
-; 
 ; entity-id can be used at both side of the datom, e.g., give a parent entity id,
 ;   (d/q '[:find ?e :in $ ?attr :where [17592186045703 ?attr ?e] [...] ] db :parent/child)
 ;   (d/q '[:find ?e :in $ ?attr :where [?e ?attr 17592186045703] [...] ] db :child/parent)
 ; query :where takes a vardic list, not a list of list.
 ;
 
-; outbound query and inbound query
-; using parent id, get list of children
-;   (:parent/child (d/entity db 17592186045476))
+; Everything is entity and querable in datomic, including transaction and schema.
 ;
-; inbound query(who refed me) is used for query another entity that refs this entity. 
-; parent entity can be used to query all child entity that refs to this parent entity.
-; use inbound query with convention is prefix attr name with _.
-;   (:child/_parent (d/entity db 17592186045476))
-; = (:parent/child (d/entity db 17592186045476))
-;   (-> (d/entity db 17592186045476) :child/_parent)
-; this reverse look-up might be time consuming, use explicit linking might be better.
-;
-; (map (fn [id] (d/touch (d/entity db (:db/id id)))) 
-;   (-> (d/entity db 17592186045476) :child/_parent))
-;
-; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
+; Given any datom, there are three time-related pieces of data you can request: 
+;   the transaction entity tx that created the datom
+;   the relative time, t of the transaction
+;   the clock time :db/txInstant of the transaction
 
+; The transaction *entity* is available as a 4th optional arg of any data pattern. 
+;   :where [?e ?attr ?v ?tx ?op]] 
+; given a transction id, d/tx->t, tx to time, ret relative time when transaction happened.
+;   (d/tx->t txid)
+; for wall time,  :db/txInstant property of the transaction entity:
+;   (d/entity (d/db conn) txid) :db/txInstant)
+;
+; tx entity, relative time t = (d/tx->t tx), and wall time, (:db/txInstant (d/entity tx))
+
+; Time travel, d/as-of take a tx id, and show the snapshot of 
+;   (def older-db (d/as-of db (dec txid)))
+;
+
+; history query with (d/history db)
+; 
+
+;first, a list of ref attributes that ref to a person entity
+(def ref-attrs-person
+  [;:family/parent :family/child 
+   :follow/person :follow/followee
+   :schoolclass/person 
+   :group/author :group/person
+   :comments/author :like/person
+   :activity/author :activity/person
+   :course/author :lecture/author :question/author :enrollment/person :answer/author
+   :assignment/author :assignment/person 
+  ])
+
+; query all the tx of an attr that person participate
+(defn person-tx-at-attr
+  [pid attr]
+  (let [txhist (entity-tx-at-attr pid attr)]
+    (prn "person tx at attr " pid attr txhist)
+    txhist))
 
 
 ; list an entity attribute's timeline
 (defn timeline
   "list an entity's attribute's timeline "
   [eid attr]
-  (let [txhist (entity-attr-timeline eid attr)]
+  (let [txhist (entity-attr-tx eid attr)]
     (doseq [t txhist]
       (show-entity-by-id (first t))
       (show-entity-by-id (second t)))))
+
+
+(defn attr-timeline
+  "find timeline of one attr for a person"
+  [author-id author attr]
+  (let [timelines (->> (entity-tx-at-attr author-id attr)
+                       (map #(util/tx-timeline %))
+                       (map #(assoc-in % [:timeline/author] author))
+                  )
+
+       ]
+    (doseq [e timelines]
+      (prn "attr timeline " e))
+    timelines))
+
+
+(defn find-timeline
+  "find timeline by query path"
+  [qpath details]
+  (let [author (:author details)
+        author-id (:db/id (find-by :person/title author))
+        timelines (mapcat #(attr-timeline author-id author %) [:like/person :comments/author])
+       ]
+    (doseq [e timelines]
+      (prn "timeline --> " e))
+    timelines))
 
 
 ; list all transaction of a person

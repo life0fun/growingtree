@@ -847,6 +847,62 @@
     <div class="clearleft"></div>
   </div>
 
+  <!-- timeline thing node div -->
+  <div class="offset0 thing link" template="thing-timeline" field="id:id">
+    <p class="timeline"></p>
+    <div class="midcol unvoted">
+      <span class="rank" field="content:rank"> 1 </span>
+    </div>
+
+    <!-- no need to use template, maybe dom append by-idand more concise -->
+    <a class="thumbnail" template="thing-thumbnail" field="href:thumbhref">
+      <img src="#" width="70" height="52" alt="">
+    </a>
+
+
+    <div class="entry unvoted" template="thing-entry">
+      <p class="title">
+        <a field="content:author-name"></a>
+        <span> created </span>
+        <span field="content:type"></span>
+      </p>
+
+      <p class="title">
+        <a class="title" field="content:origin-title,href:entryhref"></a>
+        <span class="domain"></span>
+      </p>
+
+      <p class="title">  
+        <span> At time </span>
+        <span field="content:txtime"></span>
+      </p>
+
+      <p class="tagline">
+        <a field="content:author-name"></a>
+        <span class="userattrs"></span>
+        <span class="score dislikes">1021 points</span>
+      </p>
+
+      <ul class="flat-list buttons">
+        <!-- lecture -->
+        <li class="first">
+          <a class="option active" href="#">permalink</a>
+        </li>
+
+        <li class="share">
+          <div field="class:details-class">
+            <span class="share-button toggle" style>
+              <a class="option active" href="#">details</a>
+            </span>
+          <div>
+        </li>
+      </ul>  <!-- end of flat-list buttons for action -->
+    </div>
+
+    <div class="child"></div>
+    <div class="clearleft"></div>
+  </div>
+
   <!-- the assign form action div -->
   <div template="assign-form" field="class:assign-form-class">
     <form class="assign-form" style="float:left;">

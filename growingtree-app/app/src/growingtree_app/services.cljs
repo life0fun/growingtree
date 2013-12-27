@@ -124,12 +124,14 @@
 
 ;;=======================================================================================
 ; request handler msg topic/type will dispatch msg to the right transformer.
+; request body contains callback transformer msg and thing-type, query path, details.
 ; msg type topic is setup in effect flow when nav path changed. [:data nav-path]
 ;;=======================================================================================
 (defn request-things
   [body input-queue]
   (let [{:keys [msg-topic msg-type thing-type path details]} body
         api (str "/api/" (name thing-type))
+        ; response handle is closured over callback msg transformer and details of qpath.
         resp (response-handler thing-type msg-topic msg-type details input-queue)]
     (.log js/console (str "app service request things " api msg-topic msg-type body))
     (xhr-request api "POST" body resp xhr-log)))

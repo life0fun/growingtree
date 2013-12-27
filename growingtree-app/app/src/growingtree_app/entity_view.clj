@@ -86,13 +86,15 @@
                  :upvote "" :like "" :share "" 
                 }
 
-    :comments { :reply "" :reply-form ""
-                :upvote "" :like "" :share "" 
+    :comments {:reply "" :reply-form ""
+               :upvote "" :like "" :share "" 
               }
 
-    :like { :origin ""
-            :upvote ""
+    :like {:origin "" :upvote ""
           }
+
+    :timeline { :origin "" :details ""
+              }
   })
 
 
@@ -300,6 +302,28 @@
     (.log js/console (str "template value " origin-title))
     value-map))
 
+; --------------------------------------------------------------------------
+; timeline thing map defed in timeline util tx-timeline.
+; --------------------------------------------------------------------------
+(defmethod thing-template-value
+  :timeline
+  [thing-type thing-map]
+  (let [origin-title (-> (get-in thing-map [:timeline/origin])
+                         (util/thing-val-by-name "title")
+                         (second)) ; value is the second of kv vector
+        value-map 
+          {:thing-entry-title (thing-attr-val thing-map thing-type "title")
+           :thumbhref "thumbhref" 
+           :entryhref "#"
+           :rank "2"  ; not sure why values must be string.
+           :txtime (:timeline/txtime thing-map)
+           :author-name (get-in thing-map [:timeline/author])
+           :origin-title origin-title
+           ;:type (:timeline/type thing-map)
+          }
+        ]
+    (.log js/console (str "template value " origin-title))
+    value-map))
 
 ;;===========================================================================
 

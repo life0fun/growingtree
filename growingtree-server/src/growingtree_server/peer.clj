@@ -49,7 +49,6 @@
 ; to avoid that, we need to only project none circular ref entity attributes.
 
 
-;
 ; after create db with uri, create schema first.
 (defn init-db
   []
@@ -81,13 +80,13 @@
 ;;===========================================================================
 ; defmulti needs a name and a dispatch fn, which rets value for dispatching
 (defmulti get-things
-  (fn [thing-type qpath] 
+  (fn [thing-type qpath details] 
     thing-type))
 
 
 (defmethod get-things
   :parent
-  [type qpath]
+  [type qpath details]
   (let [parents (dda/find-parent qpath)]
     (prn "peer dda find parent " qpath parents)
     parents))
@@ -95,7 +94,7 @@
 
 (defmethod get-things
   :child
-  [type qpath]
+  [type qpath details]
   (let [children (dda/find-child qpath)]
     (prn "peer dda find children " qpath children)
     children))
@@ -103,7 +102,7 @@
 
 (defmethod get-things
   :course
-  [type qpath]
+  [type qpath details]
   (let [courses (dda/find-course qpath)]
     (prn "peer get all courses " qpath courses)
     courses))
@@ -111,7 +110,7 @@
 
 (defmethod get-things
   :lecture
-  [type qpath]
+  [type qpath details]
   (let [lectures (dda/find-lecture qpath)]
     (prn "peer get all lectures " qpath lectures)
     lectures))
@@ -119,7 +118,7 @@
 
 (defmethod get-things
   :question
-  [type qpath]
+  [type qpath details]
   (let [questions (dda/find-question qpath)]
     (prn "peer get all questions " qpath questions)
     questions))
@@ -127,7 +126,7 @@
 
 (defmethod get-things
   :assignment
-  [type qpath]
+  [type qpath details]
   (let [assignments (dda/find-assignment qpath)]
     (prn "peer get all assignments " qpath assignments)
     assignments))
@@ -135,7 +134,7 @@
 
 (defmethod get-things
   :comments
-  [type qpath]
+  [type qpath details]
   (let [comments (dda/find-comments qpath)]
     (prn "peer get all comments " qpath comments)
     comments))
@@ -143,10 +142,18 @@
 
 (defmethod get-things
   :like
-  [type qpath]
+  [type qpath details]
   (let [likes (dda/find-like qpath)]
     (prn "peer get all likes " qpath likes)
     likes))
+
+
+(defmethod get-things
+  :timeline
+  [type qpath details]
+  (let [timeline (dda/find-timeline qpath details)]
+    (prn "peer get all timeline " qpath timeline)
+    timeline))
 
 
 ;;======================================================

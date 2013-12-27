@@ -34,6 +34,7 @@
    :thing-assignment  (dtfn (tnodes "thing.html" "thing-assignment") #{:id})
    :thing-comments  (dtfn (tnodes "thing.html" "thing-comments") #{:id})
    :thing-like  (dtfn (tnodes "thing.html" "thing-like") #{:id})
+   :thing-timeline  (dtfn (tnodes "thing.html" "thing-timeline") #{:id})
 
 
    :thing-thumbnail (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})

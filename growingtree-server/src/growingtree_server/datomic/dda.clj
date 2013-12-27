@@ -339,10 +339,10 @@
 ;; timeline related, should use multi-method to dispatch
 ;;==============================================================
 ; list an entity attribute's timeline
-(defn timeline
+(defn find-timeline
   "list an entity's attribute's timeline "
-  [eid attr]
-  (timeline/timeline eid attr))
+  [qpath details]
+  (timeline/find-timeline qpath details))
 
 
 ; list a person's all transaction timeline

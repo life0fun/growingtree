@@ -444,7 +444,8 @@
           [?vt :db/ident ?t]
           [?attr :db/cardinality ?card]
           [?card :db/ident ?v]]  ; ident is keyword, :db.cardinality/one, many.
-        (get-db) attr)
+        (get-db) 
+        attr)
     first))
 
 ; -----------------------------------------------------------------------------
@@ -493,21 +494,45 @@
     (prn "code " code)
     code))
 
-; find the timeline of an attribute of 
-(defn entity-attr-timeline
-  "list a timeline of an attribute of the entity"
+
+; query the entire history of an entity's one attr.
+; the transaction entity is the 4th arg of any data pattern. 
+; given a transction id, d/tx->t, tx to time, ret relative time when transaction happened.
+(defn entity-attr-tx
+  "ret a list of [tx-id attr-val] of an attribute of the passed in entity"
   [eid attr]
   (let [hist (d/history db)
         txhist (->> (d/q '[:find ?tx ?v ?op 
                            :in $ ?e ?attr
                            :where [?e ?attr ?v ?tx ?op]]
-                      hist 
-                      eid 
+                      hist
+                      eid
                       attr)
                   (sort-by first))  ; sort by tx time
         ]
     (prn txhist)
     txhist))
 
+
+; found the history of an attr, and ret all tx that value matches the entity
+; first, find all entities who have the attr, then for each entity, find its hist,
+; and if hist value matches passed in entity id, out put.
+(defn entity-tx-at-attr
+  [refed-id attr]
+  (let [entities (->> (d/q '[:find ?e :in $ ?attr :where [?e ?attr]] (get-db) attr)
+                      (mapv first)) ; use mapv to get a vec as subq result for hist query
+        txhist (->> (d/q '[:find ?tx ?e ?v ?op
+                           :in $ ?refed-id ?attr [?e ...]
+                           :where [?e ?attr ?v ?tx ?op]
+                                  [(= ?v ?refed-id)]
+                                  ]
+                      (d/history (get-db))
+                      refed-id
+                      attr
+                      entities)
+                    (sort-by first))  ; sort by tx time
+        ]
+    (prn txhist " entity " (get-entity (first entities)))
+    txhist))
 
 

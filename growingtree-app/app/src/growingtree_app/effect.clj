@@ -61,7 +61,8 @@
 (defn request-navpath-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [inputs]  ; request path things by thing-type
-  (let [msg (:message inputs)  ; get the active msg
+  (let [user (get-login-name inputs)  ; get the currently login user
+        msg (:message inputs)  ; get the active msg
         curpath (:path msg)    ; [:all 0 :children] or [:parent 1 :parent]
         nxtpath (:qpath msg)   ; [:parent 1 :children]
         allpath (filter (comp not nil?) [curpath nxtpath]) ; filter out no qpath case
@@ -73,7 +74,9 @@
                                 :msg-topic (vec (concat [:data] p))
                                 :thing-type thing-type
                                 :path p   ; service side service need path for query
-                                :details {:path (vec p) :qpath (vec nxtpath)}
+                                :details {:path (vec p) 
+                                          :qpath (vec nxtpath)
+                                          :author user}
                                }
                          ]
                       body)) 
