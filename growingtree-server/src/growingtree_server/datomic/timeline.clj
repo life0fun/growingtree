@@ -96,7 +96,8 @@
    :group/author :group/person
    :comments/author :like/person
    :activity/author :activity/person
-   :course/author :lecture/author :question/author :enrollment/person :answer/author
+   :course/author :lecture/author :question/author 
+   :enrollment/person :answer/author
    :assignment/author :assignment/person 
   ])
 
@@ -118,26 +119,29 @@
       (show-entity-by-id (second t)))))
 
 
-(defn attr-timeline
+(defn author-inbound-tx
   "find timeline of one attr for a person"
   [author-id author attr]
-  (let [timelines (->> (entity-tx-at-attr author-id attr)
-                       (map #(util/tx-timeline %))
-                       (map #(assoc-in % [:timeline/author] author))
-                  )
+  (let [;txhist (entity-inbound-tx author-id attr)
+        txhist (->> (entity-inbound-tx author-id attr)
+                    (map #(util/tx-timeline %))
+                    (map #(assoc-in % [:timeline/author] author))
+                )
 
        ]
-    (doseq [e timelines]
+    (doseq [e txhist]
       (prn "attr timeline " e))
-    timelines))
+    txhist))
 
 
 (defn find-timeline
-  "find timeline by query path"
+  "find timeline of an author"
   [qpath details]
   (let [author (:author details)
         author-id (:db/id (find-by :person/title author))
-        timelines (mapcat #(attr-timeline author-id author %) [:like/person :comments/author])
+        timelines (->> (mapcat #(author-inbound-tx author-id author %) 
+                               ref-attrs-person)
+                       (sort-by :timeline/txtime))
        ]
     (doseq [e timelines]
       (prn "timeline --> " e))

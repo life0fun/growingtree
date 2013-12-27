@@ -790,6 +790,10 @@
         </form>
       </div>
     </div>
+
+    <!-- comemnt tree div block-->
+    <div id="comments-tree" class="child"></div>
+    
     <div class="clearleft"></div>
   </div>
 
@@ -864,7 +868,7 @@
       <p class="title">
         <a field="content:author-name"></a>
         <span> created </span>
-        <span field="content:type"></span>
+        <a class="title" field="content:type,href:thingref"></a>
       </p>
 
       <p class="title">

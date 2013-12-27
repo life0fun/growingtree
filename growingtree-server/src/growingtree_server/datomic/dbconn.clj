@@ -190,11 +190,21 @@
     tostr))
 
 
+; (defn entity-keyword
+;   "ret the keyword of entity namespace, the same as thing-ident in app side util"
+;   [entity]
+;   (let [e (dissoc entity :db/id)  ; remove :db/id
+;         ident (keyword (namespace (ffirst e)))]
+;     ident))
+
 (defn entity-keyword
   "ret the keyword of entity namespace, the same as thing-ident in app side util"
   [entity]
-  (let [e (dissoc entity :db/id)  ; remove :db/id
-        ident (keyword (namespace (ffirst e)))]
+  (let [ident (->> (seq entity)
+                   (map first)
+                   (remove #(= :db/id %))
+                   (first)
+                   ((comp keyword namespace)))]
     ident))
 
 
@@ -517,10 +527,12 @@
 ; found the history of an attr, and ret all tx that value matches the entity
 ; first, find all entities who have the attr, then for each entity, find its hist,
 ; and if hist value matches passed in entity id, out put.
-(defn entity-tx-at-attr
+(defn entity-inbound-tx
   [refed-id attr]
   (let [entities (->> (d/q '[:find ?e :in $ ?attr :where [?e ?attr]] (get-db) attr)
                       (mapv first)) ; use mapv to get a vec as subq result for hist query
+        
+        ; no need to check empty entities, d/q will handle it.
         txhist (->> (d/q '[:find ?tx ?e ?v ?op
                            :in $ ?refed-id ?attr [?e ...]
                            :where [?e ?attr ?v ?tx ?op]
@@ -530,9 +542,9 @@
                       refed-id
                       attr
                       entities)
-                    (sort-by first))  ; sort by tx time
+                    (sort-by first))   ; sort by tx time
         ]
-    (prn txhist " entity " (get-entity (first entities)))
+    (prn txhist " entity " txhist)
     txhist))
 
 

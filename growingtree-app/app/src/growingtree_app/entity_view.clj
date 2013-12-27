@@ -269,6 +269,9 @@
   :comments
   [thing-type thing-map]
   (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+        origin-title (-> (get-in thing-map [:comments/origin])
+                         (util/thing-val-by-name "title")
+                         (second)) ; value is the second of kv vector
         value-map 
           {:thing-entry-title (thing-attr-val thing-map thing-type "title")
            :thumbhref "thumbhref" 
@@ -277,7 +280,7 @@
            :upvote upvotes
            :comments-time "  6 hours"
            :author-name (get-in thing-map [:comments/author :person/title])
-           :origin-title "kitty"}
+           :origin-title "We do not need this if we organize comment tree hierarchy"}
         ]
     value-map))
 
@@ -319,7 +322,7 @@
            :txtime (:timeline/txtime thing-map)
            :author-name (get-in thing-map [:timeline/author])
            :origin-title origin-title
-           ;:type (:timeline/type thing-map)
+           :type (:timeline/type thing-map)
           }
         ]
     (.log js/console (str "template value " origin-title))

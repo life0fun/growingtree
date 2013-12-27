@@ -201,13 +201,11 @@
   (let [txtm (:db/txInstant (get-entity txid) )
         entity (get-entity eid)
         timeline {:db/id (:db/id entity)
-                  ;:timeline/type (name (entity-keyword entity))
+                  :timeline/type (name (entity-keyword entity))
                   :timeline/txtime txtm
                   :timeline/origin entity
                   :timeline/value v
                   :timeline/add op}
-        e-k (-> (seq entity)
-                (ffirst))
        ]
-    (prn "tx timeline entity " e-k)
+    (prn "tx timeline entity " (entity-keyword entity)  timeline)
     timeline))
