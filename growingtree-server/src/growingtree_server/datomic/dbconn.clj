@@ -504,6 +504,9 @@
     (prn "code " code)
     code))
 
+;;==========================================================================
+; transaction entity query, and timeline traval
+;;==========================================================================
 
 ; query the entire history of an entity's one attr.
 ; the transaction entity is the 4th arg of any data pattern. 
@@ -511,16 +514,16 @@
 (defn entity-attr-tx
   "ret a list of [tx-id attr-val] of an attribute of the passed in entity"
   [eid attr]
-  (let [hist (d/history db)
-        txhist (->> (d/q '[:find ?tx ?v ?op 
+  (let [txhist (->> (d/q '[:find ?tx ?e ?v ?op 
                            :in $ ?e ?attr
-                           :where [?e ?attr ?v ?tx ?op]]
-                      hist
+                           :where [?e ?attr ?v ?tx ?op]
+                          ]
+                      (d/history (get-db))
                       eid
                       attr)
                   (sort-by first))  ; sort by tx time
         ]
-    (prn txhist)
+    (prn txhist " entity " txhist)
     txhist))
 
 
@@ -537,7 +540,7 @@
                            :in $ ?refed-id ?attr [?e ...]
                            :where [?e ?attr ?v ?tx ?op]
                                   [(= ?v ?refed-id)]
-                                  ]
+                          ]
                       (d/history (get-db))
                       refed-id
                       attr
@@ -546,5 +549,32 @@
         ]
     (prn txhist " entity " txhist)
     txhist))
+
+
+;;==========================================================================
+; query against a fulltext index with system fn (fulltext $db ?attr ?searchkey)
+; $ means single db input src. 
+; [:find ?n :where
+;   [(fulltext $ :community/name "Wallingford") [[?e ?n]]]]
+;;==========================================================================
+(defn fulltext-attr
+  [attr searchkey]
+  (prn "search fulltext " attr " " searchkey)
+  (let [entities (->> (d/q '[:find ?e ?searchkey ?text
+                             :in $ ?attr ?searchkey
+                             :where [(fulltext $ ?attr ?searchkey) [[?e ?text]]]
+                            ]
+                            (get-db)
+                            attr
+                            searchkey)
+                      (sort-by first))
+        ]
+    entities))
+
+
+
+
+
+
 
 

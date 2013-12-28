@@ -112,6 +112,15 @@
     (.log js/console (str "set-nav-path newpath " npath))
     npath))
 
+; extract user input search 
+(defn set-nav-search
+  [oldv message]
+  ; :searchkey was setup in thing-nav-messages and init-nav-emitter for sidebar
+  (let [searchkey (:searchkey message)
+        nkey (take-last 6 (concat oldv [searchkey]))
+       ]
+    (.log js/console (str "set-nav-search " nkey))
+    nkey))
 
 ; setup in effect, and callback by xhr respond handler, store list of all things data into 
 ; [:data :all 0 :parent] or [:data :parent 1 :child]
@@ -245,6 +254,9 @@
                 ; UI event sent to outbound node, then derive to [:nav :path] node
                 [:set-nav-path [:nav :path] set-nav-path]
 
+                ; fulltext search
+                [:set-nav-search [:nav :search] set-nav-search]
+
                 ; db response data goes here. [:data :all 0 :parent] [:data :parent 1 :child]
                 [:set-thing-data [:data :**] set-thing-data]
                 [:submitted-form [:data :form] submitted-form]
@@ -275,6 +287,8 @@
               ; dispatch to the right data model directly.
               [#{[:nav :path]} effect/request-navpath-things :mode :always]
 
+              [#{[:nav :search]} effect/request-navsearch-things :mode :always]
+              
               ; create thing template form submitted, post data to server.
               [#{[:create :*]} effect/post-create-thing :mode :always]
 

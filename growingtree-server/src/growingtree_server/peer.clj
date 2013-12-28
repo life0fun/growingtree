@@ -156,6 +156,14 @@
     timeline))
 
 
+(defmethod get-things
+  :search
+  [type qpath details]
+  (let [search (dda/search qpath details)]
+    (prn "peer fulltext search " qpath search)
+    search))
+
+
 ;;======================================================
 ;; add things multi method
 ;; watch non ref-ed attr entity. :transact/bad-data Unable to resolve entity: rich

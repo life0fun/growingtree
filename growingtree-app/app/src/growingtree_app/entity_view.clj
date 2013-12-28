@@ -134,15 +134,13 @@
 ; dom selector for upvote arrow up div, ret the upvote dom element
 ; somehow I could not get the first arg of dx/xpath work, full path with thing-id.
 ; can not re-use div form sel as it is div div. div needs double //div
-(defn upvote-sel
-  [thing-id]
-  (let [thing-node (dom/by-id (str thing-id))
-        xpath (str "//div[@id='" thing-id "']//div[@class='arrow up']")
-       ]
-    (-> thing-node
-        (dx/xpath xpath))))
-
-
+; (defn upvote-sel
+;   [thing-id]
+;   (let [thing-node (dom/by-id (str thing-id))
+;         xpath (str "//div[@id='" thing-id "']//div[@class='arrow up']")
+;        ]
+;     (-> thing-node
+;         (dx/xpath xpath))))
 (defn div-div-clz-sel
   [thing-id clz]
   (let [thing-node (dom/by-id (str thing-id))
@@ -328,8 +326,31 @@
     (.log js/console (str "template value " origin-title))
     value-map))
 
-;;===========================================================================
 
+; --------------------------------------------------------------------------
+; search thing map defed in timeline search-result
+; --------------------------------------------------------------------------
+(defmethod thing-template-value
+  :search
+  [thing-type thing-map]
+  (let [origin-title (-> (get-in thing-map [:search/origin])
+                         (util/thing-val-by-name "title")
+                         (second)) ; value is the second of kv vector
+        value-map 
+          {:origin-title origin-title
+           :thumbhref "thumbhref" 
+           :entryhref "#"
+           :rank "2"  ; not sure why values must be string.
+           :type (:search/type thing-map)
+           :text (:search/text thing-map)
+           :searchkey (:search/searchkey thing-map)
+          }
+        ]
+    (.log js/console (str "template value " origin-title))
+    value-map))
+
+
+;;===========================================================================
 ; dispatch by thing-type
 (defmulti thing-value-view
   (fn [r rpath qpath thing-map input-queue]

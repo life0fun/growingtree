@@ -122,6 +122,29 @@
                                     {:path [:all 0 s]})))
     )))
 
+;;==================================================================================
+;; search form
+;;==================================================================================
+(def enable-search
+  "upon search form submit, send msg to transform :nav :search"
+  (fn [r [_ p transform-name messages] input-queue]
+    (let [form (dom/by-id "nav-search-form")
+          btn-submit (dom/by-id "nav-search-submit")
+          ; raw domina fn, need to repvent default and put msg to queue by myself.
+          submit-fn
+            (fn [e]
+              (let [searchkey (dom/value (dom/by-id "nav-search-key"))
+                    messages (msgs/fill :set-nav-search messages {:searchkey searchkey})]
+                (de/prevent-default e)  ; submit ret false, prevent refresh or redirect
+                (doseq [m messages]
+                  (p/put-message input-queue m))))
+         ]
+      (.log js/console (str "enable search submit " messages "form " form))
+      ;(events/send-on :submit form input-queue submit-fn)  
+      ; events/send-on for this form does not work, use domina raw fn.
+      (de/listen! btn-submit :click submit-fn)
+    )))
+
 
 ;;==================================================================================
 ;; action bar multimethod dispatches by transkey/action, path [:setup :transkey]
@@ -207,11 +230,12 @@
         thing-id (first (reverse (butlast navpath)))
         thing-type (first navpath)
         thing-map ((msgs/param :thing-map) (first messages))
-        upvote-link (entity-view/upvote-sel thing-id)
-        ;upvote-link (entity-view/div-div-clz-sel thing-id "arrow up")
+        ;upvote-link (entity-view/upvote-sel thing-id)
+        upvote-link (entity-view/div-div-clz-sel thing-id "arrow up")
         click-fn (newthing-form/upvote-submit-fn r thing-type messages input-queue)
        ]
     (.log js/console (str "enable thing nav upvote " path ))
+    ; click fn will doseq put msg to input-queue
     (de/listen! upvote-link :click click-fn)
   ))
 

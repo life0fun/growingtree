@@ -63,7 +63,7 @@
 ; submit-fn uses this map to id dom input fields and collect input value to entity attr.
 ; form dom id refer to newthing.html for dom elements
 ;;==================================================================================
-(def thing-type-attr
+(def thing-input-map
   {
     :parent {:person/title "person-name"
              :person/lname "person-lname"
@@ -159,9 +159,9 @@
   [add-thing-type form override-map messages]
   (fn [e]
     (let [ ; input-field defined in thing type attr map
-          type-attr (get thing-type-attr add-thing-type)
-          input-fields (keys type-attr)
-          input-vals (->> (vals type-attr)
+          input-map (get thing-input-map add-thing-type)
+          input-fields (keys input-map)
+          input-vals (->> (vals input-map)
                           (map #(dom/by-id %))
                           (map #(.-value %)))
           details (-> (zipmap input-fields input-vals)
@@ -202,7 +202,7 @@
 ;--------------------------------------------------------------------
 ; when form submitted, we instantiate create-thing msg, collect input fields.
 ; message is :create-thing thing-type, path is render path, only for logging. 
-; submit-fn use thing-type-attr to collect input field and ret filled msgs.
+; submit-fn use thing-input-map to collect input field and ret filled msgs.
 ;--------------------------------------------------------------------
 (defn handle-add-thing-submit
   ([add-thing-type path override-map input-queue]
@@ -234,14 +234,14 @@
 
 ;--------------------------------------------------------------------
 ; inline form submit fn collect form input fields values and ret filled msg.
-; inline form needs thing-id to id dom element.
+; input fields are mapped inside thing-input-map, thing-id suffixed for uniq.
 ;--------------------------------------------------------------------
 (defn inline-form-submit-fn
   [add-thing-type thing-id form override-map messages]
   (fn [e]
-    (let [type-attr (get thing-type-attr add-thing-type)
-          input-fields (keys type-attr)
-          input-vals (->> (vals type-attr)
+    (let [input-map (get thing-input-map add-thing-type)
+          input-fields (keys input-map)
+          input-vals (->> (vals input-map)
                           (map #(% thing-id))
                           (map #(dom/value %)))
           details (-> (zipmap input-fields input-vals)

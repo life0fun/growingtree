@@ -119,6 +119,11 @@
                            [{msgs/topic [:nav :path]
                             (msgs/param :path) []} ]]
 
+        [:transform-enable [:nav :search] 
+                           :set-nav-search
+                           [{msgs/topic [:nav :search]
+                            (msgs/param :searchkey) ""} ]]
+
         ; enable login modal, for modal, msg must be 
         [:transform-enable [:nav :login-modal]
                            :login-modal

@@ -95,26 +95,27 @@
     (if (last curpath)
       requests)))
 
-;;==================================================================================
-; after input form submitted, app model transform stores details in [:submit :thing-type]
-; effect flow picks it up and post data to insert things into db
-; details setup in enable-thing-nav with :action :thing-id :assignto-name and :assignto-hint.
-; we get the current login user as the user id
-;;==================================================================================
-; XXX this should be deprecated !
-(defn post-submit-thing
-  "assign form submitted, post thing details data to add to database"
-  [inputs]
-  (let [user (get-login-name inputs)
-        msg (:message inputs)  ; active msg that triggered this effect flow
-        msg-topic [:data :form]   ; single bucket to FIFO all submitted forms
-        msg-type :submitted-form
-        details (assoc (:details msg) :author user)
-        body {:msg-topic msg-topic :msg-type msg-type 
-              :thing-type (:thing-type details) :details details}]
-    (.log js/console (str user " submit form details " body))
-    ; msg type :assign
-    [{msgs/topic [:server] msgs/type :add-thing (msgs/param :body) body}]))
+
+; fulltext search, request thing-type is :search, path as [:all 0 searchkey].
+(defn request-navsearch-things
+  "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
+  [inputs]  ; request path things by thing-type
+  (let [user (get-login-name inputs)  ; get the currently login user
+        msg (:message inputs)  ; get the active msg
+        searchkey (:searchkey msg)
+        body {:msg-type :set-thing-data
+              :msg-topic [:data :all 0 :search]  ; thing node template
+              :thing-type :search
+              :path [:all 0 :search]
+              :details {:searchkey searchkey}
+             }
+
+        request [{msgs/topic [:server] 
+                  msgs/type :request-things
+                  (msgs/param :body) body}]
+       ]
+    (.log js/console (str "effect request search " request))
+    request))
 
 
 ;;==================================================================================
@@ -141,11 +142,6 @@
               :thing-type thing-type :details details}
        ]
     (.log js/console (str user " post create thing " thing-type " body " body))
-    [{msgs/topic [:server] msgs/type :add-thing (msgs/param :body) body}]
-    ))
-
-; request timeline
-(defn request-timeline
-  [timeline]
-  [])
+    ;[{msgs/topic [:server] msgs/type :add-thing (msgs/param :body) body}]
+  ))
 

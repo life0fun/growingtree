@@ -256,6 +256,7 @@
     [:node-destroy [:nav] h/default-destroy]
     ; wire sidebar nav click to send this transform to change data model.
     [:transform-enable [:nav :sidebar] transforms/enable-sidebar-nav]
+    [:transform-enable [:nav :search] transforms/enable-search]
 
     ; login modal
     [:transform-enable [:nav :login-modal] modals/enable-login-modal]

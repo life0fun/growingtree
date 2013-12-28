@@ -345,10 +345,12 @@
   (timeline/find-timeline qpath details))
 
 
-; list a person's all transaction timeline
-(defn person-timeline
-  "list a person's transaction timeline"
-  [eid]
-  (timeline/person-timeline eid))
+;;==============================================================
+; fulltext search
+;;==============================================================
+(defn search
+  "conduct fulltext search"
+  [qpath details]
+  (timeline/search-fulltext qpath details))
 
 

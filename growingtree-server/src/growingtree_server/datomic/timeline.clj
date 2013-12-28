@@ -89,7 +89,7 @@
 ; 
 
 ;first, a list of ref attributes that ref to a person entity
-(def ref-attrs-person
+(def person-inbound-attrs
   [;:family/parent :family/child 
    :follow/person :follow/followee
    :schoolclass/person 
@@ -101,22 +101,21 @@
    :assignment/author :assignment/person 
   ])
 
-; query all the tx of an attr that person participate
-(defn person-tx-at-attr
-  [pid attr]
-  (let [txhist (entity-tx-at-attr pid attr)]
-    (prn "person tx at attr " pid attr txhist)
-    txhist))
 
-
-; list an entity attribute's timeline
-(defn timeline
-  "list an entity's attribute's timeline "
-  [eid attr]
-  (let [txhist (entity-attr-tx eid attr)]
-    (doseq [t txhist]
-      (show-entity-by-id (first t))
-      (show-entity-by-id (second t)))))
+(def fulltext-attrs
+  [
+   :person/title :person/lname :person/email :person/address
+   :group/title 
+   :comments/title :like/title
+   :activity/content :activity/tag
+   :location/title :location/address
+   :course/title :course/content :course/reference
+   :lecture/title :lecture/content :lecture/reference
+   :question/title :question/content
+   :assignment/title 
+   :enrollment/title :enrollment/content 
+   :answer/title :answer/content
+  ])
 
 
 (defn author-inbound-tx
@@ -133,14 +132,14 @@
       (prn "attr timeline " e))
     txhist))
 
-
+; for now, find all inbound tx for current user
 (defn find-timeline
   "find timeline of an author"
   [qpath details]
   (let [author (:author details)
         author-id (:db/id (find-by :person/title author))
         timelines (->> (mapcat #(author-inbound-tx author-id author %) 
-                               ref-attrs-person)
+                               person-inbound-attrs)
                        (sort-by :timeline/txtime))
        ]
     (doseq [e timelines]
@@ -148,26 +147,45 @@
     timelines))
 
 
-; list all transaction of a person
-(defn- person-activities
-  "list a person's all activities with a time range"
-  [pid]
-  (let [attrs [:parent/child :child/parent :homework/author :course/author
-               :assignment/by :assignment/to :comments/autho
-               :answer/child :comments/author :activities/child]
-        all (clojure.set/union (map #(timeline pid %) attrs))]
-    (prn all)))
+
+; list an entity attribute's tx history
+(defn entity-attr-timeline
+  "list an entity's attribute's tx history "
+  [eid attr]
+  (let [txhist (entity-attr-tx eid attr)]
+    (doseq [e txhist]
+      (prn "timeline --> " e))))
 
 
-; list a person's all transaction timeline
-(defn person-timeline
-  "list a person's transaction timeline"
-  [eid]
-  (let [txhist (person-activities eid)]
-    (doseq [t txhist]
-      (prn t)
-      (show-entity-by-id (first t)))))
+;;===========================================================================
+; full text search for fulltext attr contains the keyword
+;;===========================================================================
+(defn search-result
+  "convert search result [eid key text] to :search entity"
+  [[eid searchkey text :as result]]
+  (let [entity (get-entity eid)
+        result-map {:db/id (:db/id entity)
+                    :search/origin entity
+                    :search/type (name (entity-keyword entity))
+                    :search/text text
+                    :search/searchkey searchkey
+                   }
+       ]
+    (prn "search result entity " result-map)
+    result-map))
 
+
+(defn search-fulltext
+  "search a fulltext attr with the keyword"
+  [qpath details]
+  (let [searchkey (:searchkey details)
+        entities (->> (mapcat #(fulltext-attr % searchkey) 
+                              fulltext-attrs)
+                      (map #(search-result %)))
+       ]
+    (doseq [e entities]
+      (prn "fulltext --> " e))
+    entities))
 
 
 
