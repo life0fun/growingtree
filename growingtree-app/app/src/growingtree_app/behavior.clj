@@ -277,6 +277,7 @@
 
             ; derive can not use wildcard path, as the msg topic is for upstream src.
             [#{[:nav :path]} [:data] refresh-thing-data]
+
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn to xhr to back-end.

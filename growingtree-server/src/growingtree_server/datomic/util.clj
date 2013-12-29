@@ -162,14 +162,25 @@
 
 
 ; ============================================================================
-; (bootstrap/json-response result) convert entity to json string, including embeded refs.
-; However, the :db/id of embedded ref attr got dropped during json stringify.
-; for those ref attr where we need its :db/id, replace ref attr embeded entity with :db/id
+; (json-response result) convert entity to json string, including outbound refs.
+; However, the :db/id of outbound refs got dropped during json stringify.
+; for those ref attr where we need its :db/id, replace refed entity with :db/id
 ; ============================================================================
 (defn ref->dbid
   [entity ref-attr]
   (update-in entity [ref-attr] (fn [refed-e] (:db/id refed-e))))
 
+
+; ============================================================================
+; add qpath for each entity, so it knows who is its parent in the display tree
+; this must be the last to execute as it added non-namespaced attr to thing.
+; ============================================================================
+(defn add-qpath
+  [entity qpath]
+  (let [thing-id (:db/id entity)
+        qpath (vec (concat qpath [thing-id]))
+       ]
+    (assoc-in entity [:qpath] qpath)))
 
 ; ============================================================================
 ; get no of likes for certain entity, and add it as upvote attr to the entity

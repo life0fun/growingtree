@@ -102,7 +102,7 @@
   (fn [response]
     ; parse response body into json and convert json to cljs PersistentVector
     (when-let [body (:body response)] ; only when we have valid body
-      ;(.log js/console (str "app service receive response :" body))
+      ;(.log js/console (str "app service receive response : " body))
       (let [bodyjson (JSON/parse body)  
             ; parse js json object to cljs.core.PersisitentVector data structre.
             result (js->clj bodyjson :keywordize-keys true)
@@ -126,6 +126,7 @@
 ; request handler msg topic/type will dispatch msg to the right transformer.
 ; request body contains callback transformer msg and thing-type, query path, details.
 ; msg type topic is setup in effect flow when nav path changed. [:data nav-path]
+;  /api/comments [:data :course 1 :comments] :set-thing-data :msg-topic [:data :course 1 :comments]
 ;;=======================================================================================
 (defn request-things
   [body input-queue]

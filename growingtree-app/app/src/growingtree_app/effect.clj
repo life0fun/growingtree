@@ -115,7 +115,8 @@
                   (msgs/param :body) body}]
        ]
     (.log js/console (str "effect request search " request))
-    request))
+    (if searchkey
+      request)))
 
 
 ;;==================================================================================

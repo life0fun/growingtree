@@ -149,6 +149,15 @@
     (-> thing-node
         (dx/xpath xpath))))
 
+; ------------------------------------------------------------------
+; dom add class to thing node
+; ------------------------------------------------------------------
+(defn thing-node-add-class
+  "add a class to thing node"
+  [thing-id clz]
+  (let [thing-node (dom/by-id (str thing-id))]
+    (.log js/console (str "thing node " thing-id " add class " clz))
+    (dom/add-class! thing-node clz)))
 
 ;;===============================================================
 ; get thing-map attr, attr passed in as string
@@ -197,6 +206,22 @@
       (.log js/console "toggle nav add subthing " nav-key nav-clz add-key add-clz)
       nav-add-clz)))
 
+
+;;=============================================================================
+; get the parent node of a thing node at certain render path
+; rpath [:filtered :course 1 :comemnts 2 :comments 3]
+;;=============================================================================
+(defn thing-node-parent
+  [rpath]
+  (let [thing-type (first (take-last 2 rpath))
+        tree-id (str (name thing-type) "-tree")
+        qpath (take-last 2 (drop-last 2 rpath))
+        xpath (str "//div[@id='" thing-id "']//div[@id='" tree-id "']")
+       ]
+    (-> (dom/by-id (str (last rpath)))
+        (dx/xpath xpath))))
+
+
 ;;=============================================================================
 ;; generate thing template based on thing type, and attach template to render path.
 ;; when rendering node-create with thing-type and id, ret thing node div html
@@ -206,7 +231,6 @@
 ;;        [:header :parent 17592186045498]
 ;;        [:filtered :course 17592186045428 :lecture 17592186045430]
 ;;=============================================================================
-
 (defmulti thing-node-html
   (fn [render-path render]  ; the last segment of path
     (second (reverse render-path))))

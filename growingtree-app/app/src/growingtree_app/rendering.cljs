@@ -158,58 +158,91 @@
     
 
 ;;================================================================================
-;; add thing nav parent node. we should take the last thing id path segment, 
-;; and render it as top section parent node, and the list of children
-;; attach thing-details template to main div
+; add thing-details templ to [:filtered :course 1 :comments 2]
+; thing-details templ has thing-root and subthings-list.
+; as we need to append nodes to subthings-list, we attach thing-details templ to 
+; path [:filtered :course 1], as the parent for top level subthings-list.
 ;;================================================================================
 
 ; render thing details page for thing nave, first, delete main div childrens.
 ; the render two sections, parent data at upper layer and list of children
 ; render this page when it was not there.
+; (defn render-filtered-page
+;   "render thing details parent header and a list of children, delete main children first"
+;   [r rpath]  ; render rpath [:header :parent] or [:filter :parent ]
+;   (when-not (dom/by-id "thing-root") ;(count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']")))
+;     (let [id (render/new-id! r (vec rpath))
+;           templ (:thing-details templates)  
+;           ; attach thing-details template to rpath
+;           html (templates/add-template r rpath templ)
+;           divcode (html {:id id})
+;           main (dom/by-id "main")]
+;       (.log js/console (str "render detail page " rpath id))
+;       (dom/destroy-children! main)
+;       (dom/append! main divcode))))
+
+
 (defn render-filtered-page
   "render thing details parent header and a list of children, delete main children first"
-  [r rpath]  ; render rpath=[:header :parent]
+  [r filter-path]  ; filter-path [:course 1] 
   (when-not (dom/by-id "thing-root") ;(count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']")))
-    (let [id (render/new-id! r (vec rpath))
-          templ (:thing-details templates)  ; attach thing-details template to main div
-          html (templates/add-template r rpath templ)
-          divcode (html {:id id})
-          main (dom/by-id "main")]
-      (.log js/console (str "render detail page " rpath id))
-      (dom/destroy-children! main)
-      (dom/append! main divcode))))
-
+    (let [rpath (concat [:filtered] filter-path)  ; hard-code render path to :filtered
+          ; attach thing-details template to rpath
+          html (templates/add-template r rpath (:thing-details templates))
+          divcode (html {:id (str (name (first filter-path)) "-" (last filter-path))})  ; dom id for thing-details use parent thing-id
+         ]
+      (.log js/console (str "render detail page " rpath))
+      (dom/destroy-children! (dom/by-id "main"))
+      (dom/append! (dom/by-id "main") divcode))))
 
 ;
-; [:header :question 17592186045432] 
+; rpath [:header :course 17592186045425]
 (defn add-filtered-parent-node
   "render parent header in thing nav details"
   [r [op rpath] input-queue]
   (let [thingid (last rpath)
         thing-div (entity-view/thing-node-html rpath r)
-        ; get parent node
-        ;div (dom/by-id (str thingid))
         ]
     (.log js/console (str "add header node " thingid rpath))
     ; first, clear all children
     ;(dom/destroy-children! (dom/by-id "main"))
-    (render-filtered-page r (butlast rpath)) ; [:header :parent]
+    (render-filtered-page r (rest rpath)) ; [:course 17592186045425]
     ; append parent
     (dom/append! (dom/by-id "thing-root") thing-div)))
 
 
-; [:filtered :question 17592186045432 :lecture 17592186045430]
+; [:filtered :course 1 :comemnts 2]
 (defn append-filtered-child-node
   "append child node to thing nav children list panel"
   [r [op rpath] input-queue]
-  (let [thingid (last rpath)
-        thing (entity-view/thing-node-html rpath r)]
+  (let [thing-id (last rpath)
+        thing (entity-view/thing-node-html rpath r)
+        root-node (dom/by-id "subthings-list")
+       ]
     ; render thing-details template if it is not rendered yet
-    (render-filtered-page r rpath)
+    (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
     ; [:filtered :question 17592186045432 :lecture 17592186045430]
-    (.log js/console (str "append thing nav child node " thingid rpath))
-    (dom/append! (dom/by-id "subthings-list") thing)))
-    
+    (.log js/console (str "append filtered child node " thing-id rpath))
+    (dom/append! root-node thing)
+    (entity-view/thing-node-add-class thing-id "offset1")))
+
+
+; [:filtered :course 1 :comemnts 2 :comments 3 ...]
+(defn append-filtered-child-tree
+  "build a sub tree whose root is a filtered child node"
+  [r [op rpath] input-queue]
+  (let [thing-id (last rpath)
+        thing (entity-view/thing-node-html rpath r)
+        parent-node (entity-view/thing-nde-parent rpath)
+        offset (/ (count (nthrest rpath 3)) 2)
+       ]
+    ; render thing-details template if it is not rendered yet
+    (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
+    ; [:filtered :question 17592186045432 :lecture 17592186045430]
+    (.log js/console (str "append filtered child tree " thing-id rpath))
+    (dom/append! parent-node thing)
+    (entity-view/thing-node-add-class thing-id (str "offset" offset))))
+
 
 (defn del-thing-nav-node
   [r [op rpath] input-queue]
@@ -296,6 +329,8 @@
     [:node-destroy [:filtered :* :* :* :*] del-thing-node]
     [:node-destroy [:filtered] clear-all-things]  ; clear all child under main div
     
+    [:node-create [:filtered :* :* :* :* :**] append-filtered-child-tree]
+    [:value       [:filtered :* :* :* :* :**] value-thing-node]
 
     ;; ============== other thing nav links setup and submit handling ============
     ; setup and submit action handler, path [:setup :homework id :assign]

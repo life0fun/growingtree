@@ -131,22 +131,36 @@
     [(:title ?e ?val) [?e :comments/title ?val]]
     [(:url ?e ?val) [?e :comments/url ?val]]
 
-    [(:child ?e ?val) [?e :comments/thingroot ?val]]
-    [(:course ?e ?val) [?e :comments/thingroot ?val]]
-    [(:lecture ?e ?val) [?e :comments/thingroot ?val]]
-    [(:question ?e ?val) [?e :comments/thingroot ?val]]
-    [(:assignment ?e ?val) [?e :comments/thingroot ?val]]
-    [(:answer ?e ?val) [?e :comments/thingroot ?val]]
-    [(:group ?e ?val) [?e :comments/thingroot ?val]]
-    [(:activity ?e ?val) [?e :comments/thingroot ?val]]
-    [(:location ?e ?val) [?e :comments/thingroot ?val]]
-    [(:comments ?e ?val) [?e :comments/thingroot ?val]]
+    [(:child ?e ?val) [?e :comments/origin ?val]]
+    [(:course ?e ?val) [?e :comments/origin ?val]]
+    [(:lecture ?e ?val) [?e :comments/origin ?val]]
+    [(:question ?e ?val) [?e :comments/origin ?val]]
+    [(:assignment ?e ?val) [?e :comments/origin ?val]]
+    [(:answer ?e ?val) [?e :comments/origin ?val]]
+    [(:group ?e ?val) [?e :comments/origin ?val]]
+    [(:activity ?e ?val) [?e :comments/origin ?val]]
+    [(:location ?e ?val) [?e :comments/origin ?val]]
+    [(:comments ?e ?val) [?e :comments/origin ?val]]
   ])
 
 
 ;;==============================================================
 ; comments
 ;;==============================================================
+; (defn find-comments
+;   "find all comments by query path"
+;   [qpath]
+;   (let [projkeys (keys comments-schema)  ; must select-keys from datum entity attributes
+;         comments (->> (util/get-entities-by-rule qpath get-comments-by)
+;                       (map #(select-keys % projkeys) )
+;                       (map #(util/add-upvote-attr %) )
+;                       (map #(util/ref->dbid % :comments/thingroot))
+;                  )
+;        ]
+;     (doseq [e comments]
+;       (prn "comments --> " e (:comments/thingroot e)))
+;     comments))
+
 (defn find-comments
   "find all comments by query path"
   [qpath]
@@ -155,6 +169,7 @@
                       (map #(select-keys % projkeys) )
                       (map #(util/add-upvote-attr %) )
                       (map #(util/ref->dbid % :comments/thingroot))
+                      (map #(util/add-qpath % qpath) )
                  )
        ]
     (doseq [e comments]
