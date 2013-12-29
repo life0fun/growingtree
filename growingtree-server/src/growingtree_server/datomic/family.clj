@@ -207,9 +207,9 @@
   (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
         parents (->> (util/get-entities-by-rule qpath get-parent-by)
                      (map #(select-keys % projkeys) )
-                     (map (fn [c]
-                            (assoc-in c [:person/upvote]
-                                      (+ (util/upvotes (:db/id c)) (rand-int 100))))))
+                     (map #(util/add-upvote-attr %) )
+                     (map #(util/add-navpath % qpath) )
+                )
         ]
     (doseq [e parents]
       (prn "parent --> " e))
@@ -241,10 +241,10 @@
   (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
         children (->> (util/get-entities-by-rule qpath get-child-by)
                      (map #(select-keys % projkeys) )
-                     (map (fn [c]
-                            (assoc-in c [:person/upvote]
-                                      (+ (util/upvotes (:db/id c)) (rand-int 100))))))
-        ]
+                     (map #(util/add-upvote-attr %) )
+                     (map #(util/add-navpath % qpath) )
+                 )
+       ]
     (doseq [e children]
       (prn "child --> " e))
     children))

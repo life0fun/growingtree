@@ -175,12 +175,12 @@
 ; add qpath for each entity, so it knows who is its parent in the display tree
 ; this must be the last to execute as it added non-namespaced attr to thing.
 ; ============================================================================
-(defn add-qpath
-  [entity qpath]
+(defn add-navpath
+  [entity navpath]
   (let [thing-id (:db/id entity)
-        qpath (vec (concat qpath [thing-id]))
+        navpath (vec (concat navpath [thing-id]))
        ]
-    (assoc-in entity [:qpath] qpath)))
+    (assoc-in entity [:navpath] navpath)))
 
 ; ============================================================================
 ; get no of likes for certain entity, and add it as upvote attr to the entity
@@ -216,7 +216,9 @@
                   :timeline/txtime txtm
                   :timeline/origin entity
                   :timeline/value v
-                  :timeline/add op}
+                  :timeline/add op
+                  :navpath [:all 0 :timeline (:db/id entity)]  ; [ :all 0 :timeline 1 ]
+                 }
        ]
     (prn "tx timeline entity " (entity-keyword entity)  timeline)
     timeline))

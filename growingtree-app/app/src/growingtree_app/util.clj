@@ -16,6 +16,11 @@
   (str (.getTime (platform/date)) "-" (rand-int 1E6)))
 
 
+; map f to every nth element of a sequence
+(defn map-every-nth [f coll n]
+  (map-indexed #(if (zero? (mod %1 n)) (f %2) %2) coll))
+
+
 ; pad time with leading 0 upon single digit.
 (defn format-time 
   "pad time with leading 0 upon single digit"

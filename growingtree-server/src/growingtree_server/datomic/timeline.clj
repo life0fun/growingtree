@@ -169,6 +169,7 @@
                     :search/type (name (entity-keyword entity))
                     :search/text text
                     :search/searchkey searchkey
+                    :navpath [:all 0 :search (:db/id entity)]
                    }
        ]
     (prn "search result entity " result-map)

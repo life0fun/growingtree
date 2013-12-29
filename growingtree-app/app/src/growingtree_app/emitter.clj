@@ -6,7 +6,9 @@
               [io.pedestal.app.util.log :as log]
               [io.pedestal.app.messages :as msgs]
               [clojure.set :as set]
-              [growingtree-app.entity-view :as entity-view]))
+              [growingtree-app.entity-view :as entity-view]
+              [growingtree-app.util :as util]))
+
 
 (comment
   (defn example-emit [inputs]
@@ -210,6 +212,8 @@
 ;        [:filtered :course 17592186045428 :lecture 17592186045430]
 ; thing-map is db entity {:db/id 17592186045425, :course/url "math.com/Math-I", 
 ; :course/author [{:person/lname "rich", :person/title "rich-dad",}] ..
+; qpath record the path next path, from [:course 1 to :comments]
+; thing data emit qpath [:course 17592186045425 :comments] changemap {[:data :course 17592186045425 :course] 
 ;;==================================================================================
 (defn thing-data-emitter
   "emit node-create and value delta for list of things from xhr response"
@@ -239,23 +243,31 @@
 ; ret a vector of delta tuples of node-create and value delat from a vector of 
 ; thing data value. value is a vector of entity tuples, mapcat vec is de-pack and re-pack vec.
 ; data for navpath stored in [:data :thing 1 :next-thing]
+; thing data emit qpath [:course 17592186045425 :comments] changemap {[:data :course 17592186045425 :course] 
 (defn- thing-data-deltas
-  [inputs input-path qpath things-vec]   ; input-path = [:data :* :* :*] = [:data :all 0 :parent]
+  [inputs input-path qpath things-vec]
+  ; input-path = [:data :* :* :*] = [:data :all 0 :parent] [:data :course 1 :comments]
   (let [navpath (rest input-path)] ; [:data :course 1 :lecture] stores data for nav path [:course 1 :lecture]
     (vec (concat
       (mapcat
         (fn [entity-map]
-          (let [id (:db/id entity-map)  ; get :db/id as each node render path id
+          (let [; each thing map has navpath indicates query path, for UI nav and display
+                thing-map (keyword-thing-navpath entity-map)
+                id (:db/id thing-map)  ; get :db/id as each node render path id
                 thing-type (last input-path)
+                
                 ; [:main :parent 12 :child 34], pass render-path to transforms emit
-                render-path (navpath->renderpath navpath id)
-                actiontransforms (thing-navpath-transforms thing-type render-path entity-map)
+                ; render-path (navpath->renderpath navpath id)
+
+                ; :navpath ["all" 0 "course" 17592186045425], or  ["course" 17592186045425 "comments" 17592186045433], or ["course" 17592186045425 "course" 17592186045425]
+                render-path (thing-navpath->renderpath (:navpath thing-map))
+                actiontransforms (thing-navpath-transforms thing-type render-path thing-map)
                ]
-            (.log js/console (str "node-create and value thing data at render-path " render-path))
+            (.log js/console (str "node-create and value thing data at render-path " render-path " " navpath))
             ; XXX the meat is create and value node at render-path [:header :child 17592186045497]
             (concat [ [:node-destroy render-path]
                       [:node-create render-path :map]
-                      [:value render-path {:qpath qpath :thing-map entity-map}] ]
+                      [:value render-path {:qpath qpath :thing-map thing-map}] ]
                     actiontransforms)))
         things-vec)
       ))))
@@ -263,16 +275,39 @@
 
 ; fill the render dispatch type for render node create to render proper template.
 ; XXX render path must be vector, otherwise, render/new-id! fail
-(defn navpath->renderpath
-  [navpath thing-id]  ; thing-id is passed in, to avoid [:all 0 :course] case.
-  (let [[parent _ child] navpath]
-    (cond 
-      (= parent :all) (vec (concat [:main] navpath [thing-id]))
-      (= parent child) (vec (concat [:header] (butlast navpath))) ; [:header :parent 1]
-      (= child :id) (vec (concat [:detail] (butlast navpath)))  ; [:detail :parent 1]
-      :else (vec (concat [:filtered] navpath [thing-id]))))) ; [filtered :thing id :next-thing id]
+; Deprecated!!! each thing will have its own navpath
+; (defn navpath->renderpath
+;   [navpath thing-id]  ; thing-id is passed in, to avoid [:all 0 :course] case.
+;   (let [[parent _ child] navpath]
+;     (cond 
+;       (= parent :all) (vec (concat [:main] navpath [thing-id]))
+;       (= parent child) (vec (concat [:header] (butlast navpath))) ; [:header :parent 1]
+;       (= child :id) (vec (concat [:detail] (butlast navpath)))  ; [:detail :parent 1]
+;       :else (vec (concat [:filtered] navpath [thing-id]))))) ; [filtered :thing id :next-thing id]
 
- 
+
+; thing-qpath record how we get to current thing. 
+; ["all" 0 "course" 17592186045425], or  
+; ["course" 17592186045425 "course" 17592186045425], or
+; ["course" 17592186045425 "comments" 17592186045433], or 
+(defn keyword-thing-navpath
+  "given a thing entity map, convert qpath segment from json string token to keyword"
+  [thing-map]
+  (let [navpath (:navpath thing-map)
+        knavpath (util/map-every-nth keyword navpath 2)]
+    (.log js/console (str "keyword thing navpath " navpath knavpath))
+    (assoc-in thing-map [:navpath] knavpath)))
+
+(defn thing-navpath->renderpath
+  [thing-navpath]
+  (.log js/console (str " thing navpath " thing-navpath))
+  (let [[parent _ child] (take 3 thing-navpath)]
+    (cond 
+      (= parent :all) (vec (concat [:main] thing-navpath))
+      (= parent child) (vec (concat [:header] (take 2 thing-navpath))) ; [:header :parent 1]
+      :else (vec (concat [:filtered] thing-navpath))))) ; [filtered :thing id :next-thing id]
+
+
 ;;==================================================================================
 ; thing nav bar sublink transform, emit [:nav :thing 1 :next-thing] click enabler.
 ; for each next-thing, we setup message from thing-nav-messages and render fills the

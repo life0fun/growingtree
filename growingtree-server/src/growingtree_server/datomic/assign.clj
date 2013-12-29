@@ -167,6 +167,7 @@
         question (->> (util/get-entities-by-rule qpath get-question-by)
                       (map #(select-keys % projkeys) )
                       (map #(util/add-upvote-attr %) )
+                      (map #(util/add-navpath % qpath) )
                  )
         ]
     (prn projkeys question)
@@ -235,6 +236,7 @@
         assignments (->> (util/get-entities-by-rule qpath get-assignment-by)
                       (map #(select-keys % projkeys) )
                       (map #(util/add-upvote-attr %) )
+                      (map #(util/add-navpath % qpath) )
                     )
         ]
     (doseq [e assignments]

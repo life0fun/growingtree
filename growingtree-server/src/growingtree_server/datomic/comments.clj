@@ -169,7 +169,7 @@
                       (map #(select-keys % projkeys) )
                       (map #(util/add-upvote-attr %) )
                       (map #(util/ref->dbid % :comments/thingroot))
-                      (map #(util/add-qpath % qpath) )
+                      (map #(util/add-navpath % qpath) )
                  )
        ]
     (doseq [e comments]
@@ -206,6 +206,7 @@
   (let [projkeys (keys like-schema)  ; must select-keys from datum entity attributes
         likes (->> (util/get-entities-by-rule qpath get-like-by)
                    (map #(select-keys % projkeys) )
+                   (map #(util/add-navpath % qpath) )
               )
        ]
     (doseq [e likes]
