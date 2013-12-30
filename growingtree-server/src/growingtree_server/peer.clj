@@ -104,7 +104,7 @@
   :course
   [type qpath details]
   (let [courses (dda/find-course qpath)]
-    (prn "peer get all courses " qpath courses)
+    (prn "peer get courses " qpath courses)
     courses))
 
 
@@ -112,7 +112,7 @@
   :lecture
   [type qpath details]
   (let [lectures (dda/find-lecture qpath)]
-    (prn "peer get all lectures " qpath lectures)
+    (prn "peer get lectures " qpath lectures)
     lectures))
 
 
@@ -120,7 +120,7 @@
   :question
   [type qpath details]
   (let [questions (dda/find-question qpath)]
-    (prn "peer get all questions " qpath questions)
+    (prn "peer get questions " qpath questions)
     questions))
 
 
@@ -128,7 +128,7 @@
   :assignment
   [type qpath details]
   (let [assignments (dda/find-assignment qpath)]
-    (prn "peer get all assignments " qpath assignments)
+    (prn "peer get assignments " qpath assignments)
     assignments))
 
 
@@ -136,7 +136,7 @@
   :comments
   [type qpath details]
   (let [comments (dda/find-comments qpath)]
-    (prn "peer get all comments " qpath comments)
+    (prn "peer get comments " qpath comments)
     comments))
 
 
@@ -144,7 +144,7 @@
   :like
   [type qpath details]
   (let [likes (dda/find-like qpath)]
-    (prn "peer get all likes " qpath likes)
+    (prn "peer get likes " qpath likes)
     likes))
 
 
@@ -152,7 +152,7 @@
   :timeline
   [type qpath details]
   (let [timeline (dda/find-timeline qpath details)]
-    (prn "peer get all timeline " qpath timeline)
+    (prn "peer get timeline " qpath timeline)
     timeline))
 
 

@@ -94,6 +94,7 @@
 ;
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
 
+(declare comments-of)
 
 ; schema attr-name value type map for parent schema and child schema
 (def like-schema (assoc (list-attr :like) :db/id :db.type/id))
@@ -140,6 +141,8 @@
     [(:group ?e ?val) [?e :comments/origin ?val]]
     [(:activity ?e ?val) [?e :comments/origin ?val]]
     [(:location ?e ?val) [?e :comments/origin ?val]]
+
+    ; all comments whose origin point to this comments
     [(:comments ?e ?val) [?e :comments/origin ?val]]
   ])
 
@@ -147,33 +150,57 @@
 ;;==============================================================
 ; comments
 ;;==============================================================
-; (defn find-comments
-;   "find all comments by query path"
-;   [qpath]
-;   (let [projkeys (keys comments-schema)  ; must select-keys from datum entity attributes
-;         comments (->> (util/get-entities-by-rule qpath get-comments-by)
-;                       (map #(select-keys % projkeys) )
-;                       (map #(util/add-upvote-attr %) )
-;                       (map #(util/ref->dbid % :comments/thingroot))
-;                  )
-;        ]
-;     (doseq [e comments]
-;       (prn "comments --> " e (:comments/thingroot e)))
-;     comments))
+(defn query-comments
+  "query comments by path, [:course 1 :comments] or [:course 1 :comments 2 :comments]"
+  [navpath]
+  (let [projkeys (keys comments-schema)  ; must select-keys from datum entity attributes])
+        comments (->> (util/get-entities-by-rule-query (take-last 3 navpath) get-comments-by)
+                      (map #(select-keys % projkeys) )
+                      (map #(util/add-upvote-attr %) )
+                      (map #(util/ref->dbid % :comments/thingroot))
+                      (map #(util/add-navpath % navpath) )
+                 )
+       ]
+    comments))
+
+
+(defn comments-of
+  "give a comments, find all comments whose origin point to this comments"
+  [c]
+  (when-not (nil? c)
+    (let [navpath (concat (:navpath c) [:comments])
+          comments (query-comments navpath)
+          ]
+      (doseq [e comments]
+        (prn "comments of " navpath " --> " e ))
+      comments)))
+
 
 (defn find-comments
   "find all comments by query path"
   [qpath]
-  (let [projkeys (keys comments-schema)  ; must select-keys from datum entity attributes
-        comments (->> (util/get-entities-by-rule qpath get-comments-by)
-                      (map #(select-keys % projkeys) )
-                      (map #(util/add-upvote-attr %) )
-                      (map #(util/ref->dbid % :comments/thingroot))
-                      (map #(util/add-navpath % qpath) )
-                 )
+  (let [
+        ; comments (query-comments qpath)
+        ; level1 (mapcat #(comments-of %) comments)
+        ; level2 (mapcat #(comments-of %) level1)
+
+        ; comments (concat comments level1 level2)
+
+        comments (->> (for [c (query-comments qpath) 
+                            l1 (comments-of c) 
+                           ]
+                        [c l1])
+                      (reduce #(concat %1 %2) []))
+
+
+        ; comments (for [c (query-comments qpath) 
+        ;                l1 (comments-of c)
+        ;                l2 (comments-of l1) :when (not (nil? l2))]
+        ;             [c l1 l2])
+        ; comments (reduce #(concat %1 %2) [] comments)
        ]
     (doseq [e comments]
-      (prn "comments --> " e (:comments/thingroot e)))
+      (prn "reduce for comments --> " e (:comments/thingroot e)))
     comments))
 
 

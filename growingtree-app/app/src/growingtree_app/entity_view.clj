@@ -213,12 +213,13 @@
 ;;=============================================================================
 (defn thing-node-parent
   [rpath]
-  (let [thing-type (first (take-last 2 rpath))
-        tree-id (str (name thing-type) "-tree")
-        qpath (take-last 2 (drop-last 2 rpath))
-        xpath (str "//div[@id='" thing-id "']//div[@id='" tree-id "']")
+  (let [parent-id (first (take-last 3 rpath))
+        thing-type (first (take-last 2 rpath))
+        tree-div (str (name thing-type) "-tree")
+        xpath (str "//div[@id='" parent-id "']//div[@id='" tree-div "']")
        ]
-    (-> (dom/by-id (str (last rpath)))
+    (.log js/console (str "thing node parent " xpath))
+    (-> (dom/by-id (str parent-id))
         (dx/xpath xpath))))
 
 
@@ -239,6 +240,7 @@
 (defmethod thing-node-html
   :default
   [rpath render]
+  (.log js/console (str "thing node html " rpath))
   (let [thing-id (last rpath)
         thing-type (second (reverse rpath))
         ; slice templ thing-parent, thing-child, from app templates
@@ -375,7 +377,8 @@
 
 
 ;;===========================================================================
-; dispatch by thing-type
+; value a node [:value [:filtered :co] nil {thing-map},  dispatch by thing-type
+;;===========================================================================
 (defmulti thing-value-view
   (fn [r rpath qpath thing-map input-queue]
     (second (reverse rpath))))

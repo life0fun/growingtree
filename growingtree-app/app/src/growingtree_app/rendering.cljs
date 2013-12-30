@@ -228,20 +228,25 @@
 
 
 ; [:filtered :course 1 :comemnts 2 :comments 3 ...]
+; [:node-create [:filtered ... :comments 17592186045433 :comments] :map] 
+; [:node-create [:filtered ... :comments 17592186045433 :comments 17592186045435] :map]
+; as platform will create every node along the path, we create thing node only when thing-id
 (defn append-filtered-child-tree
   "build a sub tree whose root is a filtered child node"
   [r [op rpath] input-queue]
-  (let [thing-id (last rpath)
-        thing (entity-view/thing-node-html rpath r)
-        parent-node (entity-view/thing-nde-parent rpath)
-        offset (/ (count (nthrest rpath 3)) 2)
-       ]
-    ; render thing-details template if it is not rendered yet
-    (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
-    ; [:filtered :question 17592186045432 :lecture 17592186045430]
-    (.log js/console (str "append filtered child tree " thing-id rpath))
-    (dom/append! parent-node thing)
-    (entity-view/thing-node-add-class thing-id (str "offset" offset))))
+  (when-not (js/isNaN (js/parseInt (last rpath) 10)) ; isNaN to check number type.
+    (let [thing-id (last rpath)
+          thing (entity-view/thing-node-html rpath r)
+          parent-node (entity-view/thing-node-parent rpath)
+          offset (/ (- (count rpath) 3) 2)
+         ]
+      ; render thing-details template if it is not rendered yet
+      (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
+      ; [:filtered :question 17592186045432 :lecture 17592186045430]
+      (.log js/console (str "append filtered child tree " thing-id " offset " offset rpath))
+      (.log js/console (str "child tree " thing))
+      (dom/append! parent-node thing)
+      (entity-view/thing-node-add-class thing-id (str "offset" offset)))))
 
 
 (defn del-thing-nav-node

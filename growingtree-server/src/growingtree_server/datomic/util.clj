@@ -45,7 +45,7 @@
 
 
 ; forward declarations
-(declare attr-included?)
+(declare has-wildcard-origin-ref?)
 
 
 ; ============================================================================
@@ -106,23 +106,20 @@
 ; ============================================================================
 ; get entities by qpath, formulate query rules from qpath
 ; qpath is [:all 0 :child] or [:parent 1 :child] or [:parent 1 :parent]
+; for entity origin ref type to itself, e.g, comments can be made to comments,
+; use this fn to query.
 ; ============================================================================
 (defn get-entities-by-rule-query
-  "get entities by qpath and rule-set, formulate query rules from qpath"
+  "get entities by qpath and rule-set, called directly for comments comments case"
   [qpath rule-set]
-  (prn "get entities by rule query " qpath)
-  (if (= (first qpath) (last qpath))
-    (let [eid (second qpath)
-          e (get-entity eid)]
-      [e])
-    (let [thing-id (second qpath)
-          rule-name (first qpath)
-          rule (list rule-name '?e '?val)
-          q (conj '[:find ?e :in $ % ?val :where ] rule)
-          eids (d/q q (get-db) rule-set thing-id)
-          entities (map (comp get-entity first) eids)  ; touch to not lazy.
-          ]
-      entities)))
+  (let [thing-id (second qpath)
+        rule-name (first qpath)
+        rule (list rule-name '?e '?val)
+        q (conj '[:find ?e :in $ % ?val :where ] rule)
+        eids (d/q q (get-db) rule-set thing-id)
+        entities (map (comp get-entity first) eids)  ; touch to not lazy.
+       ]
+    entities))
 
 
 ; in case like assignment can be created by course or lecture, in assignment schema,
@@ -134,31 +131,34 @@
   "get entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
   (prn "get entities by rule " qpath)
-  (let [eid (second qpath)
+  (let [qpath (take-last 3 qpath)  ; only take the last 3 segment in query path
+        eid (second qpath)
         src (first qpath)
         dst (last qpath)
         e (get-entity eid)
-        included (attr-included? e src dst)]
+        origin-ref (has-wildcard-origin-ref? e src dst)]
   (cond
+    ; head thing [:course 1 :course], however, comments can ref to comments.
     (= src dst) [e] 
-    (not-nil? included) (map (comp get-entity :db/id) included)
+    ; entity has a ref named origin, which is the wildcard ref to parent thing
+    (not-nil? origin-ref) (map (comp get-entity :db/id) origin-ref)
+    ; perform the real query
     :else (get-entities-by-rule-query qpath rule-set))))
 
 
 ; either entity has the attr directly, or entity has :origin reference back
 ; to the entity we want to find. 
 ; for cases assignment can be created from course, or from lecture.
-(defn attr-included?
+(defn has-wildcard-origin-ref?
   [e e-ns attr]
   (let [e-attr (keyword (str (name e-ns) "/" (name attr)))
         e-attr-val (e-attr e)
         e-origin (keyword (str (name e-ns) "/" (name :origin)))
         e-origin-val (e-origin e)]
-    (prn "attr-included " e-ns e-attr e-origin e-attr-val e-origin-val)
+    (prn "has-wildcard-origin-ref " e-ns e-attr e-attr-val e-origin e-origin-val)
     (if e-attr-val
       e-attr-val
       e-origin-val)))
-
 
 
 ; ============================================================================
@@ -172,12 +172,12 @@
 
 
 ; ============================================================================
-; add qpath for each entity, so it knows who is its parent in the display tree
+; add navpath for each entity, so it knows who is its parent in the display tree
 ; this must be the last to execute as it added non-namespaced attr to thing.
 ; ============================================================================
 (defn add-navpath
   [entity navpath]
-  (let [thing-id (:db/id entity)
+  (let [thing-id (:db/id entity)  ; just append thing-id to the end of navpath
         navpath (vec (concat navpath [thing-id]))
        ]
     (assoc-in entity [:navpath] navpath)))
