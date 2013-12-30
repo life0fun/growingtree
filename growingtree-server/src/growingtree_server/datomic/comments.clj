@@ -179,28 +179,21 @@
 (defn find-comments
   "find all comments by query path"
   [qpath]
-  (let [
-        ; comments (query-comments qpath)
-        ; level1 (mapcat #(comments-of %) comments)
-        ; level2 (mapcat #(comments-of %) level1)
-
-        ; comments (concat comments level1 level2)
-
+  (let [; list comprehension, cartesian production, need to use hash-set to remove dups.
         comments (->> (for [c (query-comments qpath) 
                             l1 (comments-of c) 
                            ]
                         [c l1])
                       (reduce #(concat %1 %2) []))
 
-
-        ; comments (for [c (query-comments qpath) 
-        ;                l1 (comments-of c)
-        ;                l2 (comments-of l1) :when (not (nil? l2))]
-        ;             [c l1 l2])
-        ; comments (reduce #(concat %1 %2) [] comments)
+        ; (iterate f x), ret a lazy sequence of x, (f x), (f (f x)), mapcat to get one list.
+        comments (->> (iterate (fn [c] (mapcat #(comments-of %) c)) (query-comments qpath))
+                      (take 3)  ; how many levels of recursive comments tree
+                      (apply concat))
        ]
+    (newline)
     (doseq [e comments]
-      (prn "reduce for comments --> " e (:comments/thingroot e)))
+      (prn "reduce for comments --> " e ))
     comments))
 
 
