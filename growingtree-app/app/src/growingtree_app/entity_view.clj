@@ -101,8 +101,8 @@
 ; thumbnail jpg, ref to images at assets/images/
 (def thing-thumbnail
   {
-    :parent "math.jpg"
-    :child "math.jpg"
+    :parent "parent.jpg"
+    :child "child.jpg"
     :course "course.jpg"
     :lecture "lecture.jpg"
     :question "math.jpg"
