@@ -39,6 +39,7 @@
         ident (keyword (namespace (ffirst e)))]
     ident))
 
+
 ; update enum, only update when enum key present.
 ; thing-val = {:course/title "aa", :course/author "bb", :course/type "math" }
 (defn update-enum

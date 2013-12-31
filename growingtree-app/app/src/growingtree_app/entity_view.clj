@@ -98,6 +98,20 @@
   })
 
 
+; thumbnail jpg, ref to images at assets/images/
+(def thing-thumbnail
+  {
+    :parent "math.jpg"
+    :child "math.jpg"
+    :course "course.jpg"
+    :lecture "lecture.jpg"
+    :question "math.jpg"
+    :assignment "assignment.jpg"
+    :comments "math.jpg"
+    :like "like.jpg"
+    :timeline "timeline.jpg"
+  })
+
 ;;===============================================================
 ; xpath selector for inline form
 ;;===============================================================
@@ -134,13 +148,6 @@
 ; dom selector for upvote arrow up div, ret the upvote dom element
 ; somehow I could not get the first arg of dx/xpath work, full path with thing-id.
 ; can not re-use div form sel as it is div div. div needs double //div
-; (defn upvote-sel
-;   [thing-id]
-;   (let [thing-node (dom/by-id (str thing-id))
-;         xpath (str "//div[@id='" thing-id "']//div[@class='arrow up']")
-;        ]
-;     (-> thing-node
-;         (dx/xpath xpath))))
 (defn div-div-clz-sel
   [thing-id clz]
   (let [thing-node (dom/by-id (str thing-id))
@@ -233,13 +240,13 @@
 ;;        [:filtered :course 17592186045428 :lecture 17592186045430]
 ;;=============================================================================
 (defmulti thing-node-html
-  (fn [render-path render]  ; the last segment of path
+  (fn [render-path render thing-idx]  ; the last segment of path
     (second (reverse render-path))))
 
 ; generated template html is attached to render path, and updatable from render-path
 (defmethod thing-node-html
   :default
-  [rpath render]
+  [rpath render thing-idx]
   (.log js/console (str "thing node html " rpath))
   (let [thing-id (last rpath)
         thing-type (second (reverse rpath))
@@ -250,7 +257,10 @@
         
         ; all sublink class selector with thing-id is defined in thing-template-class
         actionkeys (thing-type thing-nav-actionkey) ; all sublink meta
-        templ-map (merge {:id thing-id} 
+        templ-map (merge {:id thing-id
+                          :rank (str thing-idx)
+                          :thumbhref (thing-type thing-thumbnail)
+                         }
                          (thing-template-class thing-id actionkeys))
         thing-div (html templ-map)
         ]
@@ -274,6 +284,7 @@
 (defmulti thing-template-value
   (fn [thing-type thing-map]
     thing-type))
+
     
 (defmethod thing-template-value
   :default
@@ -281,9 +292,7 @@
   (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
         value-map 
           {:thing-entry-title (thing-attr-val thing-map thing-type "title")
-           :thumbhref "thumbhref" 
            :entryhref "#"
-           :rank "2"  ; not sure why values must be string.
            :upvote upvotes}
        ]
     value-map))
@@ -298,9 +307,8 @@
                          (second)) ; value is the second of kv vector
         value-map 
           {:thing-entry-title (thing-attr-val thing-map thing-type "title")
-           :thumbhref "thumbhref" 
+           :thumbhref (thing-type thing-thumbnail)
            :entryhref "#"
-           :rank "2"  ; not sure why values must be string.
            :upvote upvotes
            :comments-time "  6 hours"
            :author-name (get-in thing-map [:comments/author :person/title])
@@ -318,9 +326,7 @@
                          (second)) ; value is the second of kv vector
         value-map 
           {:thing-entry-title (thing-attr-val thing-map thing-type "title")
-           :thumbhref "thumbhref" 
            :entryhref "#"
-           :rank "2"  ; not sure why values must be string.
            :upvote upvotes
            :comments-time "  12 hours"
            :author-name (get-in thing-map [:like/person 0 :person/title])
@@ -340,9 +346,7 @@
                          (second)) ; value is the second of kv vector
         value-map 
           {:thing-entry-title (thing-attr-val thing-map thing-type "title")
-           :thumbhref "thumbhref" 
            :entryhref "#"
-           :rank "2"  ; not sure why values must be string.
            :txtime (:timeline/txtime thing-map)
            :author-name (get-in thing-map [:timeline/author])
            :origin-title origin-title
@@ -364,9 +368,7 @@
                          (second)) ; value is the second of kv vector
         value-map 
           {:origin-title origin-title
-           :thumbhref "thumbhref" 
            :entryhref "#"
-           :rank "2"  ; not sure why values must be string.
            :type (:search/type thing-map)
            :text (:search/text thing-map)
            :searchkey (:search/searchkey thing-map)

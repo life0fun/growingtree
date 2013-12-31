@@ -171,8 +171,8 @@
     (let [navpath (concat (:navpath c) [:comments])
           comments (query-comments navpath)
           ]
-      (doseq [e comments]
-        (prn "comments of " navpath " --> " e ))
+      ; (doseq [e comments]
+      ;   (prn "comments of " navpath " --> " e ))
       comments)))
 
 
@@ -193,7 +193,7 @@
        ]
     (newline)
     (doseq [e comments]
-      (prn "reduce for comments --> " e ))
+      (prn "comments --> " e ))
     comments))
 
 

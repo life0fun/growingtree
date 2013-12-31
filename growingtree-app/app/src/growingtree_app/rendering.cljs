@@ -73,6 +73,11 @@
 (def templates (html-templates/growingtree-app-templates))
 
 
+; count of children of a dom element
+(defn nchildren
+  [root-node]
+  (count (dom/nodes (dom/children root-node))))
+
 ;;================================================================================
 ;; node create login and render login and enable setup login
 ;;================================================================================
@@ -124,9 +129,10 @@
 (defn add-thing-node
   [r [op rpath] input-queue]
   (let [thingid (last rpath)
-        thing-div (entity-view/thing-node-html rpath r)
-        main (dom/by-id "main")]
-    (.log js/console (str "adding thing node " rpath thingid))
+        main (dom/by-id "main")
+        child-idx (nchildren main)
+        thing-div (entity-view/thing-node-html rpath r (inc child-idx))]
+    (.log js/console (str "adding thing node " nchild rpath thingid))
     (dom/append! main thing-div)))
     
 
@@ -138,10 +144,12 @@
 (defn value-thing-node
   [r [op rpath oldv newv] input-queue]
   (when newv
-    (let [{:keys [thing-map qpath]} newv  ; qpath is nav to next thing, used for enable add subthing.
+    (let [; qpath is nav to next thing, used for enable add subthing.
+          {:keys [thing-map qpath]} newv
           thing-id (last rpath)
           thing-type (second (reverse rpath))
-          thing-view (entity-view/thing-value-view r rpath qpath thing-map input-queue)
+          thing-view 
+            (entity-view/thing-value-view r rpath qpath thing-map input-queue)
          ]
       (.log js/console (str "value thing node " rpath " qpath " qpath " view  " thing-view))
       ; thing template is attached at render path node, update it with new view map
@@ -164,24 +172,6 @@
 ; path [:filtered :course 1], as the parent for top level subthings-list.
 ;;================================================================================
 
-; render thing details page for thing nave, first, delete main div childrens.
-; the render two sections, parent data at upper layer and list of children
-; render this page when it was not there.
-; (defn render-filtered-page
-;   "render thing details parent header and a list of children, delete main children first"
-;   [r rpath]  ; render rpath [:header :parent] or [:filter :parent ]
-;   (when-not (dom/by-id "thing-root") ;(count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']")))
-;     (let [id (render/new-id! r (vec rpath))
-;           templ (:thing-details templates)  
-;           ; attach thing-details template to rpath
-;           html (templates/add-template r rpath templ)
-;           divcode (html {:id id})
-;           main (dom/by-id "main")]
-;       (.log js/console (str "render detail page " rpath id))
-;       (dom/destroy-children! main)
-;       (dom/append! main divcode))))
-
-
 (defn render-filtered-page
   "render thing details parent header and a list of children, delete main children first"
   [r filter-path]  ; filter-path [:course 1] 
@@ -195,13 +185,13 @@
       (dom/destroy-children! (dom/by-id "main"))
       (dom/append! (dom/by-id "main") divcode))))
 
-;
+
 ; rpath [:header :course 17592186045425]
 (defn add-filtered-parent-node
   "render parent header in thing nav details"
   [r [op rpath] input-queue]
   (let [thingid (last rpath)
-        thing-div (entity-view/thing-node-html rpath r)
+        thing-div (entity-view/thing-node-html rpath r 1) 
         ]
     (.log js/console (str "add header node " thingid rpath))
     ; first, clear all children
@@ -216,13 +206,14 @@
   "append child node to thing nav children list panel"
   [r [op rpath] input-queue]
   (let [thing-id (last rpath)
-        thing (entity-view/thing-node-html rpath r)
         root-node (dom/by-id "subthings-list")
+        child-idx (nchildren root-node)
+        thing (entity-view/thing-node-html rpath r (inc child-idx))
        ]
     ; render thing-details template if it is not rendered yet
     (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
     ; [:filtered :question 17592186045432 :lecture 17592186045430]
-    (.log js/console (str "append filtered child node " thing-id rpath))
+    (.log js/console (str "append filtered child node " thing-id " idx " nchild rpath))
     (dom/append! root-node thing)
     (entity-view/thing-node-add-class thing-id "offset1")))
 
@@ -236,9 +227,9 @@
   [r [op rpath] input-queue]
   (when-not (js/isNaN (js/parseInt (last rpath) 10)) ; isNaN to check number type.
     (let [thing-id (last rpath)
-          thing (entity-view/thing-node-html rpath r)
           parent-node (entity-view/thing-node-parent rpath)
           offset (/ (- (count rpath) 3) 2)
+          thing (entity-view/thing-node-html rpath r offset)
          ]
       ; render thing-details template if it is not rendered yet
       (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
