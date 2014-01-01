@@ -297,7 +297,7 @@
 
     ; emitter, all emitter fn must be defined, otherwise, NPE.
     :emit [;{:init emitter/init-app-model}
-           {:init emitter/login-emitter}
+           {:init emitter/login-emitter}  ; render login dialog upon app init
 
            ; after user logged in, create homepage
            {:in #{[:login :name]} :fn emitter/init-nav-emitter :mode :always}

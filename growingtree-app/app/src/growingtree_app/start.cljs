@@ -11,7 +11,8 @@
 
 ;; In start namespace, the application is built and started.
 
-(defn create-app
+(defn init-app-data-model
+  "inject msg to input queue for behavior to create data model. normally not needed."
   [app]
   (p/put-message (:input app) 
                  {msg/type :create-app
@@ -48,11 +49,8 @@
     ; first, subscribe to server bcast msgs, inject msg to :effect queue directly
     ;(subscribe-to-msgs app)
 
-    ; create app model
-    ;(create-app app)
-
-    ; send msg to bootstrap the app ! fake user clicked nav course
-    ;(bootstrap-login app)
+    ; init app data model if needed. Normal emitter :init will do this
+    ;(init-app-data-model app)
     
     {:app app :app-model app-model}))
 

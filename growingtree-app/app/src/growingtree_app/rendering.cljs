@@ -96,20 +96,43 @@
 ;;================================================================================
 ;; render home page sidebar and setup sidebar click transforme
 ;;================================================================================
-; home page template includes sidebar, leaderboard and topthings. 
+; home page template includes user avatar, sidebar, leaderboard and list things. 
+; first avatar
+(defn render-avatar
+  "user avatar template is under div id=user-avatar and path is [:user]"
+  [r user rpath]
+  (let [parent "user-avatar"  ; div id=user-avatar
+        id (str user "-avatar")
+        html (templates/add-template r rpath (:user templates)) ; stores homepage div at [:nav] 
+        divcode (html {:id id
+                       :user-avatar "avatar.jpg"
+                       :user-profile (str "/home/profile/" user)
+                       :user-greeting (str "Hi " user)})
+       ]
+
+    (.log js/console (str "render avatar template for " user " at "))
+    ; attach to dom using domina.
+    (dom/append! (dom/by-id parent) divcode)   ; homepage no data val map
+  ))
+
+
 (defn render-home-page 
-  "homepage template is attached to [:nav], div homepage with id stored in [:nav] node"
-  [r [_ rpath] input-queue]
-  (let [parent (render/get-parent-id r rpath)  ; root of top level is [], maps to div id=content
+  "homepage template is attached to div id=content " 
+  ;[r [_ rpath] input-queue]
+  [r [op rpath oldv newv] input-queue]
+  (let [;parent (render/get-parent-id r rpath)  ; root of top level is [], maps to div id=content
+        parent "content"  ; div id=content
         id (render/new-id! r rpath)  ; gen a new id to the rpath.
         html (templates/add-template r rpath (:homepage templates)) ; stores homepage div at [:nav] 
         divcode (html {:id id})]
 
-    (.log js/console (str "render home template at " rpath " id " (render/get-id r rpath) 
+    (.log js/console (str "render home template for " newv " at " rpath 
+                          " id " (render/get-id r rpath) 
                           " parent id " (render/get-parent-id r rpath) parent))
     (dom/destroy-children! (dom/by-id parent))
     ; attach to dom using domina.
     (dom/append! (dom/by-id parent) divcode)   ; homepage no data val map
+    (render-avatar r newv [:user])  ; assoc avatar templ to [:user] node
   ))
 
 
@@ -281,7 +304,8 @@
     [:transform-disable [:login :name] transforms/disable-login-submit]
 
     ;; ============== nav path with sidebar or thing type event binding ============
-    [:node-create  [:nav] render-home-page]
+    ;[:node-create  [:nav] render-home-page]
+    [:value [:nav :login] render-home-page]
     [:node-destroy [:nav] h/default-destroy]
     ; wire sidebar nav click to send this transform to change data model.
     [:transform-enable [:nav :sidebar] transforms/enable-sidebar-nav]

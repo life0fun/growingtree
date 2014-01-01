@@ -86,7 +86,7 @@
 
 
 ; user can interact with sidebar, so setup interaction on sidebar
-; get use input click event into :outbound path node.
+; get login user into [:login :name], will init nav emitter to render homepage.
 (defn login-emitter
   [inputs]
   "set up message emitter for sidebar nav UI interaction"
@@ -116,6 +116,7 @@
     (if (not= oldv newv)
       [
         [:node-create [:nav :sidebar]]
+        [:value [:nav :login] newv]
         [:transform-enable [:nav :sidebar] 
                            :set-nav-path
                            [{msgs/topic [:nav :path]

@@ -45,6 +45,10 @@
 
           <!-- side bar span3  -->
           <div class="span3">
+
+            <!-- current user avatar -->
+            <div id="user-avatar"></div>
+
             <div class="well sidebar-nav">
               <ul class="nav nav-list">
                 <li class="nav-header"> Family </li>
@@ -118,16 +122,12 @@
           </div> <!-- span 3 -->
          
           <!-- this is the main container  -->
-          <div id="main" class="span9">
+          <div id="main" class="span9 main">
             <div class="leaderboard" field="content:leaderboard">
                 <h1> Learn, Practice, Develop -- Together ! </h1>
                 <h4> Hello Parents, this is the social learning management system for your kids !</h4>
             </div>
-
-            <!-- top things, reddit style, div template content from map value -->
-            <div class="topthings" field="content:myassignment">
-            </div>
-
+            
             <!-- container for a list of things [:all :course "course1"] -->
             <div id="topthings"> </div>
 
@@ -136,55 +136,7 @@
       </div> <!-- end of container fluid, end of homepage--> 
     </div>
 
-    <!-- thing node div section. fill with parents, courses, lectures, things -->
-    <div class="offset0 thing link" template="thing" field="id:id">
-      <p class="parent"></p>
-      <span class="rank"> 1 </span>
-      <div class="midcol unvoted">
-        <div class="arrow up" role="button" arial-label="upvote" tabindex="0"></div>
-        <div class="score unvoted"> 1234 </div>
-        <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
-      </div>
-      
-      <!-- no need to use template, maybe dom append by-idand more concise -->
-      <a class="thumbnail" template="thing-thumbnail" field="href:thumbhref">
-        <img src="#" width="70" height="52" alt="">
-      </a>
-
-      <!-- no need to use template, maybe dom append by-idand more concise -->
-      <div class="entry unvoted" template="thing-entry">
-        <p class="title">
-          <a class="title" field="content:thing-entry-title,href:entryhref"></a>
-          <span class="domain"></span>
-        </p>
-        <p class="tagline">submitted by <a href="#">growingtree.com</a> </p>
-
-        <ul class="flat-list buttons">
-          <li class="first">
-            <a class="comments" href="#">comments</a>
-          </li>
-
-          <li class="share">
-            <div field="class:share-link-class">
-              <span class="share-button toggle" style>
-                <a class="option active" href="#">share</a>
-              </span>
-            </div>
-          </li>
-          
-          <li class="share">
-            <div field="class:assign-link-class">
-              <span class="share-button toggle" style>
-                <a class="option active" href="#">assign to</a>
-              </span>
-            <div>
-          </li>
-        </ul>
-        <div class="child"></div>
-        <div class="clearleft"></div>
-      </div>
-    </div>
-
+    
     <!-- login template, should use _include -->
     <div class="container login" template="login" field="id:id">
       <div class="row">
@@ -213,6 +165,15 @@
       </div>
     </div>
 
+
+    <!-- current user avatar -->
+    <div class="avatar-container section" template="user" field="id:id">
+      <img field="src:user-avatar" width="70" height="52" class="pull-left" alt="">
+      <div class="pull-left">
+        <a field="content:user-greeting, href:user-profile"</a>
+      </div>
+      <div class="clearleft"></div>
+    </div>
 
     <!--
       # Whenever we add a new message, make sure to fire this:

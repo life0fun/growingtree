@@ -22,10 +22,10 @@
   {
    :login (dtfn (tnodes "growingtree-app.html" "login") #{:id})
    :homepage (dtfn (tnodes "growingtree-app.html" "homepage") #{:id})
+   :user (dtfn (tnodes "growingtree-app.html" "user") #{:id})
    :thing-details  (dtfn (tnodes "thing.html" "thing-details") #{:id})
 
 
-   :thing     (dtfn (tnodes "growingtree-app.html" "thing") #{:id})
    :thing-parent  (dtfn (tnodes "thing.html" "thing-parent") #{:id})
    :thing-child  (dtfn (tnodes "thing.html" "thing-child") #{:id})
    :thing-course  (dtfn (tnodes "thing.html" "thing-course") #{:id})
