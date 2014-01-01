@@ -135,7 +135,6 @@
         thing-type (:thing-type message)  ; for all, thing-type is all
         things-vec (:data message)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
     (.log js/console (str "set thing data at " msg-topic " thing-type " thing-type " things-vec " things-vec))
-    (.log js/console (str "old value " oldv))
     things-vec))  ; now vector is stored in [:all :parent]
 
 

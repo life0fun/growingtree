@@ -118,19 +118,26 @@
   '[[(:all ?e ?val) [?e :question/content]]   ; select all question that has author
     [(:title ?e ?val) [?e :question/title ?val]]
     [(:author ?e ?val) [?e :question/author ?val]]
-    [(:lecture ?e ?val) [?e :question/origin ?val]]
     [(:type ?e ?val) [?e :question/type ?val]]
     [(:content ?e ?val) [?e :question/content ?val]]  ; (fulltext $ [])
+    
+    [(:course ?e ?val) [?e :question/origin ?val]]
+    [(:lecture ?e ?val) [?e :question/origin ?val]]
+    [(:assignment ?e ?val) [?e :question/origin ?val]]
   ])
+
 
 (def get-assignment-by
   '[[(:all ?e ?val) [?e :assignment/author]]   ; select all assignment that has author
     [(:title ?e ?val) [?e :assignment/title ?val]]
     [(:author ?e ?val) [?e :assignment/author ?val]]
-    [(:question ?e ?val) [?e :assignment/origin ?val]]
     [(:child ?e ?val) [?e :assignment/person ?val]]
     [(:status ?e ?val) [?e :assignment/status ?val]]
     [(:end ?e ?val) [?e :assignment/end ?val]]
+
+    [(:question ?e ?val) [?e :assignment/origin ?val]]
+    [(:lecture ?e ?val) [?e :assignment/origin ?val]]
+    [(:course ?e ?val) [?e :assignment/origin ?val]]
   ])
 
 

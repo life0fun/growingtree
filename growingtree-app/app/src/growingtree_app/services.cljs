@@ -71,7 +71,7 @@
   [message input-queue]
   (when-let [body ((msgs/param :body) message)]
     (let [msg-type (msgs/type message)]
-      (.log js/console (str "app service-fn consumes effect " msg-type body))
+      ;(.log js/console (str "app service-fn consumes effect " msg-type body))
       ; dispatch on thing-type
       (case msg-type
         ;; sse subscribe and publish
