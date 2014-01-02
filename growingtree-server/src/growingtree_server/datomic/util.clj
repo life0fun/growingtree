@@ -45,7 +45,7 @@
 
 
 ; forward declarations
-(declare has-wildcard-origin-ref?)
+(declare wildcard-origin-ref-entity)
 
 
 ; ============================================================================
@@ -128,7 +128,7 @@
 ; check direct attr name, but also origin ref for those cases.
 ; add origin type to diff thing created from different origin type, maybe ?
 (defn get-entities-by-rule
-  "get entities by qpath and rule-set, formulate query rules from qpath"
+  "ret a list of entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
   (prn "get entities by rule " qpath)
   (let [qpath (take-last 3 qpath)  ; only take the last 3 segment in query path
@@ -136,29 +136,36 @@
         src (first qpath)
         dst (last qpath)
         e (get-entity eid)
-        origin-ref (has-wildcard-origin-ref? e src dst)]
-  (cond
-    ; head thing [:course 1 :course], however, comments can ref to comments.
-    (= src dst) [e] 
-    ; entity has a ref named origin, which is the wildcard ref to parent thing
-    (not-nil? origin-ref) (map (comp get-entity :db/id) origin-ref)
-    ; perform the real query
-    :else (get-entities-by-rule-query qpath rule-set))))
+        origin-e (wildcard-origin-ref-entity e src dst)]
+    (prn "orgin entity vec " origin-e)
+    (cond
+      ; head thing [:course 1 :course], however, comments can ref to comments.
+      (= src dst) [e] 
+      ; entity has a ref named origin, which is the wildcard ref to parent thing
+      (not-nil? origin-e) (map (comp get-entity :db/id) origin-e)
+      ; perform the real query
+      :else (get-entities-by-rule-query qpath rule-set))))
 
 
 ; either entity has the attr directly, or entity has :origin reference back
 ; to the entity we want to find. 
 ; for cases assignment can be created from course, or from lecture.
-(defn has-wildcard-origin-ref?
+(defn wildcard-origin-ref-entity
   [e e-ns attr]
   (let [e-attr (keyword (str (name e-ns) "/" (name attr)))
         e-attr-val (e-attr e)
         e-origin (keyword (str (name e-ns) "/" (name :origin)))
-        e-origin-val (e-origin e)]
-    (prn "has-wildcard-origin-ref " e-ns e-attr e-attr-val e-origin e-origin-val)
+        e-origin-val (e-origin e)
+        origin-val-type (set? e-origin)
+       ]
+    (prn "wildcard origin ref entity " e-ns e-attr e-attr-val " origin ref " e-origin e-origin-val)
     (if e-attr-val
-      e-attr-val
-      e-origin-val)))
+      (vector e-attr-val)  ; ret a list of matching entities
+      ; some origin :ref :one, some are :ref :many, always ret a list.
+      (if (and e-origin-val (not (set? e-origin-val)))
+        (vector e-origin-val)
+        e-origin-val)
+      )))
 
 
 ; ============================================================================

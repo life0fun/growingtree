@@ -110,22 +110,30 @@
 (def get-course-by
   '[[(:all ?e ?val) [?e :course/title]]   ; select all 
     [(:author ?e ?val) [?e :course/author ?val]]
-    [(:lecture ?e ?val) [?e :lecture/_course ?val]]
+    
     [(:type ?e ?val) [?e :course/type ?val]]
     [(:content ?e ?val) [?e :course/content ?val]]
     [(:title ?e ?val) [?e :course/title ?val]]
+
+    [(:lecture ?e ?val) [?e :lecture/course ?val]]
+    [(:question ?e ?val) [?e :question/origin ?val]]
+    [(:assignment ?e ?val) [?e :assignment/origin ?val]]
   ])
 
 
 ; rule set for get parent by. rule name is the parent thing type.
 (def get-lecture-by
   '[[(:all ?e ?val) [?e :lecture/title]]   ; select all
-    [(:course ?e ?val) [?e :lecture/course ?val]]
     [(:title ?e ?val) [?e :lecture/title ?val]]
     [(:author ?e ?val) [?e :lecture/author ?val]]
     [(:type ?e ?val) [?e :lecture/type ?val]]
     [(:start ?e ?val) [?e :lecture/start ?val]]
     [(:content ?e ?val) [?e :lecture/content ?val]]
+
+    [(:course ?e ?val) [?e :lecture/course ?val]]
+    [(:question ?e ?val) [?e :question/origin ?val]]
+    [(:assignment ?e ?val) [?e :assignment/origin ?val]]
+    [(:asnswer ?e ?val) [?e :asnswer/origin ?val]]
   ])
 
 

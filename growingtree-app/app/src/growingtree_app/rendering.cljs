@@ -200,13 +200,15 @@
   [r filter-path]  ; filter-path [:course 1] 
   (when-not (dom/by-id "thing-root") ;(count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']")))
     (let [rpath (concat [:filtered] filter-path)  ; hard-code render path to :filtered
+          main (dom/by-id "main")
           ; attach thing-details template to rpath
           html (templates/add-template r rpath (:thing-details templates))
           divcode (html {:id (str (name (first filter-path)) "-" (last filter-path))})  ; dom id for thing-details use parent thing-id
          ]
-      (.log js/console (str "render detail page " rpath))
-      (dom/destroy-children! (dom/by-id "main"))
-      (dom/append! (dom/by-id "main") divcode))))
+      (.log js/console (str "render filtered details with destroy all under main " rpath))
+      (dom/destroy-children! main)
+      (dom/append! main divcode))
+    ))
 
 
 ; rpath [:header :course 17592186045425]
@@ -221,23 +223,25 @@
     ;(dom/destroy-children! (dom/by-id "main"))
     (render-filtered-page r (rest rpath)) ; [:course 17592186045425]
     ; append parent
-    (dom/append! (dom/by-id "thing-root") thing-div)))
+    (dom/append! (dom/by-id "thing-root") thing-div)
+    ))
 
 
 ; [:filtered :course 1 :comemnts 2]
 (defn append-filtered-child-node
   "append child node to thing nav children list panel"
   [r [op rpath] input-queue]
+  ; render thing-details template if it is not rendered yet
+  ; need to render page first, so the following by-id subthings-list make sense
+  (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
   (let [thing-id (last rpath)
-        root-node (dom/by-id "subthings-list")
-        child-idx (nchildren root-node)
+        subthings-div (dom/by-id "subthings-list")
+        child-idx (nchildren subthings-div)
         thing (entity-view/thing-node-html rpath r (inc child-idx))
        ]
-    ; render thing-details template if it is not rendered yet
-    (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
     ; [:filtered :question 17592186045432 :lecture 17592186045430]
-    (.log js/console (str "append filtered child node " thing-id " idx " nchild rpath))
-    (dom/append! root-node thing)
+    (.log js/console (str "append filtered child node " rpath " child-idx " child-idx))
+    (dom/append! subthings-div thing)
     (entity-view/thing-node-add-class thing-id "offset1")))
 
 

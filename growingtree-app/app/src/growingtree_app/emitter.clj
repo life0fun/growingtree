@@ -340,8 +340,8 @@
             [:node-destroy navpath]
             [:transform-enable navpath ; always [:nav :parent 17592186045499 :child]
                                transkey   ; nav next thing, :child, :coure
-                               messages
-                               ] )))
+                               messages] 
+          )))
       navpaths)))
 
 

@@ -38,7 +38,7 @@
 
 ;;==================================================================================
 ; action key for each thing nav sublink type,
-; the value for each sublink is thing class hide or not.
+; the value for each sublink is thing class selector hide or not.
 ; also used by thing-navpath-transforms to emit transform enable msg.
 ;;==================================================================================
 (def thing-nav-actionkey
@@ -73,8 +73,9 @@
               :assignto "" :assign-form ""
              }
     
-    :question {:lecture "" :similar ""
-               :question "" :add-question " hide" 
+    :question {:lecture "" 
+               :assignment ""
+               :similar ""
                :comments "" :add-comments " hide" 
                :upvote "" :like "" :share "" 
                :assignto "" :assign-form ""
@@ -397,5 +398,5 @@
         thing-val (thing-template-value thing-type thing-map)
         thing-view (merge thing-val nav-add-clz)
         ]
-    (.log js/console (str "update thing node value " rpath " ^ " upvotes " new-value " thing-map))
+    (.log js/console (str "update thing node value " rpath " new-value " thing-map))
     thing-view))
