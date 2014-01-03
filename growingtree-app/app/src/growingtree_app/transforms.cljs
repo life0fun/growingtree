@@ -411,3 +411,38 @@
                                              input-queue)
   ))
 
+
+;;==================================================================================
+; enable add comments input box
+; [:setup :lecture 1 :comments]
+;;==================================================================================
+(def enable-add-comments
+  "upon comments link clicked for any thing, display add comment dialog"
+  (fn [r [op rpath] input-queue]
+    (let [thing-id (last (butlast rpath))
+          form (entity-view/add-comments-form r rpath)
+          override-map {:comments/origin thing-id
+                        :comments/thingroot thing-id
+                       }
+          ; raw domina fn, need to repvent default and put msg to queue by myself.
+          submit-fn
+            (fn [e]
+              (let [messages [{msgs/topic [:create :comments]
+                               msgs/type :create-thing
+                              (msgs/param :details) {}}]
+                    details (-> {:comments/title (dom/value (dom/by-id "comments-title"))}
+                                (assoc :thing-type :comments) ; required for post-submit-thing dispatch
+                                (merge override-map))
+                    messages (msgs/fill :create-thing 
+                                        messages 
+                                        {:details details})
+                    ]
+                (.log js/console (str "add comments submitted " messages))
+                (de/prevent-default e)  ; submit ret false, prevent refresh or redirect
+                (doseq [m messages]
+                  (p/put-message input-queue m))))
+         ]
+      (.log js/console (str "enable add comments "  thing-id rpath))
+      (events/send-on :submit form input-queue submit-fn)
+      )))
+

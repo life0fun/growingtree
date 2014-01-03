@@ -120,7 +120,7 @@
     [(:author ?e ?val) [?e :question/author ?val]]
     [(:type ?e ?val) [?e :question/type ?val]]
     [(:content ?e ?val) [?e :question/content ?val]]  ; (fulltext $ [])
-    
+
     [(:course ?e ?val) [?e :question/origin ?val]]
     [(:lecture ?e ?val) [?e :question/origin ?val]]
     [(:assignment ?e ?val) [?e :question/origin ?val]]
@@ -239,6 +239,7 @@
 (defn find-assignment
   "find all assignment by query path "
   [qpath]
+  (prn "find-assignment " qpath " result " (util/get-entities-by-rule qpath get-assignment-by))
   (let [projkeys (keys assignment-schema)
         assignments (->> (util/get-entities-by-rule qpath get-assignment-by)
                       (map #(select-keys % projkeys) )

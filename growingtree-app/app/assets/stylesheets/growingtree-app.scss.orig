@@ -1,11 +1,6 @@
 //Requires Compass and Sass to compile properly
 //gem install haml
 //gem install compass
-
-// to compile, 
-// growingtree/growingtree-app $ compass compile
-//
-
 /* mixins */
 
 @import "compass/css3";
@@ -19,7 +14,6 @@
 }
 //Directory for compact static files
 $static: "/";
-
 
 /* meat */
 
@@ -587,18 +581,6 @@ body.post-under-6h-old .gilded-comment-icon {
     opacity: .55;
 }
 
-/** add comments box **/
-.add-comments-form {
-
-}
-.add-comments-form .textarea {
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-.add-comments-form .usertext-buttons {
-    margin: 5px 5px 10px 0;
-}
-
 
 /** messages and inbox */
 .message {
@@ -661,6 +643,8 @@ body.post-under-6h-old .gilded-comment-icon {
 .message .subject .correspondent a {
     margin-left: 0;
 }
+
+/* subreddit */
 
 
 /* Compose */
@@ -1024,9 +1008,6 @@ body.toolbar {
 #newlink .title {
 	font-weight: bold;
 }
-
-
-
 /* Individual sections */
 #url-field .button {
 	float: right;
@@ -1119,6 +1100,106 @@ body.toolbar {
 .md table { margin: 5px 10px;  }
 .md center { text-align: left;  }
 
+/* bookmarklet page */
+
+.instructions p { 
+    background-color: white;
+    padding: 10px;
+    margin: 10px; 
+    @include border-radius(10px);
+}
+
+.instructions h1 { 
+    font-size: medium;
+    margin-left: 5px;
+}
+
+.instructions h2 { 
+    font-size: medium;
+    margin-left: 5px;
+}
+
+.instructions img { 
+    width: 290px;
+    margin-left: 15px; 
+    @include border-radius(10px);
+    border: 1px solid #888;
+}
+
+.instructions textarea#bookmarklet { 
+    width: 290px;
+    margin: 15px; 
+    height: 80px; 
+}
+
+.tryme { 
+    width: 100%;
+    max-width: 280px;
+    padding: 10px;
+    background-color: white;
+    @include border-radius(10px);
+    margin: 10px auto; 
+}
+
+.tryme p { 
+    margin: 10px; 
+    font-size: small;
+}
+
+.tryme .choices .button { 
+    width: 260px;
+    display: block;
+    text-align: center;
+    margin: 10px; 
+}
+
+.deepthread {
+    margin-left: 40px;
+}
+
+.morecomments a,
+.deepthread a {
+    text-decoration: none;
+    color: white
+}
+
+.morechildren { 
+    margin: 5px 10px;
+}
+
+.morechildren a { 
+    display: block;
+    text-align: center;
+    max-width: 350px;
+    //@warn "Evntually this needs to be swapped out for a more future-proof solution to solve the red text on 'load more->loading; for the morechildren button";
+    color: white !important;
+}
+
+a.author { margin-right: 0.5em; }
+ 
+.flair, .linkflair {
+    margin: {
+        top: 2px;
+        right: 0.5em;
+    }
+    padding: 0px 2px;
+    display: inline-block;
+    background: whiteSmoke;
+    color: hsl(0, 0%, 33%);
+    border: 1px solid hsl(0, 0%, 87%);
+    font-size: 9px;
+    
+    @include border-radius(2px);
+    @include box-shadow(inset 0px 1px 0px hsla(0,0%,100%,.9));
+}
+
+.linkflair {
+    font-weight: normal;
+    max-width: 10em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 
 /*Options popups*/

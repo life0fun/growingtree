@@ -263,13 +263,16 @@
                 ; :navpath ["all" 0 "course" 17592186045425], or  ["course" 17592186045425 "comments" 17592186045433], or ["course" 17592186045425 "course" 17592186045425]
                 render-path (thing-navpath->renderpath (:navpath thing-map))
                 actiontransforms (thing-navpath-transforms thing-type render-path thing-map)
+                add-comments-box (add-comments-transforms render-path qpath)
                ]
             (.log js/console (str "node-create and value thing data at render-path " render-path " " navpath))
             ; XXX the meat is create and value node at render-path [:header :child 17592186045497]
             (concat [ [:node-destroy render-path]
                       [:node-create render-path :map]
                       [:value render-path {:qpath qpath :thing-map thing-map}] ]
-                    actiontransforms)))
+                    add-comments-box
+                    actiontransforms)
+        ))
         things-vec)
       ))))
 
@@ -496,6 +499,18 @@
             []
             changemap)
     ))
+
+;;==================================================================================
+; upon nav to comments, ask render to display add comments box on filtered details
+; node path [:setup :lecture 1 :comments]
+;;==================================================================================
+(defn add-comments-transforms
+  [render-path qpath]
+  (let [filtered-hd (first render-path)
+        nxt (last qpath)]
+    (if (and (= filtered-hd :header) (= nxt :comments))
+      [[:node-create (concat [:setup] qpath)]]
+      [])))
 
 
 ;;

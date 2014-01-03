@@ -132,25 +132,35 @@
   [qpath rule-set]
   (prn "get entities by rule " qpath)
   (let [qpath (take-last 3 qpath)  ; only take the last 3 segment in query path
+        ;[:question 17592186045429 :assignment]
         eid (second qpath)
         src (first qpath)
         dst (last qpath)
         e (get-entity eid)
         origin-e (wildcard-origin-ref-entity e src dst)]
     (prn "orgin entity vec " origin-e)
+    (when (seq origin-e)
+      (prn "entity origin namespace " (entity-keyword (first origin-e)) " dst " dst " origin " (first origin-e)))
     (cond
       ; head thing [:course 1 :course], however, comments can ref to comments.
-      (= src dst) [e] 
+      (= src dst) [e]
+
       ; entity has a ref named origin, which is the wildcard ref to parent thing
-      (not-nil? origin-e) (map (comp get-entity :db/id) origin-e)
+      ; make sure that refed entity is the dst of qpath, then we can ret entity directly.
+      (and (seq origin-e)  ;nil punning when seq
+           (= dst (entity-keyword (first origin-e))))  ; origin really point to dst
+        (map (comp get-entity :db/id) origin-e)
+
       ; perform the real query
       :else (get-entities-by-rule-query qpath rule-set))))
 
 
 ; either entity has the attr directly, or entity has :origin reference back
 ; to the entity we want to find. 
-; for cases assignment can be created from course, or from lecture.
+; we 
 (defn wildcard-origin-ref-entity
+  "ret a vector of entities of the required attr, or the origin ref entity
+   as some origin :ref :one, some origin :ref :many, need to set? check"
   [e e-ns attr]
   (let [e-attr (keyword (str (name e-ns) "/" (name attr)))
         e-attr-val (e-attr e)

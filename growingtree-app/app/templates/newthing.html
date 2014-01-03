@@ -572,32 +572,13 @@
 
   <!-- comments -->
   <div template="comments" field="id:id">
-    <form class="form-horizontal comments-form">
-      <fieldset>
-
-        <legend>Add comments</legend>
-
-        <div class="control-group">
-          <label class="control-label" for="comments-title">Content</label>
-          <div class="controls">
-            <textarea id="comments-title" rows="3" cols="1" name="text" class="" style="width: 500.39999997615814px; height: 100.39999997615814px;"></textarea>
-            <p class="help-block">The content of the comments</p>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label class="control-label" for="comments-url">Url</label>
-          <div class="controls">
-            <input type="text" class="input-xlarge" id="comments-url">
-            <p class="help-block">The url of the comments</p>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Save</button>
-          <button id="cancel" type="button" class="btn">Cancel</button>
-        </div>
-      </fieldset>
+    <form class="form-horizontal add-comments-form">
+      <textarea id="comments-title" rows="3" cols="1" name="text" class="textarea" style="width:98%;height:60px;"></textarea>
+    
+      <div class="usertext-buttons">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button id="cancel" type="button" class="btn">Cancel</button>
+      </div>
     </form>
   </div>
 

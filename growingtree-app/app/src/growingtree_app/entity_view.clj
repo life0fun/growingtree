@@ -57,7 +57,7 @@
 
     :course {:lecture "" :add-lecture " hide" 
              :question "" :add-question " hide" 
-             :comments "" :add-comments " hide" 
+             :comments ""
              :enrollment "" :add-enrollment " hide" 
              :schedule "" 
              :upvote "" :like "" :share "" 
@@ -66,7 +66,7 @@
 
     :lecture {:course "" 
               :question "" :add-question " hide" 
-              :comments "" :add-comments " hide" 
+              :comments ""
               :enrollment "" :add-enrollment " hide" 
               :schedule "" 
               :upvote "" :like "" :share "" 
@@ -76,14 +76,14 @@
     :question {:lecture "" 
                :assignment ""
                :similar ""
-               :comments "" :add-comments " hide" 
+               :comments ""
                :upvote "" :like "" :share "" 
                :assignto "" :assign-form ""
               }
 
     :assignment {:question "" :hint "" :similar ""
                  :answer "" :add-answer " hide" 
-                 :comments "" :add-comments " hide" 
+                 :comments ""
                  :upvote "" :like "" :share "" 
                 }
 
@@ -400,3 +400,22 @@
         ]
     (.log js/console (str "update thing node value " rpath " new-value " thing-map))
     thing-view))
+
+
+;;===========================================================================
+; create add comments input box 
+; form id is the thing-id this comment's origin and thingroot
+;;===========================================================================
+(defn add-comments-form
+  [render rpath ]
+  (let [thing-id (last (butlast rpath))
+        container-div (dom/by-id "add-comments") ; template "thing-details"
+        ; add the rendered template attached to rpath node
+        html (templates/add-template render rpath (:comments templates))
+        thing-div (html {:id (str "add-comments-" thing-id)})
+       ]
+    (.log js/console (str "display add comemnts form "))
+    (dom/append! container-div thing-div)
+    ; ret the form for events-on :submit, 
+    (dom/by-class "add-comments-form")  ; form selector is only by-class
+    ))

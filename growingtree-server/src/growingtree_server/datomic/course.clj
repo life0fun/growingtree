@@ -179,6 +179,7 @@
 (defn find-lecture
   "find lecture by query path "
   [qpath]
+  (prn "find lecture " (util/get-entities-by-rule qpath get-lecture-by))
   (let [projkeys (keys lecture-schema)
         lectures (->> (util/get-entities-by-rule qpath get-lecture-by)
                      (map #(select-keys % projkeys) )

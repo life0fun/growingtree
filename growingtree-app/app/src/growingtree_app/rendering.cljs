@@ -242,7 +242,8 @@
     ; [:filtered :question 17592186045432 :lecture 17592186045430]
     (.log js/console (str "append filtered child node " rpath " child-idx " child-idx))
     (dom/append! subthings-div thing)
-    (entity-view/thing-node-add-class thing-id "offset1")))
+    ;(entity-view/thing-node-add-class thing-id "offset1")
+    ))
 
 
 ; [:filtered :course 1 :comemnts 2 :comments 3 ...]
@@ -255,7 +256,7 @@
   (when-not (js/isNaN (js/parseInt (last rpath) 10)) ; isNaN to check number type.
     (let [thing-id (last rpath)
           parent-node (entity-view/thing-node-parent rpath)
-          offset (/ (- (count rpath) 3) 2)
+          offset (/ (- (count rpath) 5) 2)
           thing (entity-view/thing-node-html rpath r offset)
          ]
       ; render thing-details template if it is not rendered yet
@@ -355,6 +356,10 @@
     
     [:node-create [:filtered :* :* :* :* :**] append-filtered-child-tree]
     [:value       [:filtered :* :* :* :* :**] value-thing-node]
+
+
+    ;============== add comments [:setup :lecture 1 :comments] ============
+    [:node-create [:setup :* :* :*] transforms/enable-add-comments]
 
     ;; ============== other thing nav links setup and submit handling ============
     ; setup and submit action handler, path [:setup :homework id :assign]

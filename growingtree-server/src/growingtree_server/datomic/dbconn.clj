@@ -190,13 +190,7 @@
     tostr))
 
 
-; (defn entity-keyword
-;   "ret the keyword of entity namespace, the same as thing-ident in app side util"
-;   [entity]
-;   (let [e (dissoc entity :db/id)  ; remove :db/id
-;         ident (keyword (namespace (ffirst e)))]
-;     ident))
-
+; get the entity namespace keyword
 (defn entity-keyword
   "ret the keyword of entity namespace, the same as thing-ident in app side util"
   [entity]
