@@ -41,15 +41,15 @@
   "return an event handler fn that toggen hide css class of the form"
   [add-thing-type r path override-map input-queue]
   (fn [_] 
-    (let [parent-div-id "new-subthing"
-          parent (dom/by-id parent-div-id)
-          nchild (count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']"))))
+    (let [newthing-div "new-subthings"    ; div defined in thing details
+          newthing (dom/by-id newthing-div)
+          nchild (count (dom/children (dx/xpath (str "//div[@id='" newthing-div "']"))))
           add-thing-form (add-thing-form add-thing-type r path) ; render path
           ]
       (.log js/console (str add-thing-type " link clicked div " nchild))
       (if (= nchild 0)
-        (dom/append! parent add-thing-form)
-        (dom/destroy-children! parent))
+        (dom/append! newthing add-thing-form)
+        (dom/destroy-children! newthing))
 
       ; enable event must live outside the same block of dom append displaying form.
       (if (= nchild 0)
@@ -62,6 +62,7 @@
 ;;==================================================================================
 ; submit-fn uses this map to id dom input fields and collect input value to entity attr.
 ; form dom id refer to newthing.html for dom elements
+; within each type, key is entity attr, value is form input id to provide value to entity attr.
 ;;==================================================================================
 (def thing-input-map
   {
@@ -137,6 +138,20 @@
                       (entity-view/div-form-input-sel thing-id "assign-form" "assignto-end"))
                 }
 
+    :answer {:answer/title
+                  (fn [thing-id]
+                    (entity-view/div-form-textarea-sel thing-id "answer-form" "answer-title"))
+            }
+
+    :grade {:grade/score
+                  (fn [thing-id]
+                    (entity-view/div-form-input-sel thing-id "answer-form" "grade-score"))
+
+            :grade/comments
+                  (fn [thing-id]
+                    (entity-view/div-form-input-sel thing-id "answer-form" "grade-comments"))
+            }
+                      
     :group {:group/title "group-title"
             :group/author "group-author"
             :group/type "group-type"

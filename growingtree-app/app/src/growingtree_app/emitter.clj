@@ -392,6 +392,20 @@
     messages))
 
 
+(defmethod thing-nav-messages
+  :answer-form
+  [[nav type id transkey :as nav-path] render-path entity-map]
+  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
+                    msgs/topic [:create transkey]  
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :rpath) render-path
+                    (msgs/param :details) {}
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " messages))
+    messages))
+
 ; always go :create-thing [:create :lecture] path, do not go post thing path.
 (defmethod thing-nav-messages
   :add-lecture
@@ -422,21 +436,6 @@
                   }
                  ]
         ]
-    messages))
-
-; for upvote transform msg, need both render-path and thing-map to inc and refresh view.
-(defmethod thing-nav-messages
-  :upvote
-  [[nav type id transkey :as nav-path] render-path entity-map]
-  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
-                    msgs/topic [:create transkey]  
-                    msgs/type :create-thing
-                    (msgs/param :thing-map) entity-map
-                    (msgs/param :rpath) render-path
-                    (msgs/param :details) {}
-                  }]
-        ]
-    ;(.log js/console (str "thing-nav-messages " messages))
     messages))
 
 
@@ -470,6 +469,23 @@
         ]
     ;(.log js/console (str "thing-nav-messages " messages))
     messages))
+
+
+; for upvote transform msg, need both render-path and thing-map to inc and refresh view.
+(defmethod thing-nav-messages
+  :upvote
+  [[nav type id transkey :as nav-path] render-path entity-map]
+  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
+                    msgs/topic [:create transkey]  
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :rpath) render-path
+                    (msgs/param :details) {}
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " messages))
+    messages))
+
 
 ;;==================================================================================
 ;; action bar assign, triggered by [:setup :assign]

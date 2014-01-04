@@ -32,6 +32,7 @@
    :thing-lecture  (dtfn (tnodes "thing.html" "thing-lecture") #{:id})
    :thing-question  (dtfn (tnodes "thing.html" "thing-question") #{:id})
    :thing-assignment  (dtfn (tnodes "thing.html" "thing-assignment") #{:id})
+   :thing-answer  (dtfn (tnodes "thing.html" "thing-answer") #{:id})
    :thing-comments  (dtfn (tnodes "thing.html" "thing-comments") #{:id})
    :thing-like  (dtfn (tnodes "thing.html" "thing-like") #{:id})
    :thing-timeline  (dtfn (tnodes "thing.html" "thing-timeline") #{:id})
@@ -51,4 +52,5 @@
    :question (dtfn (tnodes "newthing.html" "question") #{:id})
    :group (dtfn (tnodes "newthing.html" "group") #{:id})
    :comments (dtfn (tnodes "newthing.html" "comments") #{:id})
+   :answer (dtfn (tnodes "newthing.html" "answer") #{:id})
   })

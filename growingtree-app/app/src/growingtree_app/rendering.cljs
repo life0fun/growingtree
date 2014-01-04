@@ -242,6 +242,7 @@
     ; [:filtered :question 17592186045432 :lecture 17592186045430]
     (.log js/console (str "append filtered child node " rpath " child-idx " child-idx))
     (dom/append! subthings-div thing)
+    ; do not offset1 for filtered details
     ;(entity-view/thing-node-add-class thing-id "offset1")
     ))
 

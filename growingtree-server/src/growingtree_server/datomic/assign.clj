@@ -141,24 +141,18 @@
   ])
 
 
-; ; get entities by qpath, formulate query rules from qpath
-; ; qpath is [:all 0 :children] or [:parent 1 :children] or [:parents 1 :parents]
-; (defn get-entities-by-rule
-;   "get entities by qpath and rule-set, formulate query rules from qpath"
-;   [qpath rule-set]
-;   (if (= (first qpath) (last qpath))
-;     (let [eid (second qpath)
-;           e (d/entity db eid)]
-;       [e])
-;     (let [pid (second qpath)
-;           rule-name (first qpath)  ; parent thing type is rule name
-;           parent-rule (list rule-name '?e '?val)
-;           q (conj '[:find ?e :in $ % ?val :where ] parent-rule)
-;           eids (d/q q (get-db) rule-set pid)
-;           entities (map (comp get-entity first) eids)
-;           ]
-;       (prn "get entities by rule " rule-name pid parent-rule q eids)
-;       entities)))
+(def get-answer-by
+  '[[(:all ?e ?val) [?e :answer/title]]   ; select all answer that has title
+    [(:title ?e ?val) [?e :answer/title ?val]]
+    [(:author ?e ?val) [?e :answer/author ?val]]
+    [(:origin ?e ?val) [?e :answer/origin ?val]]
+    [(:score ?e ?val) [?e :answer/score ?val]]
+
+    [(:assignment ?e ?val) [?e :answer/origin ?val]]
+    [(:question ?e ?val) [?e :answer/origin ?val]]
+    [(:lecture ?e ?val) [?e :answer/origin ?val]]
+    [(:course ?e ?val) [?e :answer/origin ?val]]
+  ])
 
 
 ;;==================================================================================
@@ -239,7 +233,6 @@
 (defn find-assignment
   "find all assignment by query path "
   [qpath]
-  (prn "find-assignment " qpath " result " (util/get-entities-by-rule qpath get-assignment-by))
   (let [projkeys (keys assignment-schema)
         assignments (->> (util/get-entities-by-rule qpath get-assignment-by)
                       (map #(select-keys % projkeys) )
@@ -255,36 +248,59 @@
 ;;================================================================================
 ;; answer 
 ;;================================================================================
-(defn answer-attr
-  "basic answer attr map"
-  [assid authorid answer completetime]
-  (let [m {:db/id (d/tempid :db.part/user)
-          :answer/assignment assid
-          :answer/author authorid
-          :answer/answer answer
-          :answer/completetime completetime}]
-    (prn m)
-    m))
-
-
-; submit an answer to an assignment
 (defn create-answer
   "submit an answer to an assignment"
-  [assid authorid]
-  (let [asse (d/entity db assid)   ; reify ass entity
-        hwe (->> asse :assignment/question :db/id (d/entity db))
-        answ (str (:question/content hwe) " == " (rand-int 100))
-        nowd (.toDate (clj-time/now))
-        answmap (answer-attr assid authorid answ nowd)]
-    (prn (d/touch asse))
-    (prn (d/touch hwe))
-    (prn answmap)
-    (submit-transact [answmap])))
+  [details]
+  (let [author-id (:db/id (dbconn/find-by :person/title (:author details)))
+        ; this find all children whose parent is author-di
+        entity (-> details
+                (select-keys (keys answer-schema))
+                (assoc :answer/author author-id)
+                (util/to-datomic-attr-vals) 
+                (assoc :db/id (d/tempid :db.part/user)))
+        ;trans (submit-transact [entity])  ; transaction is a list of entity
+      ]
+    (newline)
+    (prn author-id " create answer entity " entity)
+    ;(prn "create answer trans " trans)
+    entity))
 
 
-; find all answers
+; find all answer
 (defn find-answer
-  "find all answers"
-  []
-  (let [ansid (d/q '[:find ?e :where [?e :answer/answer]] db)]
-    (map (comp show-entity-by-id first) ansid)))
+  "find all answer by query path "
+  [qpath]
+  (prn "find-answer " qpath " result " (util/get-entities-by-rule qpath get-answer-by))
+  (let [projkeys (keys answer-schema)
+        answers (->> (util/get-entities-by-rule qpath get-answer-by)
+                      (map #(select-keys % projkeys) )
+                      (map #(util/add-upvote-attr %) )
+                      (map #(util/add-navpath % qpath) )
+                    )
+        ]
+    (doseq [e answers]
+      (prn "answer --> " e))
+    answers))
+
+
+(defn create-grade
+  "submit an grade to an assignment"
+  [details]
+  (let [answer-id (:grade/origin details)
+        score (:grade/score details)
+        comments (:grade/comments details)
+
+        entity {:db/id answer-id
+                :answer/score score}
+        ; this find all children whose parent is author-di
+        ; entity (-> details
+        ;         (select-keys (keys grade-schema))
+        ;         (assoc :grade/author author-id)
+        ;         (util/to-datomic-attr-vals) 
+        ;         (assoc :db/id (d/tempid :db.part/user)))
+        ;trans (submit-transact [entity])  ; transaction is a list of entity
+      ]
+    (newline)
+    (prn author-id " create grade entity " entity)
+    ;(prn "create grade trans " trans)
+    entity))

@@ -288,13 +288,13 @@
 
 
 ;;==============================================================
-; answer 
+; answer and grade
 ;;==============================================================
 ; submit an answer to an assignment
 (defn create-answer
   "submit an answer to an assignment"
-  [assid authorid]
-  (assign/create-answer assid authorid))
+  [details]
+  (assign/create-answer details))
 
 
 ; find all answers
@@ -302,6 +302,12 @@
   "find all answers"
   [qpath]
   (assign/find-answer qpath))
+
+
+(defn create-grade
+  "submit an answer to an assignment"
+  [details]
+  (assign/create-grade details))
 
 
 ;;==============================================================

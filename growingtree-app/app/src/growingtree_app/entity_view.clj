@@ -82,14 +82,20 @@
               }
 
     :assignment {:question "" :hint "" :similar ""
-                 :answer "" :add-answer " hide" 
+                 :answer "" :submit-answer "" :answer-form ""
                  :comments ""
                  :upvote "" :like "" :share "" 
                 }
 
-    :comments {:reply "" :reply-form ""
+    :comments {:grade "" :grade-form ""
                :upvote "" :like "" :share "" 
               }
+
+    :answer {:grade "" :grade-form ""
+             :assignment ""
+             :question ""
+             :upvote "" :like "" :share "" 
+            }
 
     :like {:origin "" :upvote ""
           }
@@ -100,14 +106,16 @@
 
 
 ; thumbnail jpg, ref to images at assets/images/
+; thing-template-value calls this to give value to :thumbhref.
 (def thing-thumbnail
   {
     :parent "parent.jpg"
     :child "child.jpg"
     :course "course.jpg"
     :lecture "lecture.jpg"
-    :question "math.jpg"
-    :assignment "assignment.jpg"
+    :question "question.jpg"
+    :assignment "homework.jpg"
+    :answer "answer.jpg"
     :comments "math.jpg"
     :like "like.jpg"
     :timeline "timeline.jpg"
@@ -117,7 +125,7 @@
 ; xpath selector for inline form
 ;;===============================================================
 
-; ret a form dom element under div with form name
+; form selector with wrapper div class by form-name - thing-id, form id is name
 (defn div-form-clz
   [thing-id form-name]
   (let [form-clz (str form-name "-" thing-id)
@@ -131,7 +139,7 @@
     (dx/xpath form-path)))
 
 
-; dom selector for individual input field within assign form
+; selector for input id name with form name cl
 (defn div-form-input-sel
   [thing-id form-name field-name]
   (let [form-path (div-form-clz thing-id form-name)
@@ -139,6 +147,7 @@
     (dx/xpath input-sel)))
 
 
+; selector for textarea input with id name under form class name
 (defn div-form-textarea-sel
   [thing-id form-name field-name]
   (let [form-path (div-form-clz thing-id form-name)
@@ -248,7 +257,6 @@
 (defmethod thing-node-html
   :default
   [rpath render thing-idx]
-  (.log js/console (str "thing node html " rpath))
   (let [thing-id (last rpath)
         thing-type (second (reverse rpath))
         ; slice templ thing-parent, thing-child, from app templates
@@ -299,6 +307,29 @@
     value-map))
 
 
+; template value for :answer 
+(defmethod thing-template-value
+  :answer
+  [thing-type thing-map]
+  (let [origin-title (-> (get-in thing-map [:answer/origin])
+                         (util/thing-val-by-name "title")
+                         (second)) ; value is the second of kv vector
+
+        value-map 
+          {:thing-entry-title (thing-attr-val thing-map thing-type "title")
+           :entryhref "#"
+           :origin-title origin-title
+           :author-name (get-in thing-map [:answer/author :person/title])
+           ;:start (:answer/start thing-map)
+           ;:score (:answer/score thing-map)
+           :thumbhref (thing-type thing-thumbnail)
+           ;:upvote (str (thing-attr-val thing-map thing-type "upvote"))
+          }
+        ]
+    (.log js/console (str "answer template value " origin-title " " author-name))
+    value-map))
+
+
 (defmethod thing-template-value
   :comments
   [thing-type thing-map]
@@ -345,6 +376,7 @@
   (let [origin-title (-> (get-in thing-map [:timeline/origin])
                          (util/thing-val-by-name "title")
                          (second)) ; value is the second of kv vector
+
         value-map 
           {:thing-entry-title (thing-attr-val thing-map thing-type "title")
            :entryhref "#"
@@ -352,9 +384,10 @@
            :author-name (get-in thing-map [:timeline/author])
            :origin-title origin-title
            :type (:timeline/type thing-map)
+           :thumbhref ((keyword (:timeline/type thing-map)) thing-thumbnail)
           }
         ]
-    (.log js/console (str "template value " origin-title))
+    (.log js/console (str "template value " origin-title (:timeline/type thing-map)))
     value-map))
 
 

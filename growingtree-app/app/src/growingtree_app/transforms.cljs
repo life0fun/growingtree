@@ -247,7 +247,7 @@
 (defmethod enable-thing-nav  ; assignto, defined in thing-question and entity-view
   :assignto
   [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:parent 1 :assign-toggle]
+  (let [navpath (rest path)  ; [:parent 1 :assignto]
         thing-id (first (reverse (butlast navpath)))
 
         thing-node (dom/by-id (str thing-id))
@@ -292,6 +292,94 @@
                                              override-map 
                                              input-queue)
   ))
+
+; ----------------------------------------------------------------------------------
+; submit answer and answer-form
+; ----------------------------------------------------------------------------------
+
+; [:nav :assignment 17592186045431 :submit-answer] :submit-answer
+(defmethod enable-thing-nav  ; submit-answer, defined in thing-question and entity-view
+  :submit-answer
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:parent 1 :submit-answer]
+        thing-id (first (reverse (butlast navpath)))
+
+        thing-node (dom/by-id (str thing-id))
+        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
+        submit-answer-link (dom/by-class link-clz) ; clz = submit-answer-123
+       
+        answer-form-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id :answer-form ""))))
+        toggle-fn (-> (entity-view/div-form-sel thing-id "answer-form")
+                      (newthing-form/toggle-hide-fn answer-form-clz))
+
+       ]
+    (.log js/console (str "enable thing submit answer toggle " path " " link-clz))
+    (de/listen! submit-answer-link :click toggle-fn)
+  ))
+
+
+(defmethod enable-thing-nav  ; transkey = :answer-form
+  :answer-form
+  [r [_ path transkey messages] input-queue]
+  (let [thing-id (first (reverse (butlast path)))
+        thing-map ((msgs/param :thing-map) (first messages))
+        
+        form (entity-view/div-form-sel thing-id "answer-form")
+
+        override-map {:answer/origin (:db/id thing-map)
+                      :answer/start (.unix (js/moment))
+                     }
+       ]
+    (.log js/console (str "enable thing nav answer-form " thing-id path))
+    (newthing-form/handle-inline-form-submit :answer 
+                                             thing-id form
+                                             override-map 
+                                             input-queue)
+  ))
+
+; ----------------------------------------------------------------------------------
+; grade answer and grade-form
+; [:nav :answer 17592186045431 :grade] :grade
+; ----------------------------------------------------------------------------------
+(defmethod enable-thing-nav  ; grade, defined in thing-answer and entity-view
+  :grade
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:answer 1 :grade]
+        thing-id (first (reverse (butlast navpath)))
+
+        thing-node (dom/by-id (str thing-id))
+        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
+        grade-link (dom/by-class link-clz) ; clz = grade-123
+       
+        grade-form-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id :grade-form ""))))
+        toggle-fn (-> (entity-view/div-form-sel thing-id "grade-form")
+                      (newthing-form/toggle-hide-fn grade-form-clz))
+
+       ]
+    (.log js/console (str "enable thing submit grade toggle " path " " link-clz))
+    (de/listen! grade-link :click toggle-fn)
+  ))
+
+
+(defmethod enable-thing-nav  ; transkey = :grade-form
+  :grade-form
+  [r [_ path transkey messages] input-queue]
+  (let [thing-id (first (reverse (butlast path)))
+        thing-map ((msgs/param :thing-map) (first messages))
+        
+        form (entity-view/div-form-sel thing-id "grade-form")
+
+        override-map {:grade/origin (:db/id thing-map)
+                     }
+       ]
+    (.log js/console (str "enable thing nav grade-form " thing-id path))
+    (newthing-form/handle-inline-form-submit :grade 
+                                             thing-id form
+                                             override-map 
+                                             input-queue)
+  ))
+
+
 
 ; ------------------------------------------------------------------------------------
 ; transform enable for [transforms [:nav :course 1 :add-lecture] :add-lecture

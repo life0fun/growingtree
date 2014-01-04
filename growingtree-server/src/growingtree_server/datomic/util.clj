@@ -112,6 +112,7 @@
 (defn get-entities-by-rule-query
   "get entities by qpath and rule-set, called directly for comments comments case"
   [qpath rule-set]
+  (prn "get entities by rule query " qpath)
   (let [thing-id (second qpath)
         rule-name (first qpath)
         rule (list rule-name '?e '?val)

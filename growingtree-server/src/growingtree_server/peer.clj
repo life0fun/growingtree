@@ -131,6 +131,12 @@
     (prn "peer get assignments " qpath assignments)
     assignments))
 
+(defmethod get-things
+  :answer
+  [type qpath details]
+  (let [answers (dda/find-answer qpath)]
+    (prn "peer get answers " qpath answers)
+    answers))
 
 (defmethod get-things
   :comments
@@ -241,6 +247,28 @@
   [type details]
   (let [author (:author details)
         result (dda/create-assignment details)
+        ]  
+    (newline)
+    ;(prn "peer add thing " type " details " details " result " result)
+    result))
+
+; add an answer
+(defmethod add-thing
+  :answer
+  [type details]
+  (let [author (:author details)
+        result (dda/create-answer details)
+        ]  
+    (newline)
+    ;(prn "peer add thing " type " details " details " result " result)
+    result))
+
+
+(defmethod add-thing
+  :grade
+  [type details]
+  (let [author (:author details)
+        result (dda/create-grade details)
         ]  
     (newline)
     ;(prn "peer add thing " type " details " details " result " result)

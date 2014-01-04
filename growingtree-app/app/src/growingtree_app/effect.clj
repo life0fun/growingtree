@@ -143,6 +143,6 @@
               :thing-type thing-type :details details}
        ]
     (.log js/console (str user " post create thing " thing-type " body " body))
-    ;[{msgs/topic [:server] msgs/type :add-thing (msgs/param :body) body}]
+    [{msgs/topic [:server] msgs/type :add-thing (msgs/param :body) body}]
   ))
 
