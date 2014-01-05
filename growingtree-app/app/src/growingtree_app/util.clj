@@ -22,13 +22,27 @@
 
 
 ; pad time with leading 0 upon single digit.
-(defn format-time 
+(defn pad-time 
   "pad time with leading 0 upon single digit"
   [d]
   (let [pad (fn [n] (if (< n 10) (str "0" n) (str n)))]
     (str (pad (.getHours d)) ":"
          (pad (.getMinutes d)) ":"
          (pad (.getSeconds d)))))
+
+; format a unix epoch time of long, in seconds, which we get from (.unix (js/moment))
+; back to moment object, and format to readable
+; moment constructor takes 
+(defn format-time
+  [unix-epoch]
+  (let [m (js/moment (* 1000 unix-epoch))
+        time-str (.format m)]
+    time-str))
+
+; ret the keyword for thing attr
+(defn thing-attr-keyword
+  [thing-type attr-name]
+  (keyword (str (name thing-type) "/" attr-name)))
 
 
 ; get the namespace of thing 

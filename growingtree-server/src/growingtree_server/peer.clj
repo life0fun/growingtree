@@ -267,6 +267,7 @@
 (defmethod add-thing
   :grade
   [type details]
+  (prn "peer add thing grade " type " details " details)
   (let [author (:author details)
         result (dda/create-grade details)
         ]  

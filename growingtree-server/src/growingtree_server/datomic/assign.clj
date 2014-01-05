@@ -283,24 +283,29 @@
     answers))
 
 
+; create a grade with 2 steps, update answer score, and add comments to the answer.
 (defn create-grade
   "submit an grade to an assignment"
   [details]
-  (let [answer-id (:grade/origin details)
+  (let [author-id (:db/id (dbconn/find-by :person/title (:author details)))
+        answer-id (:grade/origin details)
         score (:grade/score details)
         comments (:grade/comments details)
 
-        entity {:db/id answer-id
-                :answer/score score}
-        ; this find all children whose parent is author-di
-        ; entity (-> details
-        ;         (select-keys (keys grade-schema))
-        ;         (assoc :grade/author author-id)
-        ;         (util/to-datomic-attr-vals) 
-        ;         (assoc :db/id (d/tempid :db.part/user)))
-        ;trans (submit-transact [entity])  ; transaction is a list of entity
+        grade-e (-> {:answer/score score}
+                    (select-keys (keys answer-schema))
+                    (util/to-datomic-attr-vals)
+                    (assoc :db/id answer-id)
+                )
+        comments-e (-> {:comments/title comments}
+                       (assoc :comments/author author-id)
+                       (assoc :comments/origin answer-id)
+                       (assoc :comments/thingroot answer-id)
+                       (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
+                       (assoc :db/id (d/tempid :db.part/user)))
+        ;trans (submit-transact [grade-e comments-e])  ; transaction is a list of entity
       ]
     (newline)
-    (prn author-id " create grade entity " entity)
+    (prn " create grade entity " grade-e " comments " comments-e)
     ;(prn "create grade trans " trans)
-    entity))
+    grade-e))

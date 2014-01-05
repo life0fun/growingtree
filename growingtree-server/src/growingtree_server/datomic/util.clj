@@ -87,14 +87,14 @@
   "coerce details value map to datomic db schema attr type values"
   [details]
   (reduce (fn [tot [k v]]
-            (let [[type card] (attr-type-card k)]  ; use dbconn schema query
+            (let [[attr-type card] (attr-type-card k)]  ; use dbconn schema query
               (cond
                 ; for instant data type, convert from epoch to java.util.Date
-                (= :db.type/instant type)
+                (= :db.type/instant attr-type)
                   (into tot (vector [k (mills-date (* 1000 v))]))
 
                 ; for number type, read-string to convert it, only when val type is String.
-                (and (= :db.type/long type) (= java.lang.String (type v))) 
+                (and (= :db.type/long attr-type) (= java.lang.String (type v))) 
                   (into tot (vector [k (read-string v)]))
 
                 :else 

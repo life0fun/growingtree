@@ -633,14 +633,18 @@
 
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
+      <p class="subtitle">
+        <a field="content:author-name"></a> 
+        assigned at
+        <span field="content:start"></span>
+      </p>
+ 
       <p class="title">
         <a class="title" field="content:thing-entry-title,href:entryhref"></a>
         <span class="domain"></span>
       </p>
-      <p class="tagline">submitted by <a href="#">growingtree.com</a> </p>
-
+     
       <ul class="flat-list buttons">
-
         <li class="share">
           <div field="class:question-class">
             <span class="share-button toggle" style>
@@ -711,10 +715,12 @@
       <div class="child-forms">
         <!-- answer form, wrapper div with form-thing-id hide first -->
         <div field="id:id,class:answer-form-class">
-          <form id="answer-form" class="answer-form hide" style="float:left;">
-            <textarea id="answer-title" rows="3" cols="1" name="text" class="textarea" style="width:600px;height:60px;"></textarea>
+          <form id="answer-form" class="answer-form hide" style="">
+            <textarea id="answer-title" rows="3" cols="1" name="text"></textarea>
 
-            <button class="answer-button" type="submit"> Submit </button>
+            <div class="usertext-buttons">
+              <button type="submit" class="btn btn-primary answer-button">Submit</button>
+            </div>
           </form>
         </div>
       </div>
@@ -739,11 +745,10 @@
 
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
-
-      <p class="title">
+      <p class="subtitle">
         <a field="content:author-name"></a>
         <span> submitted Answer to </span>
-        <a class="title" field="content:origin-title,href:entryhref"></a>
+        <a class="subtitle" field="content:origin-title,href:entryhref"></a>
       </p>
 
       <p class="title">
@@ -751,19 +756,18 @@
         <span class="domain"></span>
       </p>
 
-      <p class="title">  
-        <span> At time </span>
+      <p class="subtitle">  
+        <span>at</span>
         <span field="content:start"></span>
       </p>
 
-      <p class="title">  
-        <span> Score </span>
+      <p class="subtitle">  
+        <span>Score</span>
         <span field="content:score"></span>
       </p>
-
+     
      
       <ul class="flat-list buttons">
-
         <li class="share">
           <div field="class:assignment-class">
             <span class="share-button toggle" style>
@@ -817,10 +821,12 @@
 
       <div class="child-forms">
         <div field="id:id,class:grade-form-class">
-          <form id="grade-form" class="grade-form hide" style="float:left;">
+          <form id="grade-form" class="grade-form hide" style="">
             <input id="grade-score" type="text" placeholder="score">
             <input id="grade-comments" type="text" placeholder="comments">
-            <button class="grade-button" type="submit"> Grade </button>
+            <div class="usertext-buttons">
+              <button type="submit" class="btn btn-primary grade-button">Grade</button>
+            </div>
           </form>
         </div>
       </div>

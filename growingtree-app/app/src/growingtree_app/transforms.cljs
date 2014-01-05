@@ -327,7 +327,7 @@
         form (entity-view/div-form-sel thing-id "answer-form")
 
         override-map {:answer/origin (:db/id thing-map)
-                      :answer/start (.unix (js/moment))
+                      :answer/start (.unix (js/moment))  ; unix epoch in seconds
                      }
        ]
     (.log js/console (str "enable thing nav answer-form " thing-id path))

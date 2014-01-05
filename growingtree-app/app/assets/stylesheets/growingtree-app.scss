@@ -60,6 +60,22 @@ textarea {
     margin-right: auto;
 }
 
+.title {
+    font-size: 16px;
+}
+
+.subtitle {
+    font-size: 15px;
+}
+
+.share {
+    font-size: 14px;
+}
+
+.first {
+    font-size: 14px;
+}
+
 /* main container, margin-top */
 // .main {
 //     overflow: hidden;
@@ -350,6 +366,7 @@ button.button {
 .entry .buttons li a {
     color: #888;
     font-weight: bold;
+    font-size: 12px;
     padding: 0 1px;
 }  
    
@@ -599,6 +616,28 @@ body.post-under-6h-old .gilded-comment-icon {
     margin: 5px 5px 10px 0;
 }
 
+// answer-form stack textarea fields
+.answer-form textarea {
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-bottom: 10px;
+    width: 500px;
+    height:60px;
+}
+.answer-form .answer-button {
+    margin: 5px 5px 10px 20px;
+}
+
+// grade-form stack input fields
+.grade-form input {
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-bottom: 10px;
+    width: 300px;
+}
+.grade-form .grade-button {
+    margin: 5px 5px 10px 20px;
+}
 
 /** messages and inbox */
 .message {

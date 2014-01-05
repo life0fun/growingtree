@@ -116,7 +116,7 @@
     :question "question.jpg"
     :assignment "homework.jpg"
     :answer "answer.jpg"
-    :comments "math.jpg"
+    :comments "comments.jpg"
     :like "like.jpg"
     :timeline "timeline.jpg"
   })
@@ -286,7 +286,8 @@
 ;        [:filtered :course 17592186045428 :lecture 17592186045430]
 ; qpath is nav to next thing, used for enable add subthing.
 ; thing-map is db entity {:db/id 17592186045425, :course/url "math.com/Math-I", 
-; :course/author [{:person/lname "rich", :person/title "rich-dad",}] 
+; :course/author [{:person/lname "rich", :person/title "rich-dad",}]
+; XXX All template values must be *STRING*, convert int to string.
 ;;===========================================================================
 
 ; for each thing type, ret the template value that is used for instatiate template.
@@ -299,10 +300,15 @@
   :default
   [thing-type thing-map]
   (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+        author-attr (util/thing-attr-keyword thing-type "author")
+        start-attr (util/thing-attr-keyword thing-type "start")
         value-map 
           {:thing-entry-title (thing-attr-val thing-map thing-type "title")
            :entryhref "#"
-           :upvote upvotes}
+           :upvote upvotes
+           :author-name (get-in thing-map [author-attr :person/title])
+           :start (util/format-time (start-attr thing-map))
+          }
        ]
     value-map))
 
@@ -320,13 +326,13 @@
            :entryhref "#"
            :origin-title origin-title
            :author-name (get-in thing-map [:answer/author :person/title])
-           ;:start (:answer/start thing-map)
-           ;:score (:answer/score thing-map)
+           :start (util/format-time (:answer/start thing-map))
            :thumbhref (thing-type thing-thumbnail)
-           ;:upvote (str (thing-attr-val thing-map thing-type "upvote"))
+           :upvote (str (thing-attr-val thing-map thing-type "upvote"))
+           :score (str (or (:answer/score thing-map) 0))
           }
         ]
-    (.log js/console (str "answer template value " origin-title " " author-name))
+    (.log js/console (str "answer template value " value-map))
     value-map))
 
 
@@ -387,7 +393,7 @@
            :thumbhref ((keyword (:timeline/type thing-map)) thing-thumbnail)
           }
         ]
-    (.log js/console (str "template value " origin-title (:timeline/type thing-map)))
+    (.log js/console (str "template value " value-map))
     value-map))
 
 

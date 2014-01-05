@@ -145,11 +145,11 @@
 
     :grade {:grade/score
                   (fn [thing-id]
-                    (entity-view/div-form-input-sel thing-id "answer-form" "grade-score"))
+                    (entity-view/div-form-input-sel thing-id "grade-form" "grade-score"))
 
             :grade/comments
                   (fn [thing-id]
-                    (entity-view/div-form-input-sel thing-id "answer-form" "grade-comments"))
+                    (entity-view/div-form-input-sel thing-id "grade-form" "grade-comments"))
             }
                       
     :group {:group/title "group-title"
@@ -270,10 +270,11 @@
                       (assoc :thing-type add-thing-type) ; required for post-submit-thing dispatch
                      (merge override-map))
           ]
-        (.log js/console (str add-thing-type " override-map" override-map))
-        (.log js/console (str add-thing-type " inline form details " details))
+        (.log js/console (str add-thing-type " override-map" override-map " " details))
+        ;(.log js/console (str add-thing-type " inline form details " details))
         ((toggle-hide-fn form) nil)  ; hide the form
-        (msgs/fill :create-thing messages {:details details}))))
+        (msgs/fill :create-thing messages {:details details})
+    )))
 
 
 ; handle inline form submit
