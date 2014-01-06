@@ -287,6 +287,7 @@
 ; qpath is nav to next thing, used for enable add subthing.
 ; thing-map is db entity {:db/id 17592186045425, :course/url "math.com/Math-I", 
 ; :course/author [{:person/lname "rich", :person/title "rich-dad",}]
+;
 ; XXX All template values must be *STRING*, convert int to string.
 ;;===========================================================================
 
@@ -299,15 +300,95 @@
 (defmethod thing-template-value
   :default
   [thing-type thing-map]
+  (let [value-map 
+          {:thing-title (thing-attr-val thing-map thing-type "title")
+           :thing-content (str "- " (thing-attr-val thing-map thing-type "content"))
+           :entryhref "#"
+           :author-name (get-in thing-map [author-attr 0 :person/title])
+           :upvote (str (thing-attr-val thing-map thing-type "upvote"))
+           :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
+           :start (util/format-time (thing-attr-val thing-map thing-type "start"))
+           :phone (first (thing-attr-val thing-map thing-type "phone"))
+           :email (first (thing-attr-val thing-map thing-type "email"))
+          }
+       ]
+    value-map))
+
+; template value for each thing type varies greatly, default can not  capture
+(defmethod thing-template-value
+  :course
+  [thing-type thing-map]
+  (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+        ; we need have attr keyword for get-in of :ref :many attr value
+        author-attr (util/thing-attr-keyword thing-type "author")
+        value-map 
+          {:thing-title (thing-attr-val thing-map thing-type "title")
+           :thing-content (str "- " (thing-attr-val thing-map thing-type "content"))
+           :entryhref "#"
+           :author-name (get-in thing-map [author-attr 0 :person/title])
+           :upvote upvotes
+           :start (util/format-time (thing-attr-val thing-map thing-type "start"))
+           :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
+          }
+       ]
+    value-map))
+
+
+; template value for each thing type varies greatly, default can not  capture
+(defmethod thing-template-value
+  :lecture
+  [thing-type thing-map]
   (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
         author-attr (util/thing-attr-keyword thing-type "author")
-        start-attr (util/thing-attr-keyword thing-type "start")
         value-map 
-          {:thing-entry-title (thing-attr-val thing-map thing-type "title")
+          {:thing-title (thing-attr-val thing-map thing-type "title")
+           :thing-content (str "- " (thing-attr-val thing-map thing-type "content"))
            :entryhref "#"
+           :author-name (get-in thing-map [author-attr 0 :person/title])
            :upvote upvotes
-           :author-name (get-in thing-map [author-attr :person/title])
-           :start (util/format-time (start-attr thing-map))
+           :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
+           :seqno (thing-attr-val thing-map thing-type "seqno")
+           :start (util/format-time (thing-attr-val thing-map thing-type "start"))
+           :end (util/format-time (thing-attr-val thing-map thing-type "end"))
+          }
+       ]
+    value-map))
+
+
+; template value for each thing type varies greatly, default can not  capture
+(defmethod thing-template-value
+  :question
+  [thing-type thing-map]
+  (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+        author-attr (util/thing-attr-keyword thing-type "author")
+        value-map 
+          {:thing-title (thing-attr-val thing-map thing-type "title")
+           :thing-content (str "- " (thing-attr-val thing-map thing-type "content"))
+           :entryhref "#"
+           :author-name (get-in thing-map [author-attr 0 :person/title])
+           :upvote upvotes
+           :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
+           :difficulty (str (thing-attr-val thing-map thing-type "difficulty"))
+          }
+       ]
+    value-map))
+
+
+; assignment focus on start/end, does not have difficulty.
+(defmethod thing-template-value
+  :assignment
+  [thing-type thing-map]
+  (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+        author-attr (util/thing-attr-keyword thing-type "author")
+        value-map 
+          {:thing-title (thing-attr-val thing-map thing-type "title")
+           :thing-content (str "- " (thing-attr-val thing-map thing-type "content"))
+           :entryhref "#"
+           :author-name (get-in thing-map [author-attr 0 :person/title])
+           :upvote upvotes
+           :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
+           :start (util/format-time (thing-attr-val thing-map thing-type "start"))
+           :end (util/format-time (thing-attr-val thing-map thing-type "end"))
           }
        ]
     value-map))
@@ -322,13 +403,14 @@
                          (second)) ; value is the second of kv vector
 
         value-map 
-          {:thing-entry-title (thing-attr-val thing-map thing-type "title")
+          {:thing-title (thing-attr-val thing-map thing-type "title")
            :entryhref "#"
            :origin-title origin-title
            :author-name (get-in thing-map [:answer/author :person/title])
            :start (util/format-time (:answer/start thing-map))
            :thumbhref (thing-type thing-thumbnail)
            :upvote (str (thing-attr-val thing-map thing-type "upvote"))
+           :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
            :score (str (or (:answer/score thing-map) 0))
           }
         ]
@@ -344,7 +426,7 @@
                          (util/thing-val-by-name "title")
                          (second)) ; value is the second of kv vector
         value-map 
-          {:thing-entry-title (thing-attr-val thing-map thing-type "title")
+          {:thing-title (thing-attr-val thing-map thing-type "title")
            :thumbhref (thing-type thing-thumbnail)
            :entryhref "#"
            :upvote upvotes
@@ -363,7 +445,7 @@
                          (util/thing-val-by-name "title")
                          (second)) ; value is the second of kv vector
         value-map 
-          {:thing-entry-title (thing-attr-val thing-map thing-type "title")
+          {:thing-title (thing-attr-val thing-map thing-type "title")
            :entryhref "#"
            :upvote upvotes
            :comments-time "  12 hours"
@@ -384,9 +466,9 @@
                          (second)) ; value is the second of kv vector
 
         value-map 
-          {:thing-entry-title (thing-attr-val thing-map thing-type "title")
+          {:thing-title (thing-attr-val thing-map thing-type "title")
            :entryhref "#"
-           :txtime (:timeline/txtime thing-map)
+           :txtime (util/format-time (thing-attr-val thing-map thing-type "txtime"))
            :author-name (get-in thing-map [:timeline/author])
            :origin-title origin-title
            :type (:timeline/type thing-map)
@@ -412,6 +494,7 @@
            :type (:search/type thing-map)
            :text (:search/text thing-map)
            :searchkey (:search/searchkey thing-map)
+           :thumbhref ((keyword (:search/type thing-map)) thing-thumbnail)
           }
         ]
     (.log js/console (str "template value " origin-title))

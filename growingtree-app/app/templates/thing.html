@@ -2,7 +2,9 @@
 
 <div id="content">
 
-  <!-- parent thing node div -->
+  <!-- 
+    parent thing node div 
+  -->
   <div class="offset0 thing link" template="thing-parent" field="id:id">
     <p class="parent"></p>
     <span class="rank" field="content:rank"> 1 </span>
@@ -19,11 +21,22 @@
 
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
+      
       <p class="title">
-        <a class="title" field="content:thing-entry-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref"></a>
         <span class="domain"></span>
       </p>
-      <p class="tagline">Joined since <time> Aug 2013 </time> </p>
+
+      <p class="subtitle">
+        <a field="content:phone"></a>
+      </p>
+      <p class="subtitle">
+        <a field="content:email"></a>
+      </p>
+
+      <p class="tagline">
+        Joined since <time> Aug 2013 </time> 
+      </p>
       
       <!-- tag line sublink buttons -->
       <ul class="flat-list buttons">
@@ -118,7 +131,10 @@
     </div>
   </div>
 
-  <!-- child thing node div -->
+
+  <!-- 
+    child thing node div 
+  -->
   <div class="offset0 thing link" template="thing-child" field="id:id">
     <p class="child"></p>
     <span class="rank" field="content:rank"> 1 </span>
@@ -136,13 +152,23 @@
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
       <p class="title">
-        <a class="title" field="content:thing-entry-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref"></a>
         <span class="domain"></span>
       </p>
-      <p class="tagline">Joined since <time> Aug 2013 </time> </p>
+
+      <p class="subtitle">
+        <a field="content:phone"></a>
+      </p>
+      <p class="subtitle">
+        <a field="content:email"></a>
+      </p>
+
+      <p class="tagline">
+        Joined since <time> Aug 2013 </time> 
+      </p>
+
 
       <ul class="flat-list buttons">
-
         <!-- parent -->
         <li class="share">
           <div field="class:parent-class">
@@ -249,7 +275,10 @@
     </div>
   </div>
 
-  <!-- course thing node div -->
+  
+  <!-- 
+    course thing node div 
+  -->
   <div class="offset0 thing link" template="thing-course" field="id:id">
     <p class="course"></p>
     <span class="rank" field="content:rank"> 1 </span>
@@ -259,22 +288,29 @@
       <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
 
-
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <a class="thumbnail" template="thing-thumbnail" field="href:thumbhref">
       <img field="src:thumbhref" width="70" height="52" alt="">
     </a>
 
-    <!-- no need to use template, maybe dom append by-idand more concise -->
+    <!-- no need to use template -->
     <div class="entry unvoted" template="thing-entry">
+
+      <p class="subtitle">
+        <span class="tagline"> Offered by </span>
+        <a field="content:author-name"></a>
+      </p>
+
       <p class="title">
-        <a class="title" field="content:thing-entry-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref"></a>
         <span class="domain"></span>
       </p>
-      <p class="tagline">Offered by <a href="#">growingtree.com</a> </p>
+
+      <p class="subtitle">
+        <span style="margin-left:1em" field="content:thing-content"></span>
+      </p>
 
       <ul class="flat-list buttons">
-
         <!-- lecture -->
         <li class="share">
           <div field="class:lecture-class">
@@ -309,11 +345,11 @@
           <div>
         </li>
 
-        <!-- comments lik -->
+        <!-- comments like -->
         <li class="first">
           <div field="class:comments-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">comments</a>
+              <a class="option active" field="content:numcomments">comments</a>
             </span>
           </div>
         </li>
@@ -354,7 +390,7 @@
         <li class="share">
           <div field="class:add-enrollment-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">enroll to</a>
+              <a class="option active" href="#">enroll</a>
             </span>
           </div>
         </li>
@@ -393,7 +429,10 @@
     </div>
   </div>
 
-  <!-- lecture thing node div -->
+  
+  <!-- 
+    lecture thing node div 
+  -->
   <div class="offset0 thing link" template="thing-lecture" field="id:id">
     <p class="lecture"></p>
     <span class="rank" field="content:rank"> 1 </span>
@@ -403,7 +442,6 @@
       <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
 
-    
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <a class="thumbnail" template="thing-thumbnail" field="href:thumbhref">
       <img field="src:thumbhref" width="70" height="52" alt="">
@@ -411,14 +449,30 @@
 
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
+      <p class="subtitle">
+        <span class="tagline"> No. </span>
+        <a field="content:seqno"></a>
+        <span class="tagline">  by </span>
+        <a field="content:author-name"></a>
+      </p>
+
       <p class="title">
-        <a class="title" field="content:thing-entry-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref"></a>
         <span class="domain"></span>
       </p>
-      <p class="tagline">submitted by <a href="#">growingtree.com</a> </p>
 
+      <p class="subtitle">
+        <span style="margin-left:1em" field="content:thing-content"></span>
+      </p>
+
+      <p class="tagline">
+        <span field="content:start"></span>
+        <span> -- <span>
+        <span field="content:end"></span>
+      </p>
+
+      <!-- action keys -->
       <ul class="flat-list buttons">
-
         <li class="share">
           <div field="class:course-class">
             <span class="share-button toggle" style>
@@ -471,7 +525,7 @@
         <li class="first">
           <div field="class:comments-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">comments</a>
+              <a class="option active" field="content:numcomments">comments</a>
             </span>
           </div>
         </li>
@@ -517,7 +571,11 @@
     </div>
   </div>
 
-  <!-- question node div -->
+  
+
+  <!-- 
+    question node div 
+  -->
   <div class="offset0 thing link" template="thing-question" field="id:id">
     <p class="question"></p>
     <span class="rank" field="content:rank"> 1 </span>
@@ -532,16 +590,24 @@
       <img field="src:thumbhref" width="70" height="56" alt="">
     </a>
 
-    <!-- no need to use template, maybe dom append by-idand more concise -->
+    <!-- no need to use template -->
     <div class="entry unvoted" template="thing-entry">
+
       <p class="title">
-        <a class="title" field="content:thing-entry-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref"></a>
         <span class="domain"></span>
       </p>
-      <p class="tagline">submitted by <a href="#">growingtree.com</a> </p>
+      <p class="subtitle">
+        <span style="margin-left:1em" field="content:thing-content"></span>
+      </p>
+
+      <p class="subtitle">
+        <span class="tagline">  difficulty : </span>
+        <span field="content:difficulty"></span>
+      </p>
+
 
       <ul class="flat-list buttons">
-
         <li class="share">
           <div field="class:lecture-class">
             <span class="share-button toggle" style>
@@ -562,7 +628,7 @@
         <li class="first">
           <div field="class:comments-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">comments</a>
+              <a class="option active" field="content:numcomments">comments</a>
             </span>
           </div>
         </li>
@@ -616,7 +682,11 @@
     </div>
   </div>
 
-  <!-- assignment node div -->
+  
+
+  <!-- 
+    assignment node div 
+  -->
   <div class="offset0 thing link" template="thing-assignment" field="id:id">
     <p class="assignment"></p>
     <span class="rank" field="content:rank"> 1 </span>
@@ -634,16 +704,22 @@
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
       <p class="subtitle">
+        <span class="tagline"> assigned by </span>
         <a field="content:author-name"></a> 
-        assigned at
+        <span class="tagline"> at </span>
         <span field="content:start"></span>
       </p>
  
       <p class="title">
-        <a class="title" field="content:thing-entry-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref"></a>
         <span class="domain"></span>
       </p>
-     
+
+      <p class="subtitle">
+        <span> Due at </span>
+        <span field="content:end"></span>
+      </p>    
+
       <ul class="flat-list buttons">
         <li class="share">
           <div field="class:question-class">
@@ -681,7 +757,7 @@
         <li class="first">
           <div field="class:comments-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">comments</a>
+              <a class="option active" field="content:numcomments">comments</a>
             </span>
           </div>
         </li>
@@ -717,7 +793,6 @@
         <div field="id:id,class:answer-form-class">
           <form id="answer-form" class="answer-form hide" style="">
             <textarea id="answer-title" rows="3" cols="1" name="text"></textarea>
-
             <div class="usertext-buttons">
               <button type="submit" class="btn btn-primary answer-button">Submit</button>
             </div>
@@ -728,7 +803,11 @@
     </div>
   </div>
 
-  <!-- answer node div -->
+  
+
+  <!-- 
+    answer node div 
+  -->
   <div class="offset0 thing link" template="thing-answer" field="id:id">
     <p class="answer"></p>
     <span class="rank" field="content:rank"> 1 </span>
@@ -747,25 +826,23 @@
     <div class="entry unvoted" template="thing-entry">
       <p class="subtitle">
         <a field="content:author-name"></a>
-        <span> submitted Answer to </span>
+        <span class="tagline"> submitted answer to </span>
         <a class="subtitle" field="content:origin-title,href:entryhref"></a>
       </p>
 
       <p class="title">
-        <a class="title" field="content:thing-entry-title,href:entryhref"></a>
-        <span class="domain"></span>
+        <a class="title" field="content:thing-title,href:entryhref"></a>
       </p>
 
       <p class="subtitle">  
-        <span>at</span>
+        <span> at </span>
         <span field="content:start"></span>
       </p>
 
       <p class="subtitle">  
-        <span>Score</span>
+        <span class="tagline"> Score </span>
         <span field="content:score"></span>
       </p>
-     
      
       <ul class="flat-list buttons">
         <li class="share">
@@ -834,7 +911,11 @@
     </div>
   </div>
 
-  <!-- comments thing node div -->
+  
+
+  <!-- 
+    comments thing node div 
+  -->
   <div class="thing comment" template="thing-comments" field="id:id">
     <p class="comments"></p>
     <div class="midcol unvoted">
@@ -854,7 +935,7 @@
       </p>
       
       <div class="usertext-body">
-        <a class="title" field="content:thing-entry-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref"></a>
       </div>
 
       <ul class="flat-list buttons">
@@ -894,7 +975,11 @@
     <div class="clearleft"></div>
   </div>
 
-  <!-- like thing node div -->
+
+
+  <!-- 
+    like thing node div 
+  -->
   <div class="offset0 thing link" template="thing-like" field="id:id">
     <p class="like"></p>
     <div class="midcol unvoted">
@@ -910,7 +995,7 @@
     <div class="entry unvoted" template="thing-entry">
 
       <p class="title">
-        <a class="title" field="content:thing-entry-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref"></a>
         <span class="domain"></span>
       </p>
 
@@ -948,7 +1033,11 @@
     <div class="clearleft"></div>
   </div>
 
-  <!-- timeline thing node div -->
+
+
+  <!--
+    timeline thing node div 
+  -->
   <div class="offset0 thing link" template="thing-timeline" field="id:id">
     <p class="timeline"></p>
     <div class="midcol unvoted">
@@ -964,23 +1053,17 @@
     <div class="entry unvoted" template="thing-entry">
       <p class="title">
         <a field="content:author-name"></a>
-        <span> created </span>
+        <span class="tagline"> created </span>
         <a class="title" field="content:type,href:thingref"></a>
       </p>
 
       <p class="title">
         <a class="title" field="content:origin-title,href:entryhref"></a>
-        <span class="domain"></span>
       </p>
 
-      <p class="title">  
-        <span> At time </span>
+      <p class="tagline">  
+        <span> At</span>
         <span field="content:txtime"></span>
-      </p>
-
-      <p class="tagline">
-        <a field="content:author-name"></a>
-        <span class="score">1021 points</span>
       </p>
 
       <ul class="flat-list buttons">
@@ -1003,7 +1086,11 @@
     <div class="clearleft"></div>
   </div>
 
-  <!-- timeline thing node div -->
+
+
+  <!-- 
+    Search node
+  -->
   <div class="offset0 thing link" template="thing-search" field="id:id">
     <p class="search"></p>
     <div class="midcol unvoted">
@@ -1017,18 +1104,17 @@
 
     <div class="entry unvoted" template="thing-entry">  
 
-      <p class="tagline">
-        <span> found one record of </span>
+      <p class="subtitle">
+        <span class="tagline"> found </span>
         <a field="content:type"></a>
-        <span> match keyword </span>
+        <span class="tagline"> match </span>
         <a field="content:searchkey"></a>
-        <span> with text </span>
+        <span class="tagline"> text </span>
         <a field="content:text"></a>
       </p>
 
       <p class="title">
         <a class="title" field="content:origin-title,href:entryhref"></a>
-        <span class="domain"></span>
       </p>
 
       <ul class="flat-list buttons">
@@ -1052,7 +1138,9 @@
   </div>
 
 
-  <!-- the assign form action div -->
+  <!-- 
+    the assign form action div
+  -->
   <div template="assign-form" field="class:assign-form-class">
     <form class="assign-form" style="float:left;">
       <input id="assignto-name" type="text" placeholder="assign to">
@@ -1063,7 +1151,9 @@
   </div>
 
  
-  <!-- thing details div -->
+  <!-- 
+    thing details div 
+  -->
   <div class="offset0" template="thing-details" field="id:id">
     <div id="thing-root"> 
     </div>
