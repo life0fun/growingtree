@@ -640,6 +640,32 @@ body.post-under-6h-old .gilded-comment-icon {
     margin: 5px 5px 10px 20px;
 }
 
+
+// assign-form stack textarea fields
+.assign-form textarea {
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-bottom: 10px;
+    width: 500px;
+    height:60px;
+}
+.assign-form input {
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-bottom: 10px;
+    width: 300px;
+}
+.assign-form .add-on {
+    margin-top: 10px;
+    margin-left: -1px;
+}
+.assign-form .assign-button {
+    margin: 5px 5px 10px 20px;
+}
+
+
+
+
 /** messages and inbox */
 .message {
     background: white;

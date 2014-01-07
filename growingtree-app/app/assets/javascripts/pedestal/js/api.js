@@ -18,3 +18,8 @@ var hideModal = function (id) {
 var toggleModal = function (id) {
   $("#" + id).modal('toggle');
 }
+
+// datetimepicker
+var datetimepicker = function(id) {
+  $("#" + id).datetimepicker();
+}

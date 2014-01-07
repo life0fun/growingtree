@@ -143,7 +143,9 @@
 (defn div-form-input-sel
   [thing-id form-name field-name]
   (let [form-path (div-form-clz thing-id form-name)
-        input-sel (str form-path "/input[@id='" field-name"']")]
+        input-sel (if (= "assignto-end" field-name)
+                    (str form-path "/div[@id='datetimepicker']/input[@id='" field-name"']")
+                    (str form-path "/input[@id='" field-name"']"))]
     (dx/xpath input-sel)))
 
 

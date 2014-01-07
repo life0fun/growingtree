@@ -168,6 +168,7 @@
         question (->> (util/get-entities-by-rule qpath get-question-by)
                       (map #(select-keys % projkeys) )
                       (map #(util/add-upvote-attr %) )
+                      (map #(util/add-numcomments-attr %) )
                       (map #(util/add-navpath % qpath) )
                  )
         ]
@@ -209,6 +210,23 @@
 ;;================================================================================
 ;; assignment
 ;;================================================================================
+; find all assignment
+(defn find-assignment
+  "find all assignment by query path "
+  [qpath]
+  (let [projkeys (keys assignment-schema)
+        assignments (->> (util/get-entities-by-rule qpath get-assignment-by)
+                      (map #(select-keys % projkeys) )
+                      (map #(util/add-upvote-attr %) )
+                      (map #(util/add-numcomments-attr %) )
+                      (map #(util/add-navpath % qpath) )
+                    )
+        ]
+    (doseq [e assignments]
+      (prn "assignment --> " e))
+    assignments))
+
+
 (defn create-assignment
   "new assignment form the submitted form data"
   [details]
@@ -227,22 +245,6 @@
     (prn author-id "create assignment to " person-id " entity " entity)
     (prn "create assignment trans " trans)
     entity))
-
-
-; find all assignment
-(defn find-assignment
-  "find all assignment by query path "
-  [qpath]
-  (let [projkeys (keys assignment-schema)
-        assignments (->> (util/get-entities-by-rule qpath get-assignment-by)
-                      (map #(select-keys % projkeys) )
-                      (map #(util/add-upvote-attr %) )
-                      (map #(util/add-navpath % qpath) )
-                    )
-        ]
-    (doseq [e assignments]
-      (prn "assignment --> " e))
-    assignments))
 
 
 ;;================================================================================
@@ -275,6 +277,7 @@
         answers (->> (util/get-entities-by-rule qpath get-answer-by)
                       (map #(select-keys % projkeys) )
                       (map #(util/add-upvote-attr %) )
+                      (map #(util/add-numcomments-attr %) )
                       (map #(util/add-navpath % qpath) )
                     )
         ]

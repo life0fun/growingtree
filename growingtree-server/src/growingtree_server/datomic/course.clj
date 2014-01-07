@@ -145,6 +145,7 @@
         courses (->> (util/get-entities-by-rule qpath get-course-by)
                      (map #(select-keys % projkeys) )
                      (map #(util/add-upvote-attr %) )
+                     (map #(util/add-numcomments-attr %) )
                      (map #(util/add-navpath % qpath) )  ; :qpath ["all" 0 "course" 17592186045425],
                 )
        ]
@@ -184,6 +185,7 @@
         lectures (->> (util/get-entities-by-rule qpath get-lecture-by)
                      (map #(select-keys % projkeys) )
                      (map #(util/add-upvote-attr %) )
+                     (map #(util/add-numcomments-attr %) )
                      (map #(util/add-navpath % qpath) )
                   )
         ]

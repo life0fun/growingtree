@@ -415,16 +415,26 @@
 
       <div class="child-forms">
         <!-- assign to form, hide first -->
-        <div field="id:id,class:assign-form-class">
-          <form id="assign-form" class="assign-form hide" style="float:left;">
-            <input id="assignto-name" type="text" placeholder="assign to">
-            <input id="assignto-hint" type="text" placeholder="hints">
-            <input id="assignto-end" type="text" placeholder="due time">
-            <button class="assign-button" type="submit"> Assign </button>
+        <div field="id:id,class:assign-form-class">  
+          <form id="assign-form" class="assign-form hide" style="">
+            <input id="assignto-name" type="text" style="display:block" placeholder="assign to">
+            <input id="assignto-hint" type="text" style="display:block"placeholder="hints">
+            
+            <div id="datetimepicker" class="input-append date">    
+              <input id="assignto-end" type="text" placeholder="due time" data-format="hh:mm:ss MM/dd/yyyy">
+              <span class="add-on">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                </i>
+              </span>
+            </div>
+          
+            <div class="usertext-buttons">
+              <button type="submit" class="btn btn-primary assign-button">Assign</button>
+            </div>
           </form>
         </div>
-
       </div>
+
       <div class="clearleft"></div>
     </div>
   </div>
@@ -558,12 +568,22 @@
            
       <div class="child-forms">
         <!-- assign to form, hide first -->
-        <div field="id:id,class:assign-form-class">
-          <form id="assign-form" class="assign-form hide" style="float:left;">
-            <input id="assignto-name" type="text" placeholder="assign to">
-            <input id="assignto-hint" type="text" placeholder="hints">
-            <input id="assignto-end" type="text" placeholder="due time">
-            <button class="assign-button" type="submit"> Assign </button>
+        <div field="id:id,class:assign-form-class">  
+          <form id="assign-form" class="assign-form hide" style="">
+            <input id="assignto-name" type="text" style="display:block" placeholder="assign to">
+            <input id="assignto-hint" type="text" style="display:block"placeholder="hints">
+            
+            <div id="datetimepicker" class="input-append date">    
+              <input id="assignto-end" type="text" placeholder="due time" data-format="hh:mm:ss MM/dd/yyyy">
+              <span class="add-on">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                </i>
+              </span>
+            </div>
+          
+            <div class="usertext-buttons">
+              <button type="submit" class="btn btn-primary assign-button">Assign</button>
+            </div>
           </form>
         </div>
       </div>
@@ -669,15 +689,26 @@
 
       <div class="child-forms">
         <!-- assign to form, hide first -->
-        <div field="id:id,class:assign-form-class">
-          <form id="assign-form" class="assign-form hide" style="float:left;">
-            <input id="assignto-name" type="text" placeholder="assign to">
-            <input id="assignto-hint" type="text" placeholder="hints">
-            <input id="assignto-end" type="text" placeholder="due time">
-            <button class="assign-button" type="submit"> Assign </button>
+        <div field="id:id,class:assign-form-class">  
+          <form id="assign-form" class="assign-form hide" style="">
+            <input id="assignto-name" type="text" style="display:block" placeholder="assign to">
+            <input id="assignto-hint" type="text" style="display:block"placeholder="hints">
+            
+            <div id="datetimepicker" class="input-append date">    
+              <input id="assignto-end" type="text" placeholder="due time" data-format="hh:mm:ss MM/dd/yyyy">
+              <span class="add-on">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                </i>
+              </span>
+            </div>
+          
+            <div class="usertext-buttons">
+              <button type="submit" class="btn btn-primary assign-button">Assign</button>
+            </div>
           </form>
         </div>
       </div>
+      
       <div class="clearleft"></div>
     </div>
   </div>

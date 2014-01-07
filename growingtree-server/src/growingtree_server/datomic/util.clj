@@ -108,9 +108,11 @@
 ; qpath is [:all 0 :child] or [:parent 1 :child] or [:parent 1 :parent]
 ; for entity origin ref type to itself, e.g, comments can be made to comments,
 ; use this fn to query.
+; XXX Note we touch each entity to eagerly realize all attributes of entity.
 ; ============================================================================
 (defn get-entities-by-rule-query
-  "get entities by qpath and rule-set, called directly for comments comments case"
+  "get entities by qpath and rule-set, for each tuple, touch to realize all attrs
+   called directly for comments comments case"
   [qpath rule-set]
   (prn "get entities by rule query " qpath)
   (let [thing-id (second qpath)
@@ -118,7 +120,8 @@
         rule (list rule-name '?e '?val)
         q (conj '[:find ?e :in $ % ?val :where ] rule)
         eids (d/q q (get-db) rule-set thing-id)
-        entities (map (comp get-entity first) eids)  ; touch to not lazy.
+        ; touch to not lazy.
+        entities (map (comp get-entity first) eids)  
        ]
     entities))
 
@@ -219,6 +222,31 @@
         upvote-attr (keyword (str (name thing-type) "/" "upvote"))]
     (prn "upvotes for thing " thing-id " count " upvotes " entity " upvote-attr)
     (assoc-in entity [upvote-attr] (if (zero? upvotes) (rand-int 100) upvotes))))
+
+
+; ============================================================================
+; get no of comments for certain entity, and add it as upvote attr to the entity
+; ============================================================================
+(defn numcomments
+  [thing-id]
+  (let [origin (->> (dbconn/find-entities :comments/origin thing-id)
+                    (map first))
+        thingroot (->> (dbconn/find-entities :comments/thingroot thing-id)
+                        (map first))
+        numcomments (count (distinct (concat origin thingroot)))
+       ]
+    ;(prn "num comments " origin thingroot)
+    numcomments))
+
+; assoc numcomments val to each entity so we can show upvotes for each entity
+(defn add-numcomments-attr
+  [entity]
+  (let [thing-id (:db/id entity)
+        numcomments (numcomments thing-id)
+        thing-type (entity-keyword entity)
+        numcomments-attr (keyword (str (name thing-type) "/" "numcomments"))]
+    (prn "numcomments for thing " thing-id " count " numcomments " entity " numcomments-attr)
+    (assoc-in entity [numcomments-attr] (if (zero? numcomments) (rand-int 100) numcomments))))
 
 
 ; ============================================================================
