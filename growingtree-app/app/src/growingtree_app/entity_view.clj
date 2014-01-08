@@ -121,6 +121,12 @@
     :timeline "timeline.jpg"
   })
 
+; a mapping for datetimepicker id for each new thing type
+(def create-thing-datetimepicker
+  {
+    :lecture ["lecture-start-picker", "lecture-end-picker"]
+  })
+
 ;;===============================================================
 ; xpath selector for inline form
 ;;===============================================================
@@ -143,9 +149,11 @@
 (defn div-form-input-sel
   [thing-id form-name field-name]
   (let [form-path (div-form-clz thing-id form-name)
-        input-sel (if (= "assignto-end" field-name)
-                    (str form-path "/div[@id='datetimepicker']/input[@id='" field-name"']")
-                    (str form-path "/input[@id='" field-name"']"))]
+        timefields #{"start" "end"}
+        timefield? (contains? timefields (last (clojure.string/split field-name #"-")))
+        input-sel (if timefield?
+                    (str form-path "/div[@id='" (str field-name "-picker") "']/input[@id='" field-name"']")
+                    (str form-path "/input[@id='" field-name "']"))]
     (dx/xpath input-sel)))
 
 

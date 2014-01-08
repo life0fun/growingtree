@@ -179,7 +179,7 @@
       (templates/update-t r rpath thing-view)
       ;$('#datetimepicker').datetimepicker();
       ;(. (dom/by-id "datetimepicker") (datetimepicker)) 
-      (js/datetimepicker "datetimepicker")
+      (js/datetimepicker "assignto-end-picker")
       )))
 
 

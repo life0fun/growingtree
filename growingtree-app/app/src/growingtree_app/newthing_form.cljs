@@ -44,7 +44,7 @@
     (let [newthing-div "new-subthings"    ; div defined in thing details
           newthing (dom/by-id newthing-div)
           nchild (count (dom/children (dx/xpath (str "//div[@id='" newthing-div "']"))))
-          add-thing-form (add-thing-form add-thing-type r path) ; render path
+          add-thing-form (add-thing-form add-thing-type r path)  ; render path
           ]
       (.log js/console (str add-thing-type " link clicked div " nchild))
       (if (= nchild 0)
@@ -219,6 +219,13 @@
 ; message is :create-thing thing-type, path is render path, only for logging. 
 ; submit-fn use thing-input-map to collect input field and ret filled msgs.
 ;--------------------------------------------------------------------
+; invoke js datetimepicker fn so that so that picker btn is responsible.
+(defn add-thing-datetimepicker
+  [add-thing-type]
+  (doseq [p (add-thing-type entity-view/create-thing-datetimepicker)]
+    (js/datetimepicker p)))
+
+
 (defn handle-add-thing-submit
   ([add-thing-type path override-map input-queue]
     (let [messages [{msgs/topic [:create add-thing-type]
@@ -230,7 +237,10 @@
   ([add-thing-type path messages override-map input-queue]
     (let [form (dom/by-class (str (name add-thing-type) "-form"))
           submit-fn (submit-fn add-thing-type form override-map messages)]
+
+      
       (.log js/console (str "enable add thing form submit " add-thing-type path))
+      (add-thing-datetimepicker add-thing-type)
       (handle-add-thing-submit form input-queue submit-fn)))
 
   ([form input-queue submit-fn]

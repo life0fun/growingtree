@@ -2,7 +2,9 @@
 
 <div id="content">
 
-  <!-- family -->
+  <!-- 
+    create new parent form
+  -->
   <div template="parent" field="id:id">
     <form class="form-horizontal parent-form">
       <fieldset>
@@ -11,16 +13,14 @@
         <div class="control-group">
           <label class="control-label" for="person-name">Name</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-name">
-            <p class="help-block">User Name</p>
+            <input id="person-name" type="text" class="input-xlarge" placeholder="user name">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="person-lname">Last Name</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-lname">
-            <p class="help-block">Last Name</p>
+            <input id="person-lname" type="text" class="input-xlarge" placeholder="user last name">
           </div>
         </div>
 
@@ -38,53 +38,48 @@
         <div class="control-group">
           <label class="control-label" for="person-email">Email</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-email">
-            <p class="help-block">Email</p>
+            <input id="person-email" type="text" class="input-xlarge" placeholder="user email">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="person-phone">Phone</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-phone">
-            <p class="help-block">Phone </p>
+            <input id="person-phone" type="text" class="input-xlarge" placeholder="user phone number">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="person-url">Social Network </label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-url">
-            <p class="help-block">Social Network Url</p>
+            <input id="person-url" type="text" class="input-xlarge" id="facebook id, twitter id, etc">
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="person-im">Chat Id</label>
+          <label class="control-label" for="person-im">Jabber Id</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-im">
-            <p class="help-block">Instant Messenger Id</p>
+            <input id="person-im" type="text" class="input-xlarge" placeholder="Instant Messenger Id">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="person-address">Address</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-address">
-            <p class="help-block">The Address</p>
+            <input id="person-address" type="text" class="input-xlarge" placeholder="users address ">
           </div>
         </div>
 
-         <div class="control-group">
-          <label class="control-label" for="person-status">Active</label>
+        <div class="control-group">
+          <label class="control-label" for="person-status">Status</label>
           <div class="controls">
             <label class="checkbox">
-              <input type="checkbox" id="person-status" value="active" checked="active">Mark as Active
+              <input id="person-status" type="checkbox" value="active" checked="active">Mark as Active
             </label>
           </div>
         </div>
 
-        <div class="form-actions">
+        <div class="usertext-buttons control-group">
           <button type="submit" class="btn btn-primary">Save</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
@@ -92,24 +87,26 @@
     </form>
   </div>
 
+
+  <!-- 
+    create new child form
+  -->
   <div template="child" field="id:id">
     <form class="form-horizontal child-form">
       <fieldset>
         <legend>Create Child</legend>
         
-        <div class="control-group">
+         <div class="control-group">
           <label class="control-label" for="person-name">Name</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-name">
-            <p class="help-block">User Name</p>
+            <input id="person-name" type="text" class="input-xlarge" placeholder="user name">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="person-lname">Last Name</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-lname">
-            <p class="help-block">Last Name</p>
+            <input id="person-lname" type="text" class="input-xlarge" placeholder="user last name">
           </div>
         </div>
 
@@ -126,61 +123,60 @@
         <div class="control-group">
           <label class="control-label" for="person-email">Email</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-email">
-            <p class="help-block">Email</p>
+            <input id="person-email" type="text" class="input-xlarge" placeholder="user email">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="person-phone">Phone</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-phone">
-            <p class="help-block">Phone</p>
+            <input id="person-phone" type="text" class="input-xlarge" placeholder="user phone number">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="person-url">Social Network </label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-url">
-            <p class="help-block">Social Network Url</p>
+            <input id="person-url" type="text" class="input-xlarge" id="facebook id, twitter id, etc">
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="person-im">Chat Id</label>
+          <label class="control-label" for="person-im">Jabber Id</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-im">
-            <p class="help-block">Instant Message Id</p>
+            <input id="person-im" type="text" class="input-xlarge" placeholder="Instant Messenger Id">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="person-address">Address</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="person-address">
-            <p class="help-block">The Address</p>
+            <input id="person-address" type="text" class="input-xlarge" placeholder="users address ">
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="person-status">Active</label>
+          <label class="control-label" for="person-status">Status</label>
           <div class="controls">
             <label class="checkbox">
-              <input type="checkbox" id="person-status" value="active" checked="active">Mark as Active
+              <input id="person-status" type="checkbox" value="active" checked="active">Mark as Active
             </label>
           </div>
         </div>
 
-        <div class="form-actions">
+        <div class="usertext-buttons control-group">
           <button type="submit" class="btn btn-primary">Save</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
+
       </fieldset>
     </form>
   </div>
 
 
+  <!-- 
+    create new family form
+  -->
   <div template="family" field="id:id">
     <form class="form-horizontal family-form">
       <fieldset>
@@ -189,61 +185,58 @@
         <div class="control-group">
           <label class="control-label" for="family-name">Name</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="family-name">
-            <p class="help-block">Family Name</p>
+            <input id="family-name" type="text" class="input-xlarge" placeholder="family name">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="family-parent">Parent Name</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="family-parent">
-            <p class="help-block">Parent Name</p>
+            <input id="family-parent" type="text" class="input-xlarge" placeholder="parent name of the family">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="family-child">Child Name</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="family-child">
-            <p class="help-block">Child Name</p>
+            <input id="family-child" type="text" class="input-xlarge" placeholder="child name of the family">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="family-address">Address</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="family-address">
-            <p class="help-block">Family Address</p>
+            <input id="family-address" type="text" class="input-xlarge" placeholder="family address">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="family-url">Url</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="family-url">
-            <p class="help-block">Family Url</p>
+            <input id="family-url" type="text" class="input-xlarge" placeholder="url of the family">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="family-email">Email</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="family-email">
-            <p class="help-block">Family Email</p>
+            <input id="family-email" type="text" class="input-xlarge" placeholder="family email" >
           </div>
         </div>
 
-        <div class="form-actions">
+        <div class="usertext-buttons control-group">
           <button type="submit" class="btn btn-primary">Save</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
+        
       </fieldset>
     </form>
   </div>
 
 
-  <!-- course -->
+  <!-- 
+    create new course form
+  -->
   <div template="course" field="id:id">
     <form class="form-horizontal course-form">
       <fieldset>
@@ -253,16 +246,14 @@
         <div class="control-group">
           <label class="control-label" for="course-title">Title</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="course-title">
-            <p class="help-block">The title of the course</p>
+            <input id="course-title" type="text" class="input-xlarge" placeholder="the title of course ...">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="course-author">Author</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="course-author">
-            <p class="help-block">The author of the course</p>
+            <input id="course-author" type="text" class="input-xlarge" placeholder="the author, default to current user">
           </div>
         </div>
 
@@ -282,36 +273,32 @@
         <div class="control-group">
           <label class="control-label" for="course-content">Content</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="course-content">
-            <p class="help-block">The brief content of the course</p>
+             <input id="course-content" type="text" class="input-xlarge" placeholder="brief content of the this course">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="course-url">Url</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="course-url">
-            <p class="help-block">The url of the course</p>
+            <input id="course-url" type="text" class="input-xlarge" placeholder="growingtrees.com">
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="course-email">Course Group Email</label>
+          <label class="control-label" for="course-email">Group Email</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="course-email">
-            <p class="help-block">The group email of the course</p>
+            <input id="course-email" type="text" class="input-xlarge" placeholder="course@group.com">
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="course-wiki">Course Wiki</label>
+          <label class="control-label" for="course-wiki">Wiki</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="course-wiki">
-            <p class="help-block">The wiki page of the course</p>
+          <input id="course-wiki" type="text" class="input-xlarge" placeholder="course/wiki" >
           </div>
         </div>
        
-        <div class="form-actions">
+        <div class="usertext-buttons control-group">
           <button type="submit" class="btn btn-primary">Save</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
@@ -319,6 +306,10 @@
     </form>
   </div>
 
+
+  <!-- 
+    create new lecture form
+  -->
   <div template="lecture" field="id:id">
     <form class="form-horizontal lecture-form">
       <fieldset>
@@ -328,24 +319,23 @@
         <div class="control-group">
           <label class="control-label" for="lecture-title">Title</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="lecture-title">
-            <p class="help-block">The title of the lecture</p>
+            <input id="lecture-title" type="text" class="input-xlarge" placeholder="the title of lecture ...">
+            <!-- <p class="help-block">The title of the lecture</p> -->
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="lecture-author">Author</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="lecture-author">
-            <p class="help-block">The author of the lecture</p>
+            <input id="lecture-author" type="text" class="input-xlarge" placeholder="the author, default to current user">
+            <!-- <p class="help-block">The author of the lecture</p> -->
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="lecture-course">Course</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="lecture-course">
-            <p class="help-block">The course of the lecture</p>
+            <input id="lecture-course" type="text" class="input-xlarge" placeholder="course title this lecture belong to, default to current course">
           </div>
         </div>
 
@@ -365,60 +355,62 @@
         <div class="control-group">
           <label class="control-label" for="lecture-content">Content</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="lecture-content">
-            <p class="help-block">The brief content of the lecture</p>
+            <input id="lecture-content" type="text" class="input-xlarge" placeholder="brief content of the this lecture">
+          </div>
+        </div>
+
+
+        <div class="control-group">
+          <label class="control-label" for="lecture-start">Start Time</label>
+          <div id="lecture-start-picker" class="input-append date">    
+            <input id="lecture-start" type="text" class="input-xlarge" placeholder="hh:mm:ss MM/dd/yyyy" data-format="hh:mm:ss MM/dd/yyyy">
+            <span class="add-on">
+              <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+              </i>
+            </span>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="lecture-start">start time</label>
-          <div class="controls">
-            <input type="text" class="input-xlarge" id="lecture-start">
-            <p class="help-block">The start time of the lecture</p>
+          <label class="control-label" for="lecture-end">End Time</label>
+          <div id="lecture-end-picker" class="input-append date">    
+            <input id="lecture-end" type="text" class="input-xlarge" placeholder="hh:mm:ss MM/dd/yyyy" data-format="hh:mm:ss MM/dd/yyyy">
+            <span class="add-on">
+              <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+              </i>
+            </span>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="lecture-end">end time</label>
+          <label class="control-label" for="lecture-seqno">Lecture Number</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="lecture-end">
-            <p class="help-block">The end time of the lecture</p>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label class="control-label" for="lecture-seqno">lecture number</label>
-          <div class="controls">
-            <input type="text" class="input-xlarge" id="lecture-seqno">
-            <p class="help-block">The seqence number of the lecture</p>
+            <input id="lecture-seqno" type="text" class="input-xlarge" placeholder="lecture sequence No.">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="lecture-url">Url</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="lecture-url">
-            <p class="help-block">The url of the lecture</p>
+            <input id="lecture-url" type="text" class="input-xlarge" placeholder="growingtrees.com">
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="lecture-email">lecture Group Email</label>
+          <label class="control-label" for="lecture-email">Group Email</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="lecture-email">
-            <p class="help-block">The group email of the lecture</p>
+            <input id="lecture-email" type="text" class="input-xlarge" placeholder="lecture@group.com">
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="lecture-wiki">lecture Wiki</label>
+          <label class="control-label" for="lecture-wiki">Wiki</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="lecture-wiki">
-            <p class="help-block">The wiki page of the lecture</p>
+            <input id="lecture-wiki" type="text" class="input-xlarge" placeholder="lecture/wiki" >
           </div>
         </div>
        
-        <div class="form-actions">
+        <div class="usertext-buttons control-group">
           <button type="submit" class="btn btn-primary">Save</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
@@ -436,16 +428,14 @@
         <div class="control-group">
           <label class="control-label" for="question-title">Title</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="question-title">
-            <p class="help-block">The title of the question</p>
+            <input id="question-title" type="text" class="input-xlarge" placeholder="the title of question ...">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="question-author">Author</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="question-author">
-            <p class="help-block">The author of the question</p>
+            <input id="question-author" type="text" class="input-xlarge" placeholder="the author, default to current user">
           </div>
         </div>
 
@@ -465,36 +455,33 @@
         <div class="control-group">
           <label class="control-label" for="question-content">Content</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="question-content">
-            <p class="help-block">The brief content of the question</p>
+            <input id="question-content" type="text" class="input-xlarge" placeholder="brief content of the this question">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="question-url">Url</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="question-url">
-            <p class="help-block">The url of the question</p>
+            <input id="question-url" type="text" class="input-xlarge" placeholder="growingtrees.com">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="question-difficulty">Difficulty</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="question-difficulty">
-            <p class="help-block">The difficulty of the question</p>
+            <input id="question-difficulty" type="text" class="input-xlarge"  placeholder="question difficulty level">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="question-tag">Tag</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="question-tag">
-            <p class="help-block">The tags of the question</p>
+            <input id="question-tag" type="text" class="input-xlarge" placeholder="tags...">
           </div>
         </div>
 
-        <div class="form-actions">
+        
+        <div class="usertext-buttons control-group">
           <button type="submit" class="btn btn-primary">Save</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
@@ -512,16 +499,14 @@
         <div class="control-group">
           <label class="control-label" for="group-title">Title</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="group-title">
-            <p class="help-block">The title of the group</p>
+            <input id="group-title" type="text" class="input-xlarge" placeholder="group title">
           </div>
         </div>
 
         <div class="control-group">
-          <label class="control-label" for="group-author">Admin</label>
+          <label class="control-label" for="group-author">Admin User</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="group-author">
-            <p class="help-block">The admin of the group</p>
+            <input id="group-author" type="text" class="input-xlarge" placeholder="the admin user of the group" >
           </div>
         </div>
 
@@ -541,31 +526,29 @@
         <div class="control-group">
           <label class="control-label" for="group-email">Email</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="group-email">
-            <p class="help-block">The email of the group</p>
+            <input id="group-email" type="text" class="input-xlarge" placeholder="group email">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="group-url">Url</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="group-url">
-            <p class="help-block">The url of the group</p>
+            <input id="group-url" type="text" class="input-xlarge" placeholder="group url">
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="group-wiki">Wiki</label>
           <div class="controls">
-            <input type="text" class="input-xlarge" id="group-wiki">
-            <p class="help-block">The wiki of the group</p>
+            <input id="group-wiki" type="text" class="input-xlarge" placeholder="group wiki page">
           </div>
         </div>
 
-        <div class="form-actions">
+        <div class="usertext-buttons control-group">
           <button type="submit" class="btn btn-primary">Save</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
+        
       </fieldset>
     </form>
   </div>

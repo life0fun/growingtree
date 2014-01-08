@@ -83,6 +83,9 @@ textarea {
 //     margin-top: 10px;
 // }
 
+
+/* forms for create new things */
+
 /* avatar */
 .avatar-container {
     padding: 15px;
@@ -99,6 +102,80 @@ textarea {
     border-radius: 2px;
     box-shadow: 0 1px 5px 0 rgba(56,61,72,0.21);
     margin-bottom: 14px;
+}
+
+/** add comments box **/
+.add-comments-form {
+
+}
+.add-comments-form .textarea {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.add-comments-form .usertext-buttons {
+    margin: 5px 5px 10px 0;
+}
+
+// answer-form stack textarea fields
+.answer-form textarea {
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-bottom: 10px;
+    width: 500px;
+    height:60px;
+}
+.answer-form .answer-button {
+    margin: 5px 5px 10px 20px;
+}
+
+// grade-form stack input fields
+.grade-form input {
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-bottom: 10px;
+    width: 300px;
+}
+.grade-form .grade-button {
+    margin: 5px 5px 10px 20px;
+}
+
+
+// assign-form stack textarea fields
+.assign-form textarea {
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-bottom: 10px;
+    width: 500px;
+    height:60px;
+}
+.assign-form input {
+    margin-left: 20px;
+    margin-bottom: 10px;
+    width: 300px;
+}
+/* datetime picker add-on */
+.assign-form .add-on {
+    margin-left: -1px;
+    background-color: #778899;
+}
+.assign-form .assign-button {
+    margin: 5px 5px 10px 20px;
+}
+
+/* create new thing form*/
+.control-group label {
+    display: inline-block; 
+    width: 140px; 
+    text-align: right;
+}
+/* datetime picker add-on */
+.control-group .add-on {
+    margin-left: -1px;
+    background-color: #778899;
+}
+/* create new thing submit*/
+.control-group button {
+    display: inline-block; 
 }
 
 /*UI stuff*/
@@ -603,64 +680,6 @@ padding: 5px;
 
 body.post-under-6h-old .gilded-comment-icon {
     opacity: .55;
-}
-
-/** add comments box **/
-.add-comments-form {
-
-}
-.add-comments-form .textarea {
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-.add-comments-form .usertext-buttons {
-    margin: 5px 5px 10px 0;
-}
-
-// answer-form stack textarea fields
-.answer-form textarea {
-    margin-top: 10px;
-    margin-left: 20px;
-    margin-bottom: 10px;
-    width: 500px;
-    height:60px;
-}
-.answer-form .answer-button {
-    margin: 5px 5px 10px 20px;
-}
-
-// grade-form stack input fields
-.grade-form input {
-    margin-top: 10px;
-    margin-left: 20px;
-    margin-bottom: 10px;
-    width: 300px;
-}
-.grade-form .grade-button {
-    margin: 5px 5px 10px 20px;
-}
-
-
-// assign-form stack textarea fields
-.assign-form textarea {
-    margin-top: 10px;
-    margin-left: 20px;
-    margin-bottom: 10px;
-    width: 500px;
-    height:60px;
-}
-.assign-form input {
-    margin-top: 10px;
-    margin-left: 20px;
-    margin-bottom: 10px;
-    width: 300px;
-}
-.assign-form .add-on {
-    margin-top: 10px;
-    margin-left: -1px;
-}
-.assign-form .assign-button {
-    margin: 5px 5px 10px 20px;
 }
 
 

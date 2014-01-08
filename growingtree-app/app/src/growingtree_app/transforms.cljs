@@ -164,6 +164,7 @@
 ; create new thing btn clicked event handler, listen submit event and fill details
 ; create-thing type is from nav path, keyword from create-modal. 
 ; messages/topic [:create :course], effect triggered by [:create :*]
+; this fn to handle top nav create btn, hence empty override thing-map.
 ;; ---------------------------------------------------------------------------------
 (defmethod enable-submit-action 
   :create-thing
@@ -172,7 +173,7 @@
         form (dom/by-class (str (name type) "-form"))
         btn-cancel (-> form 
                        (dx/xpath "//button[@id='cancel']"))
-        thing-map {}  ; empty thing-map for fresh create thing
+        thing-map {}  ; empty override thing-map for fresh create thing
         submit-fn (newthing-form/submit-fn type form thing-map messages)]
     (.log js/console (str "enable submit action :create-thing page " path transkey messages))
     (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))
@@ -380,7 +381,6 @@
   ))
 
 
-
 ; ------------------------------------------------------------------------------------
 ; transform enable for [transforms [:nav :course 1 :add-lecture] :add-lecture
 ; ------------------------------------------------------------------------------------
@@ -392,11 +392,12 @@
         thing-node (dom/by-id (str thing-id))
         link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
         add-lecture-link (dom/by-class link-clz)
-        ; get the current thing map, and create override map
+        ; current course thing map from emitter, when create course node, form override values
         thing-map ((msgs/param :thing-map) (first messages))
         override-map {:lecture/course (:db/id thing-map)
                       :lecture/type (keyword (:course/type thing-map))  ;
                      }
+        ; now toggle add thing form, and enable the submit fn.
         toggle-fn (newthing-form/toggle-add-thing-form-fn :lecture 
                                                           r path 
                                                           override-map 
@@ -501,7 +502,7 @@
 
 
 ;;==================================================================================
-; enable add comments input box
+; enable add comments input box on top of a list of all comments.
 ; [:setup :lecture 1 :comments]
 ;;==================================================================================
 (def enable-add-comments
