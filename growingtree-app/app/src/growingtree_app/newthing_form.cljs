@@ -281,7 +281,6 @@
                      (merge override-map))
           ]
         (.log js/console (str add-thing-type " override-map" override-map " " details))
-        ;(.log js/console (str add-thing-type " inline form details " details))
         ((toggle-hide-fn form) nil)  ; hide the form
         (msgs/fill :create-thing messages {:details details})
     )))

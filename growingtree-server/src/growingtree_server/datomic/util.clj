@@ -246,7 +246,9 @@
         thing-type (entity-keyword entity)
         numcomments-attr (keyword (str (name thing-type) "/" "numcomments"))]
     (prn "numcomments for thing " thing-id " count " numcomments " entity " numcomments-attr)
-    (assoc-in entity [numcomments-attr] (if (zero? numcomments) (rand-int 100) numcomments))))
+    ;(assoc-in entity [numcomments-attr] (if (zero? numcomments) (rand-int 100) numcomments))))
+    (assoc-in entity [numcomments-attr] numcomments)
+    ))
 
 
 ; ============================================================================

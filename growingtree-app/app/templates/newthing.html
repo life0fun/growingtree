@@ -308,10 +308,10 @@
 
 
   <!-- 
-    create new lecture form
+    create new lecture form, input fields has text name to be ided from domina.
   -->
   <div template="lecture" field="id:id">
-    <form class="form-horizontal lecture-form">
+    <form class="form-horizontal newthing-form lecture-form">
       <fieldset>
 
         <legend>Create lecture</legend>
@@ -359,26 +359,30 @@
           </div>
         </div>
 
-
+        <!-- http://jsfiddle.net/foo4u/HJHq8/light/ -->
         <div class="control-group">
           <label class="control-label" for="lecture-start">Start Time</label>
-          <div id="lecture-start-picker" class="input-append date">    
-            <input id="lecture-start" type="text" class="input-xlarge" placeholder="hh:mm:ss MM/dd/yyyy" data-format="hh:mm:ss MM/dd/yyyy">
-            <span class="add-on">
-              <i data-time-icon="icon-time" data-date-icon="icon-calendar">
-              </i>
-            </span>
+          <div class="controls">
+            <div id="lecture-start-picker" class="input-append">  
+              <input id="lecture-start" type="text" class="input-xlarge" placeholder="hh:mm:ss MM/dd/yyyy" data-format="hh:mm:ss MM/dd/yyyy">
+              <span class="add-on">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                </i>
+              </span>
+            </div>
           </div>
         </div>
 
         <div class="control-group">
           <label class="control-label" for="lecture-end">End Time</label>
-          <div id="lecture-end-picker" class="input-append date">    
-            <input id="lecture-end" type="text" class="input-xlarge" placeholder="hh:mm:ss MM/dd/yyyy" data-format="hh:mm:ss MM/dd/yyyy">
-            <span class="add-on">
-              <i data-time-icon="icon-time" data-date-icon="icon-calendar">
-              </i>
-            </span>
+          <div class="controls">
+            <div id="lecture-end-picker" class="input-append">    
+              <input id="lecture-end" type="text" class="input-xlarge" placeholder="hh:mm:ss MM/dd/yyyy" data-format="hh:mm:ss MM/dd/yyyy">
+              <span class="add-on">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                </i>
+              </span>
+            </div>
           </div>
         </div>
 

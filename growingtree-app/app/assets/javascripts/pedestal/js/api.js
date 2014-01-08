@@ -20,6 +20,10 @@ var toggleModal = function (id) {
 }
 
 // datetimepicker
-var datetimepicker = function(id) {
+var datetimepicker = function (id) {
   $("#" + id).datetimepicker();
+}
+
+var datetimepickerByThing = function (thingclz, id) {
+  $("." + thingclz + " #" + id).datetimepicker();
 }
