@@ -87,14 +87,15 @@
                  :upvote "" :like "" :share "" 
                 }
 
-    :comments {:grade "" :grade-form ""
+    :comments {:reply "" :reply-form ""
                :upvote "" :like "" :share "" 
               }
 
     :answer {:grade "" :grade-form ""
              :assignment ""
              :question ""
-             :upvote "" :like "" :share "" 
+             :comments ""
+             :upvote "" :like "" :share ""
             }
 
     :like {:origin "" :upvote ""
@@ -535,7 +536,7 @@
 
 
 ;;===========================================================================
-; create add comments input box 
+; show add comments input box, trigger by thing data emitter [:setup :x 1 :comments] 
 ; form id is the thing-id this comment's origin and thingroot
 ;;===========================================================================
 (defn add-comments-form

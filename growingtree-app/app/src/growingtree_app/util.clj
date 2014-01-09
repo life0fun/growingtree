@@ -37,7 +37,7 @@
 (defn format-time
   [unix-epoch]
   (let [m (js/moment (* 1000 unix-epoch))
-        time-str (.format m "h:mma ddd, MMM Do YYYY")]
+        time-str (.format m "hh:mm a ddd, MMM Do YYYY")]
     time-str))
 
 ; ret the keyword for thing attr

@@ -260,11 +260,11 @@
                 (assoc :answer/author author-id)
                 (util/to-datomic-attr-vals) 
                 (assoc :db/id (d/tempid :db.part/user)))
-        ;trans (submit-transact [entity])  ; transaction is a list of entity
+        trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
     (prn author-id " create answer entity " entity)
-    ;(prn "create answer trans " trans)
+    (prn "create answer trans " trans)
     entity))
 
 
@@ -306,9 +306,9 @@
                        (assoc :comments/thingroot answer-id)
                        (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
                        (assoc :db/id (d/tempid :db.part/user)))
-        ;trans (submit-transact [grade-e comments-e])  ; transaction is a list of entity
+        trans (submit-transact [grade-e comments-e])  ; transaction is a list of entity
       ]
     (newline)
     (prn " create grade entity " grade-e " comments " comments-e)
-    ;(prn "create grade trans " trans)
+    (prn "create grade trans for both answer and comments " trans)
     grade-e))

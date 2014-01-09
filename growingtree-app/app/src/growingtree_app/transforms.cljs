@@ -504,7 +504,7 @@
 
 ;;==================================================================================
 ; enable add comments input box on top of a list of all comments.
-; [:setup :lecture 1 :comments]
+; triggered by thing data emitter [:setup :lecture 1 :comments]
 ;;==================================================================================
 (def enable-add-comments
   "upon comments link clicked for any thing, display add comment dialog"

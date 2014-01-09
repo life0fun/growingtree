@@ -177,7 +177,6 @@
       (.log js/console (str "value thing node " rpath " qpath " qpath " view  " thing-view))
       ; thing template is attached at render path node, update it with new view map
       (templates/update-t r rpath thing-view)
-      ;(js/datetimepicker "assignto-end-picker")
       )))
 
 

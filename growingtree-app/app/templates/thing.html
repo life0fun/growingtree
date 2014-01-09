@@ -893,10 +893,11 @@
         </li>
 
         <!-- comments -->
+        <!-- comments -->
         <li class="first">
           <div field="class:comments-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">comments</a>
+              <a class="option active" field="content:numcomments">comments</a>
             </span>
           </div>
         </li>
@@ -1025,19 +1026,18 @@
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
 
-      <p class="title">
+      <!-- <p class="title">
         <a class="title" field="content:thing-title,href:entryhref"></a>
         <span class="domain"></span>
-      </p>
-
-      <p class="tagline">
+      </p> -->
+      
+      <p class="subtitle">
         <a field="content:author-name"></a>
-        <span class="userattrs"></span>
-        <span class="score dislikes">1021 points</span>
-        <span> liked it </span>
-        <span field="content:comments-time">2 hours</span>
+        <span class="tagline"> liked it </span>
+        <span field="content:like-time">2 hours</span>
         <span> ago </span>
       </p>
+
 
       <p class="title">
         <a class="title" field="content:origin-title,href:originhref"></a>

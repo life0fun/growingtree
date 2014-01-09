@@ -265,7 +265,7 @@
                 actiontransforms (thing-navpath-transforms thing-type render-path thing-map)
                 add-comments-box (add-comments-transforms render-path qpath)
                ]
-            (.log js/console (str "node-create and value thing data at render-path " render-path " " navpath))
+            (.log js/console (str "node-create and value thing data at path " render-path " " navpath))
             ; XXX the meat is create and value node at render-path [:header :child 17592186045497]
             (concat [ [:node-destroy render-path]
                       [:node-create render-path :map]
@@ -532,14 +532,17 @@
 
 ;;==================================================================================
 ; upon nav to comments, ask render to display add comments box on filtered details
-; node path [:setup :lecture 1 :comments]
+; node path [:setup :lecture 1 :comments]  Always destroy before create !!!
 ;;==================================================================================
 (defn add-comments-transforms
   [render-path qpath]
   (let [filtered-hd (first render-path)
         nxt (last qpath)]
+    (.log js/console (str "add comments transforms " qpath nxt filtered-hd render-path))
     (if (and (= filtered-hd :header) (= nxt :comments))
-      [[:node-create (concat [:setup] qpath)]]
+      [ [:node-destroy (concat [:setup] qpath)]
+        [:node-create (concat [:setup] qpath)]
+      ]
       [])))
 
 

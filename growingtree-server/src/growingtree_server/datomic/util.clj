@@ -221,7 +221,9 @@
         thing-type (entity-keyword entity)
         upvote-attr (keyword (str (name thing-type) "/" "upvote"))]
     (prn "upvotes for thing " thing-id " count " upvotes " entity " upvote-attr)
-    (assoc-in entity [upvote-attr] (if (zero? upvotes) (rand-int 100) upvotes))))
+    ;(assoc-in entity [upvote-attr] (if (zero? upvotes) (rand-int 100) upvotes))
+    (assoc-in entity [upvote-attr] upvotes)
+    ))
 
 
 ; ============================================================================
@@ -246,7 +248,6 @@
         thing-type (entity-keyword entity)
         numcomments-attr (keyword (str (name thing-type) "/" "numcomments"))]
     (prn "numcomments for thing " thing-id " count " numcomments " entity " numcomments-attr)
-    ;(assoc-in entity [numcomments-attr] (if (zero? numcomments) (rand-int 100) numcomments))))
     (assoc-in entity [numcomments-attr] numcomments)
     ))
 
