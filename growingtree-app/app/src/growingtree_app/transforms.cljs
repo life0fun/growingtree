@@ -220,6 +220,33 @@
                       (p/put-message input-queue m)))))
   ))
 
+
+; ------------------------------------------------------------------------------------
+; thing title clicked, we need to show current thing in header
+; [:transform-enable [:nav :courses 17592186045496 :title] :title
+; ------------------------------------------------------------------------------------
+(defmethod enable-thing-nav  ; title, qpath [:course 1 :title]
+  :title
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:parent 1 :title]
+        thing-id (first (reverse (butlast navpath)))
+        thing-type (first navpath)
+        thing-map ((msgs/param :thing-map) (first messages))
+        title-link (dom/by-id (str "title-" thing-id))
+       ]
+    (.log js/console (str "enable thing nav title " path ))
+    ; click fn will doseq put msg to input-queue
+    (de/listen! title-link
+                :click 
+                (fn [evt]
+                  (let [; deprected ! not used. emitter already set it up.
+                        new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
+                    (.log js/console (str thing-type  " nav to " next-thing " msgs " messages))
+                    (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
+                      (p/put-message input-queue m)))))
+  ))
+
+
 ; ------------------------------------------------------------------------------------
 ; enable upvote event handler, defined in thing-type template and entity-view
 ; [:transform-enable [:nav :courses 17592186045496 :upvote] :upvote
@@ -256,10 +283,6 @@
         assignto-link (dom/by-class link-clz)
        
         assign-form-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id :assign-form ""))))
-        ; can use class selector directly as form-clz includes thing-id
-        ; toggle-fn (-> (entity-view/assign-form-sel thing-id)
-        ;               (dx/xpath)
-        ;               (newthing-form/toggle-hide-fn assign-form-clz))
         toggle-fn (-> (entity-view/div-form-sel thing-id "assign-form")
                       (newthing-form/toggle-hide-fn assign-form-clz))
 
@@ -275,11 +298,6 @@
   [r [_ path transkey messages] input-queue]
   (let [thing-id (first (reverse (butlast path)))
         thing-map ((msgs/param :thing-map) (first messages))
-        
-        ; form (-> (entity-view/assign-form-sel thing-id)
-        ;          (dx/xpath))
-        form (entity-view/div-form-sel thing-id "assign-form")
-
         override-map {:assignment/origin (:db/id thing-map)
                       :assignment/title (:question/title thing-map)
                       :assignment/tag (:question/tag thing-map)
@@ -287,6 +305,7 @@
                       :assignment/end (.unix (.add (js/moment) "hours" 1))
                       :assignment/type (keyword (:question/type thing-map))
                      }
+        form (entity-view/div-form-sel thing-id "assign-form")
        ]
     (.log js/console (str "enable thing nav assign-form " thing-id path))
     (newthing-form/handle-inline-form-submit :assignment 
@@ -298,7 +317,6 @@
 ; ----------------------------------------------------------------------------------
 ; submit answer and answer-form
 ; ----------------------------------------------------------------------------------
-
 ; [:nav :assignment 17592186045431 :submit-answer] :submit-answer
 (defmethod enable-thing-nav  ; submit-answer, defined in thing-question and entity-view
   :submit-answer

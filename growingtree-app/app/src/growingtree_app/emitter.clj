@@ -264,6 +264,7 @@
                 render-path (thing-navpath->renderpath (:navpath thing-map))
                 actiontransforms (thing-navpath-transforms thing-type render-path thing-map)
                 add-comments-box (add-comments-transforms render-path qpath)
+                details-box (add-details-box render-path qpath)
                ]
             (.log js/console (str "node-create and value thing data at path " render-path " " navpath))
             ; XXX the meat is create and value node at render-path [:header :child 17592186045497]
@@ -271,6 +272,7 @@
                       [:node-create render-path :map]
                       [:value render-path {:qpath qpath :thing-map thing-map}] ]
                     add-comments-box
+                    details-box
                     actiontransforms)
         ))
         things-vec)
@@ -368,9 +370,9 @@
         qpath (rest nav-path)
         messages [{msgs/topic [:nav :path] 
                    msgs/type :set-nav-path
-                   :path (vec hdpath)    ; path is current path
-                   :qpath (vec qpath)    ; qpath is next path with query filter
-                   :rpath (vec render-path)}   ;rpath is thing node template attached to
+                   :path (vec hdpath)    ; path is current path [:course 1 :course]
+                   :qpath (vec qpath)    ; qpath is next to [:course 1 :lecture]
+                   :rpath (vec render-path)}   ; [:main :course 1 :lecture 2]
                  ]
         ]
     ;(.log js/console (str "thing-nav-messages " messages))
@@ -545,6 +547,21 @@
       ]
       [])))
 
+
+;;==================================================================================
+; upon title clicked, nav to details pages, ask render to display details section.
+; node path [:setup :lecture 1 :title]  Always destroy before create !!!
+;;==================================================================================
+(defn add-details-box
+  [render-path qpath]
+  (let [filtered-hd (first render-path)
+        nxt (last qpath)]
+    (.log js/console (str "add details box " qpath nxt filtered-hd render-path))
+    (if (and (= filtered-hd :header) (= nxt :title))
+      [ [:node-destroy (concat [:details] qpath)]
+        [:node-create (concat [:details] qpath)]
+      ]
+      [])))
 
 ;;
 ;; emitter when getting sse-data, dispatch by sse event type

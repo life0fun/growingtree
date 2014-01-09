@@ -64,7 +64,9 @@
              :assignto "" :assign-form ""
             }
 
-    :lecture {:course "" 
+    :lecture {:author ""
+              :title ""
+              :course "" 
               :question "" :add-question " hide" 
               :comments ""
               :enrollment "" :add-enrollment " hide" 
@@ -354,8 +356,10 @@
         value-map 
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :thing-content (str "- " (thing-attr-val thing-map thing-type "content"))
-           :entryhref "#"
+           :entryhref "javascript:void(0);"
+           :title-id (str "title-" (:db/id thing-map))
            :author-name (get-in thing-map [author-attr 0 :person/title])
+           :author-class author-name
            :upvote upvotes
            :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
            :seqno (thing-attr-val thing-map thing-type "seqno")
