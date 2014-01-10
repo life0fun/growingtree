@@ -290,6 +290,24 @@
     thing-div))
 
 
+; for details by title, show course template from newthing.html
+; [:details :lecture 17592186045430 :title 17592186045430]
+(defmethod thing-node-html
+  :title
+  [rpath render thing-idx]
+  (let [thing-id (last rpath)
+        thing-type (second rpath)
+        ; slice templ thing-parent, thing-child, from app templates
+        templ (thing-type templates)
+        ; add the rendered template attached to rpath node
+        html (templates/add-template render rpath templ)
+        
+        templ-map {:id thing-id}
+        thing-div (html templ-map)
+        ]
+    (.log js/console (str "thing-node-html " rpath " " thing-type))
+    thing-div))
+
 ;;===========================================================================
 ; xhr response data stored into [:data navpath], thing data emitter
 ; [:node-create render-path :map] [:value render-path entity-map]
@@ -516,6 +534,20 @@
     value-map))
 
 
+; --------------------------------------------------------------------------
+; thing details value, we are using newthings form
+; --------------------------------------------------------------------------
+(defmethod thing-template-value
+  :title
+  [thing-type thing-map]
+  (let [value-map 
+          {
+          }
+        ]
+    (.log js/console (str "template value " origin-title))
+    value-map))
+
+
 ;;===========================================================================
 ; value a node [:value [:filtered :co] nil {thing-map},  dispatch by thing-type
 ;;===========================================================================
@@ -537,6 +569,19 @@
         ]
     (.log js/console (str "update thing node value " rpath " new-value " thing-map))
     thing-view))
+
+
+; template value for thing details under qpath title
+(defmethod thing-value-view
+  :title
+  [r rpath qpath thing-map input-queue]
+  (let [thing-id (last rpath)
+        thing-type (second (reverse rpath))
+        
+        thing-val (thing-template-value thing-type thing-map)
+        ]
+    (.log js/console (str "update thing node value " rpath " new-value " thing-map))
+    thing-val))
 
 
 ;;===========================================================================

@@ -39,25 +39,8 @@
 ;;==================================================================================
 ;; XXX we specific tranform msg topic and type here so response data got dispatch 
 ;; to the right locaton in data model directly.
+; we make 2 requests by combining cur path for header and next path in qpath
 ;;==================================================================================
-; (defn request-navpath-things
-;   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
-;   [inputs]  ; request path things by thing-type
-;   (let [msg (:message inputs)  ; get the active msg
-;         activepath (:path msg)   ; [:all 0 :children] or [:parent 1 :children] or [:parent 1 :parent]
-        
-;         thing-type (last activepath)
-;         ; topic = [:data :all 0 :parent], store data in location [:data :parent 1 :children]
-;         msg-topic (concat [:data] activepath)
-;         msg-type :set-thing-data
-;         body {:msg-topic msg-topic :msg-type msg-type 
-;               :thing-type thing-type :path activepath}]
-;     ;{:msg-topic (:data :all 0 :children), :msg-type :set-thing-data, :thing-type :children, :path [:all 0 :children]} 
-;     (.log js/console (str "effect request nav path things " body))
-;     (if thing-type
-;       ;[{msgs/topic [:server] msgs/type thing-type (msgs/param :body) body}])))
-;       [{msgs/topic [:server] msgs/type :request-things (msgs/param :body) body}])))
-
 (defn request-navpath-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [inputs]  ; request path things by thing-type

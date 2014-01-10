@@ -170,6 +170,17 @@
     search))
 
 
+; get things by field, by title
+; qpath [:lecture 17592186045430 :title]
+(defmethod get-things
+  :title
+  [type qpath details]
+  (let [thing-id (second (reverse qpath))
+        entity (dda/find-entity-by-id thing-id qpath)]
+    (prn "peer get title --> " qpath entity)
+    [entity]))
+
+
 ;;======================================================
 ;; add things multi method
 ;; watch non ref-ed attr entity. :transact/bad-data Unable to resolve entity: rich

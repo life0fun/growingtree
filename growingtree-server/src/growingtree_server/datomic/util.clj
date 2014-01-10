@@ -142,9 +142,8 @@
         dst (last qpath)
         e (get-entity eid)
         origin-e (wildcard-origin-ref-entity e src dst)]
-    (prn "orgin entity vec " origin-e)
-    (when (seq origin-e)
-      (prn "entity origin namespace " (entity-keyword (first origin-e)) " dst " dst " origin " (first origin-e)))
+    ; (when (seq origin-e)
+    ;   (prn "entity origin namespace " (entity-keyword (first origin-e)) " dst " dst " origin " (first origin-e)))
     (cond
       ; head thing [:course 1 :course], however, comments can ref to comments.
       (= src dst) [e]
@@ -194,14 +193,18 @@
 
 ; ============================================================================
 ; add navpath for each entity, so it knows who is its parent in the display tree
+; the thing-map must be a map after select-key schema. Raw datomic datom entity not working!!!
 ; this must be the last to execute as it added non-namespaced attr to thing.
 ; ============================================================================
 (defn add-navpath
-  [entity navpath]
-  (let [thing-id (:db/id entity)  ; just append thing-id to the end of navpath
-        navpath (vec (concat navpath [thing-id]))
+  [thing-map qpath]
+  (let [thing-id (:db/id thing-map)  ; just append thing-id to the end of navpath
+        navpath (vec (concat qpath [thing-id]))
+        nthing (assoc-in thing-map [:navpath] navpath)
        ]
-    (assoc-in entity [:navpath] navpath)))
+    (prn "add navpath new thing-map --- " qpath nthing)
+    nthing))
+
 
 ; ============================================================================
 ; get no of likes for certain entity, and add it as upvote attr to the entity
@@ -220,7 +223,7 @@
         upvotes (upvotes thing-id)
         thing-type (entity-keyword entity)
         upvote-attr (keyword (str (name thing-type) "/" "upvote"))]
-    (prn "upvotes for thing " thing-id " count " upvotes " entity " upvote-attr)
+    (prn "add upvote attr " thing-id " count " upvotes " entity " upvote-attr)
     ;(assoc-in entity [upvote-attr] (if (zero? upvotes) (rand-int 100) upvotes))
     (assoc-in entity [upvote-attr] upvotes)
     ))
@@ -247,7 +250,7 @@
         numcomments (numcomments thing-id)
         thing-type (entity-keyword entity)
         numcomments-attr (keyword (str (name thing-type) "/" "numcomments"))]
-    (prn "numcomments for thing " thing-id " count " numcomments " entity " numcomments-attr)
+    (prn "add numcomments " thing-id " count " numcomments " entity " numcomments-attr)
     (assoc-in entity [numcomments-attr] numcomments)
     ))
 

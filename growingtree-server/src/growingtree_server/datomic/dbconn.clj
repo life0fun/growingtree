@@ -206,7 +206,7 @@
 (defn show-entity-by-id
   "show all attrs and values of the entity by id"
   [eid]
-  (let [e (d/touch (d/entity (get-db) eid))  ; touch to reify all attributes.
+  (let [e (get-entity eid)  ; touch to reify all attributes.
         attrs (keys e)]
     (prn "--------- " eid " ----------------")
     (doseq [a attrs]
@@ -412,6 +412,12 @@
     schema-map)))
 
 
+; get the schema for thing type
+(defn get-schema
+  [thing-type]
+  (assoc (list-attr thing-type) :db/id :db.type/id))
+
+
 ; find from db installed attribute
 (defn has-attribute?
   "Does database have an attribute named attr-name?"
@@ -468,6 +474,8 @@
                 (get-db))
         ]
     (prn "find schema attra " attr-types)))
+
+
 
 
 ;;==========================================================================

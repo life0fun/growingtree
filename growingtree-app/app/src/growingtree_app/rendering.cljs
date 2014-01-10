@@ -180,6 +180,24 @@
       )))
 
 
+; we are using templates in newthing
+(defn value-thing-details
+  [r [op rpath oldv newv] input-queue]
+  (when newv
+    (let [; qpath is nav to next thing, used for enable add subthing.
+          {:keys [thing-map qpath]} newv
+          thing-id (last rpath)
+          thing-type (second (reverse rpath))
+          ; thing-view 
+          ;   (newthing-form/thing-details-view r rpath qpath thing-map input-queue)
+          thing-view {:lecture-title "hello"}
+         ]
+      (.log js/console (str "value thing details " rpath " qpath " qpath " view  " thing-view))
+      ; thing template is attached at render path details, update it with new view map
+      (templates/update-t r rpath thing-view)
+      )))
+
+
 (defn del-thing-node
   [r [op rpath] input-queue]
   (let [thingid (last rpath)
@@ -268,6 +286,25 @@
       (.log js/console (str "child tree " thing))
       (dom/append! parent-node thing)
       (entity-view/thing-node-add-class thing-id (str "offset" offset)))))
+
+
+
+; title(details) of a thing takes the div block of new-things in thing-details template
+; rpath [:details :lecture 17592186045430 :title 17592186045430] :map]
+(defn append-thing-details
+  "build a sub tree whose root is a filtered child node"
+  [r [op rpath] input-queue]
+  (when-not (js/isNaN (js/parseInt (last rpath) 10)) ; isNaN to check number type.
+    (let [thing-id (last rpath)
+          thing (entity-view/thing-node-html rpath r 0)
+         ]
+      ; render thing-details template if it is not rendered yet
+      (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
+      ; [:filtered :question 17592186045432 :lecture 17592186045430]
+      (.log js/console (str "append thing details " thing-id rpath))
+      (dom/append! (dom/by-id "new-subthings") thing)
+      ;(entity-view/thing-node-add-class thing-id (str "offset" offset))
+      )))
 
 
 (defn del-thing-nav-node
@@ -359,8 +396,12 @@
     [:node-create [:filtered :* :* :* :* :**] append-filtered-child-tree]
     [:value       [:filtered :* :* :* :* :**] value-thing-node]
 
+    ; the details box 
+    [:node-create [:details :* :* :* :*] append-thing-details]
+    [:value       [:details :* :* :* :*] value-thing-details]
 
-    ;============== add comments [:setup :lecture 1 :comments] ============
+
+    ;============== add comments box [:setup :lecture 1 :comments] ============
     [:node-create [:setup :* :* :*] transforms/enable-add-comments]
 
     ;; ============== other thing nav links setup and submit handling ============

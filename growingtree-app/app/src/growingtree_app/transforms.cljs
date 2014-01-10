@@ -232,18 +232,18 @@
         thing-id (first (reverse (butlast navpath)))
         thing-type (first navpath)
         thing-map ((msgs/param :thing-map) (first messages))
-        title-link (dom/by-id (str "title-" thing-id))
+        next-thing (str (name transkey) "-" thing-id)
+        title-link (dom/by-id next-thing)
+        click-fn (fn [evt]
+                   (let [; deprected ! not used. emitter already set it up.
+                         new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
+                     (.log js/console (str thing-type  " nav to " next-thing " msgs " messages))
+                     (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
+                       (p/put-message input-queue m))))
        ]
     (.log js/console (str "enable thing nav title " path ))
     ; click fn will doseq put msg to input-queue
-    (de/listen! title-link
-                :click 
-                (fn [evt]
-                  (let [; deprected ! not used. emitter already set it up.
-                        new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
-                    (.log js/console (str thing-type  " nav to " next-thing " msgs " messages))
-                    (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
-                      (p/put-message input-queue m)))))
+    (de/listen! title-link :click click-fn)
   ))
 
 
@@ -343,9 +343,7 @@
   [r [_ path transkey messages] input-queue]
   (let [thing-id (first (reverse (butlast path)))
         thing-map ((msgs/param :thing-map) (first messages))
-        
         form (entity-view/div-form-sel thing-id "answer-form")
-
         override-map {:answer/origin (:db/id thing-map)
                       :answer/start (.unix (js/moment))  ; unix epoch in seconds
                      }

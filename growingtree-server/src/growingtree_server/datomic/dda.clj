@@ -18,7 +18,8 @@
             [growingtree-server.datomic.course :as course]
             [growingtree-server.datomic.assign :as assign]
             [growingtree-server.datomic.comments :as comments]
-            [growingtree-server.datomic.timeline :as timeline]))
+            [growingtree-server.datomic.timeline :as timeline]
+            [growingtree-server.datomic.util :as util]))
   
 ;
 ; http://blog.datomic.com/2013/05/a-whirlwind-tour-of-datomic-query_16.html
@@ -120,17 +121,35 @@
       (dbconn/list-attr))))
 
 
+;;==============================================================
+; get details of individual entity
+;;==============================================================
+
 ; show entity by id
 (defn show-entity-by-id
   "show all attrs and values of the entity by id"
   [eid]
   (dbconn/show-entity-by-id eid))
 
-; get entities by attribute and vaule
+
+(defn find-entity-by-id
+  "find individual entity by its id"
+  [eid qpath]
+  (let [thing-type (first qpath)
+        schema (dbconn/get-schema thing-type)
+        e (-> (dbconn/get-entity eid)
+              (select-keys (keys schema))
+              (util/add-navpath qpath))
+       ]
+    e))
+
+
+; find all entities by specific attribute and vaule
 (defn find-entities
-  "get entities by attribute and value"
+  "find entities by specific attribute and value"
   [attr val]
   (dbconn/find-entities attr val))
+
 
 ;;==============================================================
 ;; family related, should use multi-method to dispatch

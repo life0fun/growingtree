@@ -338,3 +338,11 @@
       (doseq [m new-msgs]
         (p/put-message input-queue m)))))
 
+
+;--------------------------------------------------------------------
+; 
+; nav path is [:nav :parent 1], render path is [:main/:header/:filter]
+;--------------------------------------------------------------------
+(defn thing-details-view
+  [r rpath qpath thing-map input-queue]
+  (prn "thing details view "))

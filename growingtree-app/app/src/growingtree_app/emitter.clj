@@ -257,13 +257,12 @@
                 id (:db/id thing-map)  ; get :db/id as each node render path id
                 thing-type (last input-path)
                 
-                ; [:main :parent 12 :child 34], pass render-path to transforms emit
-                ; render-path (navpath->renderpath navpath id)
-
-                ; :navpath ["all" 0 "course" 17592186045425], or  ["course" 17592186045425 "comments" 17592186045433], or ["course" 17592186045425 "course" 17592186045425]
+                ; thing-map has a :navpath filled by (util/add-navpath % qpath), 
+                ; navpath tells who is the parent of this entity during navigation.
+                ; :navpath ["all" 0 "course" 1], or  ["course" 1 "comments" 2], or ["course" 1 "course" 2]
                 render-path (thing-navpath->renderpath (:navpath thing-map))
                 actiontransforms (thing-navpath-transforms thing-type render-path thing-map)
-                add-comments-box (add-comments-transforms render-path qpath)
+                comments-box (add-comments-box render-path qpath)
                 details-box (add-details-box render-path qpath)
                ]
             (.log js/console (str "node-create and value thing data at path " render-path " " navpath))
@@ -271,25 +270,12 @@
             (concat [ [:node-destroy render-path]
                       [:node-create render-path :map]
                       [:value render-path {:qpath qpath :thing-map thing-map}] ]
-                    add-comments-box
+                    comments-box
                     details-box
                     actiontransforms)
         ))
         things-vec)
       ))))
-
-
-; fill the render dispatch type for render node create to render proper template.
-; XXX render path must be vector, otherwise, render/new-id! fail
-; Deprecated!!! each thing will have its own navpath
-; (defn navpath->renderpath
-;   [navpath thing-id]  ; thing-id is passed in, to avoid [:all 0 :course] case.
-;   (let [[parent _ child] navpath]
-;     (cond 
-;       (= parent :all) (vec (concat [:main] navpath [thing-id]))
-;       (= parent child) (vec (concat [:header] (butlast navpath))) ; [:header :parent 1]
-;       (= child :id) (vec (concat [:detail] (butlast navpath)))  ; [:detail :parent 1]
-;       :else (vec (concat [:filtered] navpath [thing-id]))))) ; [filtered :thing id :next-thing id]
 
 
 ; thing-qpath record how we get to current thing. 
@@ -304,13 +290,19 @@
     (.log js/console (str "keyword thing navpath " navpath knavpath))
     (assoc-in thing-map [:navpath] knavpath)))
 
+
+; prefix main, header, filtered to nav path, form the render path for render to dispatch.
+; thing-map has a :navpath filled by (util/add-navpath % qpath), 
+; navpath tells who is the parent of this entity during navigation.
+; :navpath ["all" 0 "course" 1], or  ["course" 1 "comments" 2], or ["course" 1 "course" 2]
 (defn thing-navpath->renderpath
   [thing-navpath]
-  (.log js/console (str " thing navpath " thing-navpath))
+  (.log js/console (str "thing navpath to renderpath " thing-navpath))
   (let [[parent _ child] (take 3 thing-navpath)]
     (cond 
       (= parent :all) (vec (concat [:main] thing-navpath))
       (= parent child) (vec (concat [:header] (take 2 thing-navpath))) ; [:header :parent 1]
+      (= child :title) (vec (concat [:details] thing-navpath))
       :else (vec (concat [:filtered] thing-navpath))))) ; [filtered :thing id :next-thing id]
 
 
@@ -349,6 +341,15 @@
           )))
       navpaths)))
 
+
+
+; when click thing title, qpath [:lecture 1 :title], thing type is :title, not a real thing.
+; thing attr does not have navpath actionkeys. ret empty
+(defmethod thing-navpath-transforms
+  :title
+  [thing-type render-path entity-map]
+  ; thing attr does not have action keys, ret list of empty transforms.
+  [])
 
 
 ; ------------------------------------------------------------------------
@@ -536,12 +537,12 @@
 ; upon nav to comments, ask render to display add comments box on filtered details
 ; node path [:setup :lecture 1 :comments]  Always destroy before create !!!
 ;;==================================================================================
-(defn add-comments-transforms
+(defn add-comments-box
   [render-path qpath]
   (let [filtered-hd (first render-path)
         nxt (last qpath)]
     (.log js/console (str "add comments transforms " qpath nxt filtered-hd render-path))
-    (if (and (= filtered-hd :header) (= nxt :comments))
+    (if (and (= filtered-hd :header) (= nxt :comments)) ; only display comments box when nav to comments.
       [ [:node-destroy (concat [:setup] qpath)]
         [:node-create (concat [:setup] qpath)]
       ]

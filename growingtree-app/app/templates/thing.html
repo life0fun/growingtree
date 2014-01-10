@@ -23,7 +23,7 @@
     <div class="entry unvoted" template="thing-entry">
       
       <p class="title">
-        <a class="title" field="content:thing-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
         <span class="domain"></span>
       </p>
 
@@ -152,7 +152,7 @@
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
       <p class="title">
-        <a class="title" field="content:thing-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
         <span class="domain"></span>
       </p>
 
@@ -298,11 +298,11 @@
 
       <p class="subtitle">
         <span class="tagline"> Offered by </span>
-        <a field="content:author-name"></a>
+        <a field="content:author-name,class:author-class"></a>
       </p>
 
       <p class="title">
-        <a class="title" field="content:thing-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
         <span class="domain"></span>
       </p>
 
@@ -614,7 +614,7 @@
     <div class="entry unvoted" template="thing-entry">
 
       <p class="title">
-        <a class="title" field="content:thing-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
         <span class="domain"></span>
       </p>
       <p class="subtitle">
@@ -736,13 +736,13 @@
     <div class="entry unvoted" template="thing-entry">
       <p class="subtitle">
         <span class="tagline"> assigned by </span>
-        <a field="content:author-name"></a> 
+        <a field="content:author-name,class:author-class"></a> 
         <span class="tagline"> at </span>
         <span field="content:start"></span>
       </p>
  
       <p class="title">
-        <a class="title" field="content:thing-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
         <span class="domain"></span>
       </p>
 
@@ -856,13 +856,13 @@
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
       <p class="subtitle">
-        <a field="content:author-name"></a>
+        <a field="content:author-name,class:author-class"></a>
         <span class="tagline"> submitted answer to </span>
-        <a class="subtitle" field="content:origin-title,href:entryhref"></a>
+        <a class="subtitle" field="content:origin-title,href:entryhref,id:origin-title-id"></a>
       </p>
 
       <p class="title">
-        <a class="title" field="content:thing-title,href:entryhref"></a>
+        <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
       </p>
 
       <p class="subtitle">  
@@ -960,7 +960,7 @@
     <div class="entry unvoted" template="thing-entry">
 
       <p class="tagline">
-        <a field="content:author-name"></a>
+        <a field="content:author-name,class:author-class"></a>
         <span class="userattrs"></span>
         <span class="score dislikes">1021 points</span>
         <span field="content:comments-time">2 hours</span> ago
@@ -1025,14 +1025,9 @@
 
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
-
-      <!-- <p class="title">
-        <a class="title" field="content:thing-title,href:entryhref"></a>
-        <span class="domain"></span>
-      </p> -->
-      
+  
       <p class="subtitle">
-        <a field="content:author-name"></a>
+        <a field="content:author-name,class:author-class"></a>
         <span class="tagline"> liked it </span>
         <span field="content:like-time">2 hours</span>
         <span> ago </span>
@@ -1040,7 +1035,7 @@
 
 
       <p class="title">
-        <a class="title" field="content:origin-title,href:originhref"></a>
+        <a class="title" field="content:origin-title,href:originhref,id:origin-title-id"></a>
         <span class="domain"></span>
       </p>
 
@@ -1083,17 +1078,17 @@
 
     <div class="entry unvoted" template="thing-entry">
       <p class="title">
-        <a field="content:author-name"></a>
+        <a field="content:author-name,class:author-class"></a>
         <span class="tagline"> created </span>
         <a class="title" field="content:type,href:thingref"></a>
       </p>
 
       <p class="title">
-        <a class="title" field="content:origin-title,href:entryhref"></a>
+        <a class="title" field="content:origin-title,href:entryhref,id:origin-title-id"></a>
       </p>
 
       <p class="tagline">  
-        <span> At</span>
+        <span> At </span>
         <span field="content:txtime"></span>
       </p>
 
@@ -1145,7 +1140,7 @@
       </p>
 
       <p class="title">
-        <a class="title" field="content:origin-title,href:entryhref"></a>
+        <a class="title" field="content:origin-title,href:entryhref,id:origin-title-id"></a>
       </p>
 
       <ul class="flat-list buttons">
