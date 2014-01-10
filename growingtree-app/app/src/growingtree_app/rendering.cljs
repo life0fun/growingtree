@@ -15,6 +15,7 @@
             [growingtree-app.modals :as modals]
             [growingtree-app.util :as util]
             [growingtree-app.entity-view :as entity-view]
+            [growingtree-app.newthing-form :as newthing-form]
             [growingtree-app.selector :as sel])
   (:require-macros [growingtree-app.html-templates :as html-templates]))
 
@@ -188,9 +189,8 @@
           {:keys [thing-map qpath]} newv
           thing-id (last rpath)
           thing-type (second (reverse rpath))
-          ; thing-view 
-          ;   (newthing-form/thing-details-view r rpath qpath thing-map input-queue)
-          thing-view {:lecture-title "hello"}
+          thing-view 
+            (newthing-form/thing-details-view r rpath qpath thing-map input-queue)
          ]
       (.log js/console (str "value thing details " rpath " qpath " qpath " view  " thing-view))
       ; thing template is attached at render path details, update it with new view map
@@ -323,13 +323,15 @@
 (defn create-thing-page
   [r [op rpath] input-queue]
   (let [thing-type (last rpath)
-        id (render/new-id! r rpath)   ; new id for [::create :course]
+        
         parent (dom/by-id "main")    ; put the template
-        templ (thing-type templates)
-        html (templates/add-template r rpath templ)
-        divcode (html {:id id})]
-    (.log js/console (str "render create thing page at " rpath " type " thing-type
-                          " id " id " " (render/get-id r rpath)))
+        divcode (newthing-form/add-thing-form thing-type r rpath)
+        ; id (render/new-id! r rpath)   ; new id for [::create :course]
+        ; templ (thing-type templates)
+        ; html (templates/add-template r rpath templ)
+        ; divcode (html (merge {:id id} (thing-type ))
+       ]
+    (.log js/console (str "render create thing page at " rpath " type " thing-type))
     (dom/destroy-children! parent)
     (dom/append! parent divcode)))
 

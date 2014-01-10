@@ -66,7 +66,7 @@
 ;;==================================================================================
 (def thing-input-map
   {
-    :parent {:person/title "person-name"
+    :parent {:person/title "person-title"
              :person/lname "person-lname"
              :person/address "person-address"
              :person/email "person-email"
@@ -76,7 +76,7 @@
              :person/gender "person-type"
             }
 
-    :child { :person/title "person-name"
+    :child { :person/title "person-title"
              :person/lname "person-lname"
              :person/address "person-address"
              :person/email "person-email"
@@ -86,7 +86,7 @@
              :person/gender "person-type"
             }
 
-    :family {:family/title "family-name"
+    :family {:family/title "family-title"
              :family/parent "family-parent"
              :family/child "family-child"
              :family/address "family-address"
@@ -166,6 +166,54 @@
               }
   })
 
+; a mapping defines thing input field text value
+(def thing-input-value
+  {
+    :person {:person-title "user name..."
+             :person-lname "user last name..."
+             :person-phone "user phone..."
+             :person-email "user email..."
+             :person-url   "user facebook id, twitter id, etc"
+             :person-im "Instant Messenger Id"
+             :person-address "users address "
+             :person-status "active"
+            }
+
+    :course {:course-title "the title of course ..."
+             :course-author "the author, default to current user"
+             :course-content "brief content of the this course"
+             :course-url "growingtrees.com"
+             :course-email "course@group.growingtrees.com"
+             :course-wiki "course/wiki"
+            }
+
+    :lecture {:lecture-title "the title of lecture ..."
+             :lecture-author "the author, default to current user"
+             :lecture-course "course title this lecture belong to, default to current course"
+             :lecture-content "brief content of the this lecture"
+             :lecture-start "hh:mm:ss MM/dd/yyyy"
+             :lecture-end "hh:mm:ss MM/dd/yyyy"
+             :lecture-seqno "lecture sequence No."
+             :lecture-url "growingtrees.com"
+             :lecture-email "lecture@group.growingtrees.com"
+             :lecture-wiki "lecture/wiki"
+            }
+
+    :question {:question-title "the title of question ..."
+             :question-author "the author, default to current user"
+             :question-content "brief content of the this question"
+             :question-url "growingtrees.com"
+             :question-difficulty "question difficulty level"
+             :question-tag "tags..."
+            }
+
+    :group {:group-title "the title of group ..."
+             :group-author "the admin user of the group, default to current user" 
+             :group-email "email for the group"
+             :group-url "growingtrees.com/group"
+             :group-wiki "group wiki page"
+            }
+  })
 
 ;;==================================================================================
 ;; submt fn for new thing form save btn, called from submit action transoform event
@@ -203,12 +251,11 @@
 (defn add-thing-form
   "instantiate new thing form for thing-type, return div code to be appended to parent"
   [add-thing-type r path]
-  (let [thing-type (last path)
-        id (render/new-id! r path)   ; new id for []
-        
+  (let [id (render/new-id! r path)   ; new id for []
         templ (add-thing-type templates)
         html (templates/add-template r path templ)
-        divcode (html {:id id})
+        thing-value (add-thing-type thing-input-value)
+        divcode (html (merge {:id id} thing-value))
        ]
     (.log js/console (str "add thing form at " path " type " add-thing-type))
     divcode))
@@ -340,9 +387,49 @@
 
 
 ;--------------------------------------------------------------------
-; 
 ; nav path is [:nav :parent 1], render path is [:main/:header/:filter]
 ;--------------------------------------------------------------------
-(defn thing-details-view
+(defmulti thing-details-view
+  (fn [r rpath qpath thing-map input-queue]
+    (second (reverse rpath))))
+
+
+(defmethod thing-details-view
+  :default
   [r rpath qpath thing-map input-queue]
-  (prn "thing details view "))
+  (let [thing-type (second (reverse rpath))
+        thing-keys (keys (thing-type thing-input-value))
+        thing-view {}
+       ]
+    (prn "thing details view " thing-view)
+    thing-view))
+
+:lecture {:lecture-title "the title of lecture ..."
+             :lecture-author "the author, default to current user"
+             :lecture-course "course title this lecture belong to, default to current course"
+             :lecture-content "brief content of the this lecture"
+             :lecture-start "hh:mm:ss MM/dd/yyyy"
+             :lecture-end "hh:mm:ss MM/dd/yyyy"
+             :lecture-seqno "lecture sequence No."
+             :lecture-url "growingtrees.com"
+             :lecture-email "lecture@group.growingtrees.com"
+             :lecture-wiki "lecture/wiki"
+            }
+
+(defmethod thing-details-view
+  :lecture
+  [r rpath qpath thing-map input-queue]
+  (let [thing-type (second (reverse rpath))
+        thing-keys (keys (thing-type thing-input-value))
+        attrs [
+          [:lecture/title] 
+          [:lecture/author 0 :person/title]
+          [:lecture/content]
+          [:lecture/start]
+          [:lecture/end]
+        ]
+        thing-val (map #(get-in thing-map %) attrs)
+        thing-view (zipmap thing-keys thing-val)
+       ]
+    (prn "thing details view " thing-view)
+    thing-view))
