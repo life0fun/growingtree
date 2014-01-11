@@ -50,6 +50,7 @@
    :course (dtfn (tnodes "newthing.html" "course") #{:id})
    :lecture (dtfn (tnodes "newthing.html" "lecture") #{:id})
    :question (dtfn (tnodes "newthing.html" "question") #{:id})
+   :assignment (dtfn (tnodes "newthing.html" "assignment") #{:id})
    :group (dtfn (tnodes "newthing.html" "group") #{:id})
    :comments (dtfn (tnodes "newthing.html" "comments") #{:id})
    :answer (dtfn (tnodes "newthing.html" "answer") #{:id})

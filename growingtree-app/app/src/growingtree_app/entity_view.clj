@@ -55,7 +55,8 @@
             :upvote "" :like "" :follow "" 
            }
 
-    :course {:lecture "" :add-lecture " hide" 
+    :course {:title ""
+             :lecture "" :add-lecture " hide" 
              :question "" :add-question " hide" 
              :comments ""
              :enrollment "" :add-enrollment " hide" 
@@ -64,8 +65,8 @@
              :assignto "" :assign-form ""
             }
 
-    :lecture {:author ""
-              :title ""
+    :lecture {:title ""
+              :author ""
               :course "" 
               :question "" :add-question " hide" 
               :comments ""
@@ -75,7 +76,8 @@
               :assignto "" :assign-form ""
              }
     
-    :question {:lecture "" 
+    :question {:title ""
+               :lecture "" 
                :assignment ""
                :similar ""
                :comments ""
@@ -83,7 +85,8 @@
                :assignto "" :assign-form ""
               }
 
-    :assignment {:question "" :hint "" :similar ""
+    :assignment {:title ""
+                 :question "" :hint "" :similar ""
                  :answer "" :submit-answer "" :answer-form ""
                  :comments ""
                  :upvote "" :like "" :share "" 
@@ -93,7 +96,8 @@
                :upvote "" :like "" :share "" 
               }
 
-    :answer {:grade "" :grade-form ""
+    :answer {:title ""
+             :grade "" :grade-form ""
              :assignment ""
              :question ""
              :comments ""
@@ -302,11 +306,49 @@
         ; add the rendered template attached to rpath node
         html (templates/add-template render rpath templ)
         
-        templ-map {:id thing-id}
+        ; id must not be only thing-id, thing entry div already took it.
+        templ-map {:id (str "details-" thing-id)}
         thing-div (html templ-map)
         ]
     (.log js/console (str "thing-node-html " rpath " " thing-type))
     thing-div))
+
+
+;;===========================================================================
+; value a node [:value [:filtered :co] nil {thing-map},  dispatch by thing-type
+;;===========================================================================
+(defmulti thing-value-view
+  (fn [r rpath qpath thing-map input-queue]
+    (second (reverse rpath))))
+
+
+(defmethod thing-value-view
+  :default
+  [r rpath qpath thing-map input-queue]
+  (let [thing-id (last rpath)
+        thing-type (second (reverse rpath))
+        ; use qpath to toggle thing and add-thing transkey
+        nav-add-clz (toggle-nav-add-subthing-class thing-id thing-type qpath)
+        
+        thing-val (thing-template-value thing-type thing-map)
+        thing-view (merge thing-val nav-add-clz)
+        ]
+    (.log js/console (str "update thing node value " rpath " new-value " thing-map))
+    thing-view))
+
+
+; template value for thing details under qpath title
+(defmethod thing-value-view
+  :title
+  [r rpath qpath thing-map input-queue]
+  (let [thing-id (last rpath)
+        thing-type (second (reverse rpath))
+        
+        thing-val (thing-template-value thing-type thing-map)
+        ]
+    (.log js/console (str "update thing node value " rpath " new-value " thing-map))
+    thing-val))
+
 
 ;;===========================================================================
 ; xhr response data stored into [:data navpath], thing data emitter
@@ -354,8 +396,9 @@
         author-attr (util/thing-attr-keyword thing-type "author")
         value-map 
           {:thing-title (thing-attr-val thing-map thing-type "title")
-           :thing-content (str "- " (thing-attr-val thing-map thing-type "content"))
-           :entryhref "#"
+           :thing-content (thing-attr-val thing-map thing-type "content")
+           :entryhref "javascript:void(0);"
+           :title-id (str "title-" (:db/id thing-map))
            :author-name (get-in thing-map [author-attr 0 :person/title])
            :upvote upvotes
            :start (util/format-time (thing-attr-val thing-map thing-type "start"))
@@ -396,8 +439,9 @@
         author-attr (util/thing-attr-keyword thing-type "author")
         value-map 
           {:thing-title (thing-attr-val thing-map thing-type "title")
-           :thing-content (str "- " (thing-attr-val thing-map thing-type "content"))
-           :entryhref "#"
+           :thing-content (thing-attr-val thing-map thing-type "content")
+           :entryhref "javascript:void(0);"
+           :title-id (str "title-" (:db/id thing-map))
            :author-name (get-in thing-map [author-attr 0 :person/title])
            :upvote upvotes
            :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
@@ -415,9 +459,10 @@
         author-attr (util/thing-attr-keyword thing-type "author")
         value-map 
           {:thing-title (thing-attr-val thing-map thing-type "title")
-           :thing-content (str "- " (thing-attr-val thing-map thing-type "content"))
-           :entryhref "#"
-           :author-name (get-in thing-map [author-attr 0 :person/title])
+           :thing-content (thing-attr-val thing-map thing-type "content")
+           :entryhref "javascript:void(0);"
+           :title-id (str "title-" (:db/id thing-map))
+           :author-name (get-in thing-map [author-attr :person/title]) ; author is ref one for assignment
            :upvote upvotes
            :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
            :start (util/format-time (thing-attr-val thing-map thing-type "start"))
@@ -536,52 +581,14 @@
 
 ; --------------------------------------------------------------------------
 ; thing details value, we are using newthings form
+; this is deprecated as we template placeholder field to show entries.
 ; --------------------------------------------------------------------------
 (defmethod thing-template-value
   :title
   [thing-type thing-map]
-  (let [value-map 
-          {
-          }
-        ]
-    (.log js/console (str "template value " origin-title))
+  (let [value-map {} ]
+    (.log js/console (str " Deprecated template value " thing-type thing-map))
     value-map))
-
-
-;;===========================================================================
-; value a node [:value [:filtered :co] nil {thing-map},  dispatch by thing-type
-;;===========================================================================
-(defmulti thing-value-view
-  (fn [r rpath qpath thing-map input-queue]
-    (second (reverse rpath))))
-
-
-(defmethod thing-value-view
-  :default
-  [r rpath qpath thing-map input-queue]
-  (let [thing-id (last rpath)
-        thing-type (second (reverse rpath))
-        ; use qpath to toggle thing and add-thing transkey
-        nav-add-clz (toggle-nav-add-subthing-class thing-id thing-type qpath)
-        
-        thing-val (thing-template-value thing-type thing-map)
-        thing-view (merge thing-val nav-add-clz)
-        ]
-    (.log js/console (str "update thing node value " rpath " new-value " thing-map))
-    thing-view))
-
-
-; template value for thing details under qpath title
-(defmethod thing-value-view
-  :title
-  [r rpath qpath thing-map input-queue]
-  (let [thing-id (last rpath)
-        thing-type (second (reverse rpath))
-        
-        thing-val (thing-template-value thing-type thing-map)
-        ]
-    (.log js/console (str "update thing node value " rpath " new-value " thing-map))
-    thing-val))
 
 
 ;;===========================================================================

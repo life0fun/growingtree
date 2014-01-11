@@ -81,7 +81,7 @@
         </div>
 
         <div class="usertext-buttons control-group">
-          <button type="submit" class="btn btn-primary">OK</button>
+          <button id="submit" type="submit" class="btn btn-primary">OK</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
       </fieldset>
@@ -167,7 +167,7 @@
         </div>
 
         <div class="usertext-buttons control-group">
-          <button type="submit" class="btn btn-primary">OK</button>
+          <button id="submit" type="submit" class="btn btn-primary">OK</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
 
@@ -301,7 +301,7 @@
         </div>
        
         <div class="usertext-buttons control-group">
-          <button type="submit" class="btn btn-primary">OK</button>
+          <button id="submit" type="submit" class="btn btn-primary">OK</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
       </fieldset>
@@ -415,7 +415,7 @@
         </div>
        
         <div class="usertext-buttons control-group">
-          <button type="submit" class="btn btn-primary">OK</button>
+          <button id="submit" type="submit" class="btn btn-primary">OK</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
       </fieldset>
@@ -489,7 +489,123 @@
 
         
         <div class="usertext-buttons control-group">
-          <button type="submit" class="btn btn-primary">OK</button>
+          <button id="submit" type="submit" class="btn btn-primary">OK</button>
+          <button id="cancel" type="button" class="btn">Cancel</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
+
+
+  <!-- 
+    assignment 
+  -->
+  <div template="assignment" field="id:id">
+    <form class="form-horizontal assignment-form">
+      <fieldset>
+
+        <legend>Assignment Details</legend>
+
+        <div class="control-group">
+          <label class="control-label" for="assignment-title">Title</label>
+          <div class="controls">
+            <input id="assignment-title" type="text" class="input-xlarge" field="placeholder:assignment-title">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="assignment-author">Author</label>
+          <div class="controls">
+            <input id="assignment-author" type="text" class="input-xlarge" field="placeholder:assignment-author">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="assignment-person">To</label>
+          <div class="controls">
+            <input id="assignment-person" type="text" class="input-xlarge" field="placeholder:assignment-person">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="assignment-type">Type</label>
+          <div class="controls">
+            <select id="assignment-type">
+              <option value="math">Math</option>
+              <option value="science">Science</option>
+              <option value="reading">Reading/Writing</option>
+              <option value="art">Art</option>
+              <option value="sports">Sports</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="assignment-origin">Content</label>
+          <div class="controls">
+            <input id="assignment-origin" type="text" class="input-xlarge" field="placeholder:assignment-origin">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="assignment-hint">Hint</label>
+          <div class="controls">
+            <input id="assignment-hint" type="text" class="input-xlarge" field="placeholder:assignment-hint">
+          </div>
+        </div>
+
+        <!-- http://jsfiddle.net/foo4u/HJHq8/light/ -->
+        <div class="control-group">
+          <label class="control-label" for="assignment-start">Start Time</label>
+          <div class="controls">
+            <div id="assignment-start-picker" class="input-append">  
+              <input id="assignment-start" type="text" class="input-xlarge" field="placeholder:assignment-start" data-format="hh:mm:ss MM/dd/yyyy">
+              <span class="add-on">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                </i>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="assignment-end">End Time</label>
+          <div class="controls">
+            <div id="assignment-end-picker" class="input-append">    
+              <input id="assignment-end" type="text" class="input-xlarge" field="placeholder:assignment-end" data-format="hh:mm:ss MM/dd/yyyy">
+              <span class="add-on">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                </i>
+              </span>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="control-group">
+          <label class="control-label" for="assignment-url">Url</label>
+          <div class="controls">
+            <input id="assignment-url" type="text" class="input-xlarge" field="placeholder:assignment-url">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="assignment-priority">Priority</label>
+          <div class="controls">
+            <input id="assignment-priority" type="text" class="input-xlarge"  field="placeholder:assignment-priority">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="assignment-tag">Tag</label>
+          <div class="controls">
+            <input id="assignment-tag" type="text" class="input-xlarge" field="placeholder:assignment-tag">
+          </div>
+        </div>
+
+        <div class="usertext-buttons control-group">
+          <button id="submit" type="submit" class="btn btn-primary">OK</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
       </fieldset>
@@ -563,7 +679,10 @@
     </form>
   </div>
 
-  <!-- comments -->
+
+  <!-- 
+    comments 
+  -->
   <div template="comments" field="id:id">
     <form class="add-comments-form">
       <textarea id="comments-title" rows="3" cols="1" name="text" class="textarea" style="width:98%;height:60px;"></textarea>
@@ -574,7 +693,10 @@
     </form>
   </div>
 
-  <!-- answer -->
+  
+  <!-- 
+    answer 
+  -->
   <div template="answer" field="id:id">
     <form class="form-horizontal add-answer-form">
       <textarea id="answer-title" rows="3" cols="1" name="text" class="textarea" style="width:98%;height:60px;"></textarea>

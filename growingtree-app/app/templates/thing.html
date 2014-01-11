@@ -297,7 +297,7 @@
     <div class="entry unvoted" template="thing-entry">
 
       <p class="subtitle">
-        <span class="tagline"> Offered by </span>
+        <span class="tagline"> offered by </span>
         <a field="content:author-name,class:author-class"></a>
       </p>
 
@@ -307,7 +307,8 @@
       </p>
 
       <p class="subtitle">
-        <span style="margin-left:1em" field="content:thing-content"></span>
+        <span class="tagline"> content: </span>
+        <span style="margin-left:2px" field="content:thing-content"></span>
       </p>
 
       <ul class="flat-list buttons">
@@ -617,12 +618,14 @@
         <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
         <span class="domain"></span>
       </p>
+
       <p class="subtitle">
-        <span style="margin-left:1em" field="content:thing-content"></span>
+        <span class="tagline"> content: </span>
+        <span style="margin-left:2px" field="content:thing-content"></span>
       </p>
 
       <p class="subtitle">
-        <span class="tagline">  difficulty : </span>
+        <span class="tagline"> difficulty: </span>
         <span field="content:difficulty"></span>
       </p>
 
@@ -735,7 +738,7 @@
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
       <p class="subtitle">
-        <span class="tagline"> assigned by </span>
+        <span class="tagline"> by </span>
         <a field="content:author-name,class:author-class"></a> 
         <span class="tagline"> at </span>
         <span field="content:start"></span>
@@ -747,7 +750,7 @@
       </p>
 
       <p class="subtitle">
-        <span> Due at </span>
+        <span class="tagline"> due at </span>
         <span field="content:end"></span>
       </p>    
 
@@ -834,7 +837,7 @@
     </div>
   </div>
 
-  
+
 
   <!-- 
     answer node div 
