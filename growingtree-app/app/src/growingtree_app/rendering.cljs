@@ -236,6 +236,7 @@
   ; render thing-details template if it is not rendered yet
   ; need to render page first, so the following by-id subthings-list make sense
   (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
+  
   (let [thing-id (last rpath)
         subthings-div (dom/by-id "subthings-list")
         child-idx (nchildren subthings-div)
@@ -257,19 +258,19 @@
   "build a sub tree whose root is a filtered child node"
   [r [op rpath] input-queue]
   (when-not (js/isNaN (js/parseInt (last rpath) 10)) ; isNaN to check number type.
+    ; first, render thing-details template if it is not rendered yet
+    (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
+    
     (let [thing-id (last rpath)
           parent-node (entity-view/thing-node-parent rpath)
           offset (/ (- (count rpath) 5) 2)
           thing (entity-view/thing-node-html rpath r offset)
          ]
-      ; render thing-details template if it is not rendered yet
-      (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
       ; [:filtered :question 17592186045432 :lecture 17592186045430]
       (.log js/console (str "append filtered child tree " thing-id " offset " offset rpath))
       (.log js/console (str "child tree " thing))
       (dom/append! parent-node thing)
       (entity-view/thing-node-add-class thing-id (str "offset" offset)))))
-
 
 
 ; title(details) of a thing takes the div block of new-things in thing-details template
@@ -278,14 +279,14 @@
   "build a sub tree whose root is a filtered child node"
   [r [op rpath] input-queue]
   (when-not (js/isNaN (js/parseInt (last rpath) 10)) ; isNaN to check number type.
+    ; first, render filter page if not exist.
+    (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
+    
     (let [thing-id (last rpath)
           thing (entity-view/thing-node-html rpath r 0)
-          newthing-div (dom/by-id "new-subthings")
          ]
-      ; render thing-details template if it is not rendered yet
-      (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
       (.log js/console (str "append thing details " thing-id rpath))
-      (dom/append! newthing-div thing)
+      (dom/append! (dom/by-id "new-subthings") thing)
       )))
 
 
@@ -378,13 +379,11 @@
     ;; ============== thing data thing node from thing nav click ============
     ;; thing nav [:filtered :parent 1 :child 2] two sections, head for parent and list of child.
     [:node-create [:header :* :*] add-filtered-parent-node]  
-    ;[:value       [:header :* :*] value-filtered-parent-node]
     [:value       [:header :* :*] value-thing-node]
     [:node-destroy [:header :* :*] del-thing-node]
     [:node-destroy [:header] clear-all-things]  ; clear all child under main div
 
     [:node-create [:filtered :* :* :* :*] append-filtered-child-node]
-    ;[:value       [:filtered :* :* :* :*] value-filtered-child-node]
     [:value       [:filtered :* :* :* :*] value-thing-node]
     [:node-destroy [:filtered :* :* :* :*] del-thing-node]
     [:node-destroy [:filtered] clear-all-things]  ; clear all child under main div

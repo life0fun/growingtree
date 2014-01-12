@@ -214,7 +214,8 @@
 ; thing-map is db entity {:db/id 17592186045425, :course/url "math.com/Math-I", 
 ; :course/author [{:person/lname "rich", :person/title "rich-dad",}] ..
 ; qpath record the path next path, from [:course 1 to :comments]
-; thing data emit qpath [:course 17592186045425 :comments] changemap {[:data :course 17592186045425 :course] 
+; thing data emit qpath [:course 17592186045425 :comments] changemap {[:data :course 1 :course] 
+; data-path is :msg-topic in effect request thing.
 ;;==================================================================================
 (defn thing-data-emitter
   "emit node-create and value delta for list of things from xhr response"
@@ -233,10 +234,10 @@
         ; with this, will emit [:value [:all :course] old-value new-val]
         ;((app/default-emitter) inputs) 
         []
-        (reduce  ; input path is [:data :all 0 :parent] as emitter is [:data :* :* :*]
-          (fn [deltas [input-path newvals]] 
+        (reduce  ; data path is [:data :all 0 :parent] as emitter is [:data :* :* :*]
+          (fn [deltas [data-path newvals]] ; data path is :msg-topic [] in request thing
             ; concat is vec de-pack and re-pack, enable :assign action for now
-            (concat deltas (thing-data-deltas inputs input-path qpath newvals)))
+            (concat deltas (thing-data-deltas inputs data-path qpath newvals)))
           []
           changemap)))))
 
@@ -246,21 +247,21 @@
 ; data for navpath stored in [:data :thing 1 :next-thing]
 ; thing data emit qpath [:course 17592186045425 :comments] changemap {[:data :course 17592186045425 :course] 
 (defn- thing-data-deltas
-  [inputs input-path qpath things-vec]
-  ; input-path = [:data :* :* :*] = [:data :all 0 :parent] [:data :course 1 :comments]
-  (let [navpath (rest input-path)] ; [:data :course 1 :lecture] stores data for nav path [:course 1 :lecture]
+  [inputs data-path qpath things-vec]  ; data-path is where data vector is stored.
+  ; data-path = [:data :* :* :*] = [:data :all 0 :parent] [:data :course 1 :comments]
+  (let [navpath (rest data-path)] ; [:data :course 1 :lecture] stores data for nav path [:course 1 :lecture]
     (vec (concat
       (mapcat
         (fn [entity-map]
           (let [; each thing map has navpath indicates query path, for UI nav and display
                 thing-map (keyword-thing-navpath entity-map)
                 id (:db/id thing-map)  ; get :db/id as each node render path id
-                thing-type (last input-path)
+                thing-type (last data-path)
                 
                 ; thing-map has a :navpath filled by (util/add-navpath % qpath), 
                 ; navpath tells who is the parent of this entity during navigation.
                 ; :navpath ["all" 0 "course" 1], or  ["course" 1 "comments" 2], or ["course" 1 "course" 2]
-                render-path (thing-navpath->renderpath (:navpath thing-map))
+                render-path (thing-navpath->renderpath (:navpath thing-map) thing-map)
                 actiontransforms (thing-navpath-transforms thing-type render-path thing-map)
                 comments-box (add-comments-box render-path qpath)
                 details-box (add-details-box render-path qpath)
@@ -278,31 +279,36 @@
       ))))
 
 
-; thing-qpath record how we get to current thing. 
+; thing qpath, akas navpath of thing map, record how we get to current thing. 
 ; ["all" 0 "course" 17592186045425], or  
-; ["course" 17592186045425 "course" 17592186045425], or
-; ["course" 17592186045425 "comments" 17592186045433], or 
+; ["course" 17592186045425 "course" 17592186045425], for header 
+; ["course" 17592186045425 "comments" 17592186045433], for filtered details view.
 (defn keyword-thing-navpath
-  "given a thing entity map, convert qpath segment from json string token to keyword"
+  "given a thing entity map, convert navpath segment from json string token to keyword"
   [thing-map]
   (let [navpath (:navpath thing-map)
         knavpath (util/map-every-nth keyword navpath 2)]
-    (.log js/console (str "keyword thing navpath " navpath knavpath))
+    ;(.log js/console (str "keyword thing navpath " navpath knavpath))
     (assoc-in thing-map [:navpath] knavpath)))
 
 
-; prefix main, header, filtered to nav path, form the render path for render to dispatch.
-; thing-map has a :navpath filled by (util/add-navpath % qpath), 
-; navpath tells who is the parent of this entity during navigation.
+; thing-map :navpath was set in server side with qpath by (util/add-navpath % qpath)
+; navpath tells the query path we reach to this entity during navigation.
+; prefix main, header, filtered to it, form the render path for render to dispatch.
 ; :navpath ["all" 0 "course" 1], or  ["course" 1 "comments" 2], or ["course" 1 "course" 2]
 (defn thing-navpath->renderpath
-  [thing-navpath]
-  (.log js/console (str "thing navpath to renderpath " thing-navpath))
+  [thing-navpath thing-map]
   (let [[parent _ child] (take 3 thing-navpath)]
     (cond 
       (= parent :all) (vec (concat [:main] thing-navpath))
-      (= parent child) (vec (concat [:header] (take 2 thing-navpath))) ; [:header :parent 1]
       (= child :title) (vec (concat [:details] thing-navpath))
+      ; for person thing, map to person type for choosing right person template.
+      ; [:parent 1 :person 1], thing node html dispatch on :person, pick parent template.
+      (= parent :person)
+        (let [pid (:db/id thing-map)
+              person-type (keyword (:person/type thing-map))]
+          (vec (concat [:details] [person-type pid :person pid])))
+      (= parent child) (vec (concat [:header] (take 2 thing-navpath))) ; [:header :parent 1]
       :else (vec (concat [:filtered] thing-navpath))))) ; [filtered :thing id :next-thing id]
 
 
@@ -342,11 +348,18 @@
       navpaths)))
 
 
-
-; when click thing title, qpath [:lecture 1 :title], thing type is :title, not a real thing.
-; thing attr does not have navpath actionkeys. ret empty
+; -------------------------------------------------------------------------------
+; there is no real title or author thing, it just nav next target. 
+; hence no transforms when target itself is details.
+; -------------------------------------------------------------------------------
 (defmethod thing-navpath-transforms
   :title
+  [thing-type render-path entity-map]
+  ; thing attr does not have action keys, ret list of empty transforms.
+  [])
+
+(defmethod thing-navpath-transforms
+  :author
   [thing-type render-path entity-map]
   ; thing attr does not have action keys, ret list of empty transforms.
   [])
@@ -363,16 +376,16 @@
 
 
 ; for general next thing nav, ask render to send msg to [:nav :path] to update nav path.
-; nav-path = [:nav :parent 17592186045499 :child]
+; nav-path = [:nav :parent 17592186045499 :child], include thing title and author link.
 (defmethod thing-nav-messages
   :default
   [[nav type id transkey :as nav-path] render-path entity-map]
-  (let [hdpath (concat (butlast (rest nav-path)) [type]) ; [:thing-type 1 :thing-type]
+  (let [hdpath (concat (butlast (rest nav-path)) [type]) ; replace last as nav next target
         qpath (rest nav-path)
         messages [{msgs/topic [:nav :path] 
                    msgs/type :set-nav-path
                    :path (vec hdpath)    ; path is current path [:course 1 :course]
-                   :qpath (vec qpath)    ; qpath is next to [:course 1 :lecture]
+                   :qpath (vec qpath)    ; qpath is next to [:course 1 :lecture], append to nav path
                    :rpath (vec render-path)}   ; [:main :course 1 :lecture 2]
                  ]
         ]
@@ -503,6 +516,21 @@
     ;(.log js/console (str "thing-nav-messages " messages))
     messages))
 
+
+; when click author, header will be author entry and details will be author details
+; note that the id in [:author id :author] is the id of the thing, not id of author.
+(defmethod thing-nav-messages
+  :author
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
+  (let [hdpath [:author id :author]  ; the author of thing id, not author's id
+        qpath (rest nav-path)
+        messages [{msgs/topic [:nav :path] 
+                   msgs/type :set-nav-path
+                   :path (vec hdpath)    ; path is current path [:author 1 :author]
+                   :rpath (vec render-path)}   ; [:main :course 1 :author 2]
+                 ]
+        ]
+    messages))
 
 ;;==================================================================================
 ;; action bar assign, triggered by [:setup :assign]

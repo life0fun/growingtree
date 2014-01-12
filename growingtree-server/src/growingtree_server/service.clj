@@ -208,7 +208,7 @@
         jsonresp (bootstrap/json-response result)
        ]
     (newline)  
-    (println (str "service got peer get-things " type thing-type path things))
+    (println (str "service peer get-things " type thing-type path things))
     jsonresp))
 
 

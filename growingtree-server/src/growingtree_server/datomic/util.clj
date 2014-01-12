@@ -192,7 +192,7 @@
 
 
 ; ============================================================================
-; add navpath for each entity, so it knows who is its parent in the display tree
+; add :navpath for each entity, so it knows who is its parent in the display tree
 ; the thing-map must be a map after select-key schema. Raw datomic datom entity not working!!!
 ; this must be the last to execute as it added non-namespaced attr to thing.
 ; ============================================================================
@@ -202,7 +202,6 @@
         navpath (vec (concat qpath [thing-id]))
         nthing (assoc-in thing-map [:navpath] navpath)
        ]
-    (prn "add navpath new thing-map --- " qpath nthing)
     nthing))
 
 

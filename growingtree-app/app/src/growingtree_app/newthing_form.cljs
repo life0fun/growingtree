@@ -425,10 +425,10 @@
 
 
 (defmethod thing-details-view
-  :person
+  :parent
   [r rpath qpath thing-map input-queue]
   (let [thing-type (second rpath)
-        thing-keys (keys (thing-type thing-input-value))
+        thing-keys (keys (:person thing-input-value))
         thing-view {
           :person-title (get-in thing-map [:person/title])
           :person-lname (get-in thing-map [:person/lname])

@@ -100,6 +100,7 @@
 ; nav path store a list of paths, each path is a list of target id. id=0 mean no filter.
 ; [:course 17592186045425 :course] and [:course 17592186045425 :lecture]
 ; for sidebar nav, it is [:all 0 :thing-tyep]
+; concat qpath if we have it.
 (defn set-nav-path
   [oldv message]
   ; :path was setup in thing-nav-messages and init-nav-emitter for sidebar

@@ -11,36 +11,6 @@
   )
 
 
-; (defn -main [& args]
-;   (case (first args)
-;     "help" (doall (map prn help-info))
-;     "create-schema" (dda/create-schema)
-;     "list-schema" (dda/list-attr (second args))
-;     "show-entity" (dda/show-entity-by-id (read-string (last args)))
-;     "list-parent" (dda/list-parent)
-;     "add-family" (dda/add-family)
-;     "insert-child" (dda/insert-child (read-string (last args)))
-;     "find-children" (dda/find-children)
-;     "find-parent" (dda/find-parent (second args) (last args))
-;     "find-by-name" (dda/find-by-name (second args))
-;     "timeline" (dda/timeline (read-string (second args)) (last args))
-;     "person-timeline" (dda/person-timeline (read-string (second args)))
-;     "create-question" (dda/create-question)
-;     "find-question" (dda/find-question)
-;     "create-assignment" (dda/create-assignment)
-;     "find-assignment" (dda/find-assignment)
-;     "fake-comment" (dda/fake-comment)
-;     "find-comment" (dda/find-comment)
-;     "find-answer" (dda/find-answer)
-;     "submit-answer" (dda/submit-answer (read-string (second args)) (read-string (last args)))
-;     "create-course-lecture" (dda/create-course-and-lecture)
-;     "find-course" (dda/find-course)
-;     "find-lecture" (dda/find-lecture)
-;     "add-course-lecture" (dda/add-course-lecture (read-string (second args)) (read-string (last args)))
-;     "rm-course-lecture" (dda/rm-course-lecture (read-string (second args)) (read-string (last args)))
-;     (doall (map prn help-info))))
-
-
 ;; datomic EntityMap 
 ; query result is datomic entity, we touch the entity to get all entity entries.
 ; server route interceptor converts datomic entity to json string to sent to client.
@@ -170,7 +140,7 @@
     search))
 
 
-; get things by field, by title
+; get thing details by field, by title
 ; qpath [:lecture 17592186045430 :title]
 (defmethod get-things
   :title
@@ -180,6 +150,20 @@
     (prn "peer get title --> " qpath entity)
     [entity]))
 
+
+
+; get thing details by field, get author
+; qpath [:author 17592186045430 :author]
+; entity's :navpath [:person 17592186045419 :person 17592186045419]
+(defmethod get-things
+  :author
+  [type qpath details]
+  (let [thing-id (second (reverse qpath))
+        ref-ids (dda/find-entity-attr thing-id "author")
+        entities (map #(dda/find-entity-by-id % [:person % :person]) ref-ids)
+       ]
+    (prn "peer get author --> " qpath entities)
+    entities))
 
 ;;======================================================
 ;; add things multi method

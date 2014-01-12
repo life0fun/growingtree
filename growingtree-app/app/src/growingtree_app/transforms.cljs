@@ -212,10 +212,11 @@
     ; wrap assign link with div and use class selector
     (de/listen! thing-link
                 :click 
-                (fn [evt]
+                (fn [e]
                   (let [; deprected ! not used. emitter already set it up.
                         new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
                     (.log js/console (str thing-type  " nav to " next-thing " msgs " messages))
+                    (de/prevent-default e)  ; submit ret false, prevent refresh or redirect
                     (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
                       (p/put-message input-queue m)))))
   ))
@@ -231,21 +232,48 @@
   (let [navpath (rest path)  ; [:parent 1 :title]
         thing-id (first (reverse (butlast navpath)))
         thing-type (first navpath)
-        thing-map ((msgs/param :thing-map) (first messages))
-        next-thing (str (name transkey) "-" thing-id)
-        title-link (dom/by-id next-thing)
-        click-fn (fn [evt]
-                   (let [; deprected ! not used. emitter already set it up.
-                         new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
-                     (.log js/console (str thing-type  " nav to " next-thing " msgs " messages))
-                     (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
-                       (p/put-message input-queue m))))
+        title-id (str thing-id "-" (name transkey))
+        title-link (dom/by-id title-id)
+        click-fn 
+          (fn [e]
+            (let [; deprected ! not used. emitter already set it up.
+                  new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
+              (.log js/console (str thing-type  " nav to " title-id " msgs " messages))
+              (de/prevent-default e)  ; submit ret false, prevent refresh or redirect
+              (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
+                (p/put-message input-queue m))))
        ]
     (.log js/console (str "enable thing nav title " path ))
     ; click fn will doseq put msg to input-queue
     (de/listen! title-link :click click-fn)
   ))
 
+
+; ------------------------------------------------------------------------------------
+; enable author link click for thing
+; [:transform-enable [:nav :courses 17592186045496 :author] :author
+; message :set-nav-path :path [:person nil :person], :qpath [:course 1 :author], :rpath [:main :all 0 :course 1]
+; ------------------------------------------------------------------------------------
+(defmethod enable-thing-nav  ; author, qpath [:course 1 :author]
+  :author
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:parent 1 :author]
+        thing-id (first (reverse (butlast navpath)))
+        thing-type (first navpath)
+        author-link (dom/by-id (str thing-id "-" (name transkey)))
+        click-fn 
+          (fn [e]
+            (let [; deprected ! not used. emitter already set it up.
+                  new-msgs (msgs/fill :set-nav-path messages {:path (vec navpath)})]
+              (.log js/console (str thing-type  " nav to author msgs " messages))
+              (de/prevent-default e)  ; submit ret false, prevent refresh or redirect
+              (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
+                (p/put-message input-queue m))))
+       ]
+    (.log js/console (str "enable thing nav author " path))
+    ; click fn will doseq put msg to input-queue
+    (de/listen! author-link :click click-fn)
+  ))
 
 ; ------------------------------------------------------------------------------------
 ; enable upvote event handler, defined in thing-type template and entity-view
@@ -313,6 +341,7 @@
                                              override-map 
                                              input-queue)
   ))
+
 
 ; ----------------------------------------------------------------------------------
 ; submit answer and answer-form

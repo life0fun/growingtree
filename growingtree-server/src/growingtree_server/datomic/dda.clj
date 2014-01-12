@@ -151,9 +151,28 @@
   (dbconn/find-entities attr val))
 
 
+(defn find-entity-attr
+  "find outbound refed entity of courrent entity"
+  [eid ref-attr]
+  (let [e (dbconn/get-entity eid)
+        e-type (dbconn/entity-keyword e)
+        ref-e ((keyword (str (name e-type) "/" ref-attr)) e)
+        ref-ids (->> (if (set? ref-e) ref-e (vector ref-e))
+                          (map :db/id ))
+       ]
+    (prn "find entity attr " ref-ids)
+    ref-ids))
+
 ;;==============================================================
 ;; family related, should use multi-method to dispatch
 ;;==============================================================
+; :find rets entity id, find all person's pid and name.
+(defn find-person
+  "find all parents with all children"
+  [qpath]
+  (family/find-person qpath))
+
+
 (defn create-family
   "create a family with either or both parent name and child name"
   [qpath]

@@ -196,6 +196,26 @@
     [(:schoolclass ?e ?val) [?c :schoolclass/title ?val] [?c :schoolclass/person ?e]]
   ])
 
+
+
+;;==========================================================================
+; generic person
+;;==========================================================================
+; :find rets entity id, find all person's pid and name.
+(defn find-person
+  "find person by query path "
+  [qpath]
+  (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
+        person (->> (util/get-entities-by-rule qpath get-person-by)
+                    (map #(select-keys % projkeys) )
+                    (map #(util/add-upvote-attr %) )
+                    (map #(util/add-navpath % qpath) )
+                )
+        ]
+    (doseq [e person]
+      (prn "parent --> " e))
+    person))
+
 ;;==========================================================================
 ; parent related
 ;;==========================================================================
