@@ -263,8 +263,9 @@
 ;; [:node-create [:main :all 0 :parent 17592186045505] :map]
 ;; [:node-create [:main :parent 1 :child 17592186045505] :map]
 ;; render-path = [:main :all 0 :parent 17592186045498]
-;;        [:header :parent 17592186045498]
+;;        [:header :parent 17592186045498] [:header :course 17592186045425]
 ;;        [:filtered :course 17592186045428 :lecture 17592186045430]
+;;        [:details :course 17592186045425 :title 17592186045425]
 ;;=============================================================================
 (defmulti thing-node-html
   (fn [render-path render thing-idx]  ; the last segment of path
@@ -314,7 +315,7 @@
     thing-div))
 
 
-; render path [:header :person 17592186045419]
+; render path [:details :parent 17592186045419 :person 17592186045419]
 (defmethod thing-node-html
   :person
   [rpath render thing-idx]
@@ -344,7 +345,7 @@
   [r rpath qpath thing-map input-queue]
   (let [thing-id (last rpath)
         thing-type (second (reverse rpath))
-        ; use qpath to toggle thing and add-thing transkey
+        ; use qpath to toggle list thing and add-thing transkey, for qpath next thing only.
         nav-add-clz (toggle-nav-add-subthing-class thing-id thing-type qpath)
         
         thing-val (thing-template-value thing-type thing-map)
@@ -355,16 +356,16 @@
 
 
 ; template value for thing details under qpath title
-(defmethod thing-value-view
-  :title
-  [r rpath qpath thing-map input-queue]
-  (let [thing-id (last rpath)
-        thing-type (second (reverse rpath))
+; (defmethod thing-value-view
+;   :title
+;   [r rpath qpath thing-map input-queue]
+;   (let [thing-id (last rpath)
+;         thing-type (second (reverse rpath))
         
-        thing-val (thing-template-value thing-type thing-map)
-        ]
-    (.log js/console (str "update thing node value " rpath " new-value " thing-map))
-    thing-val))
+;         thing-val (thing-template-value thing-type thing-map)
+;         ]
+;     (.log js/console (str "update thing node value " rpath " new-value " thing-map))
+;     thing-val))
 
 
 ;;===========================================================================
@@ -392,7 +393,7 @@
   [thing-type thing-map]
   (let [value-map 
           {:thing-title (thing-attr-val thing-map thing-type "title")
-           :thing-content (str "- " (thing-attr-val thing-map thing-type "content"))
+           :thing-content (thing-attr-val thing-map thing-type "content")
            :entryhref "javascript:void(0);"
            :author-name (get-in thing-map [author-attr 0 :person/title])
            :upvote (str (thing-attr-val thing-map thing-type "upvote"))

@@ -165,6 +165,7 @@
 ; only update template when new value exists.
 ; thing-map is entity {:db/id 17592186045425, :course/url "math.com/Math-I"
 ; rpath is [:main :all 0 :course 17592186045425] 
+; [:header :course 17592186045425] qpath [:course 17592186045425 :title]
 (defn value-thing-node
   [r [op rpath oldv newv] input-queue]
   (when newv
@@ -175,7 +176,7 @@
           thing-view 
             (entity-view/thing-value-view r rpath qpath thing-map input-queue)
          ]
-      (.log js/console (str "value thing node " rpath " qpath " qpath " view  " thing-view))
+      (.log js/console (str "value thing node template " rpath " qpath " qpath " view  " thing-view))
       ; thing template is attached at render path node, update it with new view map
       (templates/update-t r rpath thing-view)
       )))
@@ -217,15 +218,12 @@
 (defn add-filtered-parent-node
   "render parent header in thing nav details"
   [r [op rpath] input-queue]
-  (let [thingid (last rpath)
-        thing-div (entity-view/thing-node-html rpath r 1) 
-        ]
-    (.log js/console (str "add header node " thingid rpath))
-    ; first, clear all children
-    ;(dom/destroy-children! (dom/by-id "main"))
-    (render-filtered-page r (rest rpath)) ; [:course 17592186045425]
-    ; append parent
-    (dom/append! (dom/by-id "thing-root") thing-div)
+  (render-filtered-page r (rest rpath)) ; [:course 17592186045425]
+  (let [thing-div (entity-view/thing-node-html rpath r 1) ]
+    (.log js/console (str "add header node " rpath))
+    ; append rendered template at rpath to thing-root div.
+    (dom/append! (dom/by-id "thing-root") 
+                 (entity-view/thing-node-html rpath r 1))
     ))
 
 
@@ -236,15 +234,11 @@
   ; render thing-details template if it is not rendered yet
   ; need to render page first, so the following by-id subthings-list make sense
   (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
-  
-  (let [thing-id (last rpath)
-        subthings-div (dom/by-id "subthings-list")
-        child-idx (nchildren subthings-div)
-        thing (entity-view/thing-node-html rpath r (inc child-idx))
-       ]
+  (let [child-idx (nchildren subthings-div)]
     ; [:filtered :question 17592186045432 :lecture 17592186045430]
     (.log js/console (str "append filtered child node " rpath " child-idx " child-idx))
-    (dom/append! subthings-div thing)
+    (dom/append! (dom/by-id "subthings-list")
+                 (entity-view/thing-node-html rpath r (inc child-idx)))
     ; do not offset1 for filtered details
     ;(entity-view/thing-node-add-class thing-id "offset1")
     ))
@@ -275,34 +269,42 @@
 
 ; title(details) of a thing takes the div block of new-things in thing-details template
 ; rpath [:details :lecture 17592186045430 :title 17592186045430] :map]
+;       [:details :parent 17592186045419 :person 17592186045419]
 (defn append-thing-details
   "build a sub tree whose root is a filtered child node"
   [r [op rpath] input-queue]
   (when-not (js/isNaN (js/parseInt (last rpath) 10)) ; isNaN to check number type.
     ; first, render filter page if not exist.
     (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
-    
     (let [thing-id (last rpath)
-          thing (entity-view/thing-node-html rpath r 0)
+          thing-header (entity-view/thing-node-html [:header (second rpath) thing-id] r 0)
+          thing-details (entity-view/thing-node-html rpath r 0)
          ]
       (.log js/console (str "append thing details " thing-id rpath))
-      (dom/append! (dom/by-id "new-subthings") thing)
+
+      (dom/append! (dom/by-id "thing-root") thing-header)
+      (dom/append! (dom/by-id "new-subthings") thing-details)
       )))
 
 
-; we are using templates in newthing
+; rpath [:details :parent 17592186045419 :person 17592186045419], qpath=[]
 (defn value-thing-details
   [r [op rpath oldv newv] input-queue]
   (when newv
-    (let [; qpath is nav to next thing, used for enable add subthing.
+    (let [; qpath is nav to next thing, used for toggle add subthing link.
           {:keys [thing-map qpath]} newv
           thing-id (last rpath)
-          thing-view 
+          
+          thing-head-view 
+            (entity-view/thing-value-view r [:header (second rpath) thing-id] [] thing-map input-queue)
+
+          thing-details-view 
             (newthing-form/thing-details-view r rpath qpath thing-map input-queue)
          ]
       (.log js/console (str "value thing details " rpath " qpath " qpath " view  " thing-view))
-      ; thing template is attached at render path details, update it with new view map
-      (templates/update-t r rpath thing-view)
+      
+      (templates/update-t r [:header (second rpath) thing-id] thing-head-view)
+      (templates/update-t r rpath thing-details-view)
       (newthing-form/handle-details-view-btn (second rpath))
       )))
 
@@ -370,7 +372,7 @@
     ; there is race condition when click thing nav and before data returns, we clicked
     ; side nav. so the header/filter will comes after side nav clear all.
     ; the first :all node will create main, so we need to render home page again upon main.
-    [:node-create  [:main] clear-all-things]   
+    [:node-create [:main] clear-all-things]   
     [:node-create [:main :all :* :* :*] add-thing-node]  ; [:all :parent id]
     [:value       [:main :all :* :* :*] value-thing-node]
     [:node-destroy [:main :all :* :* :*] del-thing-node]
@@ -394,6 +396,7 @@
     ; the details box 
     [:node-create [:details :* :* :* :*] append-thing-details]
     [:value       [:details :* :* :* :*] value-thing-details]
+    [:node-destroy [:details] clear-all-things]
 
 
     ;============== add comments box [:setup :lecture 1 :comments] ============

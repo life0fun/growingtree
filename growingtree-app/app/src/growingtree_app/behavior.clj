@@ -206,8 +206,8 @@
       (-> oldv
         (assoc-in path [])
         (assoc-in qpath [])
-        (assoc-in oldpath [])   ; paranoid programming, not needed
-        (assoc-in newpath [])   ; paranoid programming, not needed
+        (assoc-in oldpath [])
+        (assoc-in newpath [])
       ))))
 
 

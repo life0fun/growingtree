@@ -36,29 +36,6 @@
         (dom/add-class! form "hide")))))
 
 
-; toggle to display new thing form, and handle add thing submit.
-(defn toggle-add-thing-form-fn
-  "return an event handler fn that toggen hide css class of the form"
-  [add-thing-type r path override-map input-queue]
-  (fn [_] 
-    (let [newthing-div "new-subthings"    ; div defined in thing details
-          newthing (dom/by-id newthing-div)
-          nchild (count (dom/children (dx/xpath (str "//div[@id='" newthing-div "']"))))
-          add-thing-form (add-thing-form add-thing-type r path)  ; render path
-          ]
-      (.log js/console (str add-thing-type " link clicked div " nchild))
-      (if (= nchild 0)
-        (dom/append! newthing add-thing-form)
-        (dom/destroy-children! newthing))
-
-      ; enable event must live outside the same block of dom append displaying form.
-      (if (= nchild 0)
-        (do
-          (handle-add-thing-submit add-thing-type path override-map input-queue)
-          (handle-add-thing-cancel add-thing-type)))
-    )))
-
-
 ;;==================================================================================
 ; submit-fn uses this map to id dom input fields and collect input value to entity attr.
 ; form dom id refer to newthing.html for dom elements
@@ -179,6 +156,26 @@
              :person-status "active"
             }
 
+    :parent {:person-title "user name..."
+             :person-lname "user last name..."
+             :person-phone "user phone..."
+             :person-email "user email..."
+             :person-url   "user facebook id, twitter id, etc"
+             :person-im "Instant Messenger Id of the user"
+             :person-address "users address "
+             :person-status "active"
+            }
+
+    :child {:person-title "user name..."
+             :person-lname "user last name..."
+             :person-phone "user phone..."
+             :person-email "user email..."
+             :person-url   "user facebook id, twitter id, etc"
+             :person-im "Instant Messenger Id"
+             :person-address "users address "
+             :person-status "active"
+            }
+
     :course {:course-title "the title of course ..."
              :course-author "the author, default to current user"
              :course-content "brief content of the this course"
@@ -215,6 +212,75 @@
             }
   })
 
+
+;;================================================================================
+; display add thing template inside filtered thing
+; path is [:nav :course 1 :add-lecture]
+;;================================================================================
+(defn add-thing-form
+  "instantiate new thing form for thing-type, return div code to be appended to parent"
+  [add-thing-type r path]
+  (let [id (render/new-id! r path)
+        templ (add-thing-type templates)
+        html (templates/add-template r path templ)
+        thing-value (add-thing-type thing-input-value)
+        divcode (html (merge {:id id} thing-value))
+       ]
+    (.log js/console (str "add thing form at " path " type " add-thing-type))
+    divcode))
+
+
+; invoke js datetimepicker fn so that so that picker btn is responsible.
+(defn add-thing-datetimepicker
+  [add-thing-type]
+  (doseq [p (add-thing-type entity-view/create-thing-datetimepicker)]
+    (js/datetimepicker p)))
+
+
+; set the text in input place holder
+;(dom/set-value! (dx/xpath "//input[@id='person-title']") "hello")
+(defn set-input-placeholder
+  [thing-type]
+  (let [input-map (get thing-input-map thing-type)
+        input-fields (keys input-map)
+        input-ids (vals input-map)
+        input-texts (get thing-input-value thing-type)]
+    (.log js/console (str "set input value " input-ids input-texts))
+    (doseq [input-id input-ids]
+      (dom/set-value! (dx/xpath (str "//input[@id='" input-id "']"))
+                      ((keyword input-id) input-texts)))
+    ))
+
+
+; toggle to display new thing form, and handle add thing submit.
+(defn toggle-add-thing-form-fn
+  "return an event handler fn that toggen hide css class of the form"
+  [add-thing-type r path override-map input-queue]
+  (fn [_] 
+    (let [newthing-div "new-subthings"    ; div defined in thing details
+          newthing (dom/by-id newthing-div)
+          nchild (count (dom/children (dx/xpath (str "//div[@id='" newthing-div "']"))))
+          add-thing-form (add-thing-form add-thing-type r path)  ; render path
+          ]
+      (.log js/console (str add-thing-type " link clicked div " nchild))
+      (if (= nchild 0)
+        (do
+          (dom/append! newthing add-thing-form)
+        
+          )
+        (dom/destroy-children! newthing))
+
+      ; enable event must live outside the same block of dom append displaying form.
+      (if (= nchild 0)
+        (do
+          (handle-add-thing-submit add-thing-type path override-map input-queue)
+          (handle-add-thing-cancel add-thing-type)))
+
+      (if (= nchild 0)
+        (set-input-placeholder add-thing-type))
+
+    )))
+
 ;;==================================================================================
 ;; submt fn for new thing form save btn, called from submit action transoform event
 ;;==================================================================================
@@ -238,27 +304,10 @@
                       (assoc :thing-type add-thing-type) ; required for post-submit-thing dispatch
                       (merge override-map))
          ]
-      (.log js/console (str add-thing-type " override-map" override-map))
-      (.log js/console (str add-thing-type " new form submitted details " details))
+      (.log js/console (str add-thing-type " inputs " input-fields input-vals))
+      ;(.log js/console (str add-thing-type " new form submitted details " details))
       (dom/destroy! form)
       (msgs/fill :create-thing messages {:details details}))))
-
-
-;;================================================================================
-; display add thing template inside filtered thing
-; path is [:nav :course 1 :add-lecture]
-;;================================================================================
-(defn add-thing-form
-  "instantiate new thing form for thing-type, return div code to be appended to parent"
-  [add-thing-type r path]
-  (let [id (render/new-id! r path)   ; new id for []
-        templ (add-thing-type templates)
-        html (templates/add-template r path templ)
-        thing-value (add-thing-type thing-input-value)
-        divcode (html (merge {:id id} thing-value))
-       ]
-    (.log js/console (str "add thing form at " path " type " add-thing-type))
-    divcode))
 
 
 ;--------------------------------------------------------------------
@@ -266,13 +315,6 @@
 ; message is :create-thing thing-type, path is render path, only for logging. 
 ; submit-fn use thing-input-map to collect input field and ret filled msgs.
 ;--------------------------------------------------------------------
-; invoke js datetimepicker fn so that so that picker btn is responsible.
-(defn add-thing-datetimepicker
-  [add-thing-type]
-  (doseq [p (add-thing-type entity-view/create-thing-datetimepicker)]
-    (js/datetimepicker p)))
-
-
 ; handle add thing form cancel
 (defn handle-add-thing-cancel
   [add-thing-type]
@@ -281,6 +323,7 @@
                        (dx/xpath "//button[@id='cancel']"))]
     (.log js/console (str "enable add thing form cancel " add-thing-type))
     (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))))
+
 
 
 (defn handle-add-thing-submit
@@ -302,7 +345,6 @@
 
   ([form input-queue submit-fn]
     (events/send-on :submit form input-queue submit-fn)))
-
 
 
 ;--------------------------------------------------------------------

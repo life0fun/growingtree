@@ -143,9 +143,11 @@
                             
       ])))
 
-;
+
+
 ; when nav type changed, emit node destroy for old list
 ; nav path from [:child 17592186045497 :parent] to [:parent 17592186045498 :parent]
+; XXX for each render path, we need to destroy the node upon nav path change.
 (defn nav-path-emitter
   [inputs]
   (let [oldpath (vec (last (get-in inputs [:old-model :nav :path])))
@@ -163,21 +165,11 @@
         ]
     (.log js/console (str "nav path emitter from " oldpath " to " newpath))
 
-    ; do not need this, squash [:data] will emit [:value [:data] oldv nil], which effectively
-    ; remove all the nodes along the path.
-    ; (vec 
-    ;   (concat
-    ;     ;((app/default-emitter nil) inputs)
-    ;     ; (mapcat (fn [entity]
-    ;     ;           (let [renderpath (navpath->renderpath oldpath (:db/id entity))]
-    ;     ;             (.log js/console (str "nav path emitter del renderpath " renderpath))
-    ;     ;             [[:node-destroy renderpath]]))
-    ;     ;         old-things-vec)
-    ;   ))
-
+    ; for each render path, we need to destroy the render path upon nav path change.
     [
       [:node-destroy [:header]]
       [:node-destroy [:filtered]]
+      [:node-destroy [:details]]
       [:node-destroy [:main]]
     ]
     ))
@@ -227,12 +219,12 @@
     ; each change tuple consists of node-path and a vector of values
     ;(removed-thing-deltas removed)
     (.log js/console (str "thing data emit qpath " qpath " changemap " changemap))
-    ; (.log js/console (str "thing data emit removed " removed))
+    (.log js/console (str "thing data emit removed " removed))
     ; (.log js/console (str "thing data emit msg " msg))
     (vec 
       (concat
         ; with this, will emit [:value [:all :course] old-value new-val]
-        ;((app/default-emitter) inputs) 
+        ;((app/default-emitter) inputs)
         []
         (reduce  ; data path is [:data :all 0 :parent] as emitter is [:data :* :* :*]
           (fn [deltas [data-path newvals]] ; data path is :msg-topic [] in request thing
@@ -267,7 +259,6 @@
                 details-box (add-details-box render-path qpath)
                ]
             (.log js/console (str "node-create and value thing data at path " render-path " " navpath))
-            ; XXX the meat is create and value node at render-path [:header :child 17592186045497]
             (concat [ [:node-destroy render-path]
                       [:node-create render-path :map]
                       [:value render-path {:qpath qpath :thing-map thing-map}] ]
@@ -358,12 +349,29 @@
   ; thing attr does not have action keys, ret list of empty transforms.
   [])
 
+
 (defmethod thing-navpath-transforms
   :author
   [thing-type render-path entity-map]
-  ; thing attr does not have action keys, ret list of empty transforms.
-  [])
-
+   (let [thing-id (:db/id entity-map)
+         thing-type (keyword (:person/type entity-map))
+        ;thing nav action keys defined in entity-view 
+        transkeys (keys (get entity-view/thing-nav-actionkey thing-type))
+        navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
+       ]
+    (mapcat
+      ; [:nav :parent 17592186045499 :child] :child
+      (fn [[nav type id transkey :as navpath]]
+        (let [messages (thing-nav-messages navpath render-path entity-map)] 
+          (.log js/console (str "thing nav path emitter " type " " transkey " " navpath))
+          (vector 
+            [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
+            [:node-destroy navpath]
+            [:transform-enable navpath ; always [:nav :parent 17592186045499 :child]
+                               transkey   ; nav next thing, :child, :coure
+                               messages] 
+          )))
+      navpaths)))
 
 ; ------------------------------------------------------------------------
 ; generate nav path transform messages for each thing nav link click.
@@ -376,6 +384,8 @@
 
 
 ; for general next thing nav, ask render to send msg to [:nav :path] to update nav path.
+; use path [:thing 1 :thing] to show header, and qpath [:thing 1 :next] to show filtered 
+; rpath is cur thing's path. [:main :course 1 :lecture 2] or [:header :course 1]
 ; nav-path = [:nav :parent 17592186045499 :child], include thing title and author link.
 (defmethod thing-nav-messages
   :default
@@ -436,6 +446,40 @@
                   }]
         ]
     ;(.log js/console (str "thing-nav-messages " messages))
+    messages))
+
+
+; always go :create-thing [:create :child] path, do not go post thing path.
+(defmethod thing-nav-messages
+  :add-child
+  [[nav type id transkey :as nav-path] render-path entity-map]
+  (let [ ; add child, parent thing map is course
+        messages [
+                  {
+                    msgs/topic [:create :child]
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :details) {}
+                  }
+                 ]
+        ]
+    messages))
+
+
+; always go :create-thing [:create :parent] path, do not go post thing path.
+(defmethod thing-nav-messages
+  :add-parent
+  [[nav type id transkey :as nav-path] render-path entity-map]
+  (let [ ; add parent, parent thing map is course
+        messages [
+                  {
+                    msgs/topic [:create :parent]
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :details) {}
+                  }
+                 ]
+        ]
     messages))
 
 ; always go :create-thing [:create :lecture] path, do not go post thing path.
@@ -533,7 +577,7 @@
     messages))
 
 ;;==================================================================================
-;; action bar assign, triggered by [:setup :assign]
+;; action bar assign emitter, triggered by [:setup :assign]
 ;;==================================================================================
 ; actionbar displayed, now trans enable UI event data come back
 (defn assign-emitter
