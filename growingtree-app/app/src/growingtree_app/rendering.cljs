@@ -294,18 +294,20 @@
     (let [; qpath is nav to next thing, used for toggle add subthing link.
           {:keys [thing-map qpath]} newv
           thing-id (last rpath)
+          thing-type (second rpath)
           
           thing-head-view 
-            (entity-view/thing-value-view r [:header (second rpath) thing-id] [] thing-map input-queue)
+            (entity-view/thing-value-view r [:header thing-type thing-id] [] thing-map input-queue)
 
           thing-details-view 
             (newthing-form/thing-details-view r rpath qpath thing-map input-queue)
          ]
       (.log js/console (str "value thing details " rpath " qpath " qpath " view  " thing-view))
       
-      (templates/update-t r [:header (second rpath) thing-id] thing-head-view)
-      (templates/update-t r rpath thing-details-view)
-      (newthing-form/handle-details-view-btn (second rpath))
+      (templates/update-t r [:header thing-type thing-id] thing-head-view)
+      ;(templates/update-t r rpath thing-details-view)
+      (newthing-form/set-input-placeholder thing-type thing-details-view)
+      (newthing-form/handle-details-view-btn thing-type)
       )))
 
 

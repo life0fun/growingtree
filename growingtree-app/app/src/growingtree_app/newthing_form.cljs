@@ -237,18 +237,17 @@
     (js/datetimepicker p)))
 
 
-; set the text in input place holder
+; set the text in input placeholder
 ;(dom/set-value! (dx/xpath "//input[@id='person-title']") "hello")
 (defn set-input-placeholder
-  [thing-type]
+  [thing-type value-map]
   (let [input-map (get thing-input-map thing-type)
         input-fields (keys input-map)
-        input-ids (vals input-map)
-        input-texts (get thing-input-value thing-type)]
-    (.log js/console (str "set input value " input-ids input-texts))
+        input-ids (vals input-map)]
+    (.log js/console (str "set input value " input-ids value-map))
     (doseq [input-id input-ids]
       (dom/set-value! (dx/xpath (str "//input[@id='" input-id "']"))
-                      ((keyword input-id) input-texts)))
+                      ((keyword input-id) value-map)))
     ))
 
 
@@ -275,10 +274,6 @@
         (do
           (handle-add-thing-submit add-thing-type path override-map input-queue)
           (handle-add-thing-cancel add-thing-type)))
-
-      (if (= nchild 0)
-        (set-input-placeholder add-thing-type))
-
     )))
 
 ;;==================================================================================
@@ -459,7 +454,6 @@
   :default
   [r rpath qpath thing-map input-queue]
   (let [thing-type (second (reverse rpath))
-        thing-keys (keys (thing-type thing-input-value))
         thing-view {}
        ]
     (.log js/console (str "thing details view " thing-view))
@@ -470,7 +464,6 @@
   :parent
   [r rpath qpath thing-map input-queue]
   (let [thing-type (second rpath)
-        thing-keys (keys (:person thing-input-value))
         thing-view {
           :person-title (get-in thing-map [:person/title])
           :person-lname (get-in thing-map [:person/lname])
@@ -490,7 +483,6 @@
   :course
   [r rpath qpath thing-map input-queue]
   (let [thing-type (second rpath)
-        thing-keys (keys (thing-type thing-input-value))
         thing-view {
           :course-title (get-in thing-map [:course/title])
           :course-author (get-in thing-map [:course/author 0 :person/title])
@@ -508,7 +500,6 @@
   :lecture
   [r rpath qpath thing-map input-queue]
   (let [thing-type (second rpath)
-        thing-keys (keys (thing-type thing-input-value))
         thing-view {
           :lecture-title (get-in thing-map [:lecture/title])
           :lecture-author (get-in thing-map [:lecture/author 0 :person/title])
@@ -530,7 +521,6 @@
   :question
   [r rpath qpath thing-map input-queue]
   (let [thing-type (second rpath)
-        thing-keys (keys (thing-type thing-input-value))
         thing-view {
           :question-title (get-in thing-map [:question/title])
           :question-author (get-in thing-map [:question/author 0 :person/title])
