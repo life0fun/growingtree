@@ -163,7 +163,7 @@
                   old-things-vec)
             [[:node-destroy [:main]]])
         ]
-    (.log js/console (str "nav path emitter from " oldpath " to " newpath))
+    (.log js/console (str "nav-path-emitter from " oldpath " to " newpath))
 
     ; for each render path, we need to destroy the render path upon nav path change.
     [
@@ -340,15 +340,16 @@
 
 
 ; -------------------------------------------------------------------------------
-; there is no real title or author thing, it just nav next target. 
-; hence no transforms when target itself is details.
+; for header of details thing, thing-type is the ident of the entity map
+; thing-type is title, rpath [:details :course 17592186045428 :title 17592186045428]
 ; -------------------------------------------------------------------------------
 (defmethod thing-navpath-transforms
   :title
   [thing-type render-path entity-map]
-  ; thing attr does not have action keys, ret list of empty transforms.
-  [])
-
+  (let [head-thing-type (second render-path)]
+    (.log js/console (str "thing-navpath-transforms " thing-type render-path))
+    (thing-navpath-transforms head-thing-type render-path entity-map)))
+  
 
 (defmethod thing-navpath-transforms
   :author
@@ -379,7 +380,7 @@
 ; [:nav :parent 17592186045499 :child] :child
 ; ------------------------------------------------------------------------
 (defmulti thing-nav-messages
-  (fn [[nav type id transkey :as navpath] render-path entity-map]
+  (fn [[nav thing-type id transkey :as navpath] render-path entity-map]
     transkey))
 
 
@@ -389,8 +390,8 @@
 ; nav-path = [:nav :parent 17592186045499 :child], include thing title and author link.
 (defmethod thing-nav-messages
   :default
-  [[nav type id transkey :as nav-path] render-path entity-map]
-  (let [hdpath (concat (butlast (rest nav-path)) [type]) ; replace last as nav next target
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
+  (let [hdpath (concat (butlast (rest nav-path)) [thing-type]) ; replace last as nav next target
         qpath (rest nav-path)
         messages [{msgs/topic [:nav :path] 
                    msgs/type :set-nav-path
@@ -405,7 +406,7 @@
 
 (defmethod thing-nav-messages
   :assign-form
-  [[nav type id transkey :as nav-path] render-path entity-map]
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
                     msgs/topic [:create transkey]  
                     msgs/type :create-thing
@@ -420,7 +421,7 @@
 
 (defmethod thing-nav-messages
   :answer-form
-  [[nav type id transkey :as nav-path] render-path entity-map]
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
                     msgs/topic [:create transkey]  
                     msgs/type :create-thing
@@ -436,7 +437,7 @@
 ; grade to answer. [:nav :answer 17592186045439 :grade-form]
 (defmethod thing-nav-messages
   :grade-form
-  [[nav type id transkey :as nav-path] render-path entity-map]
+  [[nthing-av type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
                     msgs/topic [:create transkey]  
                     msgs/type :create-thing
@@ -452,7 +453,7 @@
 ; always go :create-thing [:create :child] path, do not go post thing path.
 (defmethod thing-nav-messages
   :add-child
-  [[nav type id transkey :as nav-path] render-path entity-map]
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [ ; add child, parent thing map is course
         messages [
                   {
@@ -469,7 +470,7 @@
 ; always go :create-thing [:create :parent] path, do not go post thing path.
 (defmethod thing-nav-messages
   :add-parent
-  [[nav type id transkey :as nav-path] render-path entity-map]
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [ ; add parent, parent thing map is course
         messages [
                   {
@@ -485,7 +486,7 @@
 ; always go :create-thing [:create :lecture] path, do not go post thing path.
 (defmethod thing-nav-messages
   :add-lecture
-  [[nav type id transkey :as nav-path] render-path entity-map]
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [ ; add lecture, parent thing map is course
         messages [
                   {
@@ -517,7 +518,7 @@
 ; add comments, render transformer will display comments template 
 (defmethod thing-nav-messages
   :add-comments
-  [[nav type id transkey :as nav-path] render-path entity-map]
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [ ; add comments, parent thing map is course
         messages [
                   {
@@ -533,7 +534,7 @@
 ; reply to comments form
 (defmethod thing-nav-messages
   :reply-form
-  [[nav type id transkey :as nav-path] render-path entity-map]
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
                     msgs/topic [:create transkey]  
                     msgs/type :create-thing
@@ -548,7 +549,7 @@
 ; for upvote transform msg, need both render-path and thing-map to inc and refresh view.
 (defmethod thing-nav-messages
   :upvote
-  [[nav type id transkey :as nav-path] render-path entity-map]
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
                     msgs/topic [:create transkey]  
                     msgs/type :create-thing
@@ -559,6 +560,7 @@
         ]
     ;(.log js/console (str "thing-nav-messages " messages))
     messages))
+
 
 
 ; when click author, header will be author entry and details will be author details
@@ -572,6 +574,24 @@
                    msgs/type :set-nav-path
                    :path (vec hdpath)    ; path is current path [:author 1 :author]
                    :rpath (vec render-path)}   ; [:main :course 1 :author 2]
+                 ]
+        ]
+    messages))
+
+
+; when click title, header will be title entry and details will be title details
+; we use one query for the thing, not path and qpath, so we do not set qpath.
+; nav-path = [:nav :course 17592186045499 :title], thing-type is course, transkey is title.
+(defmethod thing-nav-messages
+  :title
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
+  (let [; replace last to be title for proper nav path to render path
+        hdpath (concat (butlast (rest nav-path)) [:title])
+        qpath (rest nav-path)
+        messages [{msgs/topic [:nav :path] 
+                   msgs/type :set-nav-path
+                   :path (vec hdpath)    ; path is current path [:title 1 :title]
+                   :rpath (vec render-path)}   ; [:main :course 1 :title 2]
                  ]
         ]
     messages))

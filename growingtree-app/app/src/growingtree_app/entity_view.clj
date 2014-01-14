@@ -564,6 +564,7 @@
 (defmethod thing-template-value
   :timeline
   [thing-type thing-map]
+  (.log js/console (str "timeline template value " thing-type (thing-attr-val thing-map thing-type "txtime") thing-map))
   (let [origin-title (-> (get-in thing-map [:timeline/origin])
                          (util/thing-val-by-name "title")
                          (second)) ; value is the second of kv vector
@@ -571,7 +572,8 @@
         value-map 
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :entryhref "javascript:void(0);"
-           :txtime (util/format-time (thing-attr-val thing-map thing-type "txtime"))
+           ;:txtime (util/format-time (thing-attr-val thing-map thing-type "txtime"))
+           :txtime (thing-attr-val thing-map thing-type "txtime")
            :author-name (get-in thing-map [:timeline/author])
            :id-author (str (:db/id thing-map) "-author")
            :origin-title origin-title

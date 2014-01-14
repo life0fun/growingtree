@@ -113,6 +113,7 @@
 (declare find-parent-by-cid)
 (declare find-parent-by-cname)
 
+(declare upsert-family-parent-child)
 (declare add-to-family)
 
 ; the global id, gened from unix epoch in milliseconds
@@ -271,22 +272,41 @@
 
 
 (defn create-child
-  "create child from the submitted new thing form details"
+  "create child from the submitted new thing form details from parent add-child"
   [details]
-  (let [entity (-> details
+  (let [child (-> details
                 (select-keys (keys person-schema))
                 (assoc :person/type :child)
                 (assoc :db/id (d/tempid :db.part/user)))
-        trans (submit-transact [entity])  ; transaction is a list of entity
+
+        family (upsert-family-parent-child (:family/parent details) (:db/id child))
+        trans (submit-transact [child family])  ; transaction is a list of maps to update db values
       ]
     (newline)
-    (prn "create child entity " entity)
+    (prn "create child " child  " family " family)
     (prn "create child trans " trans)
-    [entity]))
+    [child]))
+
 
 ;;==========================================================================
 ; family
 ;;==========================================================================
+; for details about upsert, check http://docs.datomic.com/transactions.html.
+(defn upsert-family-parent-child
+  "upsert parent and child to family"
+  [pid cid]
+  (let [family (or (dbconn/find-by :family/parent pid)
+                   (dbconn/find-by :family/child cid))
+        family-id (if family (:db/id family) (d/tempid :db.part/user))
+        entity (-> {:family/parent pid :family/child cid}
+                   (assoc :db/id family-id))
+       ]
+    (prn "upsert family " entity)
+    entity))
+
+
+;--------------------------------------------------------------------------------
+; Deprecated !!!
 (defn create-family
   "create a family with parent child title, assume person title is unique"
   [details]
@@ -344,6 +364,7 @@
     (prn pid pe ch newch)))
 
 
+; use list form with explicit :db/add for adding attr for an existing entity.
 ; [:db/add entity-id attribute value]
 (defn link-parent-child
   "link child to parent by parent id and child id"
