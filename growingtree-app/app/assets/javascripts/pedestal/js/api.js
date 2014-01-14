@@ -33,8 +33,13 @@ var datetimepickerByThing = function (thingclz, id) {
 //-------------------------------------------------
 // enable jquery tags inputs
 //-------------------------------------------------
-var tagsInput = function (id) {
-  $("#" +id).tagsInput();
+var tagsInput = function (id, prompt) {
+  $("#" +id).tagsInput({
+    'defaultText': prompt,
+    'height':'20px',
+    'margin-left': '20px',
+    'margin-bottom': '10px'
+  });
 }
 
 var addTag = function(id, tag) {

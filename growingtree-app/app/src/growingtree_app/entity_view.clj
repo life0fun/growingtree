@@ -128,11 +128,6 @@
     :timeline "timeline.jpg"
   })
 
-; a mapping for datetimepicker id for each new thing type
-(def create-thing-datetimepicker
-  {
-    :lecture ["lecture-start-picker", "lecture-end-picker"]
-  })
 
 ;;===============================================================
 ; xpath selector for inline form

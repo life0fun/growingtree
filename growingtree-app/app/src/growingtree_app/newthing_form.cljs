@@ -33,7 +33,9 @@
       (.log js/console (str "toggle hide link clicked " clz hidden))
       (if hidden
         (dom/remove-class! form "hide")
-        (dom/add-class! form "hide")))))
+        (dom/add-class! form "hide"))
+      ; ret whether we displayed the form
+      (not hidden))))
 
 
 ;;==================================================================================
@@ -213,6 +215,25 @@
   })
 
 
+; a mapping for datetimepicker id for each new thing type
+(def thing-datetimepicker
+  {
+    :lecture ["lecture-start-picker", "lecture-end-picker"]
+  })
+
+
+; a mapping of thing type to ids of thing tags input fields
+; each map in the list entry key is input dom id, value is prompt text
+(def thing-tagsinput
+  {
+    :parent [{"person-url" "url..."} {"person-email" "email..."} {"person-im" "jabber@..."}]
+    :child [{"person-url" "url..."} {"person-email" "email..."} {"person-im" "jabber@..."}]
+    :course [{"course-author" "author..."} {"course-url" "url..."} {"course-email" "email..."}]
+    :lecture [{"lecture-author" "author..."} {"lecture-url" "url..."} {"lecture-email" "email..."}]
+    :question [{"question-author" "author..."} {"question-tag" "tags..."}]
+  })
+
+
 ;;================================================================================
 ; display add thing template inside filtered thing
 ; path is [:nav :course 1 :add-lecture]
@@ -223,18 +244,25 @@
   (let [id (render/new-id! r path)
         templ (add-thing-type templates)
         html (templates/add-template r path templ)
-        thing-value (add-thing-type thing-input-value)
-        divcode (html (merge {:id id} thing-value))
+        divcode (html (merge {:id id}))
        ]
-    (.log js/console (str "add thing form at " path " type " add-thing-type))
+    (.log js/console (str "add-thing-form at " path " type " add-thing-type))
     divcode))
 
 
 ; invoke js datetimepicker fn so that so that picker btn is responsible.
 (defn add-thing-datetimepicker
-  [add-thing-type]
-  (doseq [p (add-thing-type entity-view/create-thing-datetimepicker)]
+  [thing-type]
+  (doseq [p (thing-type thing-datetimepicker)]
     (js/datetimepicker p)))
+
+
+(defn add-thing-tagsInput
+  [thing-type]
+  (doseq [field (thing-type thing-tagsinput)]
+    (let [[id prompt] (first (seq field))]
+      (.log js/console (str "add-thing-tagsInput " thing-type id prompt))
+      (js/tagsInput id prompt))))
 
 
 ; set the text in input placeholder
@@ -263,10 +291,7 @@
           ]
       (.log js/console (str add-thing-type " link clicked div " nchild))
       (if (= nchild 0)
-        (do
-          (dom/append! newthing add-thing-form)
-        
-          )
+        (dom/append! newthing add-thing-form)
         (dom/destroy-children! newthing))
 
       ; enable event must live outside the same block of dom append displaying form.
@@ -336,6 +361,7 @@
       
       (.log js/console (str "enable add thing form submit " add-thing-type path))
       (add-thing-datetimepicker add-thing-type)
+      (add-thing-tagsInput add-thing-type)
       (handle-add-thing-submit form input-queue submit-fn)))
 
   ([form input-queue submit-fn]

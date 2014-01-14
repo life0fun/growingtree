@@ -317,6 +317,7 @@
        ]
     (.log js/console (str "enable thing nav assign toggle " path " " link-clz assign-form-clz))
     (js/datetimepickerByThing assign-form-clz "assignto-end-picker")
+    (js/tagsInput "assignto-name", "assign to...")
     (de/listen! assignto-link :click toggle-fn)
   ))
 
