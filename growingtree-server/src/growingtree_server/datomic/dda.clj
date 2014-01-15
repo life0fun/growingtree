@@ -277,6 +277,19 @@
   (course/create-lecture details))
 
 
+; --------------------------------------------------------------------
+(defn find-enrollment
+  "find enrollment for a course, or a lecture"
+  [qpath]
+  (course/find-enrollment qpath))
+
+
+(defn create-enrollment
+  "create an enrollment to a course or lecture"
+  [details]
+  (course/create-enrollment details))
+
+
 ;;==============================================================
 ;; question related, should use multi-method to dispatch
 ;;==============================================================

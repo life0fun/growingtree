@@ -101,6 +101,7 @@
     (prn "peer get assignments " qpath assignments)
     assignments))
 
+
 (defmethod get-things
   :answer
   [type qpath details]
@@ -114,6 +115,14 @@
   (let [comments (dda/find-comments qpath)]
     (prn "peer get comments " qpath comments)
     comments))
+
+
+(defmethod get-things
+  :enrollment
+  [type qpath details]
+  (let [enrollments (dda/find-enrollment qpath)]
+    (prn "peer get enrollments " qpath enrollments)
+    enrollments))
 
 
 (defmethod get-things
@@ -295,4 +304,14 @@
     result))
 
 
+; create enrollment thing
+(defmethod add-thing
+  :enrollment
+  [type details]
+  (let [author (:author details)
+        result (dda/create-enrollment details)
+        ]  
+    (newline)
+    ;(prn "peer add thing " type " result " result " details " details )
+    result))
 

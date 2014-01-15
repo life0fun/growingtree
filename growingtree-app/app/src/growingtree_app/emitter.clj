@@ -217,10 +217,9 @@
         changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         removed (d/removed-inputs inputs)]
     ; each change tuple consists of node-path and a vector of values
-    ;(removed-thing-deltas removed)
     (.log js/console (str "thing data emit qpath " qpath " changemap " changemap))
-    (.log js/console (str "thing data emit removed " removed))
-    ; (.log js/console (str "thing data emit msg " msg))
+    ;(.log js/console (str "thing data emit removed " removed))
+    ;(.log js/console (str "thing data emit msg " msg))
     (vec 
       (concat
         ; with this, will emit [:value [:all :course] old-value new-val]
@@ -385,7 +384,7 @@
 
 
 ; for general next thing nav, ask render to send msg to [:nav :path] to update nav path.
-; use path [:thing 1 :thing] to show header, and qpath [:thing 1 :next] to show filtered 
+; path [:thing 1 :thing] is for header, and qpath [:thing 1 :next] to for filtered 
 ; rpath is cur thing's path. [:main :course 1 :lecture 2] or [:header :course 1]
 ; nav-path = [:nav :parent 17592186045499 :child], include thing title and author link.
 (defmethod thing-nav-messages
@@ -395,8 +394,8 @@
         qpath (rest nav-path)
         messages [{msgs/topic [:nav :path] 
                    msgs/type :set-nav-path
-                   :path (vec hdpath)    ; path is current path [:course 1 :course]
-                   :qpath (vec qpath)    ; qpath is next to [:course 1 :lecture], append to nav path
+                   :path (vec hdpath)    ; path is for [:header :course 1 :course]
+                   :qpath (vec qpath)    ; qpath is for [:filtered :course 1 :lecture]
                    :rpath (vec render-path)}   ; [:main :course 1 :lecture 2]
                  ]
         ]

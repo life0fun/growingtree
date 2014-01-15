@@ -180,7 +180,6 @@
 (defn find-lecture
   "find lecture by query path "
   [qpath]
-  (prn "find lecture " (util/get-entities-by-rule qpath get-lecture-by))
   (let [projkeys (keys lecture-schema)
         lectures (->> (util/get-entities-by-rule qpath get-lecture-by)
                      (map #(select-keys % projkeys) )
@@ -218,7 +217,56 @@
     [entity]))
 
 
-;;===============================================================
+;;===================================================================================
 ; enrollment
-;;===============================================================
+; to un-enroll, [:db/retract entity-id attribute value]
+; [:db.fn/retractEntity entity-id], retract entity recursively retract inbound refs.
+;;===================================================================================
+; rule set for get parent by. rule name is the parent thing type.
+(def get-enrollment-by
+  '[[(:all ?e ?val) [?e :enrollment/title]]   ; select all
+    [(:title ?e ?val) [?e :enrollment/title ?val]]
+    [(:course ?e ?val) [?e :enrollment/course ?val]]
+    [(:lecture ?e ?val) [?e :enrollment/lecture ?val]]
+    [(:parent ?e ?val) [?e :enrollment/person ?val]]
+    [(:child ?e ?val) [?e :enrollment/person ?val]]
+  ])
+
+
+(defn find-enrollment
+  "find all person that enrolls to the course by query path "
+  [qpath]
+  ;(prn "find enrollment " (util/get-entities-by-rule qpath get-enrollment-by))
+  (let [projkeys (keys enrollment-schema)
+        attendee (-> (first (util/get-entities-by-rule qpath get-enrollment-by))
+                     (select-keys [:enrollment/person])
+                     (->> (map #(get-entity %)))
+                 )
+        ]
+    (doseq [e attendee]
+      (prn "enrollment --> " e))
+    attendee))
+
+
+; for now, all courses are created and lectured by person 
+(defn create-enrollment
+  "create a enrollment with details "
+  [details]
+  (prn "create-enrollment " details)
+  (let [course-id (:enrollment/course details)
+        lecture-id (:enrollment/lecture details)
+        enrollment (if course-id 
+                      (dbconn/find-by :enrollment/course course-id)
+                      (dbconn/find-by :enrollment/lecture lecture-id))
+        enrollment-id (if enrollment (:db/id enrollment) (d/tempid :db.part/user))
+
+        person-id (:db/id (find-by :person/title (:enrollment/person details)))
+        entity {:db/id enrollment-id
+                :enrollment/person person-id}
+        ;trans (submit-transact [entity])  ; transaction is a list of entity
+      ]
+    (newline)
+    (prn "create enrollment entity " entity)
+    ;(prn "submit enrollment trans " trans)
+    [entity]))
 

@@ -114,7 +114,6 @@
   "get entities by qpath and rule-set, for each tuple, touch to realize all attrs
    called directly for comments comments case"
   [qpath rule-set]
-  (prn "get entities by rule query " qpath)
   (let [thing-id (second qpath)
         rule-name (first qpath)
         rule (list rule-name '?e '?val)
