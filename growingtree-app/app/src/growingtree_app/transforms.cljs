@@ -165,19 +165,22 @@
 ; create-thing type is from nav path, keyword from create-modal. 
 ; messages/topic [:create :course], effect triggered by [:create :*]
 ; this fn to handle top nav create btn, hence empty override thing-map.
+; rendering and collecting inputs are encapsulated inside newthing-form.
 ;; ---------------------------------------------------------------------------------
 (defmethod enable-submit-action 
   :create-thing
   [r [target path transkey messages] input-queue]
-  (let [type (last path)
-        form (dom/by-class (str (name type) "-form"))
-        btn-cancel (-> form 
-                       (dx/xpath "//button[@id='cancel']"))
+  (let [thing-type (last path)
+        form (dom/by-class (str (name thing-type) "-form"))
+        btn-cancel (-> form (dx/xpath "//button[@id='cancel']"))
         thing-map {}  ; empty override thing-map for fresh create thing
-        submit-fn (newthing-form/submit-fn type form thing-map messages)]
+        submit-fn (newthing-form/submit-fn type form thing-map messages)
+       ]
     (.log js/console (str "enable submit action :create-thing page " path transkey messages))
-    (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))
-    (events/send-on :submit form input-queue submit-fn)
+    ;(de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))
+    ;(events/send-on :submit form input-queue submit-fn)
+    (newthing-form/handle-add-thing-cancel thing-type)
+    (newthing-form/handle-add-thing-submit thing-type path {} input-queue)
     ))
 
 
@@ -343,6 +346,54 @@
                                              input-queue)
   ))
 
+
+(defmethod enable-thing-nav  ; enroll, defined in thing-question and entity-view
+  :enroll
+  [r [_ path transkey messages] input-queue]
+  (let [navpath (rest path)  ; [:parent 1 :enroll]
+        thing-id (first (reverse (butlast navpath)))
+
+        thing-node (dom/by-id (str thing-id))
+        ; link class is enroll-class
+        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
+        enroll-link (dom/by-class link-clz)
+       
+        enroll-form-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id :enroll-form ""))))
+        toggle-fn (-> (entity-view/div-form-sel thing-id "enroll-form")
+                      (newthing-form/toggle-hide-fn enroll-form-clz))
+
+       ]
+    (.log js/console (str "enable thing nav enroll toggle " path " " link-clz enroll-form-clz))
+    (js/tagsInput "enroll-name", "attendee...")
+    (de/listen! enroll-link :click toggle-fn)
+  ))
+
+
+(defmethod enable-thing-nav  ; transkey = :enroll-form
+  :enroll-form
+  [r [_ path transkey messages] input-queue]
+  (let [thing-id (first (reverse (butlast path)))
+        thing-map ((msgs/param :thing-map) (first messages))
+        thing-ident (util/thing-ident thing-map)
+
+        override-map {
+                      :enrollment/course (if (= thing-ident :course) (:db/id thing-map) nil)
+                      :enrollment/lecture (if (= thing-ident :lecture) (:db/id thing-map) nil)
+                      :enrollment/title ((keyword (str (name thing-ident) "/title")) thing-map)
+                      :enrollment/content ((keyword (str (name thing-ident) "/content")) thing-map)
+                      :enrollment/url ((keyword (str (name thing-ident) "/url")) thing-map)
+                      :enrollment/email ((keyword (str (name thing-ident) "/email")) thing-map)
+                      :enrollment/wiki ((keyword (str (name thing-ident) "/wiki")) thing-map)
+                     }
+        form (entity-view/div-form-sel thing-id "enroll-form")
+       ]
+    (.log js/console (str "enable thing nav enroll-form " thing-id path))
+    (newthing-form/handle-inline-form-submit :enrollment 
+                                             thing-id 
+                                             form
+                                             override-map 
+                                             input-queue)
+  ))
 
 ; ----------------------------------------------------------------------------------
 ; submit answer and answer-form

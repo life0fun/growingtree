@@ -94,7 +94,6 @@
              :lecture/wiki "lecture-wiki"
             }
 
-
     :question {:question/title "question-title" 
                :question/author "question-author"
                :question/type "question-type"
@@ -103,6 +102,15 @@
                :question/difficulty "question-difficulty"
                :question/tag "question-tag"
               }
+
+    :enrollment {:enrollment/person 
+                    (fn [thing-id]
+                      (entity-view/div-form-input-sel thing-id "enroll-form" "enroll-name"))
+                      
+                 :enrollment/remarks 
+                    (fn [thing-id]
+                      (entity-view/div-form-input-sel thing-id "enroll-form" "enroll-remarks"))
+                }
 
     :assignment {:assignment/person 
                     (fn [thing-id]

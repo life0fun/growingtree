@@ -38,7 +38,8 @@ var tagsInput = function (id, prompt) {
     'defaultText': prompt,
     'height':'20px',
     'margin-left': '20px',
-    'margin-bottom': '10px'
+    'margin-bottom': '10px',
+    'placeholderColor': '#ccc'
   });
 }
 

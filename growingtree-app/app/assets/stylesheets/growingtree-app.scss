@@ -104,7 +104,9 @@ textarea {
     margin-bottom: 14px;
 }
 
-/** add comments box **/
+/** 
+    add comments box 
+**/
 .add-comments-form {
 
 }
@@ -117,7 +119,18 @@ textarea {
     text-align: left;
 }
 
-// answer-form stack textarea fields
+
+/*
+   answer-form  and grade form
+*/
+.answer-form {
+    margin-left: 20px;
+    margin-bottom: 10px;
+    width: 300px;
+}
+.answer-form div {
+    margin-bottom: 10px;
+}
 .answer-form textarea {
     margin-top: 10px;
     margin-left: 20px;
@@ -141,7 +154,9 @@ textarea {
 }
 
 
-// do not need to set individual ele, set the form.
+/*
+  // do not need to set individual ele, set the form.
+*/
 .assign-form {
     margin-left: 20px;
     margin-bottom: 10px;
@@ -169,7 +184,41 @@ textarea {
     margin-top: 10px;
 }
 
-/* create new thing form*/
+
+/*
+// enroll form, do not need to set individual ele, set the form.
+*/
+.enroll-form {
+    margin-left: 20px;
+    margin-bottom: 10px;
+    width: 300px;
+}
+.enroll-form div {
+    margin-bottom: 10px;
+}
+
+// enroll-form stack textarea fields
+.enroll-form textarea {
+    margin-top: 10px;
+    width: 300px;
+    height:60px;
+}
+.enroll-form input {
+    width: 300px;
+}
+/* datetime picker add-on */
+.enroll-form .add-on {
+    margin-left: -1px;
+    background-color: #778899;
+}
+.enroll-form .enroll-button {
+    margin-top: 10px;
+}
+
+
+/* 
+    create new thing form
+*/
 .control-group label {
     display: inline-block; 
     width: 140px; 
@@ -192,7 +241,12 @@ textarea {
     width: 300px;
 }
 
-/*UI stuff*/
+
+
+
+/* 
+    UI stuff
+*/
 .newbutton {
     @include appearance(none);
     border: 8px solid transparent;

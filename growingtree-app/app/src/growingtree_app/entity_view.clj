@@ -59,21 +59,18 @@
              :lecture "" :add-lecture " hide" 
              :question "" :add-question " hide" 
              :comments ""
-             :enrollment "" :add-enrollment " hide" 
+             :enrollment "" :enroll "" :enroll-form ""
              :schedule "" 
-             :upvote "" :like "" :share "" 
-             :assignto "" :assign-form ""
+             :upvote "" :like "" :share ""
             }
 
-    :lecture {:title ""
-              ;:author ""
+    :lecture {:title "" :author ""
               :course "" 
               :question "" :add-question " hide" 
               :comments ""
-              :enrollment "" :add-enrollment " hide" 
+              :enrollment "" :enroll "" :enroll-form ""
               :schedule "" 
               :upvote "" :like "" :share "" 
-              :assignto "" :assign-form ""
              }
     
     :question {:title ""
@@ -105,9 +102,11 @@
             }
 
     :like {:origin "" :upvote ""
+            :title "" :author ""
           }
 
     :timeline { :origin "" :details ""
+                :title "" :author ""
               }
   })
 

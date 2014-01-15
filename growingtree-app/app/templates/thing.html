@@ -404,20 +404,13 @@
         </li>
 
         <li class="share">
-          <div field="class:add-enrollment-class">
+          <div field="class:enroll-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">enroll</a>
+              <a class="option active" href="#">enroll to</a>
             </span>
           </div>
         </li>
 
-        <li class="share">
-          <div field="class:assignto-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">assign to</a>
-            </span>
-          <div>
-        </li>
 
         <li class="share">
           <div field="class:similar-class">
@@ -430,22 +423,14 @@
       </ul>
 
       <div class="child-forms">
-        <!-- assign to form, hide first -->
-        <div field="id:id,class:assign-form-class">  
-          <form id="assign-form" class="assign-form hide" style="">
-            <input id="assignto-name" type="text" style="display:block" placeholder="assign to">
-            <input id="assignto-hint" type="text" style="display:block"placeholder="hints">
-            
-            <div id="assignto-end-picker" class="input-append date">
-              <input id="assignto-end" type="text" placeholder="due time hh:mm:ss MM/dd/yyyy" data-format="hh:mm:ss MM/dd/yyyy">
-              <span class="add-on">
-                <i data-time-icon="icon-time" data-date-icon="icon-calendar">
-                </i>
-              </span>
-            </div>
+        <!-- enroll to form, hide first -->
+        <div field="id:id,class:enroll-form-class">  
+          <form id="enroll-form" class="enroll-form hide" style="">
+            <input id="enroll-name" type="text" style="display:block" placeholder="attendee">
+            <input id="enroll-remarks" type="text" style="display:block"placeholder="remarks">
           
             <div class="usertext-buttons">
-              <button type="submit" class="btn btn-primary assign-button">Assign</button>
+              <button type="submit" class="btn btn-primary assign-button">Enroll</button>
             </div>
           </form>
         </div>
@@ -541,7 +526,7 @@
         </li>
 
         <li class="share">
-          <div field="class:add-enrollment-class">
+          <div field="class:enroll-class">
             <span class="share-button toggle" style>
               <a class="option active" href="#">enroll to</a>
             </span>
@@ -572,34 +557,17 @@
             </span>
           </div>
         </li>
-        
-        <li class="share">
-          <div field="class:assignto-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">assign to</a>
-            </span>
-          <div>
-        </li>
-        
       </ul>
            
       <div class="child-forms">
         <!-- assign to form, hide first -->
-        <div field="id:id,class:assign-form-class">  
-          <form id="assign-form" class="assign-form hide" style="">
-            <input id="assignto-name" type="text" style="display:block" placeholder="assign to">
-            <input id="assignto-hint" type="text" style="display:block"placeholder="hints">
-            
-            <div id="assignto-end-picker" class="input-append date">    
-              <input id="assignto-end" type="text" placeholder="due time" data-format="hh:mm:ss MM/dd/yyyy">
-              <span class="add-on">
-                <i data-time-icon="icon-time" data-date-icon="icon-calendar">
-                </i>
-              </span>
-            </div>
+        <div field="id:id,class:enroll-form-class">  
+          <form id="enroll-form" class="enroll-form hide" style="">
+            <input id="enroll-name" type="text" style="display:block" placeholder="attendee">
+            <input id="enroll-remarks" type="text" style="display:block"placeholder="remarks">
           
             <div class="usertext-buttons">
-              <button type="submit" class="btn btn-primary assign-button">Assign</button>
+              <button type="submit" class="btn btn-primary assign-button">Enroll</button>
             </div>
           </form>
         </div>

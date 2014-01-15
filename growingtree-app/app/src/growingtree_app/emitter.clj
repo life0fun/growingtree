@@ -405,6 +405,21 @@
 
 
 (defmethod thing-nav-messages
+  :enroll-form
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
+  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
+                    msgs/topic [:create transkey]  
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :rpath) render-path
+                    (msgs/param :details) {}
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " messages))
+    messages))
+
+
+(defmethod thing-nav-messages
   :assign-form
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
@@ -562,7 +577,9 @@
     messages))
 
 
-
+; -----------------------------------------------------------------------------------
+; following are links to the details of the thing, not link to next thing.
+; -----------------------------------------------------------------------------------
 ; when click author, header will be author entry and details will be author details
 ; note that the id in [:author id :author] is the id of the thing, not id of author.
 (defmethod thing-nav-messages
