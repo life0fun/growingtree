@@ -257,7 +257,7 @@
                 comments-box (add-comments-box render-path qpath)
                 details-box (add-details-box render-path qpath)
                ]
-            (.log js/console (str "node-create and value thing data at path " render-path " " navpath))
+            (.log js/console (str "node-create and value thing data render path" render-path " navpath " navpath))
             (concat [ [:node-destroy render-path]
                       [:node-create render-path :map]
                       [:value render-path {:qpath qpath :thing-map thing-map}] ]
@@ -288,16 +288,23 @@
 ; :navpath ["all" 0 "course" 1], or  ["course" 1 "comments" 2], or ["course" 1 "course" 2]
 (defn thing-navpath->renderpath
   [thing-navpath thing-map]
-  (let [[parent _ child] (take 3 thing-navpath)]
+  (let [[parent pid child] (take 3 thing-navpath)]
     (cond 
       (= parent :all) (vec (concat [:main] thing-navpath))
       (= child :title) (vec (concat [:details] thing-navpath))
       ; for person thing, map to person type for choosing right person template.
       ; [:parent 1 :person 1], thing node html dispatch on :person, pick parent template.
       (= parent :person)
-        (let [pid (:db/id thing-map)
+        (let [person-id (:db/id thing-map)
               person-type (keyword (:person/type thing-map))]
-          (vec (concat [:details] [person-type pid :person pid])))
+          (vec (concat [:details] [person-type person-id])))
+
+      ; substitute enrollment with person, as enrollment list all person.
+      (= child :enrollment)
+        (let [person-id (:db/id thing-map)
+              person-type (keyword (:person/type thing-map))]
+          (vec (concat [:filtered] [parent pid person-type person-id])))
+        
       (= parent child) (vec (concat [:header] (take 2 thing-navpath))) ; [:header :parent 1]
       :else (vec (concat [:filtered] thing-navpath))))) ; [filtered :thing id :next-thing id]
 
@@ -314,10 +321,11 @@
     thing-type))
 
 ; created node path for render at [:nav :thing-type :thing-id :extra ] :transkey, 
-; triggers enable-thing-nav
+; thing-type :enrollment render-path [:filtered :course 1 :child 2]
 (defmethod thing-navpath-transforms
   :default
   [thing-type render-path entity-map]
+  (.log js/console (str "thing-navpath-transforms " thing-type render-path))
   (let [thing-id (:db/id entity-map)
         ;thing nav action keys defined in entity-view 
         transkeys (keys (get entity-view/thing-nav-actionkey thing-type))
@@ -336,6 +344,14 @@
                                messages] 
           )))
       navpaths)))
+
+
+; for enrollment, we need to substitute with either parent or child
+(defmethod thing-navpath-transforms
+  :enrollment
+  [thing-type render-path entity-map]
+  (let [next-type (second (reverse render-path))]
+    (thing-navpath-transforms next-type render-path entity-map)))
 
 
 ; -------------------------------------------------------------------------------

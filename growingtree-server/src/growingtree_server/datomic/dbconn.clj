@@ -213,7 +213,8 @@
       (prn a  (a e)))))
 
 ;;==========================================================================
-; datomic transaction
+; datomic transaction, all attr in entity must not be nil. transaction does
+; not help you to filter out nil, you need to filter out nil attr value before submit.
 ;;==========================================================================
 ;; submit transaction (transact connection tx-data)
 ; tx-data is a list of lists, each of which specifies a write
@@ -224,7 +225,7 @@
 (defn submit-transact
   "submit a transaction"
   [tx-data]
-  (prn "submit-transact " tx-data)
+  (prn "dbconn submit-transact " tx-data)
   (let [ft (d/transact (get-conn) tx-data)]  ; ret future task
     (prn "dbconn submit trans ft " tx-data ft)
     ft))

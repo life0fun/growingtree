@@ -236,11 +236,14 @@
 (defn find-enrollment
   "find all person that enrolls to the course by query path "
   [qpath]
-  ;(prn "find enrollment " (util/get-entities-by-rule qpath get-enrollment-by))
+  ;(prn "find enrollment " qpath (util/get-entities-by-rule qpath get-enrollment-by))
   (let [projkeys (keys enrollment-schema)
-        attendee (-> (first (util/get-entities-by-rule qpath get-enrollment-by))
-                     (select-keys [:enrollment/person])
-                     (->> (map #(get-entity %)))
+        person-keys (keys (assoc (list-attr :person) :db/id :db.type/id))
+        attendee (->> (first (util/get-entities-by-rule qpath get-enrollment-by))
+                      (:enrollment/person)  ; select-keys ret a map with subset keys
+                      (map (comp get-entity :db/id))
+                      (map #(select-keys % person-keys) )
+                      (map #(util/add-navpath % qpath) )
                  )
         ]
     (doseq [e attendee]
@@ -249,10 +252,11 @@
 
 
 ; for now, all courses are created and lectured by person 
+; using cond-> threading, the same as threading to anonymous (-> state (#(if true (inc %) %))
 (defn create-enrollment
   "create a enrollment with details "
   [details]
-  (prn "create-enrollment " details)
+  (prn "create-enrollment " details  "schema " (keys enrollment-schema))
   (let [course-id (:enrollment/course details)
         lecture-id (:enrollment/lecture details)
         enrollment (if course-id 
@@ -261,8 +265,17 @@
         enrollment-id (if enrollment (:db/id enrollment) (d/tempid :db.part/user))
 
         person-id (:db/id (find-by :person/title (:enrollment/person details)))
-        entity {:db/id enrollment-id
-                :enrollment/person person-id}
+        entity (cond-> {:db/id enrollment-id
+                        :enrollment/person person-id
+                        :enrollment/title (:enrollment/title details)
+                        :enrollment/content (:enrollment/content details)
+                        :enrollment/url (:enrollment/url details)
+                        :enrollment/email (:enrollment/email details)}
+                      ; using cond-> expr test/form pairs. if predicate is true, exec, continue.
+                      lecture-id (assoc :enrollment/lecture lecture-id)
+                      course-id (assoc :enrollment/course course-id)
+                  )
+
         ;trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)

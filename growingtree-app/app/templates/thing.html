@@ -424,10 +424,10 @@
 
       <div class="child-forms">
         <!-- enroll to form, hide first -->
-        <div field="id:id,class:enroll-form-class">  
-          <form id="enroll-form" class="enroll-form hide" style="">
-            <input id="enroll-name" type="text" style="display:block" placeholder="attendee">
-            <input id="enroll-remarks" type="text" style="display:block"placeholder="remarks">
+        <div field="class:enroll-form-class" template="enroll-form">  
+          <form field="id:enroll-form-id" class="enroll-form hide" style="">
+            <input field="id:enroll-name-id" type="text" style="display:block" placeholder="attendee">
+            <input field="id:enroll-remarks-id" type="text" style="display:block" placeholder="remarks">
           
             <div class="usertext-buttons">
               <button type="submit" class="btn btn-primary assign-button">Enroll</button>
@@ -561,10 +561,10 @@
            
       <div class="child-forms">
         <!-- assign to form, hide first -->
-        <div field="id:id,class:enroll-form-class">  
-          <form id="enroll-form" class="enroll-form hide" style="">
-            <input id="enroll-name" type="text" style="display:block" placeholder="attendee">
-            <input id="enroll-remarks" type="text" style="display:block"placeholder="remarks">
+        <div field="class:enroll-form-class">  
+          <form field="id:enroll-form" class="enroll-form hide" style="">
+            <input field="id:enroll-name" type="text" style="display:block" placeholder="attendee">
+            <input field="id:enroll-remarks" type="text" style="display:block"placeholder="remarks">
           
             <div class="usertext-buttons">
               <button type="submit" class="btn btn-primary assign-button">Enroll</button>
@@ -676,7 +676,7 @@
 
       <div class="child-forms">
         <!-- assign to form, hide first -->
-        <div field="id:id,class:assign-form-class">  
+        <div field="class:assign-form-class">  
           <form id="assign-form" class="assign-form hide" style="">
             
             <input id="assignto-name" type="text" style="display:block" placeholder="assign to">

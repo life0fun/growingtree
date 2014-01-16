@@ -281,6 +281,9 @@
         templ-map (merge {:id thing-id
                           :rank (str thing-idx)
                           :thumbhref (thing-type thing-thumbnail)
+                          :enroll-form-id (str "enroll-form-" thing-id )
+                          :enroll-name-id (str "enroll-name-" thing-id )
+                          :enroll-remarks-id (str "enroll-remarks-" thing-id )
                          }
                          (thing-template-class thing-id actionkeys))
         thing-div (html templ-map)
@@ -403,21 +406,26 @@
 (defmethod thing-template-value
   :course
   [thing-type thing-map]
-  (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+  (let [thing-id (:db/id thing-map)
+        upvotes (str (thing-attr-val thing-map thing-type "upvote"))
         ; we need have attr keyword for get-in of :ref :many attr value
         author-attr (util/thing-attr-keyword thing-type "author")
         value-map 
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :thing-content (thing-attr-val thing-map thing-type "content")
            :entryhref "javascript:void(0);"
-           :title-id (str (:db/id thing-map) "-title")
+           :title-id (str thing-id "-title")
            :author-name (get-in thing-map [author-attr 0 :person/title])
            :author-class (get-in thing-map [author-attr 0 :person/title])
-           :id-author (str (:db/id thing-map) "-author")
+           :id-author (str thing-id "-author")
            :upvote upvotes
            :start (util/format-time (thing-attr-val thing-map thing-type "start"))
            :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
+           ; :enroll-form (str "enroll-form-" thing-id )
+           ; :enroll-name (str "enroll-name-" thing-id )
+           ; :enroll-remarks (str "enroll-remarks-" thing-id )
           }
+
        ]
     value-map))
 
@@ -426,7 +434,8 @@
 (defmethod thing-template-value
   :lecture
   [thing-type thing-map]
-  (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+  (let [thing-id (:db/id thing-map)
+        upvotes (str (thing-attr-val thing-map thing-type "upvote"))
         author-attr (util/thing-attr-keyword thing-type "author")
         value-map 
           {:thing-title (thing-attr-val thing-map thing-type "title")
@@ -441,6 +450,9 @@
            :seqno (thing-attr-val thing-map thing-type "seqno")
            :start (util/format-time (thing-attr-val thing-map thing-type "start"))
            :end (util/format-time (thing-attr-val thing-map thing-type "end"))
+           :enroll-form (str thing-id "-enroll-form")
+           :enroll-name (str thing-id "-enroll-name")
+           :enroll-remarks (str thing-id "-enroll-remarks")
           }
        ]
     value-map))

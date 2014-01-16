@@ -42,6 +42,7 @@
    :thing-thumbnail (dtfn (tnodes "growingtree-app.html" "thing-thumbnail") #{:href})
    :thing-entry (dtfn (tnodes "growingtree-app.html" "thing-entry") #{:href})
    :assign-form (dtfn (tnodes "growingtree-app.html" "assign-form") #{})
+   :enroll-form (dtfn (tnodes "growingtree-app.html" "enroll-form") #{})
 
    
    :parent (dtfn (tnodes "newthing.html" "parent") #{:id})
