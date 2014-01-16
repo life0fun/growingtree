@@ -244,17 +244,19 @@
 
 ;;================================================================================
 ; display add thing template inside filtered thing
-; path is [:nav :course 1 :add-lecture]
+; path is [:nav :course 1 :add-lecture] [:nav :course 2 :enroll]
 ;;================================================================================
 (defn add-thing-form
   "instantiate new thing form for thing-type, return div code to be appended to parent"
-  [add-thing-type r path]
-  (let [id (render/new-id! r path)
-        templ (add-thing-type templates)
-        html (templates/add-template r path templ)
-        divcode (html (merge {:id id}))
+  [add-thing-type thing-id r rpath]
+  (let [;id (render/new-id! r rpath)
+        id (str (name add-thing-type) "-" thing-id)
+        form (add-thing-type templates)
+        html (templates/add-template r rpath form)
+        form-val {:id id}
+        divcode (html form-val)
        ]
-    (.log js/console (str "add-thing-form at " path " type " add-thing-type))
+    (.log js/console (str "add-thing-form at " rpath " type " add-thing-type " divcode " divcode))
     divcode))
 
 
@@ -290,12 +292,13 @@
 ; toggle to display new thing form, and handle add thing submit.
 (defn toggle-add-thing-form-fn
   "return an event handler fn that toggen hide css class of the form"
-  [add-thing-type r path override-map input-queue]
+  [add-thing-type r rpath parent-div-id override-map input-queue]
   (fn [_] 
-    (let [newthing-div "new-subthings"    ; div defined in thing details
-          newthing (dom/by-id newthing-div)
-          nchild (count (dom/children (dx/xpath (str "//div[@id='" newthing-div "']"))))
-          add-thing-form (add-thing-form add-thing-type r path)  ; render path
+    (let [;newthing-div "new-subthings"    ; div defined in thing details
+          thing-id (second (reverse rpath))
+          newthing (dom/by-id parent-div-id)
+          nchild (count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']"))))
+          add-thing-form (add-thing-form add-thing-type thing-id r rpath)  ; render rpath
           ]
       (.log js/console (str add-thing-type " link clicked div " nchild))
       (if (= nchild 0)
@@ -305,7 +308,8 @@
       ; enable event must live outside the same block of dom append displaying form.
       (if (= nchild 0)
         (do
-          (handle-add-thing-submit add-thing-type path override-map input-queue)
+          (js/tagsInput "enroll-name", "attendee...")
+          (handle-add-thing-submit add-thing-type rpath override-map input-queue)
           (handle-add-thing-cancel add-thing-type)))
     )))
 

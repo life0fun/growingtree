@@ -198,6 +198,7 @@
     :else ((keyword (str (name thing-type) "/" attr)) thing-map)))
 
 
+; class selector for sublink assignto-class, enroll-class
 (defn thing-nav-link-sel
   "ret the class selector for thing nav sublink transkey"
   [thing-id link-key hide]
@@ -214,10 +215,11 @@
     {}
     sublink-meta))
 
-;;===============================================================
-; toggle to display whether nav-subthing or add-subthing. 
-; return class for template to show whether 
-;;===============================================================
+
+;;====================================================================
+; toggle to display nav-subthing or add-subthing for one sub-link.
+; called when value a node, return class for template to show whether 
+;;====================================================================
 (defn toggle-nav-add-subthing-class
   [thing-id thing-type qpath]
   (when-let [nxt-thing-type (last qpath)]
@@ -281,14 +283,12 @@
         templ-map (merge {:id thing-id
                           :rank (str thing-idx)
                           :thumbhref (thing-type thing-thumbnail)
-                          :enroll-form-id (str "enroll-form-" thing-id )
-                          :enroll-name-id (str "enroll-name-" thing-id )
-                          :enroll-remarks-id (str "enroll-remarks-" thing-id )
+                          :child-form-id (str "child-form-" thing-id)
                          }
                          (thing-template-class thing-id actionkeys))
         thing-div (html templ-map)
         ]
-    (.log js/console (str "thing-node-html " rpath " " (keyword (str "thing-" (name thing-type)))))
+    (.log js/console (str "thing-node-html " rpath " " templ-map))
     thing-div))
 
 

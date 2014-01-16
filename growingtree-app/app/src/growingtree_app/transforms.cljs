@@ -349,22 +349,29 @@
 
 (defmethod enable-thing-nav  ; enroll, defined in thing-question and entity-view
   :enroll
-  [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:parent 1 :enroll]
-        thing-id (first (reverse (butlast navpath)))
-
+  [r [_ rpath transkey messages] input-queue]
+  (let [thing-id (second (reverse rpath))
         thing-node (dom/by-id (str thing-id))
+
         ; link class is enroll-class
         link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
         enroll-link (dom/by-class link-clz)
+        ; thing-map msgs param from emitter
+        thing-map ((msgs/param :thing-map) (first messages))
+        override-map {:family/parent (:db/id thing-map)
+                     }
        
         enroll-form-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id :enroll-form ""))))
-        toggle-fn (-> (entity-view/div-form-sel thing-id "enroll-form")
-                      (newthing-form/toggle-hide-fn enroll-form-clz))
+        ; show enroll-form template
+        toggle-fn (newthing-form/toggle-add-thing-form-fn :enroll-form 
+                                                          r rpath
+                                                          (str "child-form-" thing-id)
+                                                          override-map
+                                                          input-queue)
 
        ]
-    (.log js/console (str "enable thing nav enroll toggle " path " " link-clz enroll-form-clz))
-    (js/tagsInput "enroll-name", "attendee...")
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " rpath " " enroll-form-clz))
+    ;(js/tagsInput "enroll-name", "attendee...")
     (de/listen! enroll-link :click toggle-fn)
   ))
 
@@ -496,7 +503,8 @@
                      }
         ; now toggle add thing form, and enable the submit fn.
         toggle-fn (newthing-form/toggle-add-thing-form-fn :child 
-                                                          r path 
+                                                          r path
+                                                          "new-subthings"
                                                           override-map 
                                                           input-queue)
        ]
@@ -523,7 +531,8 @@
                      }
         ; now toggle add thing form, and enable the submit fn.
         toggle-fn (newthing-form/toggle-add-thing-form-fn :lecture 
-                                                          r path 
+                                                          r path
+                                                          "new-subthings" 
                                                           override-map 
                                                           input-queue)
        ]
@@ -547,7 +556,8 @@
         thing-map ((msgs/param :thing-map) (first messages))
         override-map {:question/origin (:db/id thing-map)}
         toggle-fn (newthing-form/toggle-add-thing-form-fn :question 
-                                                          r path 
+                                                          r path
+                                                          "new-subthings"
                                                           override-map 
                                                           input-queue)
        ]
@@ -572,7 +582,8 @@
         override-map {:comments/origin (:db/id thing-map)
                       :comments/thingroot (:db/id thing-map)}
         toggle-fn (newthing-form/toggle-add-thing-form-fn :comments 
-                                                          r path 
+                                                          r path
+                                                          "new-subthings"
                                                           override-map 
                                                           input-queue)
        ]

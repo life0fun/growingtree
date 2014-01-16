@@ -327,8 +327,9 @@
 (defn create-thing-page
   [r [op rpath] input-queue]
   (let [thing-type (last rpath)
+        thing-id (second (reverse rpath))
         parent (dom/by-id "main")    ; put the template
-        divcode (newthing-form/add-thing-form thing-type r rpath)
+        divcode (newthing-form/add-thing-form thing-type thing-id r rpath)
        ]
     (.log js/console (str "render create thing page at " rpath " type " thing-type))
     (dom/destroy-children! parent)

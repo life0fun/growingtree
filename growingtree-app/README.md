@@ -285,10 +285,11 @@ To set the value of dom element content, not element attributes, use filed="cont
 To verify template working, need to restart to reload app.
 
     (use 'growingtree-app.html-templates)
-    (def t (growingtree-app-templates))
-    (def homepage (:home-page t))
-    (homepage)
-    (let [[_ ctor] (homepage)] (ctor {:id "root"}))
+    (def t (growingtree-app-templates))    
+    (def c (:thing-course t))
+    (let [[_ ctor] (c)] (ctor {:id "1" :child-form-id "34" :child-form-class "rrr"}))
+
+Note that all block ids must be static fields for dtfn. This prevent them from being re-written by gen-ed ids after insert into DOM.
 
 Note that template name must be the same as the keywords in html-template for enlive nodes connect to dom nodes.
 

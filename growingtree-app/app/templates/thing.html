@@ -134,7 +134,7 @@
         </li>
 
       </ul>
-      <div class="child"></div>
+      <div field="id:child-form-id" class="child-form"></div>
       <div class="clearleft"></div>
     </div>
   </div>
@@ -285,7 +285,7 @@
         </li>
 
       </ul>
-      <div class="child"></div>
+      <div field="id:child-form-id" class="child-form"></div>
       <div class="clearleft"></div>
     </div>
   </div>
@@ -422,20 +422,8 @@
 
       </ul>
 
-      <div class="child-forms">
-        <!-- enroll to form, hide first -->
-        <div field="class:enroll-form-class" template="enroll-form">  
-          <form field="id:enroll-form-id" class="enroll-form hide" style="">
-            <input field="id:enroll-name-id" type="text" style="display:block" placeholder="attendee">
-            <input field="id:enroll-remarks-id" type="text" style="display:block" placeholder="remarks">
-          
-            <div class="usertext-buttons">
-              <button type="submit" class="btn btn-primary assign-button">Enroll</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
+      
+      <div field="id:child-form-id" class="child-form"></div>
       <div class="clearleft"></div>
     </div>
   </div>
@@ -1102,7 +1090,6 @@
   </div>
 
 
-
   <!-- 
     Search node
   -->
@@ -1156,12 +1143,27 @@
   <!-- 
     the assign form action div
   -->
-  <div template="assign-form" field="class:assign-form-class">
+  <div template="assign-form" field="id:assign-form-id,class:assign-form-class">
     <form class="assign-form" style="float:left;">
       <input id="assignto-name" type="text" placeholder="assign to">
       <input id="assignto-hint" type="text" placeholder="hints">
       <input id="assignto-end" type="text" placeholder="due time">
       <button class="assign-button" type="submit"> Assign </button>
+    </form>
+  </div>
+
+
+  <!-- 
+    enroll to form, hide first
+  -->
+  <div template="enroll-form" field="id:id">  
+    <form class="enroll-form" style="float:left;">
+      <input id="enroll-name" type="text" style="display:block" placeholder="attendee">
+      <input id="enroll-remarks" type="text" style="display:block" placeholder="remarks">
+    
+      <div class="usertext-buttons">
+        <button type="submit" class="btn btn-primary assign-button">Enroll</button>
+      </div>
     </form>
   </div>
 
