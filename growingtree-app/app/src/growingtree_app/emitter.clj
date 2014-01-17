@@ -436,7 +436,7 @@
 
 
 (defmethod thing-nav-messages
-  :assign-form
+  :assignto
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
                     msgs/topic [:create transkey]  
@@ -451,7 +451,7 @@
 
 
 (defmethod thing-nav-messages
-  :answer-form
+  :submit-answer
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
                     msgs/topic [:create transkey]  
@@ -465,9 +465,9 @@
     messages))
 
 
-; grade to answer. [:nav :answer 17592186045439 :grade-form]
+; grade to answer. [:nav :answer 17592186045439 :grade]
 (defmethod thing-nav-messages
-  :grade-form
+  :grade
   [[nthing-av type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
                     msgs/topic [:create transkey]  

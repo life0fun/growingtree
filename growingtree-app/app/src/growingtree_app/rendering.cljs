@@ -197,7 +197,6 @@
 ; as we need to append nodes to subthings-list, we attach thing-details templ to 
 ; path [:filtered :course 1], as the parent for top level subthings-list.
 ;;================================================================================
-
 (defn render-filtered-page
   "render thing details parent header and a list of children, delete main children first"
   [r filter-path]  ; filter-path [:course 1] 

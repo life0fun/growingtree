@@ -103,15 +103,6 @@
                :question/tag "question-tag"
               }
 
-    ; :enroll {:enrollment/person 
-    ;                 (fn [thing-id]
-    ;                   (entity-view/div-form-input-sel thing-id "enroll-form" "enroll-name"))
-                      
-    ;              :enrollment/remarks 
-    ;                 (fn [thing-id]
-    ;                   (entity-view/div-form-input-sel thing-id "enroll-form" "enroll-remarks"))
-    ;             }
-
     :enrollment {:enrollment/person 
                     (fn [thing-id]
                       (str "enrollment-name-" thing-id))
@@ -120,32 +111,32 @@
                       (str "enrollment-remarks-" thing-id))
                 }
 
-    :assignment {:assignment/person 
-                    (fn [thing-id]
-                      (entity-view/div-form-input-sel thing-id "assign-form" "assignto-name"))
+    :assign {:assignment/person 
+              (fn [thing-id]
+                (str "assign-name-" thing-id))
                       
-                 :assignment/hint 
-                    (fn [thing-id]
-                      (entity-view/div-form-input-sel thing-id "assign-form" "assignto-hint"))
+             :assignment/hint 
+              (fn [thing-id]
+                (str "assign-hint-" thing-id))
 
-                 :assignment/end 
-                    (fn [thing-id]
-                      (entity-view/div-form-input-sel thing-id "assign-form" "assignto-end"))
-                }
+             :assignment/end 
+               (fn [thing-id]
+                  (str "assign-end-" thing-id))
+            }
 
     :answer {:answer/title
-                  (fn [thing-id]
-                    (entity-view/div-form-textarea-sel thing-id "answer-form" "answer-title"))
+              (fn [thing-id]
+                (str "answer-title-" thing-id))
             }
 
     :grade {:grade/score
-                  (fn [thing-id]
-                    (entity-view/div-form-input-sel thing-id "grade-form" "grade-score"))
+              (fn [thing-id]
+                (str "grade-score-" thing-id))
 
             :grade/comments
-                  (fn [thing-id]
-                    (entity-view/div-form-input-sel thing-id "grade-form" "grade-comments"))
-            }
+              (fn [thing-id]
+                (str "grade-comments-" thing-id))
+           }
                       
     :group {:group/title "group-title"
             :group/author "group-author"
@@ -156,8 +147,8 @@
            }
 
     :comments {:comments/title 
-                  (fn [thing-id]  ; input field id is comments-title
-                    (entity-view/div-form-textarea-sel thing-id "reply-form" "comments-title"))
+                (fn [thing-id]  ; input field id is comments-title
+                  (entity-view/div-form-textarea-sel thing-id "reply-form" "comments-title"))
               }
   })
 
@@ -269,6 +260,18 @@
   :enrollment
   [add-thing-type thing-id]
   (let [input-ids ["enrollment-name" "enrollment-remarks"]]
+    (reduce
+      (fn [tot idname]
+        (assoc tot (keyword idname) (str idname "-" thing-id)))
+        {}
+        input-ids)))
+
+
+; add assignment use :assign as :assignment is for showing assignment details.
+(defmethod add-thing-input-id
+  :assign
+  [add-thing-type thing-id]
+  (let [input-ids ["assign-name" "assign-hint" "assign-end"]]
     (reduce 
       (fn [tot idname]
         (assoc tot (keyword idname) (str idname "-" thing-id)))
@@ -277,9 +280,20 @@
 
 
 (defmethod add-thing-input-id
-  :assignment
+  :answer
   [add-thing-type thing-id]
-  (let [input-ids ["assignment-name" "assignment-remarks"]]
+  (let [input-ids ["answer-title"]]
+    (reduce 
+      (fn [tot idname]
+        (assoc tot (keyword idname) (str idname "-" thing-id)))
+        {}
+        input-ids)))
+
+
+(defmethod add-thing-input-id
+  :grade
+  [add-thing-type thing-id]
+  (let [input-ids ["grade-score" "grade-comments"]]
     (reduce 
       (fn [tot idname]
         (assoc tot (keyword idname) (str idname "-" thing-id)))
@@ -310,8 +324,7 @@
 (defn add-thing-form
   "instantiate new thing form for thing-type, return div code to be appended to parent"
   [add-thing-type thing-id r rpath]
-  (let [;id (render/new-id! r rpath)
-        id (str (name add-thing-type) "-" thing-id)
+  (let [id (str (name add-thing-type) "-" thing-id)
         form ((keyword (str (name add-thing-type) "-form")) templates)
         html (templates/add-template r rpath form)
         form-val (merge {:id id}
@@ -345,14 +358,14 @@
           thing-id (second (reverse rpath))
           parent-div (dom/by-id parent-div-id)
           nchild (count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']"))))
-          ;add-thing-form (add-thing-form add-thing-type thing-id r rpath)  ; render rpath
+          add-thing-form (add-thing-form add-thing-type thing-id r rpath)
           ]
       (.log js/console (str add-thing-type " link clicked div " nchild))
       (when (= nchild 0)
         (dom/destroy-children! (dom/by-class "child-form")))
 
       (if (= nchild 0)
-        (dom/append! parent-div (add-thing-form add-thing-type thing-id r rpath))
+        (dom/append! parent-div add-thing-form)
         (dom/destroy-children! parent-div))
 
       ; enable event must live outside the same block of dom append displaying form.
@@ -391,7 +404,7 @@
          ]
       (.log js/console (str add-thing-type " inputs " input-fields input-vals))
       ;(.log js/console (str add-thing-type " new form submitted details " details))
-      (dom/destroy! form)
+      (dom/destroy-children! (dom/by-class "child-form"))
       (de/prevent-default e)
       (msgs/fill :create-thing messages {:details details}))))
 

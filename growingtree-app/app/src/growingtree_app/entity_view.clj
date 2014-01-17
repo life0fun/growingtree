@@ -79,12 +79,12 @@
                :similar ""
                :comments ""
                :upvote "" :like "" :share "" 
-               :assignto "" :assign-form ""
+               :assignto ""
               }
 
     :assignment {:title ""
                  :question "" :hint "" :similar ""
-                 :answer "" :submit-answer "" :answer-form ""
+                 :answer "" :submit-answer ""
                  :comments ""
                  :upvote "" :like "" :share "" 
                 }
@@ -94,7 +94,7 @@
               }
 
     :answer {:title ""
-             :grade "" :grade-form ""
+             :grade ""
              :assignment ""
              :question ""
              :comments ""
@@ -198,22 +198,24 @@
     :else ((keyword (str (name thing-type) "/" attr)) thing-map)))
 
 
-; class selector for sublink assignto-class, enroll-class
-(defn thing-nav-link-sel
-  "ret the class selector for thing nav sublink transkey"
-  [thing-id link-key hide]
-  (let [k (keyword (str (name link-key) "-class")) 
-        clz (str (name link-key) "-" thing-id hide)]
-    (hash-map k clz)))
-
-; get thing template map from a meta map, class selector includes thing-id
-(defn thing-template-class
+; thing nav link class selector includes thing-id, called in thing-node-html.
+(defn thing-nav-link-class
   [thing-id sublink-meta]
   (reduce 
     (fn [tot [attr-key hide]]
       (merge tot (thing-nav-link-sel thing-id attr-key hide)))
     {}
     sublink-meta))
+
+
+; thing nav sublink is [enroll-class = enroll-1234], setted above.
+; class selector for sublink assignto-class, enroll-class
+(defn thing-nav-link-sel
+  "ret the class selector for thing nav sublink transkey"
+  [thing-id link-key hide]
+  (let [k (keyword (str (name link-key) "-class"))
+        clz (str (name link-key) "-" thing-id hide)]
+    (hash-map k clz)))
 
 
 ;;====================================================================
@@ -279,14 +281,14 @@
         ; add the rendered template attached to rpath node
         html (templates/add-template render rpath templ)
         
-        ; all sublink class selector with thing-id is defined in thing-template-class
+        ; all sublink class selector with thing-id is defined in thing-nav-link-class
         actionkeys (thing-type thing-nav-actionkey) ; all sublink meta
         templ-map (merge {:id thing-id
                           :rank (str thing-idx)
                           :thumbhref (thing-type thing-thumbnail)
                           :child-form-id (str "child-form-" thing-id)
                          }
-                         (thing-template-class thing-id actionkeys))
+                         (thing-nav-link-class thing-id actionkeys))
         thing-div (html templ-map)
         ]
     (.log js/console (str "thing-node-html " rpath " " templ-map))
@@ -422,9 +424,6 @@
            :upvote upvotes
            :start (util/format-time (thing-attr-val thing-map thing-type "start"))
            :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
-           ; :enroll-form (str "enroll-form-" thing-id )
-           ; :enroll-name (str "enroll-name-" thing-id )
-           ; :enroll-remarks (str "enroll-remarks-" thing-id )
           }
 
        ]
@@ -451,9 +450,6 @@
            :seqno (thing-attr-val thing-map thing-type "seqno")
            :start (util/format-time (thing-attr-val thing-map thing-type "start"))
            :end (util/format-time (thing-attr-val thing-map thing-type "end"))
-           :enroll-form (str thing-id "-enroll-form")
-           :enroll-name (str thing-id "-enroll-name")
-           :enroll-remarks (str thing-id "-enroll-remarks")
           }
        ]
     value-map))
