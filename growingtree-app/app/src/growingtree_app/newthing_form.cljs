@@ -103,13 +103,21 @@
                :question/tag "question-tag"
               }
 
+    ; :enroll {:enrollment/person 
+    ;                 (fn [thing-id]
+    ;                   (entity-view/div-form-input-sel thing-id "enroll-form" "enroll-name"))
+                      
+    ;              :enrollment/remarks 
+    ;                 (fn [thing-id]
+    ;                   (entity-view/div-form-input-sel thing-id "enroll-form" "enroll-remarks"))
+    ;             }
+
     :enrollment {:enrollment/person 
                     (fn [thing-id]
-                      (entity-view/div-form-input-sel thing-id "enroll-form" "enroll-name"))
-                      
+                      (str "enrollment-name-" thing-id))
                  :enrollment/remarks 
                     (fn [thing-id]
-                      (entity-view/div-form-input-sel thing-id "enroll-form" "enroll-remarks"))
+                      (str "enrollment-remarks-" thing-id))
                 }
 
     :assignment {:assignment/person 
@@ -239,7 +247,60 @@
     :course [{"course-author" "author..."} {"course-url" "url..."} {"course-email" "email..."}]
     :lecture [{"lecture-author" "author..."} {"lecture-url" "url..."} {"lecture-email" "email..."}]
     :question [{"question-author" "author..."} {"question-tag" "tags..."}]
+    :enrollment [{"enrollment-name" "attendee..."}]
   })
+
+
+;;================================================================================
+; get the create new thing form input ids
+;;================================================================================
+(defmulti add-thing-input-id
+  (fn [add-thing-type thing-id]
+    add-thing-type))
+
+
+(defmethod add-thing-input-id
+  :default
+  [add-thing-type thing-id]
+  {})
+
+
+(defmethod add-thing-input-id
+  :enrollment
+  [add-thing-type thing-id]
+  (let [input-ids ["enrollment-name" "enrollment-remarks"]]
+    (reduce 
+      (fn [tot idname]
+        (assoc tot (keyword idname) (str idname "-" thing-id)))
+        {}
+        input-ids)))
+
+
+(defmethod add-thing-input-id
+  :assignment
+  [add-thing-type thing-id]
+  (let [input-ids ["assignment-name" "assignment-remarks"]]
+    (reduce 
+      (fn [tot idname]
+        (assoc tot (keyword idname) (str idname "-" thing-id)))
+        {}
+        input-ids)))
+
+
+; invoke js datetimepicker fn so that so that picker btn is responsible.
+(defn add-thing-datetimepicker
+  [thing-type]
+  (doseq [p (thing-type thing-datetimepicker)]
+    (js/datetimepicker p)))
+
+
+(defn add-thing-tagsInput 
+  [add-thing-type thing-id]
+  (doseq [field (add-thing-type thing-tagsinput)]
+    (let [[input-name prompt] (first (seq field))
+          input-id (str input-name "-" thing-id)]
+      (.log js/console (str "add-thing-tagsInput " add-thing-type " " input-id))
+      (js/tagsInput input-id prompt))))
 
 
 ;;================================================================================
@@ -251,28 +312,14 @@
   [add-thing-type thing-id r rpath]
   (let [;id (render/new-id! r rpath)
         id (str (name add-thing-type) "-" thing-id)
-        form (add-thing-type templates)
+        form ((keyword (str (name add-thing-type) "-form")) templates)
         html (templates/add-template r rpath form)
-        form-val {:id id}
+        form-val (merge {:id id}
+                        (add-thing-input-id add-thing-type thing-id))
         divcode (html form-val)
        ]
-    (.log js/console (str "add-thing-form at " rpath " type " add-thing-type " divcode " divcode))
+    (.log js/console (str "add-thing-form rpath " rpath " type " add-thing-type))
     divcode))
-
-
-; invoke js datetimepicker fn so that so that picker btn is responsible.
-(defn add-thing-datetimepicker
-  [thing-type]
-  (doseq [p (thing-type thing-datetimepicker)]
-    (js/datetimepicker p)))
-
-
-(defn add-thing-tagsInput
-  [thing-type]
-  (doseq [field (thing-type thing-tagsinput)]
-    (let [[id prompt] (first (seq field))]
-      (.log js/console (str "add-thing-tagsInput " thing-type id prompt))
-      (js/tagsInput id prompt))))
 
 
 ; set the text in input placeholder
@@ -296,19 +343,23 @@
   (fn [_] 
     (let [;newthing-div "new-subthings"    ; div defined in thing details
           thing-id (second (reverse rpath))
-          newthing (dom/by-id parent-div-id)
+          parent-div (dom/by-id parent-div-id)
           nchild (count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']"))))
-          add-thing-form (add-thing-form add-thing-type thing-id r rpath)  ; render rpath
+          ;add-thing-form (add-thing-form add-thing-type thing-id r rpath)  ; render rpath
           ]
       (.log js/console (str add-thing-type " link clicked div " nchild))
+      (when (= nchild 0)
+        (dom/destroy-children! (dom/by-class "child-form")))
+
       (if (= nchild 0)
-        (dom/append! newthing add-thing-form)
-        (dom/destroy-children! newthing))
+        (dom/append! parent-div (add-thing-form add-thing-type thing-id r rpath))
+        (dom/destroy-children! parent-div))
 
       ; enable event must live outside the same block of dom append displaying form.
       (if (= nchild 0)
         (do
-          (js/tagsInput "enroll-name", "attendee...")
+          (add-thing-datetimepicker add-thing-type)
+          (add-thing-tagsInput add-thing-type thing-id)
           (handle-add-thing-submit add-thing-type rpath override-map input-queue)
           (handle-add-thing-cancel add-thing-type)))
     )))
@@ -317,12 +368,14 @@
 ;; submt fn for new thing form save btn, called from submit action transoform event
 ;;==================================================================================
 (defn submit-fn
-  [add-thing-type form override-map messages]
+  [add-thing-type rpath form override-map messages]
   (fn [e]
-    (let [ ; input-field defined in thing type attr map
+    (let [thing-id (second (reverse rpath))
+          ; input-field defined in thing type attr map
           input-map (get thing-input-map add-thing-type)
           input-fields (keys input-map)
           input-vals (->> (vals input-map)
+                          (map #(% thing-id))
                           (map #(dom/by-id %))
                           (map #(.-value %)))
           details (-> (zipmap input-fields input-vals)
@@ -339,6 +392,7 @@
       (.log js/console (str add-thing-type " inputs " input-fields input-vals))
       ;(.log js/console (str add-thing-type " new form submitted details " details))
       (dom/destroy! form)
+      (de/prevent-default e)
       (msgs/fill :create-thing messages {:details details}))))
 
 
@@ -357,23 +411,20 @@
     (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))))
 
 
-
+; rpath [:nav :lecture 17592186045430 :enroll]
 (defn handle-add-thing-submit
-  ([add-thing-type path override-map input-queue]
+  ([add-thing-type rpath override-map input-queue]
     (let [messages [{msgs/topic [:create add-thing-type]
                      msgs/type :create-thing
                      (msgs/param :details) {}}] ]
-      (handle-add-thing-submit add-thing-type path messages 
+      (handle-add-thing-submit add-thing-type rpath messages 
                                override-map input-queue)))
   
-  ([add-thing-type path messages override-map input-queue]
-    (let [form (dom/by-class (str (name add-thing-type) "-form"))
-          submit-fn (submit-fn add-thing-type form override-map messages)]
-
-      
-      (.log js/console (str "enable add thing form submit " add-thing-type path))
-      (add-thing-datetimepicker add-thing-type)
-      (add-thing-tagsInput add-thing-type)
+  ([add-thing-type rpath messages override-map input-queue]
+    (let [thing-id (second (reverse rpath))
+          form (dom/by-class (str (name add-thing-type) "-form"))
+          submit-fn (submit-fn add-thing-type rpath form override-map messages)]
+      (.log js/console (str "enable add thing form submit " add-thing-type rpath))
       (handle-add-thing-submit form input-queue submit-fn)))
 
   ([form input-queue submit-fn]

@@ -358,12 +358,21 @@
         enroll-link (dom/by-class link-clz)
         ; thing-map msgs param from emitter
         thing-map ((msgs/param :thing-map) (first messages))
-        override-map {:family/parent (:db/id thing-map)
+        
+        thing-ident (util/thing-ident thing-map)
+        override-map {
+                      :enrollment/course (if (= thing-ident :course) (:db/id thing-map) nil)
+                      :enrollment/lecture (if (= thing-ident :lecture) (:db/id thing-map) nil)
+                      :enrollment/title ((keyword (str (name thing-ident) "/title")) thing-map)
+                      :enrollment/content ((keyword (str (name thing-ident) "/content")) thing-map)
+                      :enrollment/url ((keyword (str (name thing-ident) "/url")) thing-map)
+                      :enrollment/email ((keyword (str (name thing-ident) "/email")) thing-map)
+                      :enrollment/wiki ((keyword (str (name thing-ident) "/wiki")) thing-map)
                      }
        
         enroll-form-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id :enroll-form ""))))
-        ; show enroll-form template
-        toggle-fn (newthing-form/toggle-add-thing-form-fn :enroll-form 
+        ; show add enrollment form
+        toggle-fn (newthing-form/toggle-add-thing-form-fn :enrollment 
                                                           r rpath
                                                           (str "child-form-" thing-id)
                                                           override-map
@@ -371,17 +380,18 @@
 
        ]
     (.log js/console (str "enable thing nav " thing-id " " transkey " " rpath " " enroll-form-clz))
-    ;(js/tagsInput "enroll-name", "attendee...")
     (de/listen! enroll-link :click toggle-fn)
   ))
 
 
+; XXX this should be deprecated.
 (defmethod enable-thing-nav  ; transkey = :enroll-form
   :enroll-form
   [r [_ path transkey messages] input-queue]
   (let [thing-id (first (reverse (butlast path)))
         thing-map ((msgs/param :thing-map) (first messages))
-        thing-ident (util/thing-ident thing-map)
+        ;thing-ident (util/thing-ident thing-map)
+        thing-ident :enrollment
 
         override-map {
                       :enrollment/course (if (= thing-ident :course) (:db/id thing-map) nil)

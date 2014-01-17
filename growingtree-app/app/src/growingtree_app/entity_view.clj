@@ -59,7 +59,7 @@
              :lecture "" :add-lecture " hide" 
              :question "" :add-question " hide" 
              :comments ""
-             :enrollment "" :enroll "" :enroll-form ""
+             :enrollment "" :enroll ""
              :schedule "" 
              :upvote "" :like "" :share ""
             }
@@ -68,7 +68,7 @@
               :course "" 
               :question "" :add-question " hide" 
               :comments ""
-              :enrollment "" :enroll "" :enroll-form ""
+              :enrollment "" :enroll ""
               :schedule "" 
               :upvote "" :like "" :share "" 
              }
@@ -268,6 +268,7 @@
     (second (reverse render-path))))
 
 ; generated template html is attached to render path, and updatable from render-path
+; we template child form and attach them to div child-form-1 with class child-form.
 (defmethod thing-node-html
   :default
   [rpath render thing-idx]

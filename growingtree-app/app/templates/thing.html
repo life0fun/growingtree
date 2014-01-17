@@ -547,19 +547,7 @@
         </li>
       </ul>
            
-      <div class="child-forms">
-        <!-- assign to form, hide first -->
-        <div field="class:enroll-form-class">  
-          <form field="id:enroll-form" class="enroll-form hide" style="">
-            <input field="id:enroll-name" type="text" style="display:block" placeholder="attendee">
-            <input field="id:enroll-remarks" type="text" style="display:block"placeholder="remarks">
-          
-            <div class="usertext-buttons">
-              <button type="submit" class="btn btn-primary assign-button">Enroll</button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <div field="id:child-form-id" class="child-form"></div>
       <div class="clearleft"></div>
     </div>
   </div>
@@ -662,30 +650,7 @@
 
       </ul>
 
-      <div class="child-forms">
-        <!-- assign to form, hide first -->
-        <div field="class:assign-form-class">  
-          <form id="assign-form" class="assign-form hide" style="">
-            
-            <input id="assignto-name" type="text" style="display:block" placeholder="assign to">
-            
-            <input id="assignto-hint" type="text" style="display:block"placeholder="hints">
-            
-            <div id="assignto-end-picker" class="input-append date"> 
-              <input id="assignto-end" type="text" placeholder="due time" data-format="hh:mm:ss MM/dd/yyyy">
-              <span class="add-on">
-                <i data-time-icon="icon-time" data-date-icon="icon-calendar">
-                </i>
-              </span>
-            </div>
-          
-            <div class="usertext-buttons">
-              <button type="submit" class="btn btn-primary assign-button">Assign</button>
-            </div>
-          </form>
-        </div>
-      </div>
-      
+      <div field="id:child-form-id" class="child-form"></div>
       <div class="clearleft"></div>
     </div>
   </div>
@@ -796,17 +761,8 @@
 
       </ul>
       
-      <div class="child-forms">
-        <!-- answer form, wrapper div with form-thing-id hide first -->
-        <div field="id:id,class:answer-form-class">
-          <form id="answer-form" class="answer-form hide" style="">
-            <textarea id="answer-title" rows="3" cols="1" name="text"></textarea>
-            <div class="usertext-buttons">
-              <button type="submit" class="btn btn-primary answer-button">Submit</button>
-            </div>
-          </form>
-        </div>
-      </div>
+
+      <div field="id:child-form-id" class="child-form"></div>
       <div class="clearleft"></div>
     </div>
   </div>
@@ -870,7 +826,6 @@
         </li>
 
         <!-- comments -->
-        <!-- comments -->
         <li class="first">
           <div field="class:comments-class">
             <span class="share-button toggle" style>
@@ -905,17 +860,7 @@
 
       </ul>
 
-      <div class="child-forms">
-        <div field="id:id,class:grade-form-class">
-          <form id="grade-form" class="grade-form hide" style="">
-            <input id="grade-score" type="text" placeholder="score">
-            <input id="grade-comments" type="text" placeholder="comments">
-            <div class="usertext-buttons">
-              <button type="submit" class="btn btn-primary grade-button">Grade</button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <div field="id:child-form-id" class="child-form"></div>
       <div class="clearleft"></div>
     </div>
   </div>
@@ -967,6 +912,7 @@
         </li>
       </ul>  <!-- end of flat-list buttons for action -->
     </div>
+
 
     <div class="child">
       <!-- reply form, hide first -->
@@ -1141,25 +1087,32 @@
 
 
   <!-- 
-    the assign form action div
+      ************** 
+       details forms and add thing forms 
+      ************** 
   -->
-  <div template="assign-form" field="id:assign-form-id,class:assign-form-class">
-    <form class="assign-form" style="float:left;">
-      <input id="assignto-name" type="text" placeholder="assign to">
-      <input id="assignto-hint" type="text" placeholder="hints">
-      <input id="assignto-end" type="text" placeholder="due time">
-      <button class="assign-button" type="submit"> Assign </button>
-    </form>
+
+  <!-- 
+    thing details div 
+  -->
+  <div class="offset0" template="thing-details" field="id:id">
+    <div id="thing-root"> </div>
+    <div style="height:2px;background:#ff0000;"></div>
+    <div id="new-subthings"></div>
+    <div style="height:2px;background:#ff0000;"></div>
+    <div id="add-comments"></div>
+    <div style="height:2px;background:#ff0000;"></div>
+    <div id="subthings-list"></div>
   </div>
 
 
   <!-- 
-    enroll to form, hide first
+    enrollment to form, 
   -->
-  <div template="enroll-form" field="id:id">  
-    <form class="enroll-form" style="float:left;">
-      <input id="enroll-name" type="text" style="display:block" placeholder="attendee">
-      <input id="enroll-remarks" type="text" style="display:block" placeholder="remarks">
+  <div template="enrollment-form" field="id:id">  
+    <form class="enrollment-form" style="float:left;">
+      <input field="id:enrollment-name" type="text" style="display:block" placeholder="attendee">
+      <input field="id:enrollment-remarks" type="text" style="display:block" placeholder="remarks">
     
       <div class="usertext-buttons">
         <button type="submit" class="btn btn-primary assign-button">Enroll</button>
@@ -1167,21 +1120,55 @@
     </form>
   </div>
 
- 
+
   <!-- 
-    thing details div 
+    assign form, note we use assignment form for assignment details!
   -->
-  <div class="offset0" template="thing-details" field="id:id">
-    <div id="thing-root"> 
-    </div>
-    <div style="height:2px;background:#ff0000;"></div>
-    <div id="new-subthings"></div>
-    <div style="height:2px;background:#ff0000;"></div>
-    <div id="add-comments"></div>
-    <div style="height:2px;background:#ff0000;"></div>
-    <div id="subthings-list">
-    </div>
+  <div template="assign-form" field="id:id">
+    <form class="assign-form" style="">
+      <input field="id:assign-name" type="text" style="display:block" placeholder="assign to">
+      <input field="id:assign-hint" type="text" style="display:block" placeholder="hints">
+      
+      <div id="assignto-end-picker" class="input-append date"> 
+        <input field="id:assign-end" type="text" placeholder="due time" data-format="hh:mm:ss MM/dd/yyyy">
+        <span class="add-on">
+          <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+        </span>
+      </div>
+    
+      <div class="usertext-buttons">
+        <button type="submit" class="btn btn-primary assign-button">Assign</button>
+      </div>
+    </form>
   </div>
+
+
+  <!-- 
+    answer form, 
+  -->
+  <div template="answer-form" field="id:id">
+    <form class="answer-form form-horizonta" style="">
+      <textarea field="id:answer-title" rows="3" cols="1" name="text" class="textarea" style="width:98%;height:60px;"></textarea>
+      <div class="usertext-buttons">
+        <button type="submit" class="btn btn-primary answer-button">Submit</button>
+      </div>
+    </form>
+  </div>
+
+
+  <!-- 
+    grade form, 
+  -->
+  <div template="grade-form" field="id:id">
+    <form class="grade-form" style="">
+      <input field="id:grade-score" type="text" placeholder="score">
+      <input field="id:grade-comments" type="text" placeholder="comments">
+      <div class="usertext-buttons">
+        <button type="submit" class="btn btn-primary grade-button">Grade</button>
+      </div>
+    </form>
+  </div>
+  
 
 </div>
 </_within>

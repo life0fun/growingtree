@@ -34,36 +34,34 @@
    :user (dtfn (tnodes "growingtree-app.html" "user") #{:id})
    
 
-
-   :thing-parent  (dtfn (tnodes "thing.html" "thing-parent") #{:id})
-   :thing-child  (dtfn (tnodes "thing.html" "thing-child") #{:id})
+   :thing-parent  (dtfn (tnodes "thing.html" "thing-parent") #{:id :child-form-id})
+   :thing-child  (dtfn (tnodes "thing.html" "thing-child") #{:id :child-form-id})
    :thing-course  (dtfn (tnodes "thing.html" "thing-course") #{:id :child-form-id})
-   :thing-lecture  (dtfn (tnodes "thing.html" "thing-lecture") #{:id})
-   :thing-question  (dtfn (tnodes "thing.html" "thing-question") #{:id})
-   :thing-assignment  (dtfn (tnodes "thing.html" "thing-assignment") #{:id})
-   :thing-answer  (dtfn (tnodes "thing.html" "thing-answer") #{:id})
-   :thing-comments  (dtfn (tnodes "thing.html" "thing-comments") #{:id})
+   :thing-lecture  (dtfn (tnodes "thing.html" "thing-lecture") #{:id :child-form-id})
+   :thing-question  (dtfn (tnodes "thing.html" "thing-question") #{:id :child-form-id})
+   :thing-assignment  (dtfn (tnodes "thing.html" "thing-assignment") #{:id :child-form-id})
+   :thing-answer  (dtfn (tnodes "thing.html" "thing-answer") #{:id :child-form-id})
+   :thing-comments  (dtfn (tnodes "thing.html" "thing-comments") #{:id :child-form-id})
    :thing-like  (dtfn (tnodes "thing.html" "thing-like") #{:id})
    :thing-timeline  (dtfn (tnodes "thing.html" "thing-timeline") #{:id})
    :thing-search  (dtfn (tnodes "thing.html" "thing-search") #{:id})
 
-
-   :thing-details  (dtfn (tnodes "thing.html" "thing-details") #{:id})
-
    
-   ; inline forms
-   :assign-form (dtfn (tnodes "thing.html" "assign-form") #{:id})
-   :enroll-form (dtfn (tnodes "thing.html" "enroll-form") #{:id})
+   ; add thing forms, we already have assignment form for assignment details
+   :thing-details  (dtfn (tnodes "thing.html" "thing-details") #{:id})
+   :enrollment-form (dtfn (tnodes "thing.html" "enrollment-form") #{:id :enrollment-name :enrollment-remarks})
+   :assign-form (dtfn (tnodes "thing.html" "assign-form") #{:id :assign-name :assign-hint :assign-end})
+   :answer-form (dtfn (tnodes "thing.html" "answer-form") #{:id :answer-title})
+   :grade-form (dtfn (tnodes "thing.html" "grade-form") #{:id :grade-score :grade-comments})
 
    ; new thing forms
-   :parent (dtfn (tnodes "newthing.html" "parent") #{:id})
-   :child (dtfn (tnodes "newthing.html" "child") #{:id})
-   :family (dtfn (tnodes "newthing.html" "family") #{:id})
-   :course (dtfn (tnodes "newthing.html" "course") #{:id})
-   :lecture (dtfn (tnodes "newthing.html" "lecture") #{:id})
-   :question (dtfn (tnodes "newthing.html" "question") #{:id})
-   :assignment (dtfn (tnodes "newthing.html" "assignment") #{:id})
-   :group (dtfn (tnodes "newthing.html" "group") #{:id})
-   :comments (dtfn (tnodes "newthing.html" "comments") #{:id})
-   :answer (dtfn (tnodes "newthing.html" "answer") #{:id})
+   :parent-form (dtfn (tnodes "newthing.html" "parent-form") #{:id})
+   :child-form (dtfn (tnodes "newthing.html" "child-form") #{:id})
+   :family-form (dtfn (tnodes "newthing.html" "family-form") #{:id})
+   :course-form (dtfn (tnodes "newthing.html" "course-form") #{:id})
+   :lecture-form (dtfn (tnodes "newthing.html" "lecture-form") #{:id})
+   :question-form (dtfn (tnodes "newthing.html" "question-form") #{:id})
+   :assignment-form (dtfn (tnodes "newthing.html" "assignment-form") #{:id})
+   :group-form (dtfn (tnodes "newthing.html" "group-form") #{:id})
+   :comments-form (dtfn (tnodes "newthing.html" "comments-form") #{:id})
   })

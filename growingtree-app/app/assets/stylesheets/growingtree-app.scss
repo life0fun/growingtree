@@ -186,32 +186,32 @@ textarea {
 
 
 /*
-// enroll form, do not need to set individual ele, set the form.
+// enrollment form, do not need to set individual ele, set the form.
 */
-.enroll-form {
+.enrollment-form {
     margin-left: 20px;
     margin-bottom: 10px;
     width: 300px;
 }
-.enroll-form div {
+.enrollment-form div {
     margin-bottom: 10px;
 }
 
-// enroll-form stack textarea fields
-.enroll-form textarea {
+// enrollment-form stack textarea fields
+.enrollment-form textarea {
     margin-top: 10px;
     width: 300px;
     height:60px;
 }
-.enroll-form input {
+.enrollment-form input {
     width: 300px;
 }
 /* datetime picker add-on */
-.enroll-form .add-on {
+.enrollment-form .add-on {
     margin-left: -1px;
     background-color: #778899;
 }
-.enroll-form .enroll-button {
+.enrollment-form .enrollment-button {
     margin-top: 10px;
 }
 

@@ -419,8 +419,9 @@
     messages))
 
 
+; click enroll link will show enrollment-form, we need thing-map for override value.
 (defmethod thing-nav-messages
-  :enroll-form
+  :enroll
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
                     msgs/topic [:create transkey]  
