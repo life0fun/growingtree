@@ -332,7 +332,11 @@
        ]
     (.log js/console (str "render create thing page at " rpath " type " thing-type))
     (dom/destroy-children! parent)
-    (dom/append! parent divcode)))
+    (dom/append! parent divcode)
+    ; now enable datetimepicker and tags input
+    (newthing-form/add-thing-datetimepicker thing-type thing-id)
+    (newthing-form/add-thing-tagsInput thing-type nil)
+    ))
 
 
 ;;================================================================================

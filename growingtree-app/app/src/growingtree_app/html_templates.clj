@@ -50,7 +50,7 @@
    ; add thing forms, we already have assignment form for assignment details
    :thing-details  (dtfn (tnodes "thing.html" "thing-details") #{:id})
    :enrollment-form (dtfn (tnodes "thing.html" "enrollment-form") #{:id :enrollment-name :enrollment-remarks})
-   :assign-form (dtfn (tnodes "thing.html" "assign-form") #{:id :assign-name :assign-hint :assign-end})
+   :assign-form (dtfn (tnodes "thing.html" "assign-form") #{:id :assign-name :assign-hint :assign-end :picker-assign-end})
    :answer-form (dtfn (tnodes "thing.html" "answer-form") #{:id :answer-title})
    :grade-form (dtfn (tnodes "thing.html" "grade-form") #{:id :grade-score :grade-comments})
 

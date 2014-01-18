@@ -514,6 +514,7 @@
         ]
     messages))
 
+
 ; always go :create-thing [:create :lecture] path, do not go post thing path.
 (defmethod thing-nav-messages
   :add-lecture
@@ -562,6 +563,7 @@
         ]
     messages))
 
+
 ; reply to comments form
 (defmethod thing-nav-messages
   :reply-form
@@ -576,6 +578,7 @@
         ]
     ;(.log js/console (str "thing-nav-messages " messages))
     messages))
+
 
 ; for upvote transform msg, need both render-path and thing-map to inc and refresh view.
 (defmethod thing-nav-messages

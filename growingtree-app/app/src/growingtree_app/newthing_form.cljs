@@ -152,85 +152,112 @@
               }
   })
 
-; a mapping defines thing input field text value
-(def thing-input-value
+
+;;================================================================================
+; get the create new thing form input ids
+;;================================================================================
+(def thing-input-fields
   {
-    :person {:person-title "user name..."
-             :person-lname "user last name..."
-             :person-phone "user phone..."
-             :person-email "user email..."
-             :person-url   "user facebook id, twitter id, etc"
-             :person-im "Instant Messenger Id"
-             :person-address "users address "
-             :person-status "active"
-            }
-
-    :parent {:person-title "user name..."
-             :person-lname "user last name..."
-             :person-phone "user phone..."
-             :person-email "user email..."
-             :person-url   "user facebook id, twitter id, etc"
-             :person-im "Instant Messenger Id of the user"
-             :person-address "users address "
-             :person-status "active"
-            }
-
-    :child {:person-title "user name..."
-             :person-lname "user last name..."
-             :person-phone "user phone..."
-             :person-email "user email..."
-             :person-url   "user facebook id, twitter id, etc"
-             :person-im "Instant Messenger Id"
-             :person-address "users address "
-             :person-status "active"
-            }
-
-    :course {:course-title "the title of course ..."
-             :course-author "the author, default to current user"
-             :course-content "brief content of the this course"
-             :course-url "growingtrees.com"
-             :course-email "course@group.growingtrees.com"
-             :course-wiki "course/wiki"
-            }
-
-    :lecture {:lecture-title "the title of lecture ..."
-             :lecture-author "the author, default to current user"
-             :lecture-course "course title this lecture belong to, default to current course"
-             :lecture-content "brief content of the this lecture"
-             :lecture-start "hh:mm:ss MM/dd/yyyy"
-             :lecture-end "hh:mm:ss MM/dd/yyyy"
-             :lecture-seqno "lecture sequence No."
-             :lecture-url "growingtrees.com"
-             :lecture-email "lecture@group.growingtrees.com"
-             :lecture-wiki "lecture/wiki"
-            }
-
-    :question {:question-title "the title of question ..."
-             :question-author "the author, default to current user"
-             :question-content "brief content of the this question"
-             :question-url "growingtrees.com"
-             :question-difficulty "question difficulty level"
-             :question-tag "tags..."
-            }
-
-    :group {:group-title "the title of group ..."
-             :group-author "the admin user of the group, default to current user" 
-             :group-email "email for the group"
-             :group-url "growingtrees.com/group"
-             :group-wiki "group wiki page"
-            }
+    :enrollment ["enrollment-name" "enrollment-remarks"]
+    :assign ["assign-name" "assign-hint" "assign-end" "picker-assign-end"]
+    :answer ["answer-title"]
+    :grade ["grade-score" "grade-comments"]
   })
 
 
+(defn add-thing-input-id
+  [add-thing-type thing-id]
+  (let [input-ids (add-thing-type thing-input-fields)]
+    (reduce
+      (fn [tot idname]
+        (assoc tot (keyword idname) (str idname "-" thing-id)))
+        {}
+        input-ids)))
+
+
+; (defmulti add-thing-input-id
+;   (fn [add-thing-type thing-id]
+;     add-thing-type))
+
+
+; (defmethod add-thing-input-id
+;   :default
+;   [add-thing-type thing-id]
+;   {})
+
+
+; (defmethod add-thing-input-id
+;   :enrollment
+;   [add-thing-type thing-id]
+;   (let [input-ids ["enrollment-name" "enrollment-remarks"]]
+;     (reduce
+;       (fn [tot idname]
+;         (assoc tot (keyword idname) (str idname "-" thing-id)))
+;         {}
+;         input-ids)))
+
+
+; ; add assignment use :assign as :assignment is for showing assignment details.
+; (defmethod add-thing-input-id
+;   :assign
+;   [add-thing-type thing-id]
+;   (let [input-ids ["assign-name" "assign-hint" "assign-end" "picker-assign-end"]]
+;     (reduce 
+;       (fn [tot idname]
+;         (assoc tot (keyword idname) (str idname "-" thing-id)))
+;         {}
+;         input-ids)))
+
+
+; (defmethod add-thing-input-id
+;   :answer
+;   [add-thing-type thing-id]
+;   (let [input-ids ["answer-title"]]
+;     (reduce 
+;       (fn [tot idname]
+;         (assoc tot (keyword idname) (str idname "-" thing-id)))
+;         {}
+;         input-ids)))
+
+
+; (defmethod add-thing-input-id
+;   :grade
+;   [add-thing-type thing-id]
+;   (let [input-ids ["grade-score" "grade-comments"]]
+;     (reduce 
+;       (fn [tot idname]
+;         (assoc tot (keyword idname) (str idname "-" thing-id)))
+;         {}
+;         input-ids)))
+
+
+;;================================================================================
 ; a mapping for datetimepicker id for each new thing type
 (def thing-datetimepicker
   {
-    :lecture ["lecture-start-picker", "lecture-end-picker"]
+    ; :course [(fn [_] "course-start-picker")
+    ;          (fn [_] "course-end-picker")]
+    
+    :lecture [(fn [_] "lecture-start-picker")
+              (fn [_] "lecture-end-picker")]
+    
+    ; create assign form
+    :assign [ (fn [thing-id] (str "picker-assign-end-" thing-id)) ]
   })
 
 
+; invoke js datetimepicker fn so that so that picker btn is responsible.
+(defn add-thing-datetimepicker
+  [thing-type thing-id]
+  (when-let [picker-id-fns (thing-type thing-datetimepicker)]
+    (doseq [id-fn picker-id-fns]
+      (.log js/console "add thing datetimepick " (id-fn thing-id))
+      (js/datetimepicker (picker-id-fn thing-id)))))
+
+
+;;================================================================================
 ; a mapping of thing type to ids of thing tags input fields
-; each map in the list entry key is input dom id, value is prompt text
+; each map in the list entry key is input dom id + thing-id, value is prompt text
 (def thing-tagsinput
   {
     :parent [{"person-url" "url..."} {"person-email" "email..."} {"person-im" "jabber@..."}]
@@ -239,80 +266,15 @@
     :lecture [{"lecture-author" "author..."} {"lecture-url" "url..."} {"lecture-email" "email..."}]
     :question [{"question-author" "author..."} {"question-tag" "tags..."}]
     :enrollment [{"enrollment-name" "attendee..."}]
+    :assign [{"assign-name", "assign to..."}]
   })
-
-
-;;================================================================================
-; get the create new thing form input ids
-;;================================================================================
-(defmulti add-thing-input-id
-  (fn [add-thing-type thing-id]
-    add-thing-type))
-
-
-(defmethod add-thing-input-id
-  :default
-  [add-thing-type thing-id]
-  {})
-
-
-(defmethod add-thing-input-id
-  :enrollment
-  [add-thing-type thing-id]
-  (let [input-ids ["enrollment-name" "enrollment-remarks"]]
-    (reduce
-      (fn [tot idname]
-        (assoc tot (keyword idname) (str idname "-" thing-id)))
-        {}
-        input-ids)))
-
-
-; add assignment use :assign as :assignment is for showing assignment details.
-(defmethod add-thing-input-id
-  :assign
-  [add-thing-type thing-id]
-  (let [input-ids ["assign-name" "assign-hint" "assign-end"]]
-    (reduce 
-      (fn [tot idname]
-        (assoc tot (keyword idname) (str idname "-" thing-id)))
-        {}
-        input-ids)))
-
-
-(defmethod add-thing-input-id
-  :answer
-  [add-thing-type thing-id]
-  (let [input-ids ["answer-title"]]
-    (reduce 
-      (fn [tot idname]
-        (assoc tot (keyword idname) (str idname "-" thing-id)))
-        {}
-        input-ids)))
-
-
-(defmethod add-thing-input-id
-  :grade
-  [add-thing-type thing-id]
-  (let [input-ids ["grade-score" "grade-comments"]]
-    (reduce 
-      (fn [tot idname]
-        (assoc tot (keyword idname) (str idname "-" thing-id)))
-        {}
-        input-ids)))
-
-
-; invoke js datetimepicker fn so that so that picker btn is responsible.
-(defn add-thing-datetimepicker
-  [thing-type]
-  (doseq [p (thing-type thing-datetimepicker)]
-    (js/datetimepicker p)))
 
 
 (defn add-thing-tagsInput 
   [add-thing-type thing-id]
   (doseq [field (add-thing-type thing-tagsinput)]
     (let [[input-name prompt] (first (seq field))
-          input-id (str input-name "-" thing-id)]
+          input-id (if thing-id (str input-name "-" thing-id) input-name)]
       (.log js/console (str "add-thing-tagsInput " add-thing-type " " input-id))
       (js/tagsInput input-id prompt))))
 
@@ -326,6 +288,7 @@
   [add-thing-type thing-id r rpath]
   (let [id (str (name add-thing-type) "-" thing-id)
         form ((keyword (str (name add-thing-type) "-form")) templates)
+        ;form ((add-thing-type add-thing-type-form) templates)
         html (templates/add-template r rpath form)
         form-val (merge {:id id}
                         (add-thing-input-id add-thing-type thing-id))
@@ -371,7 +334,7 @@
       ; enable event must live outside the same block of dom append displaying form.
       (if (= nchild 0)
         (do
-          (add-thing-datetimepicker add-thing-type)
+          (add-thing-datetimepicker add-thing-type thing-id)
           (add-thing-tagsInput add-thing-type thing-id)
           (handle-add-thing-submit add-thing-type rpath override-map input-queue)
           (handle-add-thing-cancel add-thing-type)))
@@ -399,7 +362,8 @@
                       (util/update-enum add-thing-type "type" false)
                       (util/update-time add-thing-type "start" false)
                       (util/update-time add-thing-type "end" false)
-                      (assoc :thing-type add-thing-type) ; required for post-submit-thing dispatch
+                      ; required for post-submit-thing dispatch
+                      (assoc :thing-type add-thing-type) 
                       (merge override-map))
          ]
       (.log js/console (str add-thing-type " inputs " input-fields input-vals))
@@ -468,7 +432,7 @@
                      (merge override-map))
           ]
         (.log js/console (str add-thing-type " override-map" override-map " " details))
-        ((toggle-hide-fn form) nil)  ; hide the form
+        ;((toggle-hide-fn form) nil)  ; hide the form
         (msgs/fill :create-thing messages {:details details})
     )))
 

@@ -140,8 +140,6 @@
                   (p/put-message input-queue m))))
          ]
       (.log js/console (str "enable search submit " messages "form " form))
-      ;(events/send-on :submit form input-queue submit-fn)  
-      ; events/send-on for this form does not work, use domina raw fn.
       (de/listen! btn-submit :click submit-fn)
     )))
 
