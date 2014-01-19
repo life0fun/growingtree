@@ -155,29 +155,6 @@
 ;;================================================================================
 ; template input id fields with thing-id when displaying add thing form 
 ;;================================================================================
-; (def thing-input-fields
-;   {
-;     :parent ["person-title" "person-lname" "person-address" "person-email" "person-phone" "person-status" "person-url" "person-type"]
-;     :child ["person-title" "person-lname" "person-address" "person-email" "person-phone" "person-status" "person-url" "person-type"]
-;     :course ["course-title" "course-author" "course-type" "course-content" "course-url" "course-email"]
-;     :enrollment ["enrollment-name" "enrollment-remarks"]
-;     :assign ["assign-name" "assign-hint" "assign-end" "picker-assign-end"]
-;     :answer ["answer-title"]
-;     :grade ["grade-score" "grade-comments"]
-;   })
-
-
-; append thing-id to input id only when thing-id is not nil. 
-; (defn add-thing-input-id
-;   [add-thing-type thing-id]
-;   (let [input-ids (add-thing-type thing-input-fields)]
-;     (reduce
-;       (fn [tot idname]
-;         (assoc tot (keyword idname) (if thing-id (str idname "-" thing-id) idname)))
-;         {}
-;         input-ids)))
-
-
 ; append thing-id to input id only when thing-id is not nil. 
 (defn add-thing-input-id
   [add-thing-type thing-id]
@@ -272,7 +249,9 @@
           nchild (count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']"))))
           add-thing-form (add-thing-form add-thing-type thing-id r rpath)
           ]
-      (.log js/console (str add-thing-type " link clicked div " nchild))
+      (.log js/console (str add-thing-type " link clicked nchild " nchild rpath " " parent-div-id))
+
+      ; remove all children of all child-form when change.
       (when (= nchild 0)
         (dom/destroy-children! (dom/by-class "child-form")))
 
@@ -283,8 +262,9 @@
       ; enable event must live outside the same block of dom append displaying form.
       (if (= nchild 0)
         (do
-          (add-thing-datetimepicker add-thing-type thing-id)
-          (add-thing-tagsInput add-thing-type thing-id)
+          ; should do this after form being added to dom.
+          ; (add-thing-datetimepicker add-thing-type thing-id)
+          ; (add-thing-tagsInput add-thing-type thing-id)
           (handle-add-thing-submit add-thing-type rpath override-map input-queue)
           (handle-add-thing-cancel add-thing-type)))
     )))
@@ -381,8 +361,8 @@
                       (assoc :thing-type add-thing-type) ; required for post-submit-thing dispatch
                      (merge override-map))
           ]
-        (.log js/console (str add-thing-type " override-map" override-map " " details))
-        ;((toggle-hide-fn form) nil)  ; hide the form
+        (.log js/console (str add-thing-type " inline-form-submit-fn details " details))
+        ((toggle-hide-fn form nil) nil)  ; hide the form
         (msgs/fill :create-thing messages {:details details})
     )))
 

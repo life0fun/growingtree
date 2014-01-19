@@ -631,7 +631,7 @@
   (let [thing-id (last (butlast rpath))
         container-div (dom/by-id "add-comments") ; template "thing-details"
         ; add the rendered template attached to rpath node
-        html (templates/add-template render rpath (:comments templates))
+        html (templates/add-template render rpath (:comments-form templates))
         thing-div (html {:id (str "add-comments-" thing-id)})
        ]
     (.log js/console (str "display add comemnts form "))

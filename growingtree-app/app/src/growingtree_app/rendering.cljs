@@ -334,10 +334,8 @@
     (dom/destroy-children! parent)
     (dom/append! parent divcode)
 
-    ; now enable datetimepicker and tags input, and submit cancel.
-    ; the same code in newthing-form toggle-add-thing-form-fn
-    (newthing-form/add-thing-datetimepicker add-thing-type thing-id)
-    (newthing-form/add-thing-tagsInput add-thing-type nil)
+    ;(newthing-form/add-thing-datetimepicker add-thing-type thing-id)
+    ;(newthing-form/add-thing-tagsInput add-thing-type nil)
     (newthing-form/handle-add-thing-submit add-thing-type rpath override-map input-queue)
     (newthing-form/handle-add-thing-cancel add-thing-type)
     ))
