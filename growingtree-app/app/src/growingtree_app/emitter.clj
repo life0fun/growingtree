@@ -188,11 +188,11 @@
         [:node-destroy [:main]]
         [:node-destroy path]
         [:node-create path]
-        [:transform-enable path
-                           :create-thing
-                           [{msgs/type :create-thing
-                             msgs/topic path
-                             (msgs/param :details) {:user user}}]]
+        ; [:transform-enable path
+        ;                    :create-thing
+        ;                    [{msgs/type :create-thing
+        ;                      msgs/topic path
+        ;                      (msgs/param :details) {:user user}}]]
 
       ])))
 

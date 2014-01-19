@@ -1,5 +1,6 @@
 (ns growingtree-app.newthing-form
-  (:require [domina :as dom]
+  (:require [cljs.reader]
+            [domina :as dom]
             [domina.css :as dc]
             [domina.events :as de]
             [domina.xpath :as dx]
@@ -39,205 +40,162 @@
 
 
 ;;==================================================================================
-; submit-fn uses this map to id dom input fields and collect input value to entity attr.
-; form dom id refer to newthing.html for dom elements
-; within each type, key is entity attr, value is form input id to provide value to entity attr.
+; thing input map template thing-form input field template id, id value, and placeholder prompts.
+; each thing-type has a map of inputs, key is datum attribute, value is a fn that rets
+; a vector of value, [input-temp-name input-id input-prompt :input-type]
 ;;==================================================================================
 (def thing-input-map
   {
-    :parent {:person/title "person-title"
-             :person/lname "person-lname"
-             :person/address "person-address"
-             :person/email "person-email"
-             :person/phone "person-phone"
-             :person/status "person-status"
-             :person/url "person-url"
-             :person/gender "person-type"
+    :parent {:person/title (fn [_] ["person-title" "person-title" "name" :text])
+             :person/lname (fn [_] ["person-lname" "person-lname" "last name" :text])
+             :person/address (fn [_] ["person-address" "person-address" "address" :text])
+             :person/email (fn [_] ["person-email" "person-email" "user@email.com" :tag])
+             :person/phone (fn [_] ["person-phone" "person-phone" "123-456-789" :tag])
+             :person/status (fn [_] ["person-status" "person-status" "active" :enum])
+             :person/url (fn [_] ["person-url" "person-url" "url..." :tag])
+             :person/gender (fn [_] ["person-type" "person-type" "Male" :enum])
             }
 
-    :child { :person/title "person-title"
-             :person/lname "person-lname"
-             :person/address "person-address"
-             :person/email "person-email"
-             :person/phone "person-phone"
-             :person/status "person-status"
-             :person/url "person-url"
-             :person/gender "person-type"
+    :child { :person/title (fn [_] ["person-title" "person-title" "name" :text])
+             :person/lname (fn [_] ["person-lname" "person-lname" "last name" :text])
+             :person/address (fn [_] ["person-address" "person-address" "address" :text])
+             :person/email (fn [_] ["person-email" "person-email" "user@email.com" :tag])
+             :person/phone (fn [_] ["person-phone" "person-phone" "123-456-789" :tag])
+             :person/status (fn [_] ["person-status" "person-status" "active" :enum])
+             :person/url (fn [_] ["person-url" "person-url" "url..." :tag])
+             :person/gender (fn [_] ["person-type" "person-type" "Male" :enum])
             }
 
-    :family {:family/title "family-title"
-             :family/parent "family-parent"
-             :family/child "family-child"
-             :family/address "family-address"
-             :family/email "family-email"
-             :family/url "family-url"
+    :course {:course/title (fn [_] ["course-title" "course-title" "title of course" :text])
+             :course/author (fn [_] ["course-author" "course-author" "offer by..." :tag])
+             :course/type (fn [_] ["course-type" "course-type" "type of course" :enum])
+             :course/content (fn [_] ["course-content" "course-content" "content..." :text]) 
+             :course/url (fn [_] ["course-url" "course-url" "url..." :tag])
+             :course/email (fn [_] ["course-email" "course-email" "user@email.com" :tag])
             }
 
-    :course {:course/title "course-title"
-             :course/author "course-author"
-             :course/type "course-type"
-             :course/content "course-content" 
-             :course/url "course-url"
-             :course/email "course-email"
+    :lecture {:lecture/title (fn [_] ["lecture-title" "lecture-title" "title..." :text])
+             :lecture/author (fn [_] ["lecture-author" "lecture-author" "offered by.." :tag])
+             :lecture/course (fn [_] ["lecture-course" "lecture-course" "course of lecture" :tag])
+             :lecture/type (fn [_] ["lecture-type" "lecture-type" "lecture type" :enum])
+             :lecture/content (fn [_] ["lecture-content" "lecture-content" "content..." :text]) 
+             :lecture/start (fn [_] ["lecture-start" "lecture-start" "start at..." :datetime])
+             :lecture/end (fn [_] ["lecture-end" "lecture-end" "end at ..." :datetime])
+             :lecture/seqno (fn [_] ["lecture-seqno" "lecture-seqno" "sequence No." :tag])
+             :lecture/url (fn [_] ["lecture-url" "lecture-url" "url..." :tag])
+             :lecture/email (fn [_] ["lecture-email" "lecture-email" "lecture@email.com" :tag])
+             :lecture/wiki (fn [_] ["lecture-wiki" "lecture-wiki" "wiki link" :tag])
             }
 
-    :lecture {:lecture/title "lecture-title"
-             :lecture/author "lecture-author"
-             :lecture/course "lecture-course"
-             :lecture/type "lecture-type"
-             :lecture/content "lecture-content" 
-             :lecture/start "lecture-start"
-             :lecture/end "lecture-end"
-             :lecture/seqno "lecture-seqno"
-             :lecture/url "lecture-url"
-             :lecture/email "lecture-email"
-             :lecture/wiki "lecture-wiki"
-            }
-
-    :question {:question/title "question-title" 
-               :question/author "question-author"
-               :question/type "question-type"
-               :question/content "question-content"
-               :question/url "question-url"
-               :question/difficulty "question-difficulty"
-               :question/tag "question-tag"
+    :question {:question/title (fn [_] ["question-title" "question-title" "title of question" :text])
+               :question/author (fn [_] ["question-author" "question-author" "asked by..." :tag])
+               :question/type (fn [_] ["question-type" "question-type" "question type" :enum])
+               :question/content (fn [_] ["question-content" "question-content" "content.." :text])
+               :question/url (fn [_] ["question-url" "question-url" "url..." :tag])
+               :question/difficulty (fn [_] ["question-difficulty" "question-difficulty" "difficulty" :text])
+               :question/tag (fn [_] ["question-tag" "question-tag" "tags..." :tag])
               }
 
     :enrollment {:enrollment/person 
                     (fn [thing-id]
-                      (str "enrollment-name-" thing-id))
+                      ["enrollment-name" (str "enrollment-name-" thing-id) "student name" :tag])
                  :enrollment/remarks 
                     (fn [thing-id]
-                      (str "enrollment-remarks-" thing-id))
+                      ["enrollment-remarks" (str "enrollment-remarks-" thing-id) "remarks" :text])
                 }
 
-    :assign {:assignment/person 
+    :assign {:assignment/person
               (fn [thing-id]
-                (str "assign-name-" thing-id))
+                ["assign-name" (str "assign-name-" thing-id) "assign to..." :tag])
                       
              :assignment/hint 
               (fn [thing-id]
-                (str "assign-hint-" thing-id))
+                ["assign-hint" (str "assign-hint-" thing-id) "hint..." :text])
 
              :assignment/end 
                (fn [thing-id]
-                  (str "assign-end-" thing-id))
+                  ["assign-end" (str "assign-end-" thing-id) "due at ..." :datetime])
+
+            :assignment/picker-end
+               (fn [thing-id]
+                  ["picker-assign-end" (str "picker-assign-end-" thing-id) "due at ..." :datetime])
             }
 
     :answer {:answer/title
               (fn [thing-id]
-                (str "answer-title-" thing-id))
+                ["answer-title" (str "answer-title-" thing-id) "my answer is..." :text])
             }
 
     :grade {:grade/score
               (fn [thing-id]
-                (str "grade-score-" thing-id))
+                ["grade-score" (str "grade-score-" thing-id) "100/100" :text])
 
             :grade/comments
               (fn [thing-id]
-                (str "grade-comments-" thing-id))
+                ["grade-comments" (str "grade-comments-" thing-id) "comments..." :text])
            }
-                      
-    :group {:group/title "group-title"
-            :group/author "group-author"
-            :group/type "group-type"
-            :group/url "group-url"
-            :group/email "group-email"
-            :group/wiki "group-wiki"
-           }
+
+
+    :group {
+            :group/title (fn [_] ["group-title" "group-title" "title of group" :text])
+            :group/author (fn [_] ["group-author" "group-author" "admin of group" :tag])
+            :group/type (fn [_] ["group-type" "group-type" "type of group" :enum])
+            :group/url (fn [_] ["group-url" "group-url" "url of group" :tag])
+            :group/email (fn [_] ["group-email" "group-email" "email of group" :tag])
+            :group/wiki (fn [_] ["group-wiki" "group-wiki" "wiki of group" :tag])
+          }
 
     :comments {:comments/title 
                 (fn [thing-id]  ; input field id is comments-title
-                  (entity-view/div-form-textarea-sel thing-id "reply-form" "comments-title"))
+                  ["comments-title" (entity-view/div-form-textarea-sel thing-id "reply-form" "comments-title") "comments..." :text])
               }
   })
 
-
+ 
 ;;================================================================================
-; get the create new thing form input ids
+; template input id fields with thing-id when displaying add thing form 
 ;;================================================================================
-(def thing-input-fields
-  {
-    :enrollment ["enrollment-name" "enrollment-remarks"]
-    :assign ["assign-name" "assign-hint" "assign-end" "picker-assign-end"]
-    :answer ["answer-title"]
-    :grade ["grade-score" "grade-comments"]
-  })
+; (def thing-input-fields
+;   {
+;     :parent ["person-title" "person-lname" "person-address" "person-email" "person-phone" "person-status" "person-url" "person-type"]
+;     :child ["person-title" "person-lname" "person-address" "person-email" "person-phone" "person-status" "person-url" "person-type"]
+;     :course ["course-title" "course-author" "course-type" "course-content" "course-url" "course-email"]
+;     :enrollment ["enrollment-name" "enrollment-remarks"]
+;     :assign ["assign-name" "assign-hint" "assign-end" "picker-assign-end"]
+;     :answer ["answer-title"]
+;     :grade ["grade-score" "grade-comments"]
+;   })
 
 
-(defn add-thing-input-id
-  [add-thing-type thing-id]
-  (let [input-ids (add-thing-type thing-input-fields)]
-    (reduce
-      (fn [tot idname]
-        (assoc tot (keyword idname) (str idname "-" thing-id)))
-        {}
-        input-ids)))
-
-
-; (defmulti add-thing-input-id
-;   (fn [add-thing-type thing-id]
-;     add-thing-type))
-
-
-; (defmethod add-thing-input-id
-;   :default
+; append thing-id to input id only when thing-id is not nil. 
+; (defn add-thing-input-id
 ;   [add-thing-type thing-id]
-;   {})
-
-
-; (defmethod add-thing-input-id
-;   :enrollment
-;   [add-thing-type thing-id]
-;   (let [input-ids ["enrollment-name" "enrollment-remarks"]]
+;   (let [input-ids (add-thing-type thing-input-fields)]
 ;     (reduce
 ;       (fn [tot idname]
-;         (assoc tot (keyword idname) (str idname "-" thing-id)))
+;         (assoc tot (keyword idname) (if thing-id (str idname "-" thing-id) idname)))
 ;         {}
 ;         input-ids)))
 
 
-; ; add assignment use :assign as :assignment is for showing assignment details.
-; (defmethod add-thing-input-id
-;   :assign
-;   [add-thing-type thing-id]
-;   (let [input-ids ["assign-name" "assign-hint" "assign-end" "picker-assign-end"]]
-;     (reduce 
-;       (fn [tot idname]
-;         (assoc tot (keyword idname) (str idname "-" thing-id)))
-;         {}
-;         input-ids)))
-
-
-; (defmethod add-thing-input-id
-;   :answer
-;   [add-thing-type thing-id]
-;   (let [input-ids ["answer-title"]]
-;     (reduce 
-;       (fn [tot idname]
-;         (assoc tot (keyword idname) (str idname "-" thing-id)))
-;         {}
-;         input-ids)))
-
-
-; (defmethod add-thing-input-id
-;   :grade
-;   [add-thing-type thing-id]
-;   (let [input-ids ["grade-score" "grade-comments"]]
-;     (reduce 
-;       (fn [tot idname]
-;         (assoc tot (keyword idname) (str idname "-" thing-id)))
-;         {}
-;         input-ids)))
+; append thing-id to input id only when thing-id is not nil. 
+(defn add-thing-input-id
+  [add-thing-type thing-id]
+  (let [input-vec (->> (add-thing-type thing-input-map)
+                       (vals)
+                       (map #(% thing-id)))
+       ]
+    (reduce
+      (fn [tot [input-name input-id prompts]]
+        (assoc tot (keyword input-name) input-id))
+        {}
+        input-vec)))
 
 
 ;;================================================================================
 ; a mapping for datetimepicker id for each new thing type
 (def thing-datetimepicker
   {
-    ; :course [(fn [_] "course-start-picker")
-    ;          (fn [_] "course-end-picker")]
-    
     :lecture [(fn [_] "lecture-start-picker")
               (fn [_] "lecture-end-picker")]
     
@@ -252,30 +210,27 @@
   (when-let [picker-id-fns (thing-type thing-datetimepicker)]
     (doseq [id-fn picker-id-fns]
       (.log js/console "add thing datetimepick " (id-fn thing-id))
-      (js/datetimepicker (picker-id-fn thing-id)))))
+      (js/datetimepicker (id-fn thing-id)))))
 
 
 ;;================================================================================
-; a mapping of thing type to ids of thing tags input fields
-; each map in the list entry key is input dom id + thing-id, value is prompt text
-(def thing-tagsinput
-  {
-    :parent [{"person-url" "url..."} {"person-email" "email..."} {"person-im" "jabber@..."}]
-    :child [{"person-url" "url..."} {"person-email" "email..."} {"person-im" "jabber@..."}]
-    :course [{"course-author" "author..."} {"course-url" "url..."} {"course-email" "email..."}]
-    :lecture [{"lecture-author" "author..."} {"lecture-url" "url..."} {"lecture-email" "email..."}]
-    :question [{"question-author" "author..."} {"question-tag" "tags..."}]
-    :enrollment [{"enrollment-name" "attendee..."}]
-    :assign [{"assign-name", "assign to..."}]
-  })
-
-
+; from thing-input-map, get input value vector with input name,id,prompt, type.
+; filter out :tag type and project 2nd and 3rd column, which is div id and prompts.
+;;================================================================================
+; (["course-title" "course-title" "title of course"] ["course-author" "course-author" "offer by..."] ...)
 (defn add-thing-tagsInput 
   [add-thing-type thing-id]
-  (doseq [field (add-thing-type thing-tagsinput)]
-    (let [[input-name prompt] (first (seq field))
-          input-id (if thing-id (str input-name "-" thing-id) input-name)]
-      (.log js/console (str "add-thing-tagsInput " add-thing-type " " input-id))
+  (let [tags-input-map 
+          (->> (add-thing-type thing-input-map)
+               (vals)
+               (map #(% thing-id)) ; [[input-name1 input-id1 prompt1 :type] ...]
+               (filter #(= (last %) :tag) )
+               (mapcat #((juxt second (fn [v] (nth v 2))) %) ) ; the 2nd and 3rd column
+               (apply hash-map)
+            )
+        ]
+    (.log js/console (str "tags-input-map " tags-input-map ))
+    (doseq [[input-id prompt] tags-input-map]
       (js/tagsInput input-id prompt))))
 
 
@@ -283,33 +238,27 @@
 ; display add thing template inside filtered thing
 ; path is [:nav :course 1 :add-lecture] [:nav :course 2 :enroll]
 ;;================================================================================
+(defn add-thing-template-id
+  [add-thing-type thing-id]
+  (when thing-id
+    (.log js/console (str "thing-id " thing-id " parse " (js/parseInt thing-id))))
+  (if (and thing-id 
+           (not (js/isNaN (js/parseInt thing-id 10))))
+    (str (name add-thing-type) "-" thing-id)
+    (str (name add-thing-type) "-form")))
+
+
 (defn add-thing-form
   "instantiate new thing form for thing-type, return div code to be appended to parent"
   [add-thing-type thing-id r rpath]
-  (let [id (str (name add-thing-type) "-" thing-id)
-        form ((keyword (str (name add-thing-type) "-form")) templates)
-        ;form ((add-thing-type add-thing-type-form) templates)
+  (let [form ((keyword (str (name add-thing-type) "-form")) templates)
         html (templates/add-template r rpath form)
-        form-val (merge {:id id}
+        form-val (merge {:id (add-thing-template-id add-thing-type thing-id)}
                         (add-thing-input-id add-thing-type thing-id))
         divcode (html form-val)
        ]
-    (.log js/console (str "add-thing-form rpath " rpath " type " add-thing-type))
+    (.log js/console (str "add-thing-form rpath " rpath " type " add-thing-type " " form-val))
     divcode))
-
-
-; set the text in input placeholder
-;(dom/set-value! (dx/xpath "//input[@id='person-title']") "hello")
-(defn set-input-placeholder
-  [thing-type value-map]
-  (let [input-map (get thing-input-map thing-type)
-        input-fields (keys input-map)
-        input-ids (vals input-map)]
-    (.log js/console (str "set input value " input-ids value-map))
-    (doseq [input-id input-ids]
-      (dom/set-value! (dx/xpath (str "//input[@id='" input-id "']"))
-                      ((keyword input-id) value-map)))
-    ))
 
 
 ; toggle to display new thing form, and handle add thing submit.
@@ -351,8 +300,8 @@
           input-map (get thing-input-map add-thing-type)
           input-fields (keys input-map)
           input-vals (->> (vals input-map)
-                          (map #(% thing-id))
-                          (map #(dom/by-id %))
+                          (map #(% thing-id))  ; [input-name input-id prompt]
+                          (map #(dom/by-id (second %)))   
                           (map #(.-value %)))
           details (-> (zipmap input-fields input-vals)
                       ; transform parent status and gender
@@ -366,8 +315,9 @@
                       (assoc :thing-type add-thing-type) 
                       (merge override-map))
          ]
-      (.log js/console (str add-thing-type " inputs " input-fields input-vals))
-      ;(.log js/console (str add-thing-type " new form submitted details " details))
+      ;(.log js/console (str add-thing-type " inputs " input-fields input-vals))
+      (.log js/console (str add-thing-type " add new thing submitted " rpath " " details))
+      (dom/destroy! (dom/by-id (add-thing-template-id add-thing-type thing-id)))
       (dom/destroy-children! (dom/by-class "child-form"))
       (de/prevent-default e)
       (msgs/fill :create-thing messages {:details details}))))
@@ -419,7 +369,7 @@
           input-fields (keys input-map)
           input-vals (->> (vals input-map)
                           (map #(% thing-id))
-                          (map #(dom/value %)))
+                          (map #(dom/value (second %))))
           details (-> (zipmap input-fields input-vals)
                       ; transform parent status and gender
                       (util/update-enum add-thing-type "status" false)

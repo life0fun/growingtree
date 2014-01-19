@@ -164,6 +164,7 @@
 ; messages/topic [:create :course], effect triggered by [:create :*]
 ; this fn to handle top nav create btn, hence empty override thing-map.
 ; rendering and collecting inputs are encapsulated inside newthing-form.
+; deprecated, using single code path newthing-form handle-add-thing-submit.
 ;; ---------------------------------------------------------------------------------
 (defmethod enable-submit-action 
   :create-thing

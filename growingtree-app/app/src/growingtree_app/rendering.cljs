@@ -320,22 +320,26 @@
 
 
 ;;================================================================================
-;; create thing page template
+;; create thing page template, [:node-create [:create :course] :map]
 ;;================================================================================
 ; the last ele of the rpath is the thing type
 (defn create-thing-page
   [r [op rpath] input-queue]
-  (let [thing-type (last rpath)
-        thing-id (second (reverse rpath))
+  (let [add-thing-type (last rpath)
+        thing-id nil       
         parent (dom/by-id "main")    ; put the template
-        divcode (newthing-form/add-thing-form thing-type thing-id r rpath)
+        divcode (newthing-form/add-thing-form add-thing-type thing-id r rpath)
        ]
-    (.log js/console (str "render create thing page at " rpath " type " thing-type))
+    (.log js/console (str "render create thing page at " rpath " type " add-thing-type))
     (dom/destroy-children! parent)
     (dom/append! parent divcode)
-    ; now enable datetimepicker and tags input
-    (newthing-form/add-thing-datetimepicker thing-type thing-id)
-    (newthing-form/add-thing-tagsInput thing-type nil)
+
+    ; now enable datetimepicker and tags input, and submit cancel.
+    ; the same code in newthing-form toggle-add-thing-form-fn
+    (newthing-form/add-thing-datetimepicker add-thing-type thing-id)
+    (newthing-form/add-thing-tagsInput add-thing-type nil)
+    (newthing-form/handle-add-thing-submit add-thing-type rpath override-map input-queue)
+    (newthing-form/handle-add-thing-cancel add-thing-type)
     ))
 
 
@@ -420,6 +424,6 @@
   
     ;; ============== create new thing view and event binding ============
     [:node-create [:create :*] create-thing-page]
-    [:transform-enable [:create :*] transforms/enable-submit-action]
+    ;[:transform-enable [:create :*] transforms/enable-submit-action]
     
   ])
