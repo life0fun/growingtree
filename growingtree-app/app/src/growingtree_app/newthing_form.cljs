@@ -215,10 +215,8 @@
 ; display add thing template inside filtered thing
 ; path is [:nav :course 1 :add-lecture] [:nav :course 2 :enroll]
 ;;================================================================================
-(defn add-thing-template-id
+(defn add-thing-form-id
   [add-thing-type thing-id]
-  (when thing-id
-    (.log js/console (str "thing-id " thing-id " parse " (js/parseInt thing-id))))
   (if (and thing-id 
            (not (js/isNaN (js/parseInt thing-id 10))))
     (str (name add-thing-type) "-" thing-id)
@@ -227,29 +225,32 @@
 
 (defn add-thing-form
   "instantiate new thing form for thing-type, return div code to be appended to parent"
-  [add-thing-type thing-id r rpath]
+  [add-thing-type thing-id r navpath]
   (let [form ((keyword (str (name add-thing-type) "-form")) templates)
-        html (templates/add-template r rpath form)
-        form-val (merge {:id (add-thing-template-id add-thing-type thing-id)}
+        html (templates/add-template r navpath form)
+        form-val (merge {:id (add-thing-form-id add-thing-type thing-id)}
                         (add-thing-input-id add-thing-type thing-id))
         divcode (html form-val)
        ]
-    (.log js/console (str "add-thing-form rpath " rpath " type " add-thing-type " " form-val))
+    (.log js/console (str "add-thing-form navpath " navpath " type " add-thing-type " " form-val))
     divcode))
 
 
-; toggle to display new thing form, and handle add thing submit.
+;--------------------------------------------------------------------------------
+; toggle fn to display new thing form, and handle add thing submit.
+; navpath is [:course 1 :add-lecture]
+;--------------------------------------------------------------------------------
 (defn toggle-add-thing-form-fn
   "return an event handler fn that toggen hide css class of the form"
-  [add-thing-type r rpath parent-div-id override-map input-queue]
+  [add-thing-type r navpath parent-div-id override-map input-queue]
   (fn [_] 
     (let [;newthing-div "new-subthings"    ; div defined in thing details
-          thing-id (second (reverse rpath))
+          thing-id (second (reverse navpath))
           parent-div (dom/by-id parent-div-id)
           nchild (count (dom/children (dx/xpath (str "//div[@id='" parent-div-id "']"))))
-          add-thing-form (add-thing-form add-thing-type thing-id r rpath)
+          add-thing-form (add-thing-form add-thing-type thing-id r navpath)
           ]
-      (.log js/console (str add-thing-type " link clicked nchild " nchild rpath " " parent-div-id))
+      (.log js/console (str add-thing-type " link clicked nchild " nchild navpath " " parent-div-id))
 
       ; remove all children of all child-form when change.
       (when (= nchild 0)
@@ -262,20 +263,21 @@
       ; enable event must live outside the same block of dom append displaying form.
       (if (= nchild 0)
         (do
+          (handle-add-thing-submit add-thing-type navpath override-map input-queue)
+          (handle-add-thing-cancel add-thing-type)
           ; should do this after form being added to dom.
-          ; (add-thing-datetimepicker add-thing-type thing-id)
-          ; (add-thing-tagsInput add-thing-type thing-id)
-          (handle-add-thing-submit add-thing-type rpath override-map input-queue)
-          (handle-add-thing-cancel add-thing-type)))
+          (add-thing-datetimepicker add-thing-type thing-id)
+          (add-thing-tagsInput add-thing-type thing-id)
+        ))
     )))
 
 ;;==================================================================================
 ;; submt fn for new thing form save btn, called from submit action transoform event
 ;;==================================================================================
 (defn submit-fn
-  [add-thing-type rpath form override-map messages]
+  [add-thing-type navpath form override-map messages input-queue]
   (fn [e]
-    (let [thing-id (second (reverse rpath))
+    (let [thing-id (second (reverse navpath)) ; navpath [:course 1 :add-lecture] [:lecture 2 :enroll]
           ; input-field defined in thing type attr map
           input-map (get thing-input-map add-thing-type)
           input-fields (keys input-map)
@@ -296,17 +298,22 @@
                       (merge override-map))
          ]
       ;(.log js/console (str add-thing-type " inputs " input-fields input-vals))
-      (.log js/console (str add-thing-type " add new thing submitted " rpath " " details))
-      (dom/destroy! (dom/by-id (add-thing-template-id add-thing-type thing-id)))
+      (.log js/console (str add-thing-type " add new thing submitted " navpath " " details))
+      (dom/destroy! (dom/by-id (add-thing-form-id add-thing-type thing-id)))
       (dom/destroy-children! (dom/by-class "child-form"))
       (de/prevent-default e)
-      (msgs/fill :create-thing messages {:details details}))))
+      (msgs/fill :create-thing messages {:details details})
+
+      ; refresh by re-sending the nav path
+      (util/refresh-nav-path add-thing-type navpath input-queue)
+    )))
 
 
 ;--------------------------------------------------------------------
 ; when form submitted, we instantiate create-thing msg, collect input fields.
 ; message is :create-thing thing-type, path is render path, only for logging. 
 ; submit-fn use thing-input-map to collect input field and ret filled msgs.
+; navpath [:course 1 :add-lecture] [:lecture 17592186045430 :enroll]
 ;--------------------------------------------------------------------
 ; handle add thing form cancel
 (defn handle-add-thing-cancel
@@ -318,20 +325,21 @@
     (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))))
 
 
-; rpath [:nav :lecture 17592186045430 :enroll]
+; navpath [:course 1 :add-lecture] [:lecture 17592186045430 :enroll]
 (defn handle-add-thing-submit
-  ([add-thing-type rpath override-map input-queue]
+  ([add-thing-type navpath override-map input-queue]
     (let [messages [{msgs/topic [:create add-thing-type]
                      msgs/type :create-thing
                      (msgs/param :details) {}}] ]
-      (handle-add-thing-submit add-thing-type rpath messages 
+      (handle-add-thing-submit add-thing-type navpath messages 
                                override-map input-queue)))
   
-  ([add-thing-type rpath messages override-map input-queue]
-    (let [thing-id (second (reverse rpath))
+  ([add-thing-type navpath messages override-map input-queue]
+    (let [thing-id (second (reverse navpath))
           form (dom/by-class (str (name add-thing-type) "-form"))
-          submit-fn (submit-fn add-thing-type rpath form override-map messages)]
-      (.log js/console (str "enable add thing form submit " add-thing-type rpath))
+          submit-fn (submit-fn add-thing-type navpath form override-map 
+                               messages input-queue)]
+      (.log js/console (str "enable add thing form submit " add-thing-type navpath))
       (handle-add-thing-submit form input-queue submit-fn)))
 
   ([form input-queue submit-fn]
@@ -362,7 +370,7 @@
                      (merge override-map))
           ]
         (.log js/console (str add-thing-type " inline-form-submit-fn details " details))
-        ((toggle-hide-fn form nil) nil)  ; hide the form
+        ((toggle-hide-fn form nil) nil)  ; hide the inline form
         (msgs/fill :create-thing messages {:details details})
     )))
 
@@ -404,6 +412,7 @@
                         (msgs/param :details) {}}]
           thing-map ((msgs/param :thing-map) (first messages))
           thing-id (:db/id thing-map)
+          ; render path for current node is in (:rpath message)
           rpath ((msgs/param :rpath) (first messages))
           
           upvote (entity-view/thing-attr-val thing-map thing-type "upvote")

@@ -163,7 +163,7 @@
                   old-things-vec)
             [[:node-destroy [:main]]])
         ]
-    (.log js/console (str "nav-path-emitter from " oldpath " to " newpath))
+    (.log js/console (str "nav-path-emitter node-destroy all from " oldpath " to " newpath))
 
     ; for each render path, we need to destroy the render path upon nav path change.
     [
@@ -188,6 +188,7 @@
         [:node-destroy [:main]]
         [:node-destroy path]
         [:node-create path]
+        ; use common code path of toggle add thing form fn.
         ; [:transform-enable path
         ;                    :create-thing
         ;                    [{msgs/type :create-thing
@@ -208,6 +209,9 @@
 ; qpath record the path next path, from [:course 1 to :comments]
 ; thing data emit qpath [:course 17592186045425 :comments] changemap {[:data :course 1 :course] 
 ; data-path is :msg-topic in effect request thing.
+;
+; from qpath, create render path for [:node-create [:main/:header/:filtered ...] ]
+; for each sublink of the thing, enable link click transform using nav path [:nav :* :**]
 ;;==================================================================================
 (defn thing-data-emitter
   "emit node-create and value delta for list of things from xhr response"
@@ -285,7 +289,8 @@
 ; thing-map :navpath was set in server side with qpath by (util/add-navpath % qpath)
 ; navpath tells the query path we reach to this entity during navigation.
 ; prefix main, header, filtered to it, form the render path for render to dispatch.
-; :navpath ["all" 0 "course" 1], or  ["course" 1 "comments" 2], or ["course" 1 "course" 2]
+; :qpath ["all" 0 "course" 1], or  ["course" 1 "comments" 2], or ["course" 1 "course" 2]
+; rpath for render thing node, [:value [:main/:header/:filtered/:details :* :* :* :*]]
 (defn thing-navpath->renderpath
   [thing-navpath thing-map]
   (let [[parent pid child] (take 3 thing-navpath)]
@@ -310,7 +315,7 @@
 
 
 ;;==================================================================================
-; thing nav bar sublink transform, emit [:nav :thing 1 :next-thing] click enabler.
+; subthing link transforms prefix by :nav [:nav :thing 1 :next-thing] for enable-thing-nav
 ; for each next-thing, we setup message from thing-nav-messages and render fills the
 ; msg with details from collected input value. if next-thing is nav, update [:nav :path]
 ; all nav path next-thing as transkey are defined in thing-nva links
@@ -339,7 +344,7 @@
           (vector 
             [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
             [:node-destroy navpath]
-            [:transform-enable navpath ; always [:nav :parent 17592186045499 :child]
+            [:transform-enable navpath    ; transforms navpath [:nav :parent 1 :child]
                                transkey   ; nav next thing, :child, :coure
                                messages] 
           )))
@@ -407,7 +412,7 @@
   :default
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [hdpath (concat (butlast (rest nav-path)) [thing-type]) ; replace last as nav next target
-        qpath (rest nav-path)
+        qpath (rest nav-path) ; [:nav :parent 17592186045499 :child]
         messages [{msgs/topic [:nav :path] 
                    msgs/type :set-nav-path
                    :path (vec hdpath)    ; path is for [:header :course 1 :course]
@@ -605,7 +610,7 @@
   :author
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [hdpath [:author id :author]  ; the author of thing id, not author's id
-        qpath (rest nav-path)
+        qpath (rest nav-path) ; [:nav :parent 17592186045499 :child]
         messages [{msgs/topic [:nav :path] 
                    msgs/type :set-nav-path
                    :path (vec hdpath)    ; path is current path [:author 1 :author]
@@ -623,7 +628,7 @@
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [; replace last to be title for proper nav path to render path
         hdpath (concat (butlast (rest nav-path)) [:title])
-        qpath (rest nav-path)
+        qpath (rest nav-path) ; [:nav :parent 17592186045499 :child]
         messages [{msgs/topic [:nav :path] 
                    msgs/type :set-nav-path
                    :path (vec hdpath)    ; path is current path [:title 1 :title]
@@ -663,6 +668,7 @@
 
 ;;==================================================================================
 ; upon nav to comments, ask render to display add comments box on filtered details
+; qpath is [:lecture 1 :comments], we get to comments from lecture.
 ; node path [:setup :lecture 1 :comments]  Always destroy before create !!!
 ;;==================================================================================
 (defn add-comments-box
@@ -679,6 +685,7 @@
 
 ;;==================================================================================
 ; upon title clicked, nav to details pages, ask render to display details section.
+; qpath is [:lecture 1 :title], we get to title from lecture.
 ; node path [:setup :lecture 1 :title]  Always destroy before create !!!
 ;;==================================================================================
 (defn add-details-box

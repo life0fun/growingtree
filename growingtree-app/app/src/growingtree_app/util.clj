@@ -10,7 +10,16 @@
 ; You must not remove this notice, or any other, from this software.
 
 (ns ^:shared growingtree-app.util
-    (:require [io.pedestal.app.util.platform :as platform]))
+    (:require [io.pedestal.app.util.platform :as platform]
+              [io.pedestal.app.render.push :as render]
+              [io.pedestal.app.render.events :as events]
+              [io.pedestal.app.render.push.templates :as templates]
+              [io.pedestal.app.protocols :as p]
+              [io.pedestal.app.messages :as msgs]
+              [io.pedestal.app.util.log :as log]
+              [io.pedestal.app.render.push.handlers :as h]
+              [io.pedestal.app.render.push.handlers.automatic :as auto]
+      ))
 
 (defn random-id []
   (str (.getTime (platform/date)) "-" (rand-int 1E6)))
@@ -100,5 +109,25 @@
               thing-map)
       (first)))  ; filter ret a list
 
+
+;==============================================================================
+; refresh after new thing form submitted
+; the goal is send :set-nav-path msg to behavior to simulate the click.
+; the current nav path is the last nav path in [:nav :path] node.
+; :lecture navpath = [:course 1 :add-lecture] [:lecture 2 :enroll]
+;==============================================================================
+(defn refresh-nav-path
+  [add-thing-type navpath input-queue]
+  (.log js/console (str "refresh-nav-path " add-thing-type navpath))
+  (let [curpath (butlast navpath)  ; [:course 1]
+        messages [{msgs/topic [:nav :path]
+                   msgs/type :refresh-nav-path
+                   :path (vec (concat curpath [(first curpath)])) ; [:course 1 :course]
+                   :qpath (vec (concat curpath [add-thing-type]))}]
+        ]
+      (.log js/console (str "refresh nav path " add-thing-type " " navpath " to msgs " messages))
+      (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
+        (p/put-message input-queue m))
+    ))
 
 

@@ -184,15 +184,16 @@
 
 
 ;;==================================================================================
-; ; [:nav :thing-type :thing-id :nex-thing] click on next-thing event listener.
-; render path is created by thing-navpath-transforms emitter.
-; path = [:transform-enable [:nav :child 17592186045496 :parent]] 
+; thing-navpath-transforms [:transform-enable navpath transkey messages]
+; navpath [:nav :thing-type :thing-id :nex-thing] click on next-thing event listener.
+; navpath = [:transform-enable [:nav :child 17592186045496 :parent]] 
+; render path of current node [:node-create [:main/:header/:filtered/:details ...]]
+; is inside (:rpath messages) created by thing-navpath-transforms emitter.
 ; path, transkey and messages setup in emitter thing-navpath-transforms, [nav type id transkey]
-;
 ; transkey name defined in thing.html thing-type, also in entity-view thing-nav-actionkey
 ;;==================================================================================
 (defmulti enable-thing-nav
-  (fn [render [op path transkey messages] input-queue]
+  (fn [render [op navpath transkey messages] input-queue]
     ; transkey defined in thing.html thing-type, also in entity-view thing-nav-actionkey
     transkey))
 
@@ -202,15 +203,15 @@
 ; default for all next thing navigation, e.g, from course to lecture, to question.
 (defmethod enable-thing-nav
   :default 
-  [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:parent 1 :child]
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:parent 1 :child]
         thing-id (first (reverse (butlast navpath)))
         thing-type (second (reverse (butlast navpath)))
         thing-node (dom/by-id (str thing-id))
         next-thing (str (name transkey) "-" thing-id)
         ; thing nav link class set inside entity view class
         thing-link (dom/by-class next-thing)]
-    (.log js/console (str "enable thing nav " path " " thing-id " " next-thing " " ))
+    (.log js/console (str "enable thing nav " navpath " " thing-id " " next-thing " " ))
     ; wrap assign link with div and use class selector
     (de/listen! thing-link
                 :click 
@@ -230,8 +231,8 @@
 ; ------------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; title, qpath [:course 1 :title]
   :title
-  [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:parent 1 :title]
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:parent 1 :title]
         thing-id (first (reverse (butlast navpath)))
         thing-type (first navpath)
         title-id (str thing-id "-" (name transkey))
@@ -245,7 +246,7 @@
               (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
                 (p/put-message input-queue m))))
        ]
-    (.log js/console (str "enable thing nav title " path ))
+    (.log js/console (str "enable thing nav title " navpath ))
     ; click fn will doseq put msg to input-queue
     (de/listen! title-link :click click-fn)
   ))
@@ -258,8 +259,8 @@
 ; ------------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; author, qpath [:course 1 :author]
   :author
-  [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:parent 1 :author]
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:parent 1 :author]
         thing-id (first (reverse (butlast navpath)))
         thing-type (first navpath)
         author-link (dom/by-id (str thing-id "-" (name transkey)))
@@ -272,7 +273,7 @@
               (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
                 (p/put-message input-queue m))))
        ]
-    (.log js/console (str "enable thing nav author " path))
+    (.log js/console (str "enable thing nav author " navpath))
     ; click fn will doseq put msg to input-queue
     (de/listen! author-link :click click-fn)
   ))
@@ -284,8 +285,8 @@
 ; ------------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; upvote 
   :upvote
-  [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:parent 1 :upvote]
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:parent 1 :upvote]
         thing-id (first (reverse (butlast navpath)))
         thing-type (first navpath)
         thing-map ((msgs/param :thing-map) (first messages))
@@ -293,7 +294,7 @@
         upvote-link (entity-view/div-div-clz-sel thing-id "arrow up")
         click-fn (newthing-form/upvote-submit-fn r thing-type messages input-queue)
        ]
-    (.log js/console (str "enable thing nav upvote " path ))
+    (.log js/console (str "enable thing nav upvote " navpath ))
     ; click fn will doseq put msg to input-queue
     (de/listen! upvote-link :click click-fn)
   ))
@@ -305,8 +306,9 @@
 ; ------------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; assignto, defined in thing-question and entity-view
   :assignto
-  [r [_ rpath transkey messages] input-queue]
-  (let [thing-id (second (reverse rpath))
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:question 1 :assignto]
+        thing-id (second (reverse navpath))
         thing-node (dom/by-id (str thing-id))
 
         link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
@@ -325,21 +327,22 @@
           
         ; show assign form, assignment form is used for show details for assignment.
         toggle-fn (newthing-form/toggle-add-thing-form-fn :assign
-                                                          r rpath
+                                                          r navpath
                                                           (str "child-form-" thing-id)
                                                           override-map
                                                           input-queue)
 
        ]
-      (.log js/console (str "enable thing nav " thing-id " " transkey " " rpath))
+      (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
       (de/listen! assignto-link :click toggle-fn)
     ))
 
 
 (defmethod enable-thing-nav  ; enroll, defined in thing-question and entity-view
   :enroll
-  [r [_ rpath transkey messages] input-queue]
-  (let [thing-id (second (reverse rpath))
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:course 1 :enroll]
+        thing-id (second (reverse navpath))
         thing-node (dom/by-id (str thing-id))
 
         ; link class is enroll-class
@@ -361,13 +364,13 @@
 
         ; show add enrollment form
         toggle-fn (newthing-form/toggle-add-thing-form-fn :enrollment 
-                                                          r rpath
+                                                          r navpath
                                                           (str "child-form-" thing-id)
                                                           override-map
                                                           input-queue)
 
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " rpath))
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
     (de/listen! enroll-link :click toggle-fn)
   ))
 
@@ -377,8 +380,9 @@
 ; ----------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; transkey = :answer-form
   :submit-answer
-  [r [_ rpath transkey messages] input-queue]
-  (let [thing-id (second (reverse rpath))
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)
+        thing-id (second (reverse navpath))
         thing-node (dom/by-id (str thing-id))
 
         link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
@@ -393,12 +397,12 @@
 
         ; show add enrollment form
         toggle-fn (newthing-form/toggle-add-thing-form-fn :answer 
-                                                          r rpath
+                                                          r navpath
                                                           (str "child-form-" thing-id)
                                                           override-map
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " rpath))
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
     (de/listen! submit-answer-link :click toggle-fn)
   ))
 
@@ -408,8 +412,9 @@
 ; ----------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; transkey = :grade
   :grade
-  [r [_ rpath transkey messages] input-queue]
-  (let [thing-id (second (reverse rpath))
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:assignment 1 :grade]
+        thing-id (second (reverse navpath))
         thing-node (dom/by-id (str thing-id))
 
         link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
@@ -423,12 +428,12 @@
         
         ; show add enrollment form
         toggle-fn (newthing-form/toggle-add-thing-form-fn :grade 
-                                                          r rpath
+                                                          r navpath
                                                           (str "child-form-" thing-id)
                                                           override-map
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " rpath))
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
     (de/listen! grade-link :click toggle-fn)
   ))
 
@@ -438,8 +443,8 @@
 ; ------------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; transkey = :add-child
   :add-child
-  [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:parent 1 :add-child]
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:parent 1 :add-child]
         thing-id (first (reverse (butlast navpath)))
         thing-node (dom/by-id (str thing-id))
         link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
@@ -450,12 +455,12 @@
                      }
         ; now toggle add thing form, and enable the submit fn.
         toggle-fn (newthing-form/toggle-add-thing-form-fn :child 
-                                                          r path
+                                                          r navpath
                                                           "new-subthings"
                                                           override-map 
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " path " sel "  add-child-clz))
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
     (de/listen! add-child-link :click toggle-fn)
   ))
 
@@ -465,8 +470,8 @@
 ; ------------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; transkey = :add-lecture
   :add-lecture
-  [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:course 1 :add-lecture]
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:course 1 :add-lecture]
         thing-id (first (reverse (butlast navpath)))
         thing-node (dom/by-id (str thing-id))
         link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
@@ -478,12 +483,12 @@
                      }
         ; now toggle add thing form, and enable the submit fn.
         toggle-fn (newthing-form/toggle-add-thing-form-fn :lecture 
-                                                          r path
+                                                          r navpath
                                                           "new-subthings" 
                                                           override-map 
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " path " sel "  add-lecture-clz))
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
     (de/listen! add-lecture-link :click toggle-fn)
   ))
 
@@ -493,8 +498,8 @@
 ; ------------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; transkey = add-question
   :add-question
-  [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:lecture 1 :add-question]
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:lecture 1 :add-question]
         thing-id (first (reverse (butlast navpath)))
         thing-node (dom/by-id (str thing-id))
         link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
@@ -503,12 +508,12 @@
         thing-map ((msgs/param :thing-map) (first messages))
         override-map {:question/origin (:db/id thing-map)}
         toggle-fn (newthing-form/toggle-add-thing-form-fn :question 
-                                                          r path
+                                                          r navpath
                                                           "new-subthings"
                                                           override-map 
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " path " "))
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath " "))
     (de/listen! add-question-link :click toggle-fn)
   ))
 
@@ -518,8 +523,8 @@
 ; ------------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; transkey = add-comments
   :add-comments
-  [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:lecture 1 :add-comments]
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:lecture 1 :add-comments]
         thing-id (first (reverse (butlast navpath)))
         thing-node (dom/by-id (str thing-id))
         link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
@@ -529,12 +534,12 @@
         override-map {:comments/origin (:db/id thing-map)
                       :comments/thingroot (:db/id thing-map)}
         toggle-fn (newthing-form/toggle-add-thing-form-fn :comments 
-                                                          r path
+                                                          r navpath
                                                           "new-subthings"
                                                           override-map 
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " path " " thing-map))
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath " " thing-map))
     (de/listen! add-comments-link :click toggle-fn)
   ))
 
@@ -545,8 +550,8 @@
 ; ------------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; reply, defined in thing-question and entity-view
   :reply
-  [r [_ path transkey messages] input-queue]
-  (let [navpath (rest path)  ; [:comments 1 :reply]
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:comments 1 :reply]
         thing-id (first (reverse (butlast navpath)))
 
         thing-node (dom/by-id (str thing-id))
@@ -558,15 +563,15 @@
                       (newthing-form/toggle-hide-fn reply-form-clz))
 
        ]
-    (.log js/console (str "enable thing nav reply toggle " path " " link-clz reply-form-clz))
+    (.log js/console (str "enable thing nav reply toggle " navpath " " link-clz reply-form-clz))
     (de/listen! reply-link :click toggle-fn)
   ))
 
 
 (defmethod enable-thing-nav  ; transkey = :reply-form
   :reply-form
-  [r [_ path transkey messages] input-queue]
-  (let [thing-id (first (reverse (butlast path)))
+  [r [_ navpath transkey messages] input-queue]
+  (let [thing-id (first (reverse (butlast navpath)))
         thing-map ((msgs/param :thing-map) (first messages))
         
         form (entity-view/div-form-sel thing-id "reply-form")
@@ -574,7 +579,7 @@
                       :comments/thingroot (:comments/thingroot thing-map)
                      }
        ]
-    (.log js/console (str "enable thing nav reply-form " thing-id path override-map thing-map))
+    (.log js/console (str "enable thing nav reply-form " thing-id navpath override-map thing-map))
     (newthing-form/handle-inline-form-submit :comments 
                                              thing-id 
                                              form
@@ -589,9 +594,9 @@
 ;;==================================================================================
 (def enable-add-comments
   "upon comments link clicked for any thing, display add comment dialog"
-  (fn [r [op rpath] input-queue]
-    (let [thing-id (last (butlast rpath))
-          form (entity-view/add-comments-form r rpath)
+  (fn [r [op navpath] input-queue]
+    (let [thing-id (last (butlast navpath))
+          form (entity-view/add-comments-form r navpath)
           override-map {:comments/origin thing-id
                         :comments/thingroot thing-id
                        }
@@ -613,7 +618,7 @@
                 (doseq [m messages]
                   (p/put-message input-queue m))))
          ]
-      (.log js/console (str "enable add comments "  thing-id rpath))
+      (.log js/console (str "enable add comments "  thing-id navpath))
       (events/send-on :submit form input-queue submit-fn)
       )))
 

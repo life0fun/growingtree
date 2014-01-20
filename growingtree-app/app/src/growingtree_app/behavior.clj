@@ -106,12 +106,33 @@
   ; :path was setup in thing-nav-messages and init-nav-emitter for sidebar
   (let [path (:path message)
         qpath (:qpath message)   ; in thing nav filtered view, we have qpath
-        npath (->> (if qpath (concat oldv [path] [qpath]) (concat oldv [path]))
+        npath (->> (if qpath 
+                      (concat oldv [path] [qpath]) 
+                      (concat oldv [path]))
                    (take-last 6)
                    (vec))
        ]
-    (.log js/console (str "set-nav-path newpath " npath))
+    (.log js/console (str "set-nav-path oldpath " (last oldv) " newpath " npath))
     npath))
+
+
+; refresh currrent(latest) nav path upon create new thing form submiited
+(defn refresh-nav-path
+  [oldv message]
+  (let [rpath (:rpath message) ; rpath from form submit done is [:course 1 :add-lecture]
+        cur-path (first (take-last 2 oldv))
+        cur-qpath (last oldv)
+        npath (condp = (first cur-q)
+                :all [cur-qpath]
+                [cur-path cur-qpath])  ; default expression for no-match
+
+        rfpath (->> (concat oldv npath)
+                    (take-last 6)
+                    (vec))
+       ]
+    (.log js/console (str "refresh-nav-path oldpath " oldv " newpath " rfpath))
+    rfpath))
+
 
 ; extract user input search 
 (defn set-nav-search
@@ -144,7 +165,7 @@
   "create thing from create new thing modal"
   [oldv message]
   (let [details (:details message)]
-    (.log js/console (str "create thing form submitted details " details))
+    (.log js/console (str "create-thing form submitted details " details))
     details))
 
 (defn created-thing-data
@@ -200,7 +221,7 @@
         parent-thing-id (second (reverse newpath))
         parent (filter #(= parent-thing-id (:db/id %)) old-thing-vec)
        ]
-    (.log js/console (str " nav path refresh from " oldpath " to " newpath " " activemsg))
+    (.log js/console (str "refresh-thing-data upon nav path from " oldpath " to " newpath " " activemsg))
     (if oldv
       ; ret new map to stored [:all], squash everything in old path so all nodes get deleted
       (-> oldv
@@ -253,6 +274,7 @@
                 
                 ; UI event sent to outbound node, then derive to [:nav :path] node
                 [:set-nav-path [:nav :path] set-nav-path]
+                [:refresh-nav-path [:nav :path] refresh-nav-path]
 
                 ; fulltext search
                 [:set-nav-search [:nav :search] set-nav-search]
@@ -276,6 +298,7 @@
             ;; can be old val or tracking map
 
             ; derive can not use wildcard path, as the msg topic is for upstream src.
+            ; upon nav path changed, clear all things.
             [#{[:nav :path]} [:data] refresh-thing-data]
 
             }
