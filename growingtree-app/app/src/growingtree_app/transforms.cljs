@@ -465,6 +465,30 @@
   ))
 
 
+(defmethod enable-thing-nav  ; transkey = :add-parent
+  :add-parent
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:child 1 :add-parent]
+        thing-id (first (reverse (butlast navpath)))
+        thing-node (dom/by-id (str thing-id))
+        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
+        add-parent-link (dom/by-class link-clz)
+        ; current parent thing map from emitter, when create parent node, form override values
+        thing-map ((msgs/param :thing-map) (first messages))
+        override-map {:family/child (:db/id thing-map)
+                     }
+        ; now toggle add thing form, and enable the submit fn.
+        toggle-fn (newthing-form/toggle-add-thing-form-fn :parent 
+                                                          r navpath
+                                                          "new-subthings"
+                                                          override-map 
+                                                          input-queue)
+       ]
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
+    (de/listen! add-parent-link :click toggle-fn)
+  ))
+
+
 ; ------------------------------------------------------------------------------------
 ; transform enable for [transforms [:nav :course 1 :add-lecture] :add-lecture
 ; ------------------------------------------------------------------------------------

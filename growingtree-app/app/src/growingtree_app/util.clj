@@ -119,11 +119,16 @@
 (defn refresh-nav-path
   [add-thing-type navpath input-queue]
   (.log js/console (str "refresh-nav-path " add-thing-type navpath))
-  (let [curpath (butlast navpath)  ; [:course 1]
+  (let [; we need to do some ugly name mangling for thing type.
+        nxt (case add-thing-type
+                  :assign :assignment   ; swap assignments
+                  :grade  :assignment   ; grade is leaf node, reverse next to assignment.
+                  add-thing-type)
+        curpath (butlast navpath)  ; [:course 1]
         messages [{msgs/topic [:nav :path]
-                   msgs/type :refresh-nav-path
+                   msgs/type :set-nav-path
                    :path (vec (concat curpath [(first curpath)])) ; [:course 1 :course]
-                   :qpath (vec (concat curpath [add-thing-type]))}]
+                   :qpath (vec (concat curpath [nxt]))}]
         ]
       (.log js/console (str "refresh nav path " add-thing-type " " navpath " to msgs " messages))
       (doseq [m messages] ;[m new-msgs]  do not need render to fill anything

@@ -116,24 +116,6 @@
     npath))
 
 
-; refresh currrent(latest) nav path upon create new thing form submiited
-(defn refresh-nav-path
-  [oldv message]
-  (let [rpath (:rpath message) ; rpath from form submit done is [:course 1 :add-lecture]
-        cur-path (first (take-last 2 oldv))
-        cur-qpath (last oldv)
-        npath (condp = (first cur-q)
-                :all [cur-qpath]
-                [cur-path cur-qpath])  ; default expression for no-match
-
-        rfpath (->> (concat oldv npath)
-                    (take-last 6)
-                    (vec))
-       ]
-    (.log js/console (str "refresh-nav-path oldpath " oldv " newpath " rfpath))
-    rfpath))
-
-
 ; extract user input search 
 (defn set-nav-search
   [oldv message]
@@ -143,6 +125,7 @@
        ]
     (.log js/console (str "set-nav-search " nkey))
     nkey))
+
 
 ; setup in effect, and callback by xhr respond handler, store list of all things data into 
 ; [:data :all 0 :parent] or [:data :parent 1 :child]
@@ -274,7 +257,6 @@
                 
                 ; UI event sent to outbound node, then derive to [:nav :path] node
                 [:set-nav-path [:nav :path] set-nav-path]
-                [:refresh-nav-path [:nav :path] refresh-nav-path]
 
                 ; fulltext search
                 [:set-nav-search [:nav :search] set-nav-search]
