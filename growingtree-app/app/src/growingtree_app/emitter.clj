@@ -90,16 +90,18 @@
 (defn login-emitter
   [inputs]
   "set up message emitter for sidebar nav UI interaction"
-  (.log js/console "init all things emitter")
+  (.log js/console "emit login dialog. " (get-in inputs [:new-model :login :error]))
   [
     ; login name pass
+    [:transform-disable [:login :name]]
+    [:node-destroy [:login :name]]
+
     [:node-create [:login :name]]
     [:transform-enable [:login :name]
                        :login 
                        [{msgs/topic [:login :name]
                         (msgs/param :login-name) nil
                         (msgs/param :login-pass) nil}]]
-
   ])
 
 

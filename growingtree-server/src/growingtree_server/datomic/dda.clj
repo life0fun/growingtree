@@ -163,6 +163,16 @@
     (prn "find entity attr " ref-ids)
     ref-ids))
 
+
+;;==============================================================
+; get login user by name
+;;==============================================================
+(defn find-user
+  "find all parents with all children"
+  [login pass]
+  (family/find-user login pass))
+
+
 ;;==============================================================
 ;; family related, should use multi-method to dispatch
 ;;==============================================================

@@ -20,16 +20,23 @@
    :emit      [[#{[:in]} example-emit]]}
   )
 
+
 ;;=======================================================================
 ;; when input is tracking map, you can following keys from tracking map
 ;; :message, :new-model, :old-model, :input-paths :added :updated :removed
 ;;=======================================================================
-
-
-(defn get-login-name
+(defn get-user
   [inputs]
   ;(.log js/console "get login " inputs)
-  (get-in inputs [:new-model :login :name]))
+  (let [user-meta (get-in inputs [:new-model :user])
+        user-name (:person/title user-meta)]
+    user-name))
+
+; validate login credential
+(defn validate-login
+  [inputs]
+  (let [login-cred (get-in inputs [:new-model :login :name])]
+    [{msgs/topic [:server] msgs/type :validate-login (msgs/param :body) login-cred}]))
 
 
 ;;==================================================================================
@@ -44,7 +51,7 @@
 (defn request-navpath-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [inputs]  ; request path things by thing-type
-  (let [user (get-login-name inputs)  ; get the currently login user
+  (let [user (get-user inputs)  ; get the currently login user
         msg (:message inputs)  ; get the active msg
         curpath (:path msg)    ; [:all 0 :children] or [:parent 1 :parent]
         nxtpath (:qpath msg)   ; [:parent 1 :children]
@@ -83,7 +90,7 @@
 (defn request-navsearch-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [inputs]  ; request path things by thing-type
-  (let [user (get-login-name inputs)  ; get the currently login user
+  (let [user (get-user inputs)  ; get the currently login user
         msg (:message inputs)  ; get the active msg
         searchkey (:searchkey msg)
         body {:msg-type :set-thing-data
@@ -117,7 +124,7 @@
         msg (:message inputs)  ; the active msg triggers create new thing form submission
         thing-type (last (msgs/topic msg))  ;[:create :course]
         ; assoc current user to post details
-        user (get-login-name inputs)
+        user (get-user inputs)
         details (assoc (:details msg) :author user)   ; currrent user as author
         ; after create new thing, change nav path to [:all 0 thing-type]
         resp-msg-topic [:created-thing thing-type]  ; created thing

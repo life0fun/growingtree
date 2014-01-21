@@ -75,9 +75,28 @@
 (defn set-login
   [oldv message]  ; message is PersistentArrayMap, an array of map
   (let [login-name (:login-name message)
-        login-pass (:login-pass message)]
-    (.log js/console "user logged in " login-name " pass " login-pass message)
-    login-name))
+        login-pass (:login-pass message)
+        newv (assoc oldv :login login-name :pass login-pass)
+       ]
+    (.log js/console "login " newv message)
+    newv))
+
+
+; message key values set inside app service response handler.
+(defn set-login-error
+  [oldv message]
+  (let [err (:error message)
+        login (:login message)]
+    (.log js/console "login " login " login error " err )
+    (assoc oldv login err)))
+
+
+; after login validated, set current user info
+(defn set-user
+  [oldv message]  ; message is PersistentArrayMap, an array of map
+  (let [user (:user message)]
+    (.log js/console (str "user logged in " user))
+    user))
 
 
 (defn set-login-modal
@@ -107,8 +126,8 @@
   (let [path (:path message)
         qpath (:qpath message)   ; in thing nav filtered view, we have qpath
         npath (->> (if qpath 
-                      (concat oldv [path] [qpath]) 
-                      (concat oldv [path]))
+                       (concat oldv [path] [qpath]) 
+                       (concat oldv [path]))
                    (take-last 6)
                    (vec))
        ]
@@ -254,6 +273,9 @@
                 ; modal handling
                 [:login-modal [:nav :login-modal] set-login-modal]
                 [:create-modal [:nav :create-modal] set-create-modal]
+
+                ; set user after login validation
+                [:set-user [:user] set-user]
                 
                 ; UI event sent to outbound node, then derive to [:nav :path] node
                 [:set-nav-path [:nav :path] set-nav-path]
@@ -288,6 +310,8 @@
     ; effect fn takes msg and ret a vec of msg consumed by services-fn to xhr to back-end.
     ; the input path node for effect is recursively match from top. 
     :effect #{
+              [#{[:login :name]} effect/validate-login :mode :always]
+
               ; nav path changed, request all things by path. 
               ; note we specific tranform msg topic and type here so response data got
               ; dispatch to the right data model directly.
@@ -303,9 +327,11 @@
     ; emitter, all emitter fn must be defined, otherwise, NPE.
     :emit [;{:init emitter/init-app-model}
            {:init emitter/login-emitter}  ; render login dialog upon app init
+           {:in #{[:login :error]} :fn emitter/login-emitter :mode :always}
 
            ; after user logged in, create homepage
-           {:in #{[:login :name]} :fn emitter/init-nav-emitter :mode :always}
+           ;{:in #{[:login :name]} :fn emitter/init-nav-emitter :mode :always}
+           {:in #{[:user]} :fn emitter/init-nav-emitter :mode :always}
            
            {:in #{[:nav :create-modal]} :fn emitter/create-modal-emitter}
 

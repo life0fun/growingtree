@@ -44,6 +44,15 @@
           entity-keys))
 
 
+
+;;===========================================================================
+; get user
+;;===========================================================================
+(defn get-user
+  [login pass]
+  (dda/find-user login pass))
+
+
 ;;===========================================================================
 ;; get all things multi method, return data is thing-vec. [{tuple1} {tuple2}]
 ;; (defmulti name docstring? attr-map? dispatch-fn & options)

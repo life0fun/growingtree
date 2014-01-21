@@ -200,9 +200,24 @@
 
 
 ;;==========================================================================
-; generic person
-;;==========================================================================
+; generic find user
 ; :find rets entity id, find all person's pid and name.
+;;==========================================================================
+(defn find-user
+  "find user by login credential "
+  [login pass]
+  (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
+        user (->> (util/get-entities-by-rule qpath get-person-by)
+                    (map #(select-keys % projkeys) )
+                    (map #(util/add-upvote-attr %) )
+                    (map #(util/add-navpath % qpath) )
+                )
+        ]
+    (doseq [e user]
+      (prn "user --> " e))
+    user))
+
+
 (defn find-person
   "find person by query path "
   [qpath]

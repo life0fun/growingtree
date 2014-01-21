@@ -175,6 +175,23 @@
 
 
 ;;==================================================================================
+; get login user
+;;==================================================================================
+(defn get-login-user
+  "get login user meta"
+  [{postdata :edn-params :as request}]
+  (let [login (:login postdata)
+        pass (:pass postdata)
+        user (peer/get-user login pass)
+        result {:status 200 :data user}
+        jsonresp (bootstrap/json-response result)
+       ]
+    (newline)  
+    (println (str "service peer get-user " login user))
+    jsonresp))
+
+
+;;==================================================================================
 ; GET request to get all things without post any filters
 ; this fn is deprecated as nav path for all things is [:all 0 :parent]
 ; deprecated !
@@ -255,6 +272,7 @@
      ["/msgs" {:get subscribe :post publish}
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
      ["/about" {:get about-page}]
+     ["/login" {:post get-login-user}]
      ["/api/:thing" {:get get-all-things :post get-things}]
      ["/add/:thing" {:post add-thing}]
     ]]])

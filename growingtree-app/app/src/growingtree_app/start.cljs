@@ -43,7 +43,9 @@
   (let [app (app/build behavior/growingtree-app)
         ; render fn maps app model root to DOM div id="content"
         render-fn (push-render/renderer "content" render-config render/log-fn)
-        app-model (render/consume-app-model app render-fn)]
+        app-model (render/consume-app-model app render-fn)
+       ]
+
     (app/begin app)
 
     ; first, subscribe to server bcast msgs, inject msg to :effect queue directly
