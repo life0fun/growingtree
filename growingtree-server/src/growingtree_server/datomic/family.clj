@@ -200,18 +200,28 @@
 
 
 ;;==========================================================================
-; generic find user
 ; :find rets entity id, find all person's pid and name.
+; 
 ;;==========================================================================
 (defn find-user
-  "find user by login credential "
-  [login pass]
-  (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
+  "find user by login credential, if type = :signup, create the new user"
+  [details]
+  (let [{:keys [type login pass email role]} details
+        projkeys (keys person-schema)  ; must select-keys from datum entity attributes
         user (-> (dbconn/find-by :person/title login)
                  (select-keys projkeys)  ; select-keys ret {} on anything nil
              )
-        user (if (empty? user) nil user)
+        user (cond 
+                (and (empty? user) (= :login type)) nil
+                (= :login type) user 
+                (and (= :signup type) (not (empty? user))) nil
+                :else (do 
+                        (if (= :parent role)
+                              (create-parent details)
+                              (create-child details))
+                        details))
        ]
+    (prn "find user " type login pass email role)
     (prn " find-user --> " user)
     user))
 

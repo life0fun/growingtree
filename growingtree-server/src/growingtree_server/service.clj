@@ -177,12 +177,11 @@
 ;;==================================================================================
 ; get login user
 ;;==================================================================================
-(defn get-login-user
-  "get login user info"
+(defn get-signup-login
+  "get signup or login user info"
   [{postdata :edn-params :as request}]
-  (let [login (:login postdata)
-        pass (:pass postdata)
-        user (peer/get-user login pass)
+  (prn "get-signup-login " postdata)
+  (let [user (peer/get-user postdata)
         ;result {:status 200 :data user}
         result (-> {:data user}
                    (assoc :status (if user 200 404))
@@ -190,7 +189,7 @@
         jsonresp (bootstrap/json-response result)
        ]
     (newline)  
-    (println (str "service peer get-login-user " login " " result))
+    (println (str "service peer get-login-user " postdata " " result))
     jsonresp))
 
 
@@ -275,8 +274,7 @@
      ["/msgs" {:get subscribe :post publish}
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
      ["/about" {:get about-page}]
-     ["/login" {:post get-login-user}]
-     ["/signup" {:post signup}]
+     ["/login" {:post get-signup-login}]
      ["/api/:thing" {:get get-all-things :post get-things}]
      ["/add/:thing" {:post add-thing}]
     ]]])

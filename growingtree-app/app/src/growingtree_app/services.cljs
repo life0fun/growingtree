@@ -78,8 +78,7 @@
         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
         :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)
 
-        :signup (signup body input-queue)
-        :validate-login (validate-login body input-queue)
+        :signup-login (signup-login body input-queue)
         
         :request-things (request-things body input-queue)
         :add-thing (add-thing body input-queue)
@@ -87,34 +86,10 @@
         "default"))))
 
 
-; signup a user
-(defn signup
+; body ia value map of [:login :name], has :type :user :pass :email, type is :login or :signup
+(defn signup-login
   [body input-queue]
-  (let [details (:details body)
-        api (str "/signup")
-        resp 
-          (fn [response]
-            (when-let [body (:body response)] ; only when we have valid body
-              (let [bodyjson (JSON/parse body)  
-                    ; parse js json object to cljs.core.PersisitentVector data structre.
-                    result (js->clj bodyjson :keywordize-keys true)
-                    status (:status result)
-                    user-data (:data result)
-                   ]
-                (.log js/console (str "app service signup resp " result))
-                (p/put-message input-queue
-                               {msgs/topic [:user]
-                                msgs/type :set-user
-                                :user user-data}))))
-       ]
-    (.log js/console (str "app service signup  " api body))
-    (xhr-request api "POST" body resp xhr-log)))
-
-
-; login user meta has :user :pass key
-(defn validate-login
-  [body input-queue]
-  (let [{:keys [login pass]} body
+  (let [{:keys [type login pass email]} body
         api (str "/login")
         resp 
           (fn [response]
@@ -126,7 +101,7 @@
                     user-data (:data result)  ; return full user data if good.
                     err (:error result)
                    ]
-                (.log js/console (str "app service validate login resp " result))
+                (.log js/console (str "app service signup login resp " result))
                 (if err
                   (p/put-message input-queue
                                  {msgs/topic [:login :error]
@@ -140,7 +115,7 @@
                                   :user user-data})
                   ))))
        ]
-    (.log js/console (str "app service validate login request " api body))
+    (.log js/console (str "app service signup login request " api body))
     (xhr-request api "POST" body resp xhr-log)))
 
 

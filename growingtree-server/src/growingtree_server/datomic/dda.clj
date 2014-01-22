@@ -168,9 +168,9 @@
 ; get login user by name
 ;;==============================================================
 (defn find-user
-  "find all parents with all children"
-  [login pass]
-  (family/find-user login pass))
+  "find or create login user"
+  [details]
+  (family/find-user details))
 
 
 ;;==============================================================

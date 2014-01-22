@@ -87,17 +87,19 @@
   (let [signup-fn 
           (fn [evt]
             (let [signup-msgs [{msgs/topic [:login :name]
-                                msgs/type :set-login
-                                (msgs/param :type) :signup
+                                msgs/type :signup
+                                :type :signup   ; do not wrap with msgs/param if not need filled.
                                 (msgs/param :details) {}}]
                   signup-map {"signup-name" :name 
                               "signup-email" :email
                               "signup-pass" :pass}
                   details (events/collect-inputs signup-map)
-                  messages (msgs/fill :set-login signup-msgs {:details details})
+                  messages (msgs/fill :signup signup-msgs {:details details})
                  ]
+              (.log js/console (str "signup details " details))
               (doseq [m messages]
-                (p/put-message input-queue m))))
+                (p/put-message input-queue m))
+              ))
        ]
 
     (.log js/console (str "enable login submit " rpath messages))
@@ -111,7 +113,7 @@
     
     ; signup form submit handler  
     (events/send-on :submit (dom/by-class "signup-form") input-queue signup-fn)
-  )
+  ))
 
 
 (defn disable-login-submit

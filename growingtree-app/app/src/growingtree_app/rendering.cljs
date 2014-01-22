@@ -96,8 +96,7 @@
     (dom/append! (dom/by-id parent) divcode)
     ; listen on sign up link click
     (de/listen! (dom/by-id "signup-link") :click toggle-fn)
-  ))
-
+    ))
 
 ;;================================================================================
 ;; render home page sidebar and setup sidebar click transforme

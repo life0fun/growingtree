@@ -74,11 +74,25 @@
 ; user login, store user name into [:login :name]
 (defn set-login
   [oldv message]  ; message is PersistentArrayMap, an array of map
-  (let [login-name (:name message)
+  (let [login-type (:type message)
+        login-name (:name message)
         login-pass (:pass message)
-        newv (assoc oldv :login login-name :pass login-pass)
+        newv (assoc oldv :login login-name :pass login-pass :type login-type)
        ]
     (.log js/console (str "set-login " newv message))
+    newv))
+
+
+; extract signup details and set into [:login :name]
+(defn set-signup
+  [oldv message]
+  (let [details (:details message)
+        newv (assoc oldv :login (:name details)
+                         :pass (:pass details)
+                         :email (:email details)
+                         :type (:type message))
+       ]
+    (.log js/console (str "set-signup " newv message))
     newv))
 
 
@@ -104,7 +118,7 @@
   (let [login-name (:login-name message)
         login-pass (:login-pass message)]
     (.log js/console "set nav login modal " login-name " pass " login-pass)
-    login-name))    
+    login-name))
 
 
 (defn set-create-modal
@@ -269,6 +283,7 @@
     :debug true
     :transform [
                 [:login [:login :name] set-login]
+                [:signup [:login :name] set-signup]
 
                 ; modal handling
                 [:login-modal [:nav :login-modal] set-login-modal]
@@ -311,7 +326,7 @@
     ; effect fn takes msg and ret a vec of msg consumed by services-fn to xhr to back-end.
     ; the input path node for effect is recursively match from top. 
     :effect #{
-              [#{[:login :name]} effect/validate-login :mode :always]
+              [#{[:login :name]} effect/signup-validate-login :mode :always]
 
               ; nav path changed, request all things by path. 
               ; note we specific tranform msg topic and type here so response data got

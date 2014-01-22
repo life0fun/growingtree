@@ -32,19 +32,13 @@
         user-name (:person/title user-meta)]
     user-name))
 
-; validate login credential
-(defn validate-login
-  [inputs]
-  (let [login-cred (get-in inputs [:new-model :login :name])]
-    (.log js/console (str "validate-login " login-cred))
-    [{msgs/topic [:server] msgs/type :validate-login (msgs/param :body) login-cred}]))
 
-
-(defn signup
+; validate login credential, or signup a user, pass [:login :name] value map in body.
+(defn signup-validate-login
   [inputs]
-  (let [details (get-in inputs [:new-model :signup])]
-    (.log js/console (str "signup " details))
-    [{msgs/topic [:server] msgs/type :signup (msgs/param :body) details}]))
+  (let [details (get-in inputs [:new-model :login :name])]
+    (.log js/console (str "signup-validate-login details " details))
+    [{msgs/topic [:server] msgs/type :signup-login (msgs/param :body) details}]))
 
 
 ;;==================================================================================
