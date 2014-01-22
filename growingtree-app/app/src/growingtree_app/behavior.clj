@@ -78,7 +78,7 @@
         login-pass (:login-pass message)
         newv (assoc oldv :login login-name :pass login-pass)
        ]
-    (.log js/console "login " newv message)
+    (.log js/console (str "set-login " newv message))
     newv))
 
 
@@ -87,7 +87,7 @@
   [oldv message]
   (let [err (:error message)
         login (:login message)]
-    (.log js/console "login " login " login error " err )
+    (.log js/console (str "set-login-error " login " login error " err ))
     (assoc oldv login err)))
 
 
@@ -95,7 +95,7 @@
 (defn set-user
   [oldv message]  ; message is PersistentArrayMap, an array of map
   (let [user (:user message)]
-    (.log js/console (str "user logged in " user))
+    (.log js/console (str "set-user logged in " user))
     user))
 
 
@@ -327,7 +327,7 @@
     ; emitter, all emitter fn must be defined, otherwise, NPE.
     :emit [;{:init emitter/init-app-model}
            {:init emitter/login-emitter}  ; render login dialog upon app init
-           {:in #{[:login :error]} :fn emitter/login-emitter :mode :always}
+           {:in #{[:login :error]} :fn emitter/login-error-emitter :mode :always}
 
            ; after user logged in, create homepage
            ;{:in #{[:login :name]} :fn emitter/init-nav-emitter :mode :always}

@@ -88,9 +88,13 @@
   (let [parent (render/get-parent-id r rpath)
         id (render/new-id! r rpath)
         html (templates/add-template r rpath (:login templates))
-        divcode (html {:id id :name "user" :pass "pass"})]
+        divcode (html {:id id :name "user" :pass "pass"})
+        toggle-fn (util/toggle-hide-fn (dom/by-class "signup-form") nil)
+       ]
     (.log js/console (str "adding login template " rpath " parent " parent))
     (dom/append! (dom/by-id parent) divcode)
+    ; listen on sign up link click
+    (de/listen! (dom/by-id "signup-link") :click toggle-fn)
   ))
 
 
@@ -104,11 +108,12 @@
   [r user rpath]
   (let [parent "user-avatar"  ; div id=user-avatar
         id (str user "-avatar")
+        title (:person/title user)
         html (templates/add-template r rpath (:user templates)) ; stores homepage div at [:nav] 
         divcode (html {:id id
                        :user-avatar "avatar.jpg"
                        :user-profile (str "/home/profile/" user)
-                       :user-greeting (str "Hi " user)})
+                       :user-greeting (str "Hi " title)})
        ]
 
     (.log js/console (str "render avatar template for " user " at "))
@@ -127,7 +132,7 @@
         html (templates/add-template r rpath (:homepage templates)) ; stores homepage div at [:nav] 
         divcode (html {:id id})]
 
-    (.log js/console (str "render home template for " newv " at " rpath 
+    (.log js/console (str "render-home-page for " newv " at " rpath 
                           " id " (render/get-id r rpath) 
                           " parent id " (render/get-parent-id r rpath) parent))
     (dom/destroy-children! (dom/by-id parent))
@@ -356,7 +361,7 @@
 
     ;; ============== nav path with sidebar or thing type event binding ============
     ;[:node-create  [:nav] render-home-page]
-    [:value [:nav :login] render-home-page]
+    [:value [:nav :user] render-home-page]
     [:node-destroy [:nav] h/default-destroy]
     ; wire sidebar nav click to send this transform to change data model.
     [:transform-enable [:nav :sidebar] transforms/enable-sidebar-nav]

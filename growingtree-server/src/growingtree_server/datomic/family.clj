@@ -207,14 +207,12 @@
   "find user by login credential "
   [login pass]
   (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
-        user (->> (util/get-entities-by-rule qpath get-person-by)
-                    (map #(select-keys % projkeys) )
-                    (map #(util/add-upvote-attr %) )
-                    (map #(util/add-navpath % qpath) )
-                )
-        ]
-    (doseq [e user]
-      (prn "user --> " e))
+        user (-> (dbconn/find-by :person/title login)
+                 (select-keys projkeys)  ; select-keys ret {} on anything nil
+             )
+        user (if (empty? user) nil user)
+       ]
+    (prn " find-user --> " user)
     user))
 
 

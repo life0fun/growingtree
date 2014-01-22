@@ -292,7 +292,8 @@
 (defn find-entities
   "find entities by attr value, ret a list of matching tuples [[eid] [eid]]"
   [attr attr-val]
-  (let [where (conj '[?e ] attr '?val)  ; quote ?e ?val symbol
+  (let [; quote ?e ?val to insert into query directly, as compare to in the argument list.
+        where (conj '[?e ] attr '?val)
         q (conj '[:find ?e :in $ ?val :where ] where)
         eid (d/q q (get-db) attr-val)]
     eid))

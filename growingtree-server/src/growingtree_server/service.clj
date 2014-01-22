@@ -178,16 +178,19 @@
 ; get login user
 ;;==================================================================================
 (defn get-login-user
-  "get login user meta"
+  "get login user info"
   [{postdata :edn-params :as request}]
   (let [login (:login postdata)
         pass (:pass postdata)
         user (peer/get-user login pass)
-        result {:status 200 :data user}
+        ;result {:status 200 :data user}
+        result (-> {:data user}
+                   (assoc :status (if user 200 404))
+                   (assoc :error (if user nil "invalid login")))
         jsonresp (bootstrap/json-response result)
        ]
     (newline)  
-    (println (str "service peer get-user " login user))
+    (println (str "service peer get-login-user " login " " result))
     jsonresp))
 
 

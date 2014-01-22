@@ -50,6 +50,7 @@
 ;;===========================================================================
 (defn get-user
   [login pass]
+  (prn "peer get-user " login " " pass)
   (dda/find-user login pass))
 
 

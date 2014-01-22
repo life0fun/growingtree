@@ -93,6 +93,19 @@
                            {"login-name" :login-name  "login-pass" :login-pass}))
 
 
+
+(defn enable-signup-submit
+  "listen signup btn event and sent transform msgs back to behavior"
+  [_ [_ path transform-name messages] input-queue]
+  (.log js/console (str "enable signup submit " path messages))
+  (events/collect-and-send :click 
+                           "signup-button" 
+                           input-queue 
+                           transform-name 
+                           messages
+                           {"signup-name" :signup-name  "signup-pass" :signup-pass}))
+
+
 (defn disable-login-submit
   [_ _ _]
   (events/remove-click-event "login-button"))
@@ -584,7 +597,7 @@
        
         reply-form-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id :reply-form ""))))
         toggle-fn (-> (entity-view/div-form-sel thing-id "reply-form")
-                      (newthing-form/toggle-hide-fn reply-form-clz))
+                      (util/toggle-hide-fn reply-form-clz))
 
        ]
     (.log js/console (str "enable thing nav reply toggle " navpath " " link-clz reply-form-clz))

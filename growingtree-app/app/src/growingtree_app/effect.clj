@@ -36,6 +36,7 @@
 (defn validate-login
   [inputs]
   (let [login-cred (get-in inputs [:new-model :login :name])]
+    (.log js/console (str "validate-login " login-cred))
     [{msgs/topic [:server] msgs/type :validate-login (msgs/param :body) login-cred}]))
 
 

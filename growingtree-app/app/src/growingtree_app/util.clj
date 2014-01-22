@@ -10,7 +10,11 @@
 ; You must not remove this notice, or any other, from this software.
 
 (ns ^:shared growingtree-app.util
-    (:require [io.pedestal.app.util.platform :as platform]
+    (:require [domina :as dom]
+              [domina.css :as dc]
+              [domina.events :as de]
+              [domina.xpath :as dx]
+              [io.pedestal.app.util.platform :as platform]
               [io.pedestal.app.render.push :as render]
               [io.pedestal.app.render.events :as events]
               [io.pedestal.app.render.push.templates :as templates]
@@ -48,6 +52,24 @@
   (let [m (js/moment (* 1000 unix-epoch))
         time-str (.format m "hh:mm a ddd, MMM Do YYYY")]
     time-str))
+
+
+;;==================================================================================
+; ret a fn that toggles hide attr of a form
+;;==================================================================================
+; too bad (dom/toggle-class! form "hide") is not available.
+(defn toggle-hide-fn
+  "return an event handler fn that toggen hide css class of the form"
+  [form clz]
+  (fn [_]
+    (let [hidden (dom/has-class? form "hide")]
+      (.log js/console (str "toggle hide link clicked " clz hidden))
+      (if hidden
+        (dom/remove-class! form "hide")
+        (dom/add-class! form "hide"))
+      ; ret whether we displayed the form
+      (not hidden))))
+
 
 ; ret the keyword for thing attr
 (defn thing-attr-keyword

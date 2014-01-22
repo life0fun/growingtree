@@ -90,12 +90,8 @@
 (defn login-emitter
   [inputs]
   "set up message emitter for sidebar nav UI interaction"
-  (.log js/console "emit login dialog. " (get-in inputs [:new-model :login :error]))
+  (.log js/console (str " login-emitter " (get-in inputs [:new-model :login :name])))
   [
-    ; login name pass
-    [:transform-disable [:login :name]]
-    [:node-destroy [:login :name]]
-
     [:node-create [:login :name]]
     [:transform-enable [:login :name]
                        :login 
@@ -105,20 +101,46 @@
   ])
 
 
+; login error
+(defn login-error-emitter
+  [inputs]
+  (let [msg (:message inputs)
+        err (get-in inputs [:new-model :login :error])
+        err (:error msg)]
+    (.log js/console " login-error-emitter error" (:error msg) " err " err)
+    (when err
+      [
+        ; login name pass
+        [:transform-disable [:login :name]]
+        [:node-destroy [:login :name]]
+
+        [:node-create [:login :name]]
+        [:transform-enable [:login :name]
+                           :login 
+                           [{msgs/topic [:login :name]
+                            (msgs/param :login-name) nil
+                            (msgs/param :login-pass) nil}]]
+      ])
+    ))
+
 ;;==================================================================================
-;; nav type on sidebar
-;;==================================================================================
-; user logged in, display homepage, enable all action btn and pass current
-; user to message
+; user logged in, show homepage, enable all action btn and pass current user in msg
+;;=================================================================================+
 (defn init-nav-emitter
   [inputs]
-  (let [oldv (get-in inputs [:old-model :login :name])
-        newv (get-in inputs [:new-model :login :name])]
-    (.log js/console "login emitter " oldv " -> " newv)
-    (if (not= oldv newv)
-      [
+  (let [oldv (get-in inputs [:old-model :user])
+        newv (get-in inputs [:new-model :user])]
+    (.log js/console (str "init-nav-emitter " oldv " -> " newv))
+    ;(if (not= oldv newv)
+    (if newv
+      [ ; first, destroy existing login dialog
+        [:transform-disable [:login :name]]
+        [:node-destroy [:login]]
+
+        ; show login user
+        [:value [:nav :user] newv]
+
         [:node-create [:nav :sidebar]]
-        [:value [:nav :login] newv]
         [:transform-enable [:nav :sidebar] 
                            :set-nav-path
                            [{msgs/topic [:nav :path]

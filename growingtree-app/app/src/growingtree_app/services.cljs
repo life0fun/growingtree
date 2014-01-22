@@ -78,7 +78,7 @@
         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
         :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)
 
-        :login-validation (login-validation body input-queue)
+        :validate-login (validate-login body input-queue)
         
         :request-things (request-things body input-queue)
         :add-thing (add-thing body input-queue)
@@ -89,12 +89,11 @@
 ; login user meta has :user :pass key
 (defn validate-login
   [body input-queue]
-  (let [{:keys [:login :pass]} body
+  (let [{:keys [login pass]} body
         api (str "/login")
         resp 
           (fn [response]
             (when-let [body (:body response)] ; only when we have valid body
-              ;(.log js/console (str "app service receive response : " body))
               (let [bodyjson (JSON/parse body)  
                     ; parse js json object to cljs.core.PersisitentVector data structre.
                     result (js->clj bodyjson :keywordize-keys true)
@@ -102,7 +101,7 @@
                     user-data (:data result)  ; return full user data if good.
                     err (:error result)
                    ]
-          
+                (.log js/console (str "app service validate login resp " result))
                 (if err
                   (p/put-message input-queue
                                  {msgs/topic [:login :error]
@@ -116,8 +115,8 @@
                                   :user user-data})
                   ))))
        ]
-    (.log js/console (str "app service login validation " api body))
-    (xhr-request api "GET" body resp xhr-log)))
+    (.log js/console (str "app service validate login request " api body))
+    (xhr-request api "POST" body resp xhr-log)))
 
 
 ;;==================================================================================

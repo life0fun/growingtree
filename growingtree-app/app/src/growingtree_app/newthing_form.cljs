@@ -26,17 +26,17 @@
 ;; utility functions for toggle hide of form
 ;;==================================================================================
 ; too bad (dom/toggle-class! form "hide") is not available.
-(defn toggle-hide-fn
-  "return an event handler fn that toggen hide css class of the form"
-  [form clz]
-  (fn [_] 
-    (let [hidden (dom/has-class? form "hide")]
-      (.log js/console (str "toggle hide link clicked " clz hidden))
-      (if hidden
-        (dom/remove-class! form "hide")
-        (dom/add-class! form "hide"))
-      ; ret whether we displayed the form
-      (not hidden))))
+; (defn toggle-hide-fn
+;   "return an event handler fn that toggen hide css class of the form"
+;   [form clz]
+;   (fn [_] 
+;     (let [hidden (dom/has-class? form "hide")]
+;       (.log js/console (str "toggle hide link clicked " clz hidden))
+;       (if hidden
+;         (dom/remove-class! form "hide")
+;         (dom/add-class! form "hide"))
+;       ; ret whether we displayed the form
+;       (not hidden))))
 
 
 ;;==================================================================================
@@ -370,7 +370,7 @@
                      (merge override-map))
           ]
         (.log js/console (str add-thing-type " inline-form-submit-fn details " details))
-        ((toggle-hide-fn form nil) nil)  ; hide the inline form
+        ((util/toggle-hide-fn form nil) nil)  ; hide the inline form
         (msgs/fill :create-thing messages {:details details})
     )))
 
