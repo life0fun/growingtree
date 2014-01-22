@@ -28,8 +28,8 @@
 ;;    bodyjson (JSON/parse (:body response))
 ;;
 ;; when response is edn, read-string to parse to cljs.core.PersistentHashMap
-;; convert cljs object to cljs data structre, use js->cljs
-;;    (js->cljs (JSON/parse (:body response)) :keywordize-keys true)
+;; convert cljs object to cljs data structre, use js->clj
+;;    (js->clj (JSON/parse (:body response)) :keywordize-keys true)
 ;; 
 ;; access json object, (aget jsonobject "key-name")
 ;; access cljs persistentMap, ((keyword "course/title") cljs.core.PersistentHashMap)
@@ -78,12 +78,37 @@
         :subscribe (xhr-request "/msgs" "GET" "" xhr-log xhr-log)
         :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)
 
+        :signup (signup body input-queue)
         :validate-login (validate-login body input-queue)
         
         :request-things (request-things body input-queue)
         :add-thing (add-thing body input-queue)
 
         "default"))))
+
+
+; signup a user
+(defn signup
+  [body input-queue]
+  (let [details (:details body)
+        api (str "/signup")
+        resp 
+          (fn [response]
+            (when-let [body (:body response)] ; only when we have valid body
+              (let [bodyjson (JSON/parse body)  
+                    ; parse js json object to cljs.core.PersisitentVector data structre.
+                    result (js->clj bodyjson :keywordize-keys true)
+                    status (:status result)
+                    user-data (:data result)
+                   ]
+                (.log js/console (str "app service signup resp " result))
+                (p/put-message input-queue
+                               {msgs/topic [:user]
+                                msgs/type :set-user
+                                :user user-data}))))
+       ]
+    (.log js/console (str "app service signup  " api body))
+    (xhr-request api "POST" body resp xhr-log)))
 
 
 ; login user meta has :user :pass key

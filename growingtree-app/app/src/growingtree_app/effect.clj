@@ -40,6 +40,13 @@
     [{msgs/topic [:server] msgs/type :validate-login (msgs/param :body) login-cred}]))
 
 
+(defn signup
+  [inputs]
+  (let [details (get-in inputs [:new-model :signup])]
+    (.log js/console (str "signup " details))
+    [{msgs/topic [:server] msgs/type :signup (msgs/param :body) details}]))
+
+
 ;;==================================================================================
 ;; effect flow, effec-fn gets arg by input specifier and ret a vector of msg,
 ;; msgs got enq to (:output app) where service-fn consumes them.

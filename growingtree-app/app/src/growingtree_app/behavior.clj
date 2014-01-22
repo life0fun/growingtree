@@ -74,8 +74,8 @@
 ; user login, store user name into [:login :name]
 (defn set-login
   [oldv message]  ; message is PersistentArrayMap, an array of map
-  (let [login-name (:login-name message)
-        login-pass (:login-pass message)
+  (let [login-name (:name message)
+        login-pass (:pass message)
         newv (assoc oldv :login login-name :pass login-pass)
        ]
     (.log js/console (str "set-login " newv message))
@@ -273,6 +273,7 @@
                 ; modal handling
                 [:login-modal [:nav :login-modal] set-login-modal]
                 [:create-modal [:nav :create-modal] set-create-modal]
+
 
                 ; set user after login validation
                 [:set-user [:user] set-user]

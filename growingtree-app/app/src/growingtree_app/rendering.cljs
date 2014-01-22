@@ -89,7 +89,8 @@
         id (render/new-id! r rpath)
         html (templates/add-template r rpath (:login templates))
         divcode (html {:id id :name "user" :pass "pass"})
-        toggle-fn (util/toggle-hide-fn (dom/by-class "signup-form") nil)
+        signup-form (dx/xpath (str "//form[@id='signup-form']"))
+        toggle-fn (util/toggle-hide-fn signup-form nil)
        ]
     (.log js/console (str "adding login template " rpath " parent " parent))
     (dom/append! (dom/by-id parent) divcode)

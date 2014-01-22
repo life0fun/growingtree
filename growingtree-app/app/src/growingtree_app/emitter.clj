@@ -96,8 +96,9 @@
     [:transform-enable [:login :name]
                        :login 
                        [{msgs/topic [:login :name]
-                        (msgs/param :login-name) nil
-                        (msgs/param :login-pass) nil}]]
+                        (msgs/param :name) nil
+                        (msgs/param :pass) nil
+                        (msgs/param :type) :login}]]
   ])
 
 

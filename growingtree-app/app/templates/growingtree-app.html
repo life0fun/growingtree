@@ -148,7 +148,7 @@
               Incorrect Username or Password!
           </div>
 
-          <form class="login-form" method="POST" action="" accept-charset="UTF-8">
+          <form id="login-form" class="login-form" method="POST" action="" accept-charset="UTF-8">
             <input type="text" id="login-name" value="rich-dad" class="span4" placeholder="Username or email" />
 
             <input type="password" id="login-pass" value="rich" class="span4" placeholder="Password" />
@@ -157,27 +157,25 @@
               <input type="checkbox" name="remember" value="1" /> Remember Me
             </label>
           
-            <button id="login-button" type="submit" name="submit" class="btn btn-primary btn-block">Sign in</button>
+            <button id="login-button" type="submit" name="submit" class="btn btn-primary btn-block">Login in</button>
     
           </form>
 
           <div id="signup-link">
-            <a class="option active" href="#">Does not have an account ?</a>
+            <a class="option active" href="#">Do not have an account ?</a>
+            <br>
+            <br>
           </div>
 
           <!-- now sign up form -->
-          <form method="POST" action="" accept-charset="UTF-8" class="signup-form">
-            <input type="text" id="signup-name" value="rich-dad" class="span4" placeholder="username" />
+          <form id="signup-form" method="POST" action="" accept-charset="UTF-8" class="signup-form hide">
+            <input type="text" id="signup-name" value="" class="span4" placeholder="username" />
 
-            <input type="text" id="signup-email" value="rich-dad@email.com" class="span4" placeholder="email" />
+            <input type="text" id="signup-email" value="" class="span4" placeholder="email" />
 
-            <input type="password" id="signup-pass" value="rich" class="span4" placeholder="Password" />
+            <input type="password" id="signup-pass" value="" class="span4" placeholder="Password" />
 
-            <input type="password" id="signup-pass-rep" value="rich" class="span4" placeholder="Repeat Password" />
-            
-            <label class="checkbox">
-              <input type="checkbox" name="remember" value="1" /> Remember Me
-            </label>
+            <input type="password" id="signup-pass-rep" value="" class="span4" placeholder="Repeat Password" />
           
             <button id="signup-button" type="submit" name="submit" class="btn btn-primary btn-block">Sign up</button>
     

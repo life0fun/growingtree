@@ -276,6 +276,7 @@
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
      ["/about" {:get about-page}]
      ["/login" {:post get-login-user}]
+     ["/signup" {:post signup}]
      ["/api/:thing" {:get get-all-things :post get-things}]
      ["/add/:thing" {:post add-thing}]
     ]]])

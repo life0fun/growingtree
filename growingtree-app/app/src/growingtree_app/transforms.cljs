@@ -83,27 +83,35 @@
 ;;==================================================================================
 (defn enable-login-submit
   "listen login btn event and sent transform msgs back to behavior"
-  [_ [_ path transform-name messages] input-queue]
-  (.log js/console (str "enable login submit " path messages))
-  (events/collect-and-send :click 
-                           "login-button" 
-                           input-queue 
-                           transform-name 
-                           messages
-                           {"login-name" :login-name  "login-pass" :login-pass}))
+  [_ [_ rpath transform-name messages] input-queue]
+  (let [signup-fn 
+          (fn [evt]
+            (let [signup-msgs [{msgs/topic [:login :name]
+                                msgs/type :set-login
+                                (msgs/param :type) :signup
+                                (msgs/param :details) {}}]
+                  signup-map {"signup-name" :name 
+                              "signup-email" :email
+                              "signup-pass" :pass}
+                  details (events/collect-inputs signup-map)
+                  messages (msgs/fill :set-login signup-msgs {:details details})
+                 ]
+              (doseq [m messages]
+                (p/put-message input-queue m))))
+       ]
 
+    (.log js/console (str "enable login submit " rpath messages))
+    (events/collect-and-send :click 
+                             "login-button" 
+                             input-queue 
+                             transform-name 
+                             messages
+                             {"login-name" :name  "login-pass" :pass})
 
-
-(defn enable-signup-submit
-  "listen signup btn event and sent transform msgs back to behavior"
-  [_ [_ path transform-name messages] input-queue]
-  (.log js/console (str "enable signup submit " path messages))
-  (events/collect-and-send :click 
-                           "signup-button" 
-                           input-queue 
-                           transform-name 
-                           messages
-                           {"signup-name" :signup-name  "signup-pass" :signup-pass}))
+    
+    ; signup form submit handler  
+    (events/send-on :submit (dom/by-class "signup-form") input-queue signup-fn)
+  )
 
 
 (defn disable-login-submit
