@@ -112,6 +112,8 @@
 
 (declare find-parent-by-cid)
 (declare find-parent-by-cname)
+(declare create-parent)
+(declare create-child)
 
 (declare upsert-family-parent-child)
 (declare add-to-family)
@@ -206,22 +208,27 @@
 (defn find-user
   "find user by login credential, if type = :signup, create the new user"
   [details]
-  (let [{:keys [type login pass email role]} details
+  (let [{:keys [type name pass email role]} details
         projkeys (keys person-schema)  ; must select-keys from datum entity attributes
-        user (-> (dbconn/find-by :person/title login)
+        user (-> (dbconn/find-by :person/title name)
                  (select-keys projkeys)  ; select-keys ret {} on anything nil
              )
         user (cond 
-                (and (empty? user) (= :login type)) nil
-                (= :login type) user 
-                (and (= :signup type) (not (empty? user))) nil
-                :else (do 
-                        (if (= :parent role)
-                              (create-parent details)
-                              (create-child details))
-                        details))
+                (and (empty? user) (= :login type)) {:user details :error "invalid user or passowrd"}
+                (= :login type) {:user user :error nil}
+                (and (= :signup type) (not (empty? user))) {:user details :error "user already exist, try another user name."}
+                :else
+                  (let [person (clojure.set/rename-keys 
+                                  details 
+                                  {:name :person/title
+                                   :email :person/email})]
+                        (if (= :parent (keyword role))
+                              (create-parent person)
+                              (create-child person))
+                        {:user person})
+              )
        ]
-    (prn "find user " type login pass email role)
+    (prn "find user " type name pass email role)
     (prn " find-user --> " user)
     user))
 

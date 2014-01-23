@@ -90,13 +90,20 @@
                                 msgs/type :signup
                                 :type :signup   ; do not wrap with msgs/param if not need filled.
                                 (msgs/param :details) {}}]
+                  role (->> ["parent-type" "child-type" "teacher-type"] 
+                                   (map #(dx/xpath (str "//form[@id='signup-form']/input[@id='" % "']")) )
+                                   (map #(dom/value %) )
+                                   (some #(if % %) ) )
                   signup-map {"signup-name" :name 
                               "signup-email" :email
                               "signup-pass" :pass}
-                  details (events/collect-inputs signup-map)
+                  details (merge (events/collect-inputs signup-map)
+                                 {:role role})
+
                   messages (msgs/fill :signup signup-msgs {:details details})
                  ]
               (.log js/console (str "signup details " details))
+              (de/prevent-default evt)  ; submit ret false, prevent refresh or redirect
               (doseq [m messages]
                 (p/put-message input-queue m))
               ))

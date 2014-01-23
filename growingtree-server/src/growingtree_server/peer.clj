@@ -46,7 +46,7 @@
 
 
 ;;===========================================================================
-; get user
+; get user, if signup, create a new one, other wise, validate existing one.
 ;;===========================================================================
 (defn get-user
   [details]

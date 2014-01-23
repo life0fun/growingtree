@@ -349,6 +349,7 @@
 ;--------------------------------------------------------------------
 ; inline form submit fn collect form input fields values and ret filled msg.
 ; input fields are mapped inside thing-input-map, thing-id suffixed for uniq.
+; deprecated!!!
 ;--------------------------------------------------------------------
 (defn inline-form-submit-fn
   [add-thing-type thing-id form override-map messages]

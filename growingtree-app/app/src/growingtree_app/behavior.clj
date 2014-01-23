@@ -87,12 +87,10 @@
 (defn set-signup
   [oldv message]
   (let [details (:details message)
-        newv (assoc oldv :login (:name details)
-                         :pass (:pass details)
-                         :email (:email details)
-                         :type (:type message))
+        newv (merge (assoc oldv :type (:type message))
+                    details)
        ]
-    (.log js/console (str "set-signup " newv message))
+    (.log js/console (str "set-signup new value " newv message))
     newv))
 
 

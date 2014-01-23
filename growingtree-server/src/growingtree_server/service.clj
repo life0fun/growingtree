@@ -183,9 +183,8 @@
   (prn "get-signup-login " postdata)
   (let [user (peer/get-user postdata)
         ;result {:status 200 :data user}
-        result (-> {:data user}
-                   (assoc :status (if user 200 404))
-                   (assoc :error (if user nil "invalid login")))
+        result (-> user
+                   (assoc :status (if-not (:error user) 200 404)))
         jsonresp (bootstrap/json-response result)
        ]
     (newline)  
