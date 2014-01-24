@@ -22,16 +22,31 @@
             </a>
 
             <a href="#" class="brand"> GrowingTrees </a>
+
             <div class="nav-collapse collapse">
               <ul class="nav pull-right">
                 <li id="newthing" class="active"><a href="#">Create</a></li>
                 
-                <li id="login" class="active"><a href="#">Login</a></li>
+                <!-- <li id="login" class="active"><a href="#">Login</a></li> -->
 
                 <form id="nav-search-form" class="navbar-form" role="search" style="float:left;">
                   <input id="nav-search-key" type="text" class="form-control" placeholder="Search">
                   <button id="nav-search-submit" type="submit" class="btn btn-default">Submit</button>
                 </form>
+              </ul>
+              
+              <ul class="nav pull-right">
+                <!-- <li id="newthing" class="active"><a href="#">Create</a></li> -->
+                <li class="dropdown" id="menuLogin">
+                  <a class="dropdown-toggle" href="#" data-toggle="dropdown" id="navLogin">Login</a>
+                  <div class="dropdown-menu" style="padding:17px;">
+                    <form class="form" id="login"> 
+                      <input name="username" id="username" type="text" placeholder="Username"> 
+                      <input name="password" id="password" type="password" placeholder="Password"><br>
+                      <button type="button" id="btnLogin" class="btn">Login</button>
+                    </form>
+                  </div>
+                </li>
               </ul>
             </div>
           </div>
