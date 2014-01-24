@@ -175,14 +175,13 @@
 
 
 ;;==================================================================================
-; get login user
+; get login user, returned user has :error and :user and :error key
 ;;==================================================================================
 (defn get-signup-login
   "get signup or login user info"
   [{postdata :edn-params :as request}]
   (prn "get-signup-login " postdata)
   (let [user (peer/get-user postdata)
-        ;result {:status 200 :data user}
         result (-> user
                    (assoc :status (if-not (:error user) 200 404)))
         jsonresp (bootstrap/json-response result)

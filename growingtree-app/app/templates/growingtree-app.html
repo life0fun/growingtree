@@ -143,9 +143,9 @@
         <div class="center span4 well">
           <h3>Welcome To GrowingTrees</h3>
          
-          <div id="error" class="alert alert-error hide">
-              <a class="close" data-dismiss="alert" field="content:error-info"></a>
-              Incorrect Username or Password!
+          <div id="error" class="alert alert-error">
+              <!-- <a class="close" data-dismiss="alert"></a> -->
+              <span field="content:login-error"></span>
           </div>
 
           <form id="login-form" class="login-form" method="POST" action="" accept-charset="UTF-8">
@@ -158,7 +158,6 @@
             </label>
           
             <button id="login-button" type="submit" name="submit" class="btn btn-primary btn-block">Login in</button>
-    
           </form>
 
           <div id="signup-link">

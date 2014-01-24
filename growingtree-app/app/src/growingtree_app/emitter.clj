@@ -95,32 +95,29 @@
     [:node-create [:login :name]]
     [:transform-enable [:login :name]
                        :login 
-                       [{msgs/topic [:login :name]
-                        (msgs/param :name) nil
-                        (msgs/param :pass) nil
-                        (msgs/param :type) :login}]]
+                       [{msgs/topic [:login :name] }]]
   ])
 
 
-; login error
+; login error, value mag contains err-map {:user {} :error "error-msg"}
 (defn login-error-emitter
   [inputs]
   (let [msg (:message inputs)
-        err (get-in inputs [:new-model :login :error])
-        err (:error msg)]
-    (.log js/console " login-error-emitter error" (:error msg) " err " err)
-    (when err
+        err-map (get-in inputs [:new-model :login :error])
+        user (:user err-map)
+        error (:error err-map)]
+    (.log js/console " login-error-emitter error" (:error msg) " err " err " user " user)
+    (when error
       [
         ; login name pass
         [:transform-disable [:login :name]]
         [:node-destroy [:login :name]]
 
         [:node-create [:login :name]]
+        [:value [:login :name] err-map]
         [:transform-enable [:login :name]
                            :login 
-                           [{msgs/topic [:login :name]
-                            (msgs/param :login-name) nil
-                            (msgs/param :login-pass) nil}]]
+                           [{msgs/topic [:login :name] }]]
       ])
     ))
 

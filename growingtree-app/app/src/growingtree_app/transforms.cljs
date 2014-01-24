@@ -79,21 +79,41 @@
 
 
 ;;==================================================================================
-;; login btn event handler
+;; login and signup btn event handler, 
+; note we cook our msg rawly, not using message from transform-enable.
 ;;==================================================================================
 (defn enable-login-submit
   "listen login btn event and sent transform msgs back to behavior"
-  [_ [_ rpath transform-name messages] input-queue]
-  (let [signup-fn 
+  [_ [_ rpath transkey messages] input-queue]
+  (let [login-fn 
+          (fn [evt]
+            (let [login-msgs [{msgs/topic [:login :name]
+                                msgs/type :login
+                                :type :login   ; do not wrap with msgs/param if not need filled.
+                                (msgs/param :details) {}}]
+                  login-map {"login-name" :name 
+                              ;"login-email" :email
+                              "login-pass" :pass}
+                  details (events/collect-inputs login-map)
+                  messages (msgs/fill :login login-msgs {:details details})
+                 ]
+              (.log js/console (str "login details " details))
+              (de/prevent-default evt)  ; submit ret false, prevent refresh or redirect
+              (doseq [m messages]
+                (p/put-message input-queue m))
+              ))
+
+        ; sign-up form submit handler
+        signup-fn 
           (fn [evt]
             (let [signup-msgs [{msgs/topic [:login :name]
                                 msgs/type :signup
                                 :type :signup   ; do not wrap with msgs/param if not need filled.
                                 (msgs/param :details) {}}]
                   role (->> ["parent-type" "child-type" "teacher-type"] 
-                                   (map #(dx/xpath (str "//form[@id='signup-form']/input[@id='" % "']")) )
-                                   (map #(dom/value %) )
-                                   (some #(if % %) ) )
+                             (map #(dx/xpath (str "//form[@id='signup-form']/input[@id='" % "']")) )
+                             (map #(dom/value %) )
+                             (some #(if % %) ) )
                   signup-map {"signup-name" :name 
                               "signup-email" :email
                               "signup-pass" :pass}
@@ -109,16 +129,12 @@
               ))
        ]
 
-    (.log js/console (str "enable login submit " rpath messages))
-    (events/collect-and-send :click 
-                             "login-button" 
-                             input-queue 
-                             transform-name 
-                             messages
-                             {"login-name" :name  "login-pass" :pass})
 
-    
-    ; signup form submit handler  
+    (.log js/console (str "enable login form submit " rpath messages))
+    ; (events/collect-and-send :click "login-button" input-queue transkey messages {"login-name" :name  "login-pass" :pass})
+    (events/send-on :submit (dom/by-class "login-form") input-queue login-fn)
+
+    (.log js/console (str "enable signup form submit " rpath messages))
     (events/send-on :submit (dom/by-class "signup-form") input-queue signup-fn)
   ))
 

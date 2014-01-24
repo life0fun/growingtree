@@ -82,7 +82,7 @@
 ;;================================================================================
 ;; node create login and render login and enable setup login
 ;;================================================================================
-(defn create-login-template
+(defn create-login
   "node-create of [:login], add template to top template tree root."
   [r [_ rpath :as delta] input-queue]
   (let [parent (render/get-parent-id r rpath)
@@ -97,6 +97,21 @@
     ; listen on sign up link click
     (de/listen! (dom/by-id "signup-link") :click toggle-fn)
     ))
+
+
+; put error message to login window
+(defn value-login
+  [r [op rpath oldv newv] input-queue]
+  (when newv
+    (let [; qpath is nav to next thing, used for enable add subthing.
+          {:keys [user error]} newv
+          login-error {:login-error error}          
+         ]
+      (.log js/console (str "value login " rpath "  " newv " " login-error))
+      ; thing template is attached at render path node, update it with new view map
+      (templates/update-t r [:login] login-error)
+      )))
+
 
 ;;================================================================================
 ;; render home page sidebar and setup sidebar click transforme
@@ -354,8 +369,9 @@
 ; wildcard :* means exactly one segment with any value, :** means 0+ more.
 (defn render-config []
   [; render login screen first.
-    [:node-create  [:login] create-login-template]
     [:node-destroy [:login] h/default-destroy]
+    [:node-create  [:login] create-login]
+    [:value  [:login :name] value-login]
     [:transform-enable [:login :name] transforms/enable-login-submit]
     [:transform-disable [:login :name] transforms/disable-login-submit]
 

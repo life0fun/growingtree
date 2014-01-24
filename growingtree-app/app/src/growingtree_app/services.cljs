@@ -98,7 +98,7 @@
                     ; parse js json object to cljs.core.PersisitentVector data structre.
                     result (js->clj bodyjson :keywordize-keys true)
                     status (:status result)
-                    user-data (:data result)  ; return full user data if good.
+                    user (:user result)  ; return full user data if good.
                     err (:error result)
                    ]
                 (.log js/console (str "app service signup login resp " result))
@@ -106,13 +106,13 @@
                   (p/put-message input-queue
                                  {msgs/topic [:login :error]
                                   msgs/type :set-login-error
-                                  :login login
+                                  :user user
                                   :error err})
 
                   (p/put-message input-queue
                                  {msgs/topic [:user]
                                   msgs/type :set-user
-                                  :user user-data})
+                                  :user user})
                   ))))
        ]
     (.log js/console (str "app service signup login request " api body))

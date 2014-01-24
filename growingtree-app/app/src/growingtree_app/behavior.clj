@@ -74,12 +74,10 @@
 ; user login, store user name into [:login :name]
 (defn set-login
   [oldv message]  ; message is PersistentArrayMap, an array of map
-  (let [login-type (:type message)
-        login-name (:name message)
-        login-pass (:pass message)
-        newv (assoc oldv :login login-name :pass login-pass :type login-type)
+  (let [details (:details message)
+        newv (merge (assoc oldv :type (:type message)) details)
        ]
-    (.log js/console (str "set-login " newv message))
+    (.log js/console (str "set-login new value " newv message))
     newv))
 
 
@@ -87,8 +85,7 @@
 (defn set-signup
   [oldv message]
   (let [details (:details message)
-        newv (merge (assoc oldv :type (:type message))
-                    details)
+        newv (merge (assoc oldv :type (:type message)) details)
        ]
     (.log js/console (str "set-signup new value " newv message))
     newv))
@@ -98,9 +95,9 @@
 (defn set-login-error
   [oldv message]
   (let [err (:error message)
-        login (:login message)]
-    (.log js/console (str "set-login-error " login " login error " err ))
-    (assoc oldv login err)))
+        user (:user message)]
+    (.log js/console (str "set-login-error " user " login error " err ))
+    {:user user :error err}))
 
 
 ; after login validated, set current user info
@@ -287,8 +284,9 @@
                 [:login-modal [:nav :login-modal] set-login-modal]
                 [:create-modal [:nav :create-modal] set-create-modal]
 
-
-                ; set user after login validation
+                ; set login error after validation or signup failed
+                [:set-login-error [:login :error] set-login-error]
+                ; set user after login validation, 
                 [:set-user [:user] set-user]
                 
                 ; UI event sent to outbound node, then derive to [:nav :path] node
