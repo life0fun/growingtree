@@ -2,6 +2,7 @@
   (:require [domina :as dom]
             [domina.css :as dc]
             [domina.events :as de]
+            [domina.xpath :as dx]
             [io.pedestal.app.render.push :as render]
             [io.pedestal.app.render.events :as events]
             [io.pedestal.app.render.push.templates :as templates]
@@ -109,7 +110,7 @@
 
 ; add listener for upper right login btn and show login modal
 ; path is login modal, transkey is login-modal, msg has 2 keys, login-name and pass
-(def enable-create-modal
+(def enable-create-modal  ; def here
   (fn [r [_ path transkey messages] input-queue]
     (let [create-btn (dom/by-id "newthing")
           modal-evt
@@ -127,3 +128,21 @@
       (.log js/console (str "setup create-modal path " path (render/get-id r path)))
       (de/listen! create-btn :click modal-evt))))
 
+
+;;==================================================================================
+; enable drop down nav newthing form
+;;==================================================================================
+(defn enable-nav-newthing
+  [r [_ rpath transkey messages] input-queue]
+  (.log js/console (str "enable-nav-newthing " rpath))
+  (let [create-btn (dom/by-id "nav-newthing")
+        newthing-form (-> (str "//div[@id='nav-newthing-div']/form[@id='nav-newthing-form']")
+                          (dx/xpath) )
+        click-fn (fn [evt]
+                    (.log js/console (str "create thing clicked "))
+                    (js/dropdown))
+       ]
+    (.log js/console (str "enable-nav-newthing " rpath))
+    ;(de/listen! create-btn :click (util/toggle-hide-fn newthing-form nil))
+    (de/listen! create-btn :click click-fn)
+    ))

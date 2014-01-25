@@ -242,7 +242,14 @@ textarea {
 }
 
 
-
+/* 
+    nav new thing form, input
+*/
+.nav-newthing-form input[type='radio'], label{   
+    vertical-align: baseline;
+    padding: 10px;
+    margin: 10px;
+ }
 
 /* 
     UI stuff

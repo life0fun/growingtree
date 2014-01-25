@@ -54,3 +54,10 @@ var removeTag = function(id, tag) {
 var tagExist = function(id, tag) {
   $("#" + id).tagExist(tag);
 }
+
+//-------------------------------------------------
+// enable bootstrap dropdown
+//-------------------------------------------------
+var dropdown = function () {
+    $('.dropdown-toggle').eq(0).dropdown('toggle');
+}
