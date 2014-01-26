@@ -106,7 +106,8 @@
                   msgs/type :request-things
                   (msgs/param :body) body}]
        ]
-    (.log js/console (str "effect request search " request))
+    (.log js/console (str "effect request search " searchkey " request " request))
+    ; good, only search when search key is valid
     (if searchkey
       request)))
 

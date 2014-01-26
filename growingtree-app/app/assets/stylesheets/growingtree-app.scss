@@ -243,13 +243,34 @@ textarea {
 
 
 /* 
-    nav new thing form, input
+    nav new thing form, link and input
+    css must be comform to bootstrap .navbar .nav  .active .a
 */
-.nav-newthing-form input[type='radio'], label{   
+.nav-newthing-dropdown a {
+    padding: 10px 15px 10px;  // make anchor a box
+    display: block;
+    color: #555555;
+    background-color: #e5e5e5;
+}
+
+.nav-newthing-form {
+    margin: 10px 10px 5px 10px; 
+}
+
+.nav-newthing-form label{   
     vertical-align: baseline;
-    padding: 10px;
-    margin: 10px;
- }
+    margin: 10px 5px 5px 10px; 
+    display: inline;
+    font-size: 16px;
+    color: #005580;
+}
+
+.nav-newthing-form .form-button{   
+    margin: 10px 5px 5px 10px; 
+    display: inline;
+    font-size: 16px;
+}
+
 
 /* 
     UI stuff

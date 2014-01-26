@@ -387,7 +387,7 @@
     [:transform-enable [:nav :login-modal] modals/enable-login-modal]
     ; create new thing modal
     ;[:transform-enable [:nav :create-modal] modals/enable-create-modal]
-    [:transform-enable [:nav :create-modal] modals/enable-nav-newthing]
+    [:transform-enable [:nav :newthing] modals/enable-nav-newthing]
 
     ; thing nav path event bindings, match any path, setup in thing navpath transforms
     ; render path is created by thing-navpath-transforms emitter.

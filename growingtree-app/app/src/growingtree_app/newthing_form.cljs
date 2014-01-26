@@ -296,16 +296,17 @@
                       ; required for post-submit-thing dispatch
                       (assoc :thing-type add-thing-type) 
                       (merge override-map))
+          submit-msgs (msgs/fill :create-thing messages {:details details})
          ]
       ;(.log js/console (str add-thing-type " inputs " input-fields input-vals))
       (.log js/console (str add-thing-type " add new thing submitted " navpath " " details))
       (dom/destroy! (dom/by-id (add-thing-form-id add-thing-type thing-id)))
       (dom/destroy-children! (dom/by-class "child-form"))
       (de/prevent-default e)
-      (msgs/fill :create-thing messages {:details details})
-
+      
       ; refresh by re-sending the nav path
       (util/refresh-nav-path add-thing-type navpath input-queue)
+      submit-msgs
     )))
 
 
@@ -338,12 +339,11 @@
     (let [thing-id (second (reverse navpath))
           form (dom/by-class (str (name add-thing-type) "-form"))
           submit-fn (submit-fn add-thing-type navpath form override-map 
-                               messages input-queue)]
+                               messages input-queue)
+          ]
       (.log js/console (str "enable add thing form submit " add-thing-type navpath))
-      (handle-add-thing-submit form input-queue submit-fn)))
-
-  ([form input-queue submit-fn]
-    (events/send-on :submit form input-queue submit-fn)))
+      (events/send-on :submit form input-queue submit-fn)))
+  )
 
 
 ;--------------------------------------------------------------------

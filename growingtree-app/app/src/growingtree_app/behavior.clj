@@ -116,6 +116,7 @@
     login-name))
 
 
+; create modal is deprecated! use nav-newthing
 (defn set-create-modal
   [oldv message]
   (let [newthing-type (:type message)
@@ -123,6 +124,13 @@
     (.log js/console (str "set create newthing modal " (take-last 2 npath)))
     npath))
 
+
+(defn set-nav-newthing
+  [oldv message]
+  (let [newthing-type (keyword (:type message))
+        npath (vec (conj oldv newthing-type))]
+    (.log js/console (str "set-nav-newthing " (take-last 2 npath)))
+    npath))
 
 ; extract the user clicked nav path from msg, and store it in [:nav :path] node
 ; nav path store a list of paths, each path is a list of target id. id=0 mean no filter.
@@ -283,6 +291,7 @@
                 ; modal handling
                 [:login-modal [:nav :login-modal] set-login-modal]
                 [:create-modal [:nav :create-modal] set-create-modal]
+                [:nav-newthing [:nav :newthing] set-nav-newthing]
 
                 ; set login error after validation or signup failed
                 [:set-login-error [:login :error] set-login-error]
@@ -302,7 +311,7 @@
 
                 ; new thing template form submitted
                 [:create-thing [:create :*] create-thing]
-                ; app model node store just creatd thing
+                ; app model node store just creatd thing, no emitter, so just store.
                 [:created-thing [:created :*] created-thing-data]
                 
                ]
@@ -337,7 +346,9 @@
             }
 
     ; emitter, all emitter fn must be defined, otherwise, NPE.
-    :emit [;{:init emitter/init-app-model}
+    :emit [
+           {:init emitter/init-app-model}  ; create all app nodes upon init.  
+           
            {:init emitter/login-emitter}  ; render login dialog upon app init
            {:in #{[:login :error]} :fn emitter/login-error-emitter :mode :always}
 
@@ -345,7 +356,9 @@
            ;{:in #{[:login :name]} :fn emitter/init-nav-emitter :mode :always}
            {:in #{[:user]} :fn emitter/init-nav-emitter :mode :always}
            
+           ; create modal is deprecated, use nav new thing
            {:in #{[:nav :create-modal]} :fn emitter/create-modal-emitter}
+           {:in #{[:nav :newthing]} :fn emitter/nav-newthing-emitter}
 
            ; upon nav path changes, clear the topthings div and destroy path nodes.
            {:in #{[:nav :path]} :fn emitter/nav-path-emitter :mode :always}
@@ -353,10 +366,10 @@
            ; [:data :all 0 :parent] or [:data :parent 1 :child]
            {:in #{[:data :* :* :*]} :fn emitter/thing-data-emitter :mode :always}
 
-           ; when actionbar displayed, action, setup, assign, thing enable transform
+           ; Deprecated ! 
            {:in #{[:setup :assign :* :*]} :fn emitter/assign-emitter :mode :always}
 
-           ; when create new thing setup, emit 
+           ; Deprecated ! when create new thing setup, emit.
            {:in #{[:setup :newthing]} :fn emitter/newthing-emitter :mode :always}
 
            {:in #{[:sse-data]} :fn emitter/sse-data-emitter :mode :always}

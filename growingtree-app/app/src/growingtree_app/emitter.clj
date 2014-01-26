@@ -71,17 +71,24 @@
 ; the most important things is to define transform fn that can be triggered
 ; by render upon UI events on this portion.
 (defn init-app-model [_]
-  [{:db {}
+  [{
+    :data {}
+    :login
+      {
+        :name {}
+        :error {}
+      }
+
+    :user {}
+    
     :nav
-      {:path []   ; nav path is a stack stores nav path. items in stack is nav target
-       :filtered  ; a list of filtered things of current viewing
-        {:transforms   ; the node path is from top to here [:course :form :set-course]
-          {:set-things-filtered [{msgs/topic [:filtered] 
-                                 (msgs/param :filtered) {}}]}}}
-    :setup {}
-    :submit {}
-    :create {}
-    :filter {}
+      {
+       :path []   ; nav path is a stack stores nav path. items in stack is nav target
+       :search [] ; seach key array, stack
+       :newthing [] ; nav newthing list
+      }
+
+    :create {}  ; create thing details
   }])
 
 
@@ -157,12 +164,17 @@
                             (msgs/param :login-name) ""
                             (msgs/param :login-pass) ""}]]
 
-        [:transform-enable [:nav :create-modal] ; op
-                           :create-modal   ; transkey
-                           [{msgs/type :create-modal
-                             msgs/topic [:nav :create-modal]
+        ; [:transform-enable [:nav :create-modal] ; topic
+        ;                    :create-modal   ; transkey
+        ;                    [{msgs/type :create-modal
+        ;                      msgs/topic [:nav :create-modal]
+        ;                     (msgs/param :type) ""}]]
+
+        [:transform-enable [:nav :newthing] ; topic
+                           :nav-newthing   ; transkey
+                           [{msgs/type :nav-newthing
+                             msgs/topic [:nav :newthing]
                             (msgs/param :type) ""}]]
-                            
       ])))
 
 
@@ -199,6 +211,7 @@
 
 ; user click create btn, input thing type to create, transform into :nav create-modal
 ; now flow to emitter after transform. put on new thing template and setup msg topic.
+; deprecated !!!
 (defn create-modal-emitter
   [inputs]
   (when-let [thing-type (last (get-in inputs [:new-model :nav :create-modal]))]
@@ -219,6 +232,20 @@
 
       ])))
 
+
+; nav newthing form submitted, transform :nav :newthing, and emit [:create :newthing]
+(defn nav-newthing-emitter
+  [inputs]
+  (when-let [thing-type (last (get-in inputs [:new-model :nav :newthing]))]
+    (let [user (:user (get-in inputs [:new-model :login :name]))
+          rpath (conj [:create] (keyword thing-type))]
+      (.log js/console (str user " nav-newthing-emitter for " thing-type " " rpath))
+      [
+        ; setup form submit transform msg topic
+        [:node-destroy [:main]]
+        [:node-destroy rpath]
+        [:node-create rpath]
+      ])))
 
 ;;==================================================================================
 ; received thing data from xhr request and stored in [:data nav-path]

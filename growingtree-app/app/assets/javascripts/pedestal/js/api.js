@@ -59,5 +59,5 @@ var tagExist = function(id, tag) {
 // enable bootstrap dropdown
 //-------------------------------------------------
 var dropdown = function () {
-    $('.dropdown-toggle').eq(0).dropdown('toggle');
+    $('.dropdown-toggle').dropdown();
 }

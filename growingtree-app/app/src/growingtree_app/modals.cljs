@@ -130,19 +130,43 @@
 
 
 ;;==================================================================================
-; enable drop down nav newthing form
+; enable dropdown menu upon nav newthing form, transform from init nav emitter
+; rpath [:nav :newthing], topic [:nav :newthing] transkey :nav-newthing, msg param :type
 ;;==================================================================================
 (defn enable-nav-newthing
   [r [_ rpath transkey messages] input-queue]
   (.log js/console (str "enable-nav-newthing " rpath))
-  (let [create-btn (dom/by-id "nav-newthing")
-        newthing-form (-> (str "//div[@id='nav-newthing-div']/form[@id='nav-newthing-form']")
-                          (dx/xpath) )
-        click-fn (fn [evt]
+  (let [create-btn (dom/by-id "nav-newthing") ; the anchor in ul li        
+        create-fn (fn [evt]
                     (.log js/console (str "create thing clicked "))
                     (js/dropdown))
+
+        newthing-form (-> (str "//div[@id='nav-newthing-div']/form[@id='nav-newthing-form']")
+                          (dx/xpath) )
+        ; nav-newthing-form submit handler
+        submit-fn 
+          (fn [evt]
+            (let [submit-msgs [{msgs/topic [:nav :newthing]
+                                msgs/type :nav-newthing
+                                (msgs/param :details) {}}]
+                  newthing (->> ["newthing-parent" "newthing-course" "newthing-group"] 
+                                (map #(dx/xpath (str "//form[@id='nav-newthing-form']/input[@id='" % "']")) )
+                                (map #(dom/value %) )
+                                (some #(if % %) ) )
+                  ; fill msg of type with input-map
+                  messages (msgs/fill :nav-newthing messages {:type newthing})
+                 ]
+              (.log js/console (str "nav newthing submit " messages))
+              (de/prevent-default evt)  ; submit ret false, prevent refresh or redirect
+              (js/dropdown)
+              messages
+              ))
        ]
+
     (.log js/console (str "enable-nav-newthing " rpath))
-    ;(de/listen! create-btn :click (util/toggle-hide-fn newthing-form nil))
-    (de/listen! create-btn :click click-fn)
+    (de/listen! create-btn :click create-fn)
+
+    (.log js/console (str "enable nav-newthing-form submit " rpath))
+    ;(events/send-on :submit (dom/by-class "nav-newthing-form") input-queue submit-fn)
+    (events/send-on :submit newthing-form input-queue submit-fn)
     ))
