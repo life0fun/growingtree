@@ -97,10 +97,11 @@
                   details (events/collect-inputs login-map)
                   messages (msgs/fill :login login-msgs {:details details})
                  ]
-              (.log js/console (str "login details " details))
+              (.log js/console (str "enable-login-submit details " details))
               (de/prevent-default evt)  ; submit ret false, prevent refresh or redirect
-              (doseq [m messages]
-                (p/put-message input-queue m))
+              ; (doseq [m messages]
+              ;   (p/put-message input-queue m))
+              messages
               ))
 
         ; sign-up form submit handler
@@ -122,10 +123,11 @@
 
                   messages (msgs/fill :signup signup-msgs {:details details})
                  ]
-              (.log js/console (str "signup details " details))
+              (.log js/console (str "enable-login-submit signup  " details))
               (de/prevent-default evt)  ; submit ret false, prevent refresh or redirect
-              (doseq [m messages]
-                (p/put-message input-queue m))
+              ; (doseq [m messages]
+              ;   (p/put-message input-queue m))
+              messages
               ))
        ]
 
