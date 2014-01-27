@@ -85,7 +85,9 @@
 (defn enable-login-submit
   "listen login btn event and sent transform msgs back to behavior"
   [_ [_ rpath transkey messages] input-queue]
-  (let [login-fn 
+  (let [
+        login-form (dx/xpath (str "//form[@id='login-form']"))
+        login-fn
           (fn [evt]
             (let [login-msgs [{msgs/topic [:login :name]
                                 msgs/type :login
@@ -99,12 +101,12 @@
                  ]
               (.log js/console (str "enable-login-submit details " details))
               (de/prevent-default evt)  ; submit ret false, prevent refresh or redirect
-              ; (doseq [m messages]
-              ;   (p/put-message input-queue m))
-              messages
+              (doseq [m messages]
+                (p/put-message input-queue m))
               ))
 
         ; sign-up form submit handler
+        signup-form (dx/xpath (str "//form[@id='signup-form']"))
         signup-fn 
           (fn [evt]
             (let [signup-msgs [{msgs/topic [:login :name]
@@ -124,20 +126,20 @@
                   messages (msgs/fill :signup signup-msgs {:details details})
                  ]
               (.log js/console (str "enable-login-submit signup  " details))
+              (.trace js/console (str "signup submit"))
               (de/prevent-default evt)  ; submit ret false, prevent refresh or redirect
-              ; (doseq [m messages]
-              ;   (p/put-message input-queue m))
-              messages
+              (doseq [m messages]
+                (p/put-message input-queue m))
               ))
        ]
-
-
     (.log js/console (str "enable login form submit " rpath messages))
-    ; (events/collect-and-send :click "login-button" input-queue transkey messages {"login-name" :name  "login-pass" :pass})
-    (events/send-on :submit (dom/by-class "login-form") input-queue login-fn)
+    (de/unlisten! login-form)
+    (de/listen! login-form :submit login-fn)
 
     (.log js/console (str "enable signup form submit " rpath messages))
-    (events/send-on :submit (dom/by-class "signup-form") input-queue signup-fn)
+    ; must unlisten first !!!
+    (de/unlisten! signup-form) 
+    (de/listen! signup-form :submit signup-fn)
   ))
 
 
