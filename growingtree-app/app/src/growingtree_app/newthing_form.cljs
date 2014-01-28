@@ -479,7 +479,7 @@
   (let [thing-type (second (reverse rpath))
         thing-view {}
        ]
-    (.log js/console (str "thing details view " thing-view))
+    (.log js/console (str "thing details view default empty value " thing-view))
     thing-view))
 
 
@@ -498,7 +498,7 @@
           :person-status (get-in thing-map [:person/status])
         }
        ]
-    (.log js/console (str "thing details view " thing-view))
+    (.log js/console (str "thing details view parent " thing-view))
     thing-view))
 
 
@@ -515,7 +515,7 @@
           :course-wiki (get-in thing-map [:course/wiki])
         }
        ]
-    (.log js/console (str "thing details view " thing-view))
+    (.log js/console (str "thing details view course " thing-view))
     thing-view))
 
 
@@ -536,7 +536,7 @@
           :lecture-wiki (get-in thing-map [:lecture/wiki])
         }
        ]
-    (.log js/console (str "thing details view " thing-view))
+    (.log js/console (str "thing details view lecture " thing-view))
     thing-view))
 
 
@@ -553,5 +553,26 @@
           :question-tag (get-in thing-map [:question/tag])
         }
        ]
-    (.log js/console (str "thing details view " thing-view))
+    (.log js/console (str "thing details view question " thing-view))
+    thing-view))
+
+
+(defmethod thing-details-view
+  :assignment
+  [r rpath qpath thing-map input-queue]
+  (let [thing-type (second rpath)
+        thing-view {
+          :assignment-title (get-in thing-map [:assignment/title])
+          :assignment-author (get-in thing-map [:assignment/author :person/title]) ; one author for each assign
+          :assignment-person (get-in thing-map [:assignment/person :person/title]) ; one author for each assign
+          :assignment-origin (get-in thing-map [:assignment/origin :question/title])
+          :assignment-start (util/format-time (get-in thing-map [:assignment/start]))
+          :assignment-end (util/format-time (get-in thing-map [:assignment/end]))
+          :assignment-type (get-in thing-map [:assignment/type])
+          :assignment-hint (get-in thing-map [:assignment/hint])
+          :assignment-priority (str (or (get-in thing-map [:assignment/priority]) "normal"))
+          :assignment-tag (get-in thing-map [:assignment/tag])
+        }
+       ]
+    (.log js/console (str "thing details view assignment " thing-view))
     thing-view))

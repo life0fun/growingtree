@@ -325,8 +325,6 @@
       (.log js/console (str "value thing details " rpath " qpath " qpath " view  " thing-details-view))
       
       (templates/update-t r [:header thing-type thing-id] thing-head-view)
-      ;(templates/update-t r rpath thing-details-view)
-      ;(newthing-form/set-input-placeholder thing-type thing-details-view)
       (newthing-form/set-input-value thing-type thing-details-view)
       (newthing-form/handle-details-view-btn thing-type)
       )))
