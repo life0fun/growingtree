@@ -303,7 +303,7 @@
   (let [thing-id (last rpath)
         thing-type (second rpath)   ; [thing-type 1 :title 1]
         ; slice templ from newthing form for title.
-        templ (thing-type templates)
+        templ ((keyword (str (name thing-type) "-form")) templates)
         ; add the rendered template attached to rpath node
         html (templates/add-template render rpath templ)
         

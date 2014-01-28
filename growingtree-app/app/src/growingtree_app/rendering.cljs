@@ -307,6 +307,7 @@
 
 
 ; rpath [:details :parent 17592186045419 :person 17592186045419], qpath=[]
+; thing-details-view  {:course-title "Math-I", :course-author "rich-dad", :course-content "first grade Math-I", :course-url "math.com/Math-I", :course-email "Math-I@math.com", :course-wiki nil} 
 (defn value-thing-details
   [r [op rpath oldv newv] input-queue]
   (when newv
@@ -321,11 +322,12 @@
           thing-details-view 
             (newthing-form/thing-details-view r rpath qpath thing-map input-queue)
          ]
-      (.log js/console (str "value thing details " rpath " qpath " qpath " view  " thing-view))
+      (.log js/console (str "value thing details " rpath " qpath " qpath " view  " thing-details-view))
       
       (templates/update-t r [:header thing-type thing-id] thing-head-view)
       ;(templates/update-t r rpath thing-details-view)
-      (newthing-form/set-input-placeholder thing-type thing-details-view)
+      ;(newthing-form/set-input-placeholder thing-type thing-details-view)
+      (newthing-form/set-input-value thing-type thing-details-view)
       (newthing-form/handle-details-view-btn thing-type)
       )))
 

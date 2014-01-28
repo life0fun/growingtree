@@ -146,13 +146,19 @@
                   :assign :assignment   ; swap assignments
                   :grade  :assignment   ; grade is leaf node, reverse next to assignment.
                   add-thing-type)
-        curpath (butlast navpath)  ; [:course 1]
+        ; the case for nav create :course [:create :course] ; [:course 1]
+        curpath (if (< (count navpath) 3)
+                    [:all 0 add-thing-type] 
+                    (vec (concat (butlast navpath) [(first curpath)])))
+        qpath (if (< (count navpath) 3)
+                  nil
+                  vec (concat (butlast navpath) [nxt]))
         messages [{msgs/topic [:nav :path]
                    msgs/type :set-nav-path
-                   :path (vec (concat curpath [(first curpath)])) ; [:course 1 :course]
-                   :qpath (vec (concat curpath [nxt]))}]
+                   :path curpath
+                   :qpath qpath}]
         ]
-      (.log js/console (str "refresh nav path " add-thing-type " " navpath " to msgs " messages))
+      (.log js/console (str "refresh nav path " add-thing-type " " navpath " msgs " messages))
       (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
         (p/put-message input-queue m))
     ))

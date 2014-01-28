@@ -151,7 +151,19 @@
               }
   })
 
+
+
+; when displaying thing details, use set-value to set the text value in each input
+; input field id is the key of thing-details-view.
+(defn set-input-value
+  [thing-type thing-details-view]
+  (doseq [k (keys thing-details-view)]
+    (.log js/console (str "set-input-val " k (k thing-details-view)))
+    (dom/set-value! (dx/xpath (str "//input[@id='" (name k) "']"))
+                    (k thing-details-view))
+    ))
  
+
 ;;================================================================================
 ; template input id fields with thing-id when displaying add thing form 
 ;;================================================================================
@@ -454,7 +466,7 @@
 
 
 ;;==================================================================================
-; thing details view
+; thing details view, called from render value-thing-details
 ;;==================================================================================
 (defmulti thing-details-view
   (fn [r rpath qpath thing-map input-queue]
