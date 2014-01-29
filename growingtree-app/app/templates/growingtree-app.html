@@ -25,33 +25,34 @@
 
             <!-- <div class="nav-collapse collapse"> -->
             <div class="nav-collapse">
-              <ul class="nav navbar-right">
+              <ul class="nav pull-right">
 
-                <li id="search">
+                <li id="search" class="nav-left">
                   <form id="nav-search-form" class="navbar-form" role="search" style="float:left;">
                     <input id="nav-search-key" type="text" class="form-control" placeholder="Search">
                     <button id="nav-search-submit" type="submit" class="btn btn-default">Search</button>
                   </form>
                 </li>
 
-                <li id="login" class="active"><a href="#">Login</a></li>
+                <li class="active">
+                  <div class="dropdown nav nav-newthing-dropdown">
+                    <a id="nav-newthing" class="active" data-toggle="dropdown" href="#">Create</a>
+                    <div id="nav-newthing-div" class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                      <form class="nav-newthing-form" id="nav-newthing-form">
+                        <input id="newthing-parent" name="newthing-type" type="radio" value="parent"/>
+                        <label for="newthing-parent">Parent</label><br/>
+                        <input id="newthing-course" name="newthing-type" type="radio" value="course" />
+                        <label for="newthing-course">Course</label><br/>
+                        <input id="newthing-group" name="newthing-type" type="radio" value="group" />
+                        <label for="newthing-group">Group</label><br/>
 
-                <div class="dropdown nav pull-right nav-newthing-dropdown">
-                  <a id="nav-newthing" class="active" data-toggle="dropdown" href="#">Create</a>
-                  <div id="nav-newthing-div" class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                    <form class="nav-newthing-form" id="nav-newthing-form">
-                      <input id="newthing-parent" name="newthing-type" type="radio" value="parent"/>
-                      <label for="newthing-parent">Parent</label><br/>
-                      <input id="newthing-course" name="newthing-type" type="radio" value="course" />
-                      <label for="newthing-course">Course</label><br/>
-                      <input id="newthing-group" name="newthing-type" type="radio" value="group" />
-                      <label for="newthing-group">Group</label><br/>
-
-                      <button type="submit" id="nav-newthing-submit" class="form-button">Create</button>
-                    </form>        
+                        <button type="submit" id="nav-newthing-submit" class="form-button">Create</button>
+                      </form>        
+                    </div>
                   </div>
-                </div>
+                <li>
 
+                <li id="login" class="active"><a href="#">Login</a></li>
               </ul>
               
             </div>
