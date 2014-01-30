@@ -140,7 +140,6 @@
 ;==============================================================================
 (defn refresh-nav-path
   [add-thing-type navpath input-queue]
-  (.log js/console (str "refresh-nav-path " add-thing-type navpath))
   (let [; we need to do some ugly name mangling for thing type.
         nxt (case add-thing-type
                   :assign :assignment   ; swap assignments
@@ -149,10 +148,10 @@
         ; the case for nav create :course [:create :course] ; [:course 1]
         curpath (if (< (count navpath) 3)
                     [:all 0 add-thing-type] 
-                    (vec (concat (butlast navpath) [(first curpath)])))
+                    (vec (concat (butlast navpath) [(first navpath)])))
         qpath (if (< (count navpath) 3)
                   nil
-                  vec (concat (butlast navpath) [nxt]))
+                  (vec (concat (butlast navpath) [nxt])))
         messages [{msgs/topic [:nav :path]
                    msgs/type :set-nav-path
                    :path curpath

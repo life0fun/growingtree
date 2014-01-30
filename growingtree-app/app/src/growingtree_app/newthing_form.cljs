@@ -320,7 +320,7 @@
       (doseq [m newthing-msgs]
         (p/put-message input-queue m))
       
-      ; refresh by re-sending the nav path
+      ; refresh by re-sending the nav path, navpath (:question 1 :assignto)
       (util/refresh-nav-path add-thing-type navpath input-queue)
     )))
 
