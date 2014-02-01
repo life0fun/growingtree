@@ -42,6 +42,7 @@
    :thing-assignment  (dtfn (tnodes "thing.html" "thing-assignment") #{:id :child-form-id})
    :thing-answer  (dtfn (tnodes "thing.html" "thing-answer") #{:id :child-form-id})
    :thing-comments  (dtfn (tnodes "thing.html" "thing-comments") #{:id :child-form-id})
+   :thing-group  (dtfn (tnodes "thing.html" "thing-group") #{:id :child-form-id})
    :thing-like  (dtfn (tnodes "thing.html" "thing-like") #{:id})
    :thing-timeline  (dtfn (tnodes "thing.html" "thing-timeline") #{:id})
    :thing-search  (dtfn (tnodes "thing.html" "thing-search") #{:id})

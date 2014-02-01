@@ -186,7 +186,7 @@
 (defn create-family
   "create a family with either or both parent name and child name"
   [qpath]
-  (family/create-family qpath))
+  (prn "create-family called " qpath))
 
 
 ; :find rets entity id, find all parent's pid and name.
@@ -217,12 +217,6 @@
   (family/create-child details))
 
 
-; [:db/add entity-id attribute value]
-(defn link-parent-child
-  "link child to parent by parent id and child id"
-  [pid cid]
-  (family/link-parent-child pid cid))
-
 
 ; (defn find-parent
 ;   "find parent by child id, id could be child name or child entity id"
@@ -250,6 +244,21 @@
 ;   [pname]
 ;   (family/find-by-name pname))
 
+
+;;==============================================================
+; group
+;;==============================================================
+(defn find-group
+  "find group by subject, ret a list of group entity"
+  [qpath]
+  (family/find-group qpath))
+
+
+; create a group
+(defn create-group
+  "create a group with details"
+  [details]
+  (family/create-group details))
 
 
 ;;==============================================================

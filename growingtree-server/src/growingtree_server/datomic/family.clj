@@ -138,6 +138,7 @@
 ;---------------------------------------------------------------------------------
 (def person-schema (assoc (list-attr :person) :db/id :db.type/id))
 (def family-schema (assoc (list-attr :family) :db/id :db.type/id))
+(def group-schema (assoc (list-attr :group) :db/id :db.type/id))
 
 
 ; rules to find person by any name, 
@@ -222,12 +223,11 @@
                                   details 
                                   {:name :person/title
                                    :email :person/email})]
-                        (if (= :parent (keyword role))
-                              (create-parent person)
-                              (create-child person))
-                        {:user person})
-              )
-       ]
+                    (if (= :parent (keyword role))
+                          (create-parent person)
+                          (create-child person))
+                    {:user person})
+              )]
     (prn "find user " type name pass email role)
     (prn " find-user --> " user)
     user))
@@ -335,159 +335,45 @@
     entity))
 
 
-;--------------------------------------------------------------------------------
-; Deprecated !!!
-;--------------------------------------------------------------------------------
-(defn create-family
-  "create a family with parent child title, assume person title is unique"
-  [details]
-  (let [parent (dbconn/find-by :person/title (:family/parent details)) 
-        child (dbconn/find-by :person/title (:family/child details))
-        family-by-parent (if parent (dbconn/find-by :family/parent (:db/id parent)) nil)
-        family-by-child (if child (dbconn/find-by :family/child (:db/id child)) nil)]
-    (cond
-      (not-nil? family-by-parent)
-        (add-to-family family-by-parent :family/child (:db/id child))
-      
-      (not-nil? family-by-child)
-        (add-to-family family-by-child :family/parent (:db/id parent))
-
-      :else
-        (do 
-          (let [entity (-> details
-                           (select-keys (keys family-schema))
-                           (assoc :family/parent (:db/id parent))
-                           (assoc :family/child (:db/id child))
-                           (util/to-datomic-attr-vals)   ; coerce value type
-                           (assoc :db/id (d/tempid :db.part/user)))
-                trans (submit-transact [entity])  ; transaction is a list of entity
-               ]
-            (newline)
-            (prn "create family parent " (:db/id parent) " child " (:db/id child) " entity " entity)
-            (prn "create family trans " trans)
-            entity)))))
+;;==========================================================================
+; group
+;;==========================================================================
+; rule set for get group by. rule name is the group thing type.
+(def get-group-by
+  '[[(:all ?e ?val) [?e :group/title]] 
+    [(:title ?e ?val) [?e :group/title ?val]]
+    [(:author ?e ?val) [?e :group/author ?val]]
+    [(:person ?e ?val) [?e :group/person ?val]]
+    [(:type ?e ?val) [?e :group/type ?val]]
+    [(:email ?e ?val) [?e :group/email ?val]]
+    [(:url ?e ?val) [?e :group/url ?val]]
+  ])
 
 
-; add either :family/child or :family/parent to family
-; use [:db/add entity-id attr-name attr-value]
-(defn add-to-family
-  [family ref-attr ref-id]
-  (let [fid (:db/id family)
-        ;entity [:db/add fid ref-attr ref-id]
-        entity (add-entity-attr fid ref-attr ref-id)
-        trans (submit-transact [entity])
+(defn find-group
+  "find groups by passed in query path"
+  [qpath]
+  (let [projkeys (keys group-schema)  ; must select-keys from datum entity attributes
+        groups (->> (util/get-entities-by-rule qpath get-group-by)
+                     (map #(select-keys % projkeys) )
+                     (map #(util/add-upvote-attr %) )
+                     (map #(util/add-navpath % qpath) )
+                 )
        ]
-    (prn "add to family " fid " " ref-attr " " ref-id " ")
-    entity))
+    (doseq [e groups]
+      (prn "group --> " e))
+    groups))
 
 
-; use :db/add to upsert child attr to parent. find parent eid by list-parent.
-; entity is a map of attributes. insert ref attr, must use refed entity id.
-; [:db/add entity-id attribute value]
-(defn insert-child
-  "insert a children to parent by parent id, pid must be num, not string"
-  [pid]  ; passed in pid is a num
-  (let [pe (d/entity db pid)   ; get the lazy entity by id
-        ch (:parent/children pe)
-        newch (assoc (create-child) :child/parents pid)]
-    (submit-transact [newch
-                      [:db/add pid :parent/children (:db/id newch)]])
-    (prn pid pe ch newch)))
-
-
-; use list form with explicit :db/add for adding attr for an existing entity.
-; [:db/add entity-id attribute value]
-(defn link-parent-child
-  "link child to parent by parent id and child id"
-  [pid cid]
-  (let [parent (d/entity db pid)
-        child (d/entity db cid)]
-    (submit-transact [[:db/add pid :parent/children cid]
-                      [:db/add cid :child/parents pid]])))
-
-
-; add a family with two parents and two kids
-(defn add-family
-  "insert two parents with two children"
-  [name]
-  (let [dname (str name "-dad")
-        mname (str name "-mom")
-        clname (str name "-kid1")
-        crname (str name "-kid2")
-
-        tmplparent (create-parent dname)
-        tmprparent (create-parent mname)
-        tmplch (create-child clname)
-        tmprch (create-child crname)
-        lch (assoc tmplch :child/parents [(:db/id tmplparent) (:db/id tmprparent)])
-        rch (assoc tmprch :child/parents [(:db/id tmplparent) (:db/id tmprparent)])
-        lparent (assoc tmplparent :parent/children [(:db/id lch) (:db/id rch)])
-        rparent (assoc tmprparent :parent/children [(:db/id lch) (:db/id rch)])
-        trans (submit-transact [lch rch lparent rparent])
-        ]
-    (prn "inserting " lch rch lparent rparent trans)
-    lparent))
-
-
-
-; (defn find-parent
-;   "find parent by child id, id could be child name or child entity id"
-;   [cidstr & args]
-;   (let [cidval (read-string cidstr)
-;         cid? (number? cidval)]
-;     (if cid?
-;       (find-parent-by-cid cidval)
-;       (find-parent-by-cname cidval args))))
-
-
-; ; find parent of a child
-; (defn find-parent-by-cid
-;   "find the parent of a child by its id, the passed cid is number"
-;   [cid]
-;   (let [ce (d/entity db cid)
-;         ;parent (-> ce (:parent/_child))   ; inbound(who refed me) might be slow.
-;         parent (:child/parents ce)  ; :ref :many rets a map, each tuple is a  clojure.lang.MapEntry.
-;         ]
-;     (prn parent)
-;     (map (comp show-entity-by-id :db/id) parent)))  ; eid is the 1st in a ret tuple.
-
-
-; ; search all fname and lname to check whether there is a match
-; (defn find-parent-by-cname
-;   "find the parent of a child by its name"
-;   [clname cfname]
-;   (let [fname (first cfname)
-;         ; args needs to bind to ?var to pass into query
-;         rset (d/q '[:find ?p :in $ % ?n
-;                     :where [?p :parent/children ?e]  ; join parent entity that child entity equals
-;                            [?e :child/parents]  ; for child entity that has parent
-;                            (byname ?e ?n)]     ; its fname or lname mateches ?
-;                 db
-;                 nameruleset
-;                 (str clname))
-;         ]
-;     (doseq [pid rset] 
-;       ((comp show-entity-by-id first) pid))
-;     (prn clname rset)))
-
-
-; ; find a person by name, use set/union as sql union query.
-; (defn find-by-name 
-;   "find a person by either first name or last name"
-;   [pname]
-;   (let [parent (d/q '[:find ?e :in $ % ?n
-;                       :where [?e :parent/children]
-;                              (byname ?e ?n)]
-;                     db
-;                     nameruleset
-;                     pname)
-;         child (d/q '[:find ?e :in $ % ?n
-;                      :where [?e :child/parents]  ; query child
-;                              (byname ?e ?n)]
-;                     db
-;                     nameruleset
-;                     pname)
-;         all (clojure.set/union parent child)  
-;       ]
-;     (prn parent child all)
-;     (map (comp show-entity-by-id first) all)))
+(defn create-group
+  "create group from the submitted new thing form details from parent add-group"
+  [details]
+  (let [group (-> details
+                (select-keys (keys person-schema))
+                (assoc :db/id (d/tempid :db.part/user)))
+        trans (submit-transact [group])  ; transaction is a list of maps to update db values
+      ]
+    (newline)
+    (prn "create group " group)
+    (prn "create group trans " trans)
+    [group]))

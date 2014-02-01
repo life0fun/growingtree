@@ -128,6 +128,14 @@
 
 
 (defmethod get-things
+  :group
+  [type qpath details]
+  (let [groups (dda/find-group qpath)]
+    (prn "peer get groups " qpath groups)
+    groups))
+
+
+(defmethod get-things
   :enrollment
   [type qpath details]
   (let [enrollments (dda/find-enrollment qpath)]

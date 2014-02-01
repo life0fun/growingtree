@@ -983,6 +983,76 @@
   </div>
 
 
+  <!-- 
+    group thing node div 
+  -->
+  <div class="thing group" template="thing-group" field="id:id">
+    <p class="group"></p>
+    <span class="rank" field="content:rank"> 1 </span>
+    <div class="midcol unvoted">
+      <div class="arrow up" role="button" arial-label="upvote" tabindex="0"></div>
+      <span class="score unvoted" field="content:upvote">12</span>
+      <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
+    </div>
+    
+    <!-- no need to use template, maybe dom append by-idand more concise -->
+    <a class="thumbnail" template="thing-thumbnail" field="href:thumbhref">
+      <img field="src:thumbhref" width="70" height="52" alt="">
+    </a>
+
+    <div class="entry unvoted" template="thing-entry">
+      <p class="subtitle">
+        <span class="tagline"> Admin by </span>
+        <a field="content:author-name,class:author-class"></a> 
+      </p>
+   
+      <p class="title">
+        <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
+        <span class="domain"></span>
+      </p>
+
+      <ul class="flat-list buttons">
+        <li class="share">
+          <div field="class:member-class">
+            <span class="share-button toggle" style>
+              <a class="option active">members</a>
+            </span>
+          <div>
+        </li>
+
+        <li class="share">
+          <div field="class:join-class">
+            <span class="share-button toggle" style>
+              <a class="option active">join</a>
+            </span>
+          <div>
+        </li>
+
+        <li class="share">
+          <div field="class:activity-class">
+            <span class="share-button toggle" style>
+              <a class="option active" href="#">activities</a>
+            </span>
+          <div>
+        </li>
+
+        <li class="share">
+          <div field="class:create-activity-class">
+            <span class="share-button toggle" style>
+              <a class="option active" href="#">create activity</a>
+            </span>
+          </div>
+        </li>
+
+      </ul>  <!-- end of flat-list buttons for action -->
+    </div>
+
+
+    <div field="id:child-form-id" class="child-form"></div>
+    
+    <div class="clearleft"></div>
+  </div>
+
 
   <!--
     timeline thing node div 
