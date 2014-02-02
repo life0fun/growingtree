@@ -54,6 +54,7 @@
    :assign-form (dtfn (tnodes "thing.html" "assign-form") #{:id :assign-name :assign-hint :assign-end :picker-assign-end})
    :answer-form (dtfn (tnodes "thing.html" "answer-form") #{:id :answer-title})
    :grade-form (dtfn (tnodes "thing.html" "grade-form") #{:id :grade-score :grade-comments})
+   :join-group-form (dtfn (tnodes "thing.html" "join-group-form") #{:id :join-group-name :join-group-remarks})
 
    ; new thing forms
    :parent-form (dtfn (tnodes "newthing.html" "parent-form") #{:id})

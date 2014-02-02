@@ -93,6 +93,12 @@
                :upvote "" :like "" :share "" 
               }
 
+    :group {:title "" :author ""
+            :members "" :join-group ""
+            :activity "" :add-activity " hide"
+            :upvote "" :like "" :share "" 
+           }
+
     :answer {:title ""
              :grade ""
              :assignment ""
@@ -125,6 +131,7 @@
     :comments "comments.jpg"
     :like "like.jpg"
     :timeline "timeline.jpg"
+    :group "group.jpg"
   })
 
 
@@ -269,8 +276,9 @@
   (fn [render-path render thing-idx]  ; the last segment of path
     (second (reverse render-path))))
 
+
 ; generated template html is attached to render path, and updatable from render-path
-; we template child form and attach them to div child-form-1 with class child-form.
+; make child div unique with template child form id that includes thing-id
 (defmethod thing-node-html
   :default
   [rpath render thing-idx]
@@ -283,6 +291,7 @@
         
         ; all sublink class selector with thing-id is defined in thing-nav-link-class
         actionkeys (thing-type thing-nav-actionkey) ; all sublink meta
+        ; make unique child div with child form id template that includes thing-id
         templ-map (merge {:id thing-id
                           :rank (str thing-idx)
                           :thumbhref (thing-type thing-thumbnail)
@@ -340,6 +349,7 @@
     (second (reverse rpath))))
 
 
+; multi fn of thing template value assemble value for each thing type
 (defmethod thing-value-view
   :default
   [r rpath qpath thing-map input-queue]
@@ -541,6 +551,23 @@
         ]
     value-map))
 
+
+(defmethod thing-template-value
+  :group
+  [thing-type thing-map]
+  (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+        author-attr (util/thing-attr-keyword thing-type "author")
+        value-map 
+          {:thing-title (thing-attr-val thing-map thing-type "title")
+           :entryhref "javascript:void(0);"
+           :thumbhref (thing-type thing-thumbnail)
+           :title-id (str (:db/id thing-map) "-title")
+           :author-name (get-in thing-map [author-attr 0 :person/title])
+           :id-author (str (:db/id thing-map) "-author")
+           :upvote upvotes
+          }
+       ]
+    value-map))
 
 (defmethod thing-template-value
   :like

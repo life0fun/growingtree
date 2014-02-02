@@ -351,144 +351,6 @@
 
 
 ; ------------------------------------------------------------------------------------
-; enable assignto and assign-form with link and form event handler
-; [:transform-enable [:nav :courses 17592186045496 :assignto] :assignto
-; ------------------------------------------------------------------------------------
-(defmethod enable-thing-nav  ; assignto, defined in thing-question and entity-view
-  :assignto
-  [r [_ navpath transkey messages] input-queue]
-  (let [navpath (rest navpath)  ; [:question 1 :assignto]
-        thing-id (second (reverse navpath))
-        thing-node (dom/by-id (str thing-id))
-
-        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
-        assignto-link (dom/by-class link-clz)
-
-        ; thing-map msgs param from emitter
-        thing-map ((msgs/param :thing-map) (first messages))
-        thing-ident (util/thing-ident thing-map)
-        override-map {:assignment/origin (:db/id thing-map)
-                      :assignment/title (:question/title thing-map)
-                      :assignment/tag (:question/tag thing-map)
-                      :assignment/start (.unix (js/moment))
-                      :assignment/end (.unix (.add (js/moment) "hours" 1))
-                      :assignment/type (keyword (:question/type thing-map))
-                     }
-          
-        ; show assign form, assignment form is used for show details for assignment.
-        toggle-fn (newthing-form/toggle-add-thing-form-fn :assign
-                                                          r navpath
-                                                          (str "child-form-" thing-id)
-                                                          override-map
-                                                          input-queue)
-
-       ]
-      (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
-      (de/listen! assignto-link :click toggle-fn)
-    ))
-
-
-(defmethod enable-thing-nav  ; enroll, defined in thing-question and entity-view
-  :enroll
-  [r [_ navpath transkey messages] input-queue]
-  (let [navpath (rest navpath)  ; [:course 1 :enroll]
-        thing-id (second (reverse navpath))
-        thing-node (dom/by-id (str thing-id))
-
-        ; link class is enroll-class
-        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
-        enroll-link (dom/by-class link-clz)
-        ; thing-map msgs param from emitter
-        thing-map ((msgs/param :thing-map) (first messages))
-        
-        thing-ident (util/thing-ident thing-map)
-        override-map {
-                      :enrollment/course (if (= thing-ident :course) (:db/id thing-map) nil)
-                      :enrollment/lecture (if (= thing-ident :lecture) (:db/id thing-map) nil)
-                      :enrollment/title ((keyword (str (name thing-ident) "/title")) thing-map)
-                      :enrollment/content ((keyword (str (name thing-ident) "/content")) thing-map)
-                      :enrollment/url ((keyword (str (name thing-ident) "/url")) thing-map)
-                      :enrollment/email ((keyword (str (name thing-ident) "/email")) thing-map)
-                      :enrollment/wiki ((keyword (str (name thing-ident) "/wiki")) thing-map)
-                     }
-
-        ; show add enrollment form
-        toggle-fn (newthing-form/toggle-add-thing-form-fn :enrollment 
-                                                          r navpath
-                                                          (str "child-form-" thing-id)
-                                                          override-map
-                                                          input-queue)
-
-       ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
-    (de/listen! enroll-link :click toggle-fn)
-  ))
-
-; ----------------------------------------------------------------------------------
-; submit answer shows answer-form
-; [:nav :assignment 17592186045431 :submit-answer] :submit-answer
-; ----------------------------------------------------------------------------------
-(defmethod enable-thing-nav  ; transkey = :answer-form
-  :submit-answer
-  [r [_ navpath transkey messages] input-queue]
-  (let [navpath (rest navpath)
-        thing-id (second (reverse navpath))
-        thing-node (dom/by-id (str thing-id))
-
-        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
-        submit-answer-link (dom/by-class link-clz)
-
-        thing-map ((msgs/param :thing-map) (first messages))
-        thing-ident (util/thing-ident thing-map)
-
-        override-map {:answer/origin (:db/id thing-map)
-                      :answer/start (.unix (js/moment))  ; unix epoch in seconds
-                     }
-
-        ; show add enrollment form
-        toggle-fn (newthing-form/toggle-add-thing-form-fn :answer 
-                                                          r navpath
-                                                          (str "child-form-" thing-id)
-                                                          override-map
-                                                          input-queue)
-       ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
-    (de/listen! submit-answer-link :click toggle-fn)
-  ))
-
-; ----------------------------------------------------------------------------------
-; grade answer and grade-form
-; [:nav :answer 17592186045431 :grade] :grade
-; ----------------------------------------------------------------------------------
-(defmethod enable-thing-nav  ; transkey = :grade
-  :grade
-  [r [_ navpath transkey messages] input-queue]
-  (let [navpath (rest navpath)  ; [:assignment 1 :grade]
-        thing-id (second (reverse navpath))
-        thing-node (dom/by-id (str thing-id))
-
-        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
-        grade-link (dom/by-class link-clz)
-
-        thing-map ((msgs/param :thing-map) (first messages))
-        thing-ident (util/thing-ident thing-map)
-
-        override-map {:grade/origin (:db/id thing-map)
-                     }
-        
-        ; show add enrollment form
-        toggle-fn (newthing-form/toggle-add-thing-form-fn :grade 
-                                                          r navpath
-                                                          (str "child-form-" thing-id)
-                                                          override-map
-                                                          input-queue)
-       ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
-    (de/listen! grade-link :click toggle-fn)
-  ))
-
-
-; ------------------------------------------------------------------------------------
 ; transform enable for [transforms [:nav :parent 1 :add-child] :add-child
 ; ------------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; transkey = :add-child
@@ -618,6 +480,171 @@
   ))
 
 
+; add group activity
+(defmethod enable-thing-nav  ; transkey = add-activity
+  :add-activity
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:group 1 :add-activity]
+        thing-id (first (reverse (butlast navpath)))
+        thing-node (dom/by-id (str thing-id))
+        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
+        add-activity-link (dom/by-class link-clz)
+        ; get the current thing map, and create override map
+        thing-map ((msgs/param :thing-map) (first messages))
+        override-map {:activity/origin (:db/id thing-map)
+                      :activity/thingroot (:db/id thing-map)}
+        toggle-fn (newthing-form/toggle-add-thing-form-fn :activity 
+                                                          r navpath
+                                                          "new-subthings"
+                                                          override-map 
+                                                          input-queue)
+       ]
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath " " thing-map))
+    (de/listen! add-activity-link :click toggle-fn)
+  ))
+
+
+; ------------------------------------------------------------------------------------
+; enroll to a course 
+; ------------------------------------------------------------------------------------
+(defmethod enable-thing-nav  ; enroll, defined in thing-question and entity-view
+  :enroll
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:course 1 :enroll]
+        thing-id (second (reverse navpath))
+        thing-node (dom/by-id (str thing-id))
+
+        ; link class is enroll-class
+        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
+        enroll-link (dom/by-class link-clz)
+        ; thing-map msgs param from emitter
+        thing-map ((msgs/param :thing-map) (first messages))
+        
+        thing-ident (util/thing-ident thing-map)
+        override-map {
+                      :enrollment/course (if (= thing-ident :course) (:db/id thing-map) nil)
+                      :enrollment/lecture (if (= thing-ident :lecture) (:db/id thing-map) nil)
+                      :enrollment/title ((keyword (str (name thing-ident) "/title")) thing-map)
+                      :enrollment/content ((keyword (str (name thing-ident) "/content")) thing-map)
+                      :enrollment/url ((keyword (str (name thing-ident) "/url")) thing-map)
+                      :enrollment/email ((keyword (str (name thing-ident) "/email")) thing-map)
+                      :enrollment/wiki ((keyword (str (name thing-ident) "/wiki")) thing-map)
+                     }
+
+        ; show add enrollment form
+        toggle-fn (newthing-form/toggle-add-thing-form-fn :enrollment 
+                                                          r navpath
+                                                          (str "child-form-" thing-id)
+                                                          override-map
+                                                          input-queue)
+
+       ]
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
+    (de/listen! enroll-link :click toggle-fn)
+  ))
+
+
+; ------------------------------------------------------------------------------------
+; enable assignto and assign-form with link and form event handler
+; [:transform-enable [:nav :courses 17592186045496 :assignto] :assignto
+; ------------------------------------------------------------------------------------
+(defmethod enable-thing-nav  ; assignto, defined in thing-question and entity-view
+  :assignto
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:question 1 :assignto]
+        thing-id (second (reverse navpath))
+        thing-node (dom/by-id (str thing-id))
+
+        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
+        assignto-link (dom/by-class link-clz)
+
+        ; thing-map msgs param from emitter
+        thing-map ((msgs/param :thing-map) (first messages))
+        thing-ident (util/thing-ident thing-map)
+        override-map {:assignment/origin (:db/id thing-map)
+                      :assignment/title (:question/title thing-map)
+                      :assignment/tag (:question/tag thing-map)
+                      :assignment/start (.unix (js/moment))
+                      :assignment/end (.unix (.add (js/moment) "hours" 1))
+                      :assignment/type (keyword (:question/type thing-map))
+                     }
+          
+        ; show assign form, assignment form is used for show details for assignment.
+        toggle-fn (newthing-form/toggle-add-thing-form-fn :assign
+                                                          r navpath
+                                                          (str "child-form-" thing-id)
+                                                          override-map
+                                                          input-queue)
+
+       ]
+      (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
+      (de/listen! assignto-link :click toggle-fn)
+    ))
+
+
+; ----------------------------------------------------------------------------------
+; submit answer shows answer-form
+; [:nav :assignment 17592186045431 :submit-answer] :submit-answer
+; ----------------------------------------------------------------------------------
+(defmethod enable-thing-nav  ; transkey = :answer-form
+  :submit-answer
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)
+        thing-id (second (reverse navpath))
+        thing-node (dom/by-id (str thing-id))
+
+        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
+        submit-answer-link (dom/by-class link-clz)
+
+        thing-map ((msgs/param :thing-map) (first messages))
+        thing-ident (util/thing-ident thing-map)
+
+        override-map {:answer/origin (:db/id thing-map)
+                      :answer/start (.unix (js/moment))  ; unix epoch in seconds
+                     }
+
+        ; show add enrollment form
+        toggle-fn (newthing-form/toggle-add-thing-form-fn :answer 
+                                                          r navpath
+                                                          (str "child-form-" thing-id)
+                                                          override-map
+                                                          input-queue)
+       ]
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
+    (de/listen! submit-answer-link :click toggle-fn)
+  ))
+
+; ----------------------------------------------------------------------------------
+; grade answer and grade-form
+; [:nav :answer 17592186045431 :grade] :grade
+; ----------------------------------------------------------------------------------
+(defmethod enable-thing-nav  ; transkey = :grade
+  :grade
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:assignment 1 :grade]
+        thing-id (second (reverse navpath))
+        thing-node (dom/by-id (str thing-id))
+
+        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
+        grade-link (dom/by-class link-clz)
+
+        thing-map ((msgs/param :thing-map) (first messages))
+        thing-ident (util/thing-ident thing-map)
+
+        override-map {:grade/origin (:db/id thing-map)
+                     }
+        
+        ; show add enrollment form
+        toggle-fn (newthing-form/toggle-add-thing-form-fn :grade 
+                                                          r navpath
+                                                          (str "child-form-" thing-id)
+                                                          override-map
+                                                          input-queue)
+       ]
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
+    (de/listen! grade-link :click toggle-fn)
+  ))
+
 ; ------------------------------------------------------------------------------------
 ; enable reply and reply-form with link and form event handler
 ; [:transform-enable [:nav :comments 17592186045496 :reply] :reply
@@ -659,6 +686,39 @@
                                              form
                                              override-map 
                                              input-queue)
+  ))
+
+;------------------------------------------------------------------------------------
+; join a group, the same way as handling enroll
+;------------------------------------------------------------------------------------
+(defmethod enable-thing-nav
+  :join-group
+  [r [_ navpath transkey messages] input-queue]
+  (let [navpath (rest navpath)  ; [:group 1 :join-group]
+        thing-id (second (reverse navpath))
+        thing-node (dom/by-id (str thing-id))
+
+        ; link class is join-class
+        link-clz (second (first (seq (entity-view/thing-nav-link-sel thing-id transkey ""))))
+        join-link (dom/by-class link-clz)
+
+        ; thing-map msgs param from emitter
+        thing-map ((msgs/param :thing-map) (first messages))
+        
+        ; update existing group with added group member, so set db id to group id.
+        override-map {:db/id thing-id
+                     }
+
+        ; show join group form
+        toggle-fn (newthing-form/toggle-add-thing-form-fn :join-group 
+                                                          r navpath
+                                                          (str "child-form-" thing-id)
+                                                          override-map
+                                                          input-queue)
+
+       ]
+    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath " " link-clz))
+    (de/listen! join-link :click toggle-fn)
   ))
 
 

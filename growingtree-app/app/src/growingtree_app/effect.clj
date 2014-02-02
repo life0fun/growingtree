@@ -60,18 +60,18 @@
         allpath (filter (comp not nil?) [curpath nxtpath]) ; filter out no qpath case
 
         bodies (map (fn [p]
-                    (let [thing-type (last p)
-                          ; set data store topic [:data :thing id :next-thing]
-                          body {:msg-type :set-thing-data
-                                :msg-topic (vec (concat [:data] p))
-                                :thing-type thing-type
-                                :path p   ; service side service need path for query
-                                :details {:path (vec p) 
-                                          :qpath (vec nxtpath)
-                                          :author user}
-                               }
-                         ]
-                      body)) 
+                      (let [thing-type (last p)
+                            ; set data store topic [:data :thing id :next-thing]
+                            body {:msg-type :set-thing-data
+                                  :msg-topic (vec (concat [:data] p))
+                                  :thing-type thing-type
+                                  :path p   ; service side service need path for query
+                                  :details {:path (vec p) ; [:group 1 :group]
+                                            :qpath (vec nxtpath) ; [group 1 :join-group]
+                                            :author user}
+                                 }
+                           ]
+                        body)) 
                   allpath)
 
         ; send to [:server], type is :request-things, post data in body
@@ -136,6 +136,6 @@
               :thing-type thing-type :details details}
        ]
     (.log js/console (str user " post create thing " thing-type " body " body))
-    ;[{msgs/topic [:server] msgs/type :add-thing (msgs/param :body) body}]
+    [{msgs/topic [:server] msgs/type :add-thing (msgs/param :body) body}]
   ))
 

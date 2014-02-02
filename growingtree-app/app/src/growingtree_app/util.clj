@@ -144,6 +144,7 @@
         nxt (case add-thing-type
                   :assign :assignment   ; swap assignments
                   :grade  :assignment   ; grade is leaf node, reverse next to assignment.
+                  :join-group :group-members   ; after join-group, list all members of group
                   add-thing-type)
         ; the case for nav create :course [:create :course] ; [:course 1]
         curpath (if (< (count navpath) 3)

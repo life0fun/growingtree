@@ -148,7 +148,7 @@
                    (take-last 6)
                    (vec))
        ]
-    (.log js/console (str "set-nav-path oldpath " (last oldv) " newpath " npath))
+    (.log js/console (str "set-nav-path  " npath))
     npath))
 
 
@@ -168,6 +168,7 @@
 ; we store cljs.core.Vector data structure into path node. when clj get the ds out,
 ; no more parse needed. We only need one parse at response-handler.
 ; all keyword field coerced to string after json stringify and stored here.
+; thing-vec is empty [] when nothing in the list, and emitter nil upon empty list.
 (defn set-thing-data
   "store list of all things vec in [:all navpath] node specified by msg topic"
   [oldv message]
@@ -365,12 +366,6 @@
 
            ; [:data :all 0 :parent] or [:data :parent 1 :child]
            {:in #{[:data :* :* :*]} :fn emitter/thing-data-emitter :mode :always}
-
-           ; Deprecated ! 
-           {:in #{[:setup :assign :* :*]} :fn emitter/assign-emitter :mode :always}
-
-           ; Deprecated ! when create new thing setup, emit.
-           {:in #{[:setup :newthing]} :fn emitter/newthing-emitter :mode :always}
 
            {:in #{[:sse-data]} :fn emitter/sse-data-emitter :mode :always}
 

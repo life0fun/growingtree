@@ -182,7 +182,7 @@
   (let [{:keys [msg-topic msg-type thing-type details]} body
         api (str "/add/" (name thing-type))  ; api is /add/:thing-type
         resp (response-handler thing-type msg-topic msg-type details input-queue)]
-    (.log js/console (str "app service add thing " thing-type msg-topic msg-type body))
+    (.log js/console (str "app service add thing " api msg-topic msg-type body))
     (xhr-request api "POST" body resp xhr-log)))
 
 

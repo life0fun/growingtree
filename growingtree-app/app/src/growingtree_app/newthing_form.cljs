@@ -149,6 +149,15 @@
                 (fn [thing-id]  ; input field id is comments-title
                   ["comments-title" (entity-view/div-form-textarea-sel thing-id "reply-form" "comments-title") "comments..." :text])
               }
+
+
+    :join-group {:group/person 
+                    (fn [thing-id]
+                      ["join-group-name" (str "join-group-name-" thing-id) "name" :tag])
+                 :group/remarks 
+                    (fn [thing-id]
+                      ["join-group-remarks" (str "join-group-remarks-" thing-id) "remarks" :text])
+                }
   })
 
 
@@ -163,23 +172,6 @@
                     (k thing-details-view))
     ))
  
-
-;;================================================================================
-; template input id fields with thing-id when displaying add thing form 
-;;================================================================================
-; append thing-id to input id only when thing-id is not nil. 
-(defn add-thing-input-id
-  [add-thing-type thing-id]
-  (let [input-vec (->> (add-thing-type thing-input-map)
-                       (vals)
-                       (map #(% thing-id)))
-       ]
-    (reduce
-      (fn [tot [input-name input-id prompts]]
-        (assoc tot (keyword input-name) input-id))
-        {}
-        input-vec)))
-
 
 ;;================================================================================
 ; a mapping for datetimepicker id for each new thing type
@@ -222,11 +214,24 @@
     (doseq [[input-id prompt] tags-input-map]
       (js/tagsInput input-id prompt))))
 
+;;================================================================================
+; template add thing form input field id with thing-id 
+;;================================================================================
+; append thing-id to form input field id only when thing-id is not nil. 
+(defn add-thing-input-id
+  [add-thing-type thing-id]
+  (let [input-vec (->> (add-thing-type thing-input-map)  ; input fields 
+                       (vals)
+                       (map #(% thing-id)))
+       ]
+    (reduce
+      (fn [tot [input-name input-id prompts]]
+        (assoc tot (keyword input-name) input-id))
+        {}
+        input-vec)))
 
-;;================================================================================
-; display add thing template inside filtered thing
-; path is [:nav :course 1 :add-lecture] [:nav :course 2 :enroll]
-;;================================================================================
+
+; make unique child form name to include thing-id
 (defn add-thing-form-id
   [add-thing-type thing-id]
   (if (and thing-id 
@@ -234,7 +239,10 @@
     (str (name add-thing-type) "-" thing-id)
     (str (name add-thing-type) "-form")))
 
-
+;;================================================================================
+; display add thing template inside filtered thing
+; path is [:nav :course 1 :add-lecture] [:nav :course 2 :enroll]
+;;================================================================================
 (defn add-thing-form
   "instantiate new thing form for thing-type, return div code to be appended to parent"
   [add-thing-type thing-id r navpath]
@@ -250,7 +258,7 @@
 
 ;--------------------------------------------------------------------------------
 ; toggle fn to display new thing form, and handle add thing submit.
-; navpath is [:course 1 :add-lecture]
+; navpath is [:course 1 :add-lecture], parent-div-id = child-form-1
 ;--------------------------------------------------------------------------------
 (defn toggle-add-thing-form-fn
   "return an event handler fn that toggen hide css class of the form"
@@ -264,7 +272,7 @@
           ]
       (.log js/console (str add-thing-type " link clicked nchild " nchild navpath " " parent-div-id))
 
-      ; remove all children of all child-form when change.
+      ; remove all children of child-form div when change.
       (when (= nchild 0)
         (dom/destroy-children! (dom/by-class "child-form")))
 
@@ -311,7 +319,7 @@
           newthing-msgs (msgs/fill :create-thing messages {:details details})
          ]
       ;(.log js/console (str add-thing-type " inputs " input-fields input-vals))
-      (.log js/console (str add-thing-type " add new thing submitted " navpath " " details))
+      (.log js/console (str add-thing-type " submt-fn " navpath " " details))
       (dom/destroy! (dom/by-id (add-thing-form-id add-thing-type thing-id)))
       (dom/destroy-children! (dom/by-class "child-form"))
       (de/prevent-default e)

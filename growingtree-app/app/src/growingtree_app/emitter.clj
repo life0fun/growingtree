@@ -375,16 +375,18 @@
     thing-type))
 
 ; created node path for render at [:nav :thing-type :thing-id :extra ] :transkey, 
+; thing nav actionkey is taken from entity-vew with thing-type
 ; thing-type :enrollment render-path [:filtered :course 1 :child 2]
 (defmethod thing-navpath-transforms
   :default
   [thing-type render-path entity-map]
   (.log js/console (str "thing-navpath-transforms " thing-type render-path))
   (let [thing-id (:db/id entity-map)
-        ;thing nav action keys defined in entity-view 
+        ;a list of nav action keys defined in entity-view
         transkeys (keys (get entity-view/thing-nav-actionkey thing-type))
         navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
        ]
+    ; map the list of nav actions for each thing type.
     (mapcat
       ; [:nav :parent 17592186045499 :child] :child
       (fn [[nav type id transkey :as navpath]]
@@ -473,9 +475,11 @@
     messages))
 
 
-; click enroll link will show enrollment-form, we need thing-map for override value.
+;------------------------------------------------------------------------------------
+; for upvote transform msg, need both render-path and thing-map to inc and refresh view.
+;------------------------------------------------------------------------------------
 (defmethod thing-nav-messages
-  :enroll
+  :upvote
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
                     msgs/topic [:create transkey]  
@@ -488,53 +492,9 @@
     ;(.log js/console (str "thing-nav-messages " messages))
     messages))
 
-
-(defmethod thing-nav-messages
-  :assignto
-  [[nav thing-type id transkey :as nav-path] render-path entity-map]
-  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
-                    msgs/topic [:create transkey]  
-                    msgs/type :create-thing
-                    (msgs/param :thing-map) entity-map
-                    (msgs/param :rpath) render-path
-                    (msgs/param :details) {}
-                  }]
-        ]
-    ;(.log js/console (str "thing-nav-messages " messages))
-    messages))
-
-
-(defmethod thing-nav-messages
-  :submit-answer
-  [[nav thing-type id transkey :as nav-path] render-path entity-map]
-  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
-                    msgs/topic [:create transkey]  
-                    msgs/type :create-thing
-                    (msgs/param :thing-map) entity-map
-                    (msgs/param :rpath) render-path
-                    (msgs/param :details) {}
-                  }]
-        ]
-    ;(.log js/console (str "thing-nav-messages " messages))
-    messages))
-
-
-; grade to answer. [:nav :answer 17592186045439 :grade]
-(defmethod thing-nav-messages
-  :grade
-  [[nthing-av type id transkey :as nav-path] render-path entity-map]
-  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
-                    msgs/topic [:create transkey]  
-                    msgs/type :create-thing
-                    (msgs/param :thing-map) entity-map
-                    (msgs/param :rpath) render-path
-                    (msgs/param :details) {}
-                  }]
-        ]
-    ;(.log js/console (str "thing-nav-messages " messages))
-    messages))
-
-
+;------------------------------------------------------------------------------------
+; add new thing by type
+;------------------------------------------------------------------------------------
 ; always go :create-thing [:create :child] path, do not go post thing path.
 (defmethod thing-nav-messages
   :add-child
@@ -618,6 +578,89 @@
     messages))
 
 
+; add an activity to the group, etc
+(defmethod thing-nav-messages
+  :add-activity
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
+  (let [ ; add comments, parent thing map is course
+        messages [
+                  {
+                    msgs/topic [:create :activity]
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :details) {}
+                  }
+                 ]
+        ]
+    messages))
+
+
+;------------------------------------------------------------------------------------
+; enroll, assign to, submit answer, grade, and reply comments
+;------------------------------------------------------------------------------------
+; click enroll link will show enrollment-form, we need thing-map for override value.
+(defmethod thing-nav-messages
+  :enroll
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
+  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
+                    msgs/topic [:create transkey]  
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :rpath) render-path
+                    (msgs/param :details) {}
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " messages))
+    messages))
+
+
+(defmethod thing-nav-messages
+  :assignto
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
+  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
+                    msgs/topic [:create transkey]  
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :rpath) render-path
+                    (msgs/param :details) {}
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " messages))
+    messages))
+
+
+(defmethod thing-nav-messages
+  :submit-answer
+  [[nav thing-type id transkey :as nav-path] render-path entity-map]
+  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
+                    msgs/topic [:create transkey]  
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :rpath) render-path
+                    (msgs/param :details) {}
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " messages))
+    messages))
+
+
+; grade to answer. [:nav :answer 17592186045439 :grade]
+(defmethod thing-nav-messages
+  :grade
+  [[nthing-av type id transkey :as nav-path] render-path entity-map]
+  (let [messages [{ ; do not matter. render always transform [:create :thing-type]
+                    msgs/topic [:create transkey]  
+                    msgs/type :create-thing
+                    (msgs/param :thing-map) entity-map
+                    (msgs/param :rpath) render-path
+                    (msgs/param :details) {}
+                  }]
+        ]
+    ;(.log js/console (str "thing-nav-messages " messages))
+    messages))
+
+
+
 ; reply to comments form
 (defmethod thing-nav-messages
   :reply-form
@@ -633,13 +676,14 @@
     ;(.log js/console (str "thing-nav-messages " messages))
     messages))
 
-
-; for upvote transform msg, need both render-path and thing-map to inc and refresh view.
+;------------------------------------------------------------------------------------
+; click join link to join a group, show join-form, we need thing-map for override value.
+;------------------------------------------------------------------------------------
 (defmethod thing-nav-messages
-  :upvote
+  :join-group
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
-                    msgs/topic [:create transkey]  
+                    msgs/topic [:create :group]  ; join a group  
                     msgs/type :create-thing
                     (msgs/param :thing-map) entity-map
                     (msgs/param :rpath) render-path
@@ -648,6 +692,7 @@
         ]
     ;(.log js/console (str "thing-nav-messages " messages))
     messages))
+
 
 
 ; -----------------------------------------------------------------------------------
@@ -686,34 +731,6 @@
         ]
     messages))
 
-;;==================================================================================
-;; action bar assign emitter, triggered by [:setup :assign]
-;;==================================================================================
-; actionbar displayed, now trans enable UI event data come back
-(defn assign-emitter
-  "emit trans enable for action bar element"
-  [inputs]
-  (let [changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
-        removemap (d/removed-inputs inputs)]
-    ; each change tuple consists of node-path and a vector of values
-    ; (doseq [[path oldv] changemap]
-    ;   (.log js/console (str "action changemap " path " old-value " oldv)))
-    ; (doseq [[path oldv] removemap]
-    ;   (.log js/console (str "action removemap " path " old-value " oldv)))
-
-    (reduce (fn [alldeltas [path newv]]
-              (let [thingnode (nnext path)  ; [:action :setup :assign thing]
-                    newpath (concat [:submit :assign] thingnode)
-                    messages {msgs/topic newpath 
-                              msgs/type :assign
-                              (msgs/param :details) {}}]
-                (.log js/console (str "assign emitter " path " " newv))
-                ; concat this thing node delta
-                (concat alldeltas
-                  [[:transform-enable newpath :assign [messages]]])))
-            []
-            changemap)
-    ))
 
 ;;==================================================================================
 ; upon nav to comments, ask render to display add comments box on filtered details
