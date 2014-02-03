@@ -261,6 +261,19 @@
   (family/create-group details))
 
 
+; join a group
+(defn join-group
+  "join a group with details"
+  [details]
+  (family/join-group details))
+
+
+(defn find-group-members
+  "find group members "
+  [qpath]
+  (family/find-group-members qpath))
+
+
 ;;==============================================================
 ;; course related, should use multi-method to dispatch
 ;;==============================================================

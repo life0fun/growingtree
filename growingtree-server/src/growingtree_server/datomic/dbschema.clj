@@ -156,7 +156,7 @@
 (defschema group
   (part app)
   (fields
-    [title :string :fulltext :unique-value " the title, "]
+    [title :string :fulltext :unique-value " the unique group title "]
     [author :ref :many :indexed "the admin, organizer of the group"]
     [type :keyword "learning type of the group, from thing-type"]
     [person :ref :many "person in the group"]

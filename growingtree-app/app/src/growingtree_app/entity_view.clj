@@ -94,7 +94,7 @@
               }
 
     :group {:title "" :author ""
-            :members "" :join-group ""
+            :group-members "" :join-group ""
             :activity "" :add-activity " hide"
             :upvote "" :like "" :share "" 
            }
@@ -300,7 +300,7 @@
                          (thing-nav-link-class thing-id actionkeys))
         thing-div (html templ-map)
         ]
-    (.log js/console (str "thing-node-html " rpath " " templ-map))
+    (.log js/console (str "thing-node-html :default " rpath " " templ-map))
     thing-div))
 
 
@@ -320,7 +320,7 @@
         templ-map {:id (str "details-" thing-id)}
         thing-div (html templ-map)
         ]
-    (.log js/console (str "thing-node-html " rpath " " thing-type))
+    (.log js/console (str "thing-node-html :title " rpath " " thing-type))
     thing-div))
 
 
@@ -338,7 +338,7 @@
         templ-map {:id (str "details-" thing-id)}
         thing-div (html templ-map)
         ]
-    (.log js/console (str "thing-node-html " rpath " " thing-type))
+    (.log js/console (str "thing-node-html :person " rpath " " thing-type))
     thing-div))
 
 ;;===========================================================================
@@ -350,18 +350,20 @@
 
 
 ; multi fn of thing template value assemble value for each thing type
+; rpath [:header :group 1] qpath [:group 1 :group-members]
 (defmethod thing-value-view
   :default
   [r rpath qpath thing-map input-queue]
+  (.log js/console (str "thing-value-view " rpath qpath))
   (let [thing-id (last rpath)
         thing-type (second (reverse rpath))
         ; use qpath to toggle list thing and add-thing transkey, for qpath next thing only.
         nav-add-clz (toggle-nav-add-subthing-class thing-id thing-type qpath)
-        
+        ; get template value for the thing-type
         thing-val (thing-template-value thing-type thing-map)
         thing-view (merge thing-val nav-add-clz)
-        ]
-    (.log js/console (str "update thing node value " rpath " new-value " thing-map))
+       ]
+    (.log js/console (str "thing value view template :default " rpath " new-value " thing-map))
     thing-view))
 
 
@@ -568,6 +570,7 @@
           }
        ]
     value-map))
+
 
 (defmethod thing-template-value
   :like

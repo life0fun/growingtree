@@ -199,7 +199,7 @@
 (defn get-all-things
   "get things by type, ret from peer a list of thing in a new line sep string"
   [req]
-  ; path segment in req contains request params
+  ; path segment in req contains request params, /api/:thing, /api/lecture
   (let [type (get-in req [:path-params :thing])
         things (peer/get-things (keyword type) [])  ;qpath is null
         result {:status 200 :data things}
@@ -213,18 +213,21 @@
 
 ;;==================================================================================
 ; POST filter from nav path to get things within parent.
+; reqbody {:msg-type :set-thing-data, :msg-topic [:data :group 1 :group-members], 
+; :thing-type :group-members, :path [:group 1 :group-members], 
+; :details {:path [:group 1 :group-members], :qpath [:group 1 :group-members], :author "rich-dad"}} 
 ;;==================================================================================
 (defn get-things
   "get things by type, ret from peer a list of thing in a new line sep string"
-  [{postdata :edn-params :as request}]
+  [{reqbody :edn-params :as request}]
+  ; path segment in req contains request params, /api/:thing, /api/:course
   (let [type (get-in request [:path-params :thing])
-        path (:path postdata)   ; effect msg need to have query path in body
-        thing-type (:thing-type postdata)
-        things (peer/get-things thing-type path (:details postdata))
+        path (:path reqbody)   ; effect msg body, [:group 1 :group-members], 
+        thing-type (:thing-type reqbody)
+        things (peer/get-things thing-type path (:details reqbody))
         result {:status 200 :data things}
         jsonresp (bootstrap/json-response result)
        ]
-    (newline)  
     (println (str "service peer get-things " type thing-type path things))
     jsonresp))
 
@@ -246,18 +249,18 @@
 
 ;;==================================================================================
 ; POST form details to add a particular thing
-; postdata is body when xhr-request on api service side
+; reqbody is body when xhr-request on api service side
 ;;==================================================================================
 (defn add-thing
   "add a thing upon post request, request contains http post data"
-  [{postdata :edn-params :as request}]
+  [{reqbody :edn-params :as request}]
   (let [;resp (bootstrap/json-print {:result msg-data})
         type (get-in request [:path-params :thing])  ; /api/:thing
-        added-things (peer/add-thing (keyword type) (:details postdata))
+        added-things (peer/add-thing (keyword type) (:details reqbody))
         result {:status 200 :data added-things}
         jsonresp (bootstrap/json-response result)
         ]
-    (log/info :message "received message" :request request :msg-data postdata)
+    (log/info :message "received message" :request request :msg-data reqbody)
     (prn "service got peer adding thing done " added-things)
     jsonresp))
 

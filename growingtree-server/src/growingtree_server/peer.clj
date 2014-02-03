@@ -65,6 +65,12 @@
 
 
 (defmethod get-things
+  :default
+  [type qpath details]
+  (prn "get-things default " type " qpath " qpath " details " details))
+
+
+(defmethod get-things
   :parent
   [type qpath details]
   (let [parents (dda/find-parent qpath)]
@@ -128,6 +134,14 @@
 
 
 (defmethod get-things
+  :enrollment
+  [type qpath details]
+  (let [enrollments (dda/find-enrollment qpath)]
+    (prn "peer get enrollments " qpath enrollments)
+    enrollments))
+
+
+(defmethod get-things
   :group
   [type qpath details]
   (let [groups (dda/find-group qpath)]
@@ -136,11 +150,11 @@
 
 
 (defmethod get-things
-  :enrollment
+  :group-members
   [type qpath details]
-  (let [enrollments (dda/find-enrollment qpath)]
-    (prn "peer get enrollments " qpath enrollments)
-    enrollments))
+  (let [members (dda/find-group-members qpath)]
+    (prn "peer get group member " qpath members)
+    members))
 
 
 (defmethod get-things
@@ -298,13 +312,34 @@
     result))
 
 
-; create like thing
 (defmethod add-thing
   :comments
   [type details]
   (let [author (:author details)
         result (dda/create-comments details)
         ]  
+    (newline)
+    ;(prn "peer add thing " type " result " result " details " details )
+    result))
+
+
+(defmethod add-thing
+  :group
+  [type details]
+  (let [author (:author details)
+        result (dda/create-group details)
+        ]  
+    (newline)
+    ;(prn "peer add thing " type " result " result " details " details )
+    result))
+
+; join group use create-group, just details map has :db/id value
+(defmethod add-thing
+  :join-group
+  [type details]
+  (let [
+        result (dda/join-group details)
+       ]  
     (newline)
     ;(prn "peer add thing " type " result " result " details " details )
     result))

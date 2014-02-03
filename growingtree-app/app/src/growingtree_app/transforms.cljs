@@ -261,7 +261,7 @@
         next-thing (str (name transkey) "-" thing-id)
         ; thing nav link class set inside entity view class
         thing-link (dom/by-class next-thing)]
-    (.log js/console (str "enable thing nav " navpath " " thing-id " " next-thing " " ))
+    (.log js/console (str "enable thing nav :default " navpath " " thing-id " " next-thing " " ))
     ; wrap assign link with div and use class selector
     (de/listen! thing-link
                 :click 
@@ -296,7 +296,7 @@
               (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
                 (p/put-message input-queue m))))
        ]
-    (.log js/console (str "enable thing nav title " navpath ))
+    (.log js/console (str "enable thing nav :title " navpath ))
     ; click fn will doseq put msg to input-queue
     (de/listen! title-link :click click-fn)
   ))
@@ -323,7 +323,7 @@
               (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
                 (p/put-message input-queue m))))
        ]
-    (.log js/console (str "enable thing nav author " navpath))
+    (.log js/console (str "enable thing nav :author " navpath))
     ; click fn will doseq put msg to input-queue
     (de/listen! author-link :click click-fn)
   ))
@@ -344,7 +344,7 @@
         upvote-link (entity-view/div-div-clz-sel thing-id "arrow up")
         click-fn (newthing-form/upvote-submit-fn r thing-type messages input-queue)
        ]
-    (.log js/console (str "enable thing nav upvote " navpath ))
+    (.log js/console (str "enable thing nav :upvote " navpath ))
     ; click fn will doseq put msg to input-queue
     (de/listen! upvote-link :click click-fn)
   ))
@@ -372,7 +372,7 @@
                                                           override-map 
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
+    (.log js/console (str "enable thing nav :add-child " thing-id " " transkey " " navpath))
     (de/listen! add-child-link :click toggle-fn)
   ))
 
@@ -396,7 +396,7 @@
                                                           override-map 
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
+    (.log js/console (str "enable thing nav :add-parent " thing-id " " transkey " " navpath))
     (de/listen! add-parent-link :click toggle-fn)
   ))
 
@@ -424,7 +424,7 @@
                                                           override-map 
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
+    (.log js/console (str "enable thing nav :add-lecture " thing-id " " transkey " " navpath))
     (de/listen! add-lecture-link :click toggle-fn)
   ))
 
@@ -449,7 +449,7 @@
                                                           override-map 
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath " "))
+    (.log js/console (str "enable thing nav :add-question " thing-id " " transkey " " navpath " "))
     (de/listen! add-question-link :click toggle-fn)
   ))
 
@@ -475,7 +475,7 @@
                                                           override-map 
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath " " thing-map))
+    (.log js/console (str "enable thing nav :add-comments " thing-id " " transkey " " navpath " " thing-map))
     (de/listen! add-comments-link :click toggle-fn)
   ))
 
@@ -499,7 +499,7 @@
                                                           override-map 
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath " " thing-map))
+    (.log js/console (str "enable thing nav :add-activity " thing-id " " transkey " " navpath " " thing-map))
     (de/listen! add-activity-link :click toggle-fn)
   ))
 
@@ -539,7 +539,7 @@
                                                           input-queue)
 
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
+    (.log js/console (str "enable thing nav :enroll " thing-id " " transkey " " navpath))
     (de/listen! enroll-link :click toggle-fn)
   ))
 
@@ -577,7 +577,7 @@
                                                           input-queue)
 
        ]
-      (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
+      (.log js/console (str "enable thing nav :assignto " thing-id " " transkey " " navpath))
       (de/listen! assignto-link :click toggle-fn)
     ))
 
@@ -610,7 +610,7 @@
                                                           override-map
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
+    (.log js/console (str "enable thing nav :submit-answer " thing-id " " transkey " " navpath))
     (de/listen! submit-answer-link :click toggle-fn)
   ))
 
@@ -641,7 +641,7 @@
                                                           override-map
                                                           input-queue)
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath))
+    (.log js/console (str "enable thing nav :grade " thing-id " " transkey " " navpath))
     (de/listen! grade-link :click toggle-fn)
   ))
 
@@ -664,7 +664,7 @@
                       (util/toggle-hide-fn reply-form-clz))
 
        ]
-    (.log js/console (str "enable thing nav reply toggle " navpath " " link-clz reply-form-clz))
+    (.log js/console (str "enable thing nav :reply " navpath " " link-clz reply-form-clz))
     (de/listen! reply-link :click toggle-fn)
   ))
 
@@ -680,7 +680,7 @@
                       :comments/thingroot (:comments/thingroot thing-map)
                      }
        ]
-    (.log js/console (str "enable thing nav reply-form " thing-id navpath override-map thing-map))
+    (.log js/console (str "enable thing nav :reply-form " thing-id navpath override-map thing-map))
     (newthing-form/handle-inline-form-submit :comments 
                                              thing-id 
                                              form
@@ -717,7 +717,7 @@
                                                           input-queue)
 
        ]
-    (.log js/console (str "enable thing nav " thing-id " " transkey " " navpath " " link-clz))
+    (.log js/console (str "enable thing nav :join-group " thing-id " " transkey " " navpath " " link-clz))
     (de/listen! join-link :click toggle-fn)
   ))
 

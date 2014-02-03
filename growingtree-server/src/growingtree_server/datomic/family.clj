@@ -355,9 +355,9 @@
   [qpath]
   (let [projkeys (keys group-schema)  ; must select-keys from datum entity attributes
         groups (->> (util/get-entities-by-rule qpath get-group-by)
-                     (map #(select-keys % projkeys) )
-                     (map #(util/add-upvote-attr %) )
-                     (map #(util/add-navpath % qpath) )
+                    (map #(select-keys % projkeys) )
+                    (map #(util/add-upvote-attr %) )
+                    (map #(util/add-navpath % qpath) )  ;: navpath [:all 0 :group 17592186045441]
                  )
        ]
     (doseq [e groups]
@@ -365,15 +365,56 @@
     groups))
 
 
+(defn find-group-members
+  "find all group members"
+  [qpath]
+  (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
+        person (->> (:group/person (dbconn/get-entity (second qpath)))
+                    (map #(select-keys % projkeys) )
+                    (map #(util/add-upvote-attr %) )
+                    (map #(util/add-navpath % qpath) )  ;: navpath [:all 0 :group 17592186045441]
+                 )
+       ]
+    (doseq [e person]
+      (prn "group person --> " e))
+    person))
+
+
 (defn create-group
   "create group from the submitted new thing form details from parent add-group"
   [details]
-  (let [group (-> details
-                (select-keys (keys person-schema))
+  (let [author-id (if (clojure.string/blank? (:group/author details))
+                      (:db/id (find-by :person/title (:author details)))
+                      (:db/id (find-by :person/title (:group/author details))))
+        group-id (:db/id details)
+        group (-> details
+                (select-keys (keys group-schema))
+                (assoc :group/author author-id)
                 (assoc :db/id (d/tempid :db.part/user)))
+
         trans (submit-transact [group])  ; transaction is a list of maps to update db values
       ]
     (newline)
     (prn "create group " group)
     (prn "create group trans " trans)
+    [group]))
+
+
+(defn join-group
+  "join group from the submitted new thing form details from parent add-group"
+  [details]
+  (let [person-id (if (clojure.string/blank? (:group/person details))
+                      (:db/id (find-by :person/title (:author details)))
+                      (:db/id (find-by :person/title (:group/person details))))
+        group-id (:db/id details)
+        group (-> details
+                (select-keys (keys group-schema))
+                (assoc :group/person person-id)
+                (assoc :db/id group-id))
+
+        trans (submit-transact [group])  ; transaction is a list of maps to update db values
+      ]
+    (newline)
+    (prn "join group " group)
+    (prn "join group trans " trans)
     [group]))

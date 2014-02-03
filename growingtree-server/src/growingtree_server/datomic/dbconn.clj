@@ -225,11 +225,10 @@
 (defn submit-transact
   "submit a transaction"
   [tx-data]
-  (prn "dbconn submit-transact " tx-data)
   (let [
-        ;ft (d/transact (get-conn) tx-data)  ; ret future task
-        ft tx-data
-       ]  
+        ft (d/transact (get-conn) tx-data)  ; ret future task
+        ;ft tx-data
+       ]
     (prn "dbconn submit trans ft " tx-data ft)
     ft)
   )

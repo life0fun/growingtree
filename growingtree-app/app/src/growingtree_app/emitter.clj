@@ -289,7 +289,7 @@
 ; ret a vector of delta tuples of node-create and value delat from a vector of 
 ; thing data value. value is a vector of entity tuples, mapcat vec is de-pack and re-pack vec.
 ; data for navpath stored in [:data :thing 1 :next-thing]
-; thing data emit qpath [:course 17592186045425 :comments] changemap {[:data :course 17592186045425 :course] 
+; thing data emit qpath [:course 1 :comments] changemap {[:data :course 1 :course]
 (defn- thing-data-deltas
   [inputs data-path qpath things-vec]  ; data-path is where data vector is stored.
   ; data-path = [:data :* :* :*] = [:data :all 0 :parent] [:data :course 1 :comments]
@@ -300,12 +300,13 @@
           (let [; each thing map has navpath indicates query path, for UI nav and display
                 thing-map (keyword-thing-navpath entity-map)
                 id (:db/id thing-map)  ; get :db/id as each node render path id
-                thing-type (last data-path)
                 
                 ; thing-map has a :navpath filled by (util/add-navpath % qpath), 
                 ; navpath tells who is the parent of this entity during navigation.
-                ; :navpath ["all" 0 "course" 1], or  ["course" 1 "comments" 2], or ["course" 1 "course" 2]
+                ; :navpath ["all" 0 "course"], or  ["course" 1 "comments"], or ["course" 1 "course"]
                 render-path (thing-navpath->renderpath (:navpath thing-map) thing-map)
+                ; thing-type shall take from converted render path
+                thing-type (second (reverse render-path))
                 actiontransforms (thing-navpath-transforms thing-type render-path thing-map)
                 comments-box (add-comments-box render-path qpath)
                 details-box (add-details-box render-path qpath)
@@ -355,6 +356,12 @@
 
       ; substitute enrollment with person, as enrollment list all person.
       (= child :enrollment)
+        (let [person-id (:db/id thing-map)
+              person-type (keyword (:person/type thing-map))]
+          (vec (concat [:filtered] [parent pid person-type person-id])))
+
+      ; substitute group-members with person, as group-member list all person
+      (= child :group-members)
         (let [person-id (:db/id thing-map)
               person-type (keyword (:person/type thing-map))]
           (vec (concat [:filtered] [parent pid person-type person-id])))
@@ -455,7 +462,7 @@
     transkey))
 
 
-; for general next thing nav, ask render to send msg to [:nav :path] to update nav path.
+; for non input form nav next, ask render to send msg to [:nav :path] to update nav path.
 ; path [:thing 1 :thing] is for header, and qpath [:thing 1 :next] to for filtered 
 ; rpath is cur thing's path. [:main :course 1 :lecture 2] or [:header :course 1]
 ; nav-path = [:nav :parent 17592186045499 :child], include thing title and author link.
@@ -493,9 +500,9 @@
     messages))
 
 ;------------------------------------------------------------------------------------
-; add new thing by type
+; nav msg for add new thing by type.
+; need to display input form, and collect input value into msg details and send back.
 ;------------------------------------------------------------------------------------
-; always go :create-thing [:create :child] path, do not go post thing path.
 (defmethod thing-nav-messages
   :add-child
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
@@ -692,7 +699,6 @@
         ]
     ;(.log js/console (str "thing-nav-messages " messages))
     messages))
-
 
 
 ; -----------------------------------------------------------------------------------

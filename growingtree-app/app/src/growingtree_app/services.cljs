@@ -161,10 +161,13 @@
 ; request body contains callback transformer msg and thing-type, query path, details.
 ; msg type topic is setup in effect flow when nav path changed. [:data nav-path]
 ;  /api/comments [:data :course 1 :comments] :set-thing-data :msg-topic [:data :course 1 :comments]
+; body {:msg-type :set-thing-data, :msg-topic [:data :group 1 :group-members], 
+; :thing-type :group-members, :path [:group 1 :group-members], 
+; :details {:path [:group 1 :group-members], :qpath [:group 1 :group-members], :author "rich-dad"}} 
 ;;=======================================================================================
 (defn request-things
   [body input-queue]
-  (let [{:keys [msg-topic msg-type thing-type path details]} body
+  (let [{:keys [msg-topic msg-type thing-type qpath details]} body
         api (str "/api/" (name thing-type))
         ; response handle is closured over callback msg transformer and details of qpath.
         resp (response-handler thing-type msg-topic msg-type details input-queue)]

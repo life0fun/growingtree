@@ -180,16 +180,13 @@
     (dom/append! main thing-div)))
     
 
-; info model value transformed, update template attached to node path.
-; oldv contains old value map and newv contains new value map. 
 ; only update template when new value exists.
 ; thing-map is entity {:db/id 17592186045425, :course/url "math.com/Math-I"
-; rpath is [:main :all 0 :course 17592186045425] 
-; [:header :course 17592186045425] qpath [:course 17592186045425 :title]
+; rpath is [:main :all 0 :course 1], [:head/:filter :course 1 :lecture 2] 
 (defn value-thing-node
   [r [op rpath oldv newv] input-queue]
   (when newv
-    (let [; qpath is nav to next thing, used for enable add subthing.
+    (let [; qpath how we get to this thing.
           {:keys [thing-map qpath]} newv
           thing-id (last rpath)
           thing-type (second (reverse rpath))
@@ -263,6 +260,7 @@
     ))
 
 
+; for comments child tree
 ; [:filtered :course 1 :comemnts 2 :comments 3 ...]
 ; [:node-create [:filtered ... :comments 17592186045433 :comments] :map] 
 ; [:node-create [:filtered ... :comments 17592186045433 :comments 17592186045435] :map]
