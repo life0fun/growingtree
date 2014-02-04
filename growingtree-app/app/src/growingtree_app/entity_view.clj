@@ -43,42 +43,42 @@
 ;;==================================================================================
 (def thing-nav-actionkey
   {
-    :parent {:child "" :add-child " hide" 
+    :parent {:child "" :add-child " hide"
              :group "" :add-group " hide"
-             :assignment "" :comments "" :activity "" 
-             :upvote "" :like "" :follow "" 
+             :assignment "" :comments "" :activity ""
+             :upvote "" :like "" :follow ""
             }
 
-    :child {:parent "" :add-parent " hide" 
+    :child {:parent "" :add-parent " hide"
             :schoolclass "" :add-schoolclass " hide"
             :assignment "" :comments "" :activity ""
-            :upvote "" :like "" :follow "" 
+            :upvote "" :like "" :follow ""
            }
 
     :course {:title "" :author ""
-             :lecture "" :add-lecture " hide" 
-             :question "" :add-question " hide" 
+             :lecture "" :add-lecture " hide"
+             :question "" :add-question " hide"
              :comments ""
              :enrollment "" :enroll ""
-             :schedule "" 
+             :schedule ""
              :upvote "" :like "" :share ""
             }
 
     :lecture {:title "" :author ""
-              :course "" 
-              :question "" :add-question " hide" 
+              :course ""
+              :question "" :add-question " hide"
               :comments ""
               :enrollment "" :enroll ""
-              :schedule "" 
-              :upvote "" :like "" :share "" 
+              :schedule ""
+              :upvote "" :like "" :share ""
              }
-    
+
     :question {:title ""
-               :lecture "" 
+               :lecture ""
                :assignment ""
                :similar ""
                :comments ""
-               :upvote "" :like "" :share "" 
+               :upvote "" :like "" :share ""
                :assignto ""
               }
 
@@ -86,17 +86,17 @@
                  :question "" :hint "" :similar ""
                  :answer "" :submit-answer ""
                  :comments ""
-                 :upvote "" :like "" :share "" 
+                 :upvote "" :like "" :share ""
                 }
 
     :comments {:reply "" :reply-form ""
-               :upvote "" :like "" :share "" 
+               :upvote "" :like "" :share ""
               }
 
     :group {:title "" :author ""
             :group-members "" :join-group ""
             :activity "" :add-activity " hide"
-            :upvote "" :like "" :share "" 
+            :upvote "" :like "" :share ""
            }
 
     :answer {:title ""
@@ -199,7 +199,7 @@
 ;;===============================================================
 (defn thing-attr-val
   [thing-map thing-type attr]
-  (cond 
+  (cond
     (= :parent thing-type) ((keyword (str "person/" attr)) thing-map)
     (= :child thing-type) ((keyword (str "person/" attr)) thing-map)
     :else ((keyword (str (name thing-type) "/" attr)) thing-map)))
@@ -208,7 +208,7 @@
 ; thing nav link class selector includes thing-id, called in thing-node-html.
 (defn thing-nav-link-class
   [thing-id sublink-meta]
-  (reduce 
+  (reduce
     (fn [tot [attr-key hide]]
       (merge tot (thing-nav-link-sel thing-id attr-key hide)))
     {}
@@ -227,7 +227,7 @@
 
 ;;====================================================================
 ; toggle to display nav-subthing or add-subthing for one sub-link.
-; called when value a node, return class for template to show whether 
+; called when value a node, return class for template to show whether
 ;;====================================================================
 (defn toggle-nav-add-subthing-class
   [thing-id thing-type qpath]
@@ -288,7 +288,7 @@
         templ ((keyword (str "thing-" (name thing-type))) templates)
         ; add the rendered template attached to rpath node
         html (templates/add-template render rpath templ)
-        
+
         ; all sublink class selector with thing-id is defined in thing-nav-link-class
         actionkeys (thing-type thing-nav-actionkey) ; all sublink meta
         ; make unique child div with child form id template that includes thing-id
@@ -315,7 +315,7 @@
         templ ((keyword (str (name thing-type) "-form")) templates)
         ; add the rendered template attached to rpath node
         html (templates/add-template render rpath templ)
-        
+
         ; id must not be only thing-id, thing entry div already took it.
         templ-map {:id (str "details-" thing-id)}
         thing-div (html templ-map)
@@ -324,14 +324,14 @@
     thing-div))
 
 
-; render path [:details :parent 17592186045419 :person 17592186045419]
+; render path [:details :parent 1 :person 1]
 (defmethod thing-node-html
   :person
   [rpath render thing-idx]
   (let [thing-id (last rpath)
         thing-type (second rpath) ; [parent/child 1 :person 1]
         ; slice templ thing-parent, thing-child, from app templates
-        templ (thing-type templates)
+        templ ((keyword (str (name thing-type) "-form")) templates)
         ; add the rendered template attached to rpath node
         html (templates/add-template render rpath templ)
 
@@ -340,6 +340,7 @@
         ]
     (.log js/console (str "thing-node-html :person " rpath " " thing-type))
     thing-div))
+
 
 ;;===========================================================================
 ; value a node [:value [:filtered :co] nil {thing-map},  dispatch by thing-type
@@ -373,7 +374,7 @@
 ;   [r rpath qpath thing-map input-queue]
 ;   (let [thing-id (last rpath)
 ;         thing-type (second (reverse rpath))
-        
+
 ;         thing-val (thing-template-value thing-type thing-map)
 ;         ]
 ;     (.log js/console (str "update thing node value " rpath " new-value " thing-map))
@@ -388,7 +389,7 @@
 ;        [:header :parent 17592186045498]
 ;        [:filtered :course 17592186045428 :lecture 17592186045430]
 ; qpath is nav to next thing, used for enable add subthing.
-; thing-map is db entity {:db/id 17592186045425, :course/url "math.com/Math-I", 
+; thing-map is db entity {:db/id 17592186045425, :course/url "math.com/Math-I",
 ; :course/author [{:person/lname "rich", :person/title "rich-dad",}]
 ;
 ; XXX All template values must be *STRING*, convert int to string.
@@ -399,12 +400,12 @@
   (fn [thing-type thing-map]
     thing-type))
 
-    
+
 (defmethod thing-template-value
   :default
   [thing-type thing-map]
   (let [author-attr (util/thing-attr-keyword thing-type "author")
-        value-map 
+        value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :thing-content (thing-attr-val thing-map thing-type "content")
            :entryhref "javascript:void(0);"
@@ -428,7 +429,7 @@
         upvotes (str (thing-attr-val thing-map thing-type "upvote"))
         ; we need have attr keyword for get-in of :ref :many attr value
         author-attr (util/thing-attr-keyword thing-type "author")
-        value-map 
+        value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :thing-content (thing-attr-val thing-map thing-type "content")
            :entryhref "javascript:void(0);"
@@ -452,7 +453,7 @@
   (let [thing-id (:db/id thing-map)
         upvotes (str (thing-attr-val thing-map thing-type "upvote"))
         author-attr (util/thing-attr-keyword thing-type "author")
-        value-map 
+        value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :thing-content (thing-attr-val thing-map thing-type "content")
            :entryhref "javascript:void(0);"
@@ -476,7 +477,7 @@
   [thing-type thing-map]
   (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
         author-attr (util/thing-attr-keyword thing-type "author")
-        value-map 
+        value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :thing-content (thing-attr-val thing-map thing-type "content")
            :entryhref "javascript:void(0);"
@@ -497,7 +498,7 @@
   [thing-type thing-map]
   (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
         author-attr (util/thing-attr-keyword thing-type "author")
-        value-map 
+        value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :thing-content (thing-attr-val thing-map thing-type "content")
            :entryhref "javascript:void(0);"
@@ -513,14 +514,14 @@
     value-map))
 
 
-; template value for :answer 
+; template value for :answer
 (defmethod thing-template-value
   :answer
   [thing-type thing-map]
   (let [origin-title (-> (get-in thing-map [:answer/origin])
                          (util/thing-val-by-name "title")
                          (second)) ; value is the second of kv vector
-        value-map 
+        value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :entryhref "javascript:void(0);"
            :origin-title origin-title
@@ -544,7 +545,7 @@
         origin-title (-> (get-in thing-map [:comments/origin])
                          (util/thing-val-by-name "title")
                          (second)) ; value is the second of kv vector
-        value-map 
+        value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :thumbhref (thing-type thing-thumbnail)
            :entryhref "javascript:void(0);"
@@ -562,7 +563,7 @@
   [thing-type thing-map]
   (let [upvotes (str (thing-attr-val thing-map thing-type "upvote"))
         author-attr (util/thing-attr-keyword thing-type "author")
-        value-map 
+        value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :entryhref "javascript:void(0);"
            :thumbhref (thing-type thing-thumbnail)
@@ -583,7 +584,7 @@
         origin-title (-> (get-in thing-map [:like/origin])
                          (util/thing-val-by-name "title")
                          (second)) ; value is the second of kv vector
-        value-map 
+        value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :entryhref "javascript:void(0);"
            :upvote upvotes
@@ -606,7 +607,7 @@
                          (util/thing-val-by-name "title")
                          (second)) ; value is the second of kv vector
 
-        value-map 
+        value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :entryhref "javascript:void(0);"
            ;:txtime (util/format-time (thing-attr-val thing-map thing-type "txtime"))
@@ -631,7 +632,7 @@
   (let [origin-title (-> (get-in thing-map [:search/origin])
                          (util/thing-val-by-name "title")
                          (second)) ; value is the second of kv vector
-        value-map 
+        value-map
           {:origin-title origin-title
            :entryhref "javascript:void(0);"
            :type (:search/type thing-map)
@@ -657,7 +658,7 @@
 
 
 ;;===========================================================================
-; show add comments input box, trigger by thing data emitter [:setup :x 1 :comments] 
+; show add comments input box, trigger by thing data emitter [:setup :x 1 :comments]
 ; form id is the thing-id this comment's origin and thingroot
 ;;===========================================================================
 (defn add-comments-form
@@ -670,6 +671,6 @@
        ]
     (.log js/console (str "display add comemnts form "))
     (dom/append! container-div thing-div)
-    ; ret the form for events-on :submit, 
+    ; ret the form for events-on :submit,
     (dom/by-class "add-comments-form")  ; form selector is only by-class
     ))

@@ -29,7 +29,7 @@
 ; (defn toggle-hide-fn
 ;   "return an event handler fn that toggen hide css class of the form"
 ;   [form clz]
-;   (fn [_] 
+;   (fn [_]
 ;     (let [hidden (dom/has-class? form "hide")]
 ;       (.log js/console (str "toggle hide link clicked " clz hidden))
 ;       (if hidden
@@ -69,7 +69,7 @@
     :course {:course/title (fn [_] ["course-title" "course-title" "title of course" :text])
              :course/author (fn [_] ["course-author" "course-author" "offer by..." :tag])
              :course/type (fn [_] ["course-type" "course-type" "type of course" :enum])
-             :course/content (fn [_] ["course-content" "course-content" "content..." :text]) 
+             :course/content (fn [_] ["course-content" "course-content" "content..." :text])
              :course/url (fn [_] ["course-url" "course-url" "url..." :tag])
              :course/email (fn [_] ["course-email" "course-email" "user@email.com" :tag])
             }
@@ -78,7 +78,7 @@
              :lecture/author (fn [_] ["lecture-author" "lecture-author" "offered by.." :tag])
              :lecture/course (fn [_] ["lecture-course" "lecture-course" "course of lecture" :tag])
              :lecture/type (fn [_] ["lecture-type" "lecture-type" "lecture type" :enum])
-             :lecture/content (fn [_] ["lecture-content" "lecture-content" "content..." :text]) 
+             :lecture/content (fn [_] ["lecture-content" "lecture-content" "content..." :text])
              :lecture/start (fn [_] ["lecture-start" "lecture-start" "start at..." :datetime])
              :lecture/end (fn [_] ["lecture-end" "lecture-end" "end at ..." :datetime])
              :lecture/seqno (fn [_] ["lecture-seqno" "lecture-seqno" "sequence No." :tag])
@@ -96,10 +96,10 @@
                :question/tag (fn [_] ["question-tag" "question-tag" "tags..." :tag])
               }
 
-    :enrollment {:enrollment/person 
+    :enrollment {:enrollment/person
                     (fn [thing-id]
                       ["enrollment-name" (str "enrollment-name-" thing-id) "student name" :tag])
-                 :enrollment/remarks 
+                 :enrollment/remarks
                     (fn [thing-id]
                       ["enrollment-remarks" (str "enrollment-remarks-" thing-id) "remarks" :text])
                 }
@@ -107,12 +107,12 @@
     :assign {:assignment/person
               (fn [thing-id]
                 ["assign-name" (str "assign-name-" thing-id) "assign to..." :tag])
-                      
-             :assignment/hint 
+
+             :assignment/hint
               (fn [thing-id]
                 ["assign-hint" (str "assign-hint-" thing-id) "hint..." :text])
 
-             :assignment/end 
+             :assignment/end
                (fn [thing-id]
                   ["assign-end" (str "assign-end-" thing-id) "due at ..." :datetime])
 
@@ -145,16 +145,16 @@
             :group/wiki (fn [_] ["group-wiki" "group-wiki" "wiki of group" :tag])
           }
 
-    :comments {:comments/title 
+    :comments {:comments/title
                 (fn [thing-id]  ; input field id is comments-title
                   ["comments-title" (entity-view/div-form-textarea-sel thing-id "reply-form" "comments-title") "comments..." :text])
               }
 
 
-    :join-group {:group/person 
+    :join-group {:group/person
                     (fn [thing-id]
                       ["join-group-name" (str "join-group-name-" thing-id) "name" :tag])
-                 :group/remarks 
+                 :group/remarks
                     (fn [thing-id]
                       ["join-group-remarks" (str "join-group-remarks-" thing-id) "remarks" :text])
                 }
@@ -171,7 +171,7 @@
     (dom/set-value! (dx/xpath (str "//input[@id='" (name k) "']"))
                     (k thing-details-view))
     ))
- 
+
 
 ;;================================================================================
 ; a mapping for datetimepicker id for each new thing type
@@ -179,7 +179,7 @@
   {
     :lecture [(fn [_] "lecture-start-picker")
               (fn [_] "lecture-end-picker")]
-    
+
     ; create assign form
     :assign [ (fn [thing-id] (str "picker-assign-end-" thing-id)) ]
   })
@@ -199,9 +199,9 @@
 ; filter out :tag type and project 2nd and 3rd column, which is div id and prompts.
 ;;================================================================================
 ; (["course-title" "course-title" "title of course"] ["course-author" "course-author" "offer by..."] ...)
-(defn add-thing-tagsInput 
+(defn add-thing-tagsInput
   [add-thing-type thing-id]
-  (let [tags-input-map 
+  (let [tags-input-map
           (->> (add-thing-type thing-input-map)
                (vals)
                (map #(% thing-id)) ; [[input-name1 input-id1 prompt1 :type] ...]
@@ -215,12 +215,12 @@
       (js/tagsInput input-id prompt))))
 
 ;;================================================================================
-; template add thing form input field id with thing-id 
+; template add thing form input field id with thing-id
 ;;================================================================================
-; append thing-id to form input field id only when thing-id is not nil. 
+; append thing-id to form input field id only when thing-id is not nil.
 (defn add-thing-input-id
   [add-thing-type thing-id]
-  (let [input-vec (->> (add-thing-type thing-input-map)  ; input fields 
+  (let [input-vec (->> (add-thing-type thing-input-map)  ; input fields
                        (vals)
                        (map #(% thing-id)))
        ]
@@ -234,7 +234,7 @@
 ; make unique child form name to include thing-id
 (defn add-thing-form-id
   [add-thing-type thing-id]
-  (if (and thing-id 
+  (if (and thing-id
            (not (js/isNaN (js/parseInt thing-id 10))))
     (str (name add-thing-type) "-" thing-id)
     (str (name add-thing-type) "-form")))
@@ -263,7 +263,7 @@
 (defn toggle-add-thing-form-fn
   "return an event handler fn that toggen hide css class of the form"
   [add-thing-type r navpath parent-div-id override-map input-queue]
-  (fn [_] 
+  (fn [_]
     (let [;newthing-div "new-subthings"    ; div defined in thing details
           thing-id (second (reverse navpath))
           parent-div (dom/by-id parent-div-id)
@@ -303,7 +303,7 @@
           input-fields (keys input-map)
           input-vals (->> (vals input-map)
                           (map #(% thing-id))  ; [input-name input-id prompt]
-                          (map #(dom/by-id (second %)))   
+                          (map #(dom/by-id (second %)))
                           (map #(.-value %)))
           details (-> (zipmap input-fields input-vals)
                       ; transform parent status and gender
@@ -314,7 +314,7 @@
                       (util/update-time add-thing-type "start" false)
                       (util/update-time add-thing-type "end" false)
                       ; required for post-submit-thing dispatch
-                      (assoc :thing-type add-thing-type) 
+                      (assoc :thing-type add-thing-type)
                       (merge override-map))
           newthing-msgs (msgs/fill :create-thing messages {:details details})
          ]
@@ -323,11 +323,11 @@
       (dom/destroy! (dom/by-id (add-thing-form-id add-thing-type thing-id)))
       (dom/destroy-children! (dom/by-class "child-form"))
       (de/prevent-default e)
-      
+
       ; inject newthing msg before refresh msg
       (doseq [m newthing-msgs]
         (p/put-message input-queue m))
-      
+
       ; refresh by re-sending the nav path, navpath (:question 1 :assignto)
       (util/refresh-nav-path add-thing-type navpath input-queue)
     )))
@@ -335,7 +335,7 @@
 
 ;--------------------------------------------------------------------
 ; when form submitted, we instantiate create-thing msg, collect input fields.
-; message is :create-thing thing-type, path is render path, only for logging. 
+; message is :create-thing thing-type, path is render path, only for logging.
 ; submit-fn use thing-input-map to collect input field and ret filled msgs.
 ; navpath [:course 1 :add-lecture] [:lecture 17592186045430 :enroll]
 ;--------------------------------------------------------------------
@@ -343,7 +343,7 @@
 (defn handle-add-thing-cancel
   [add-thing-type]
   (let [form (dom/by-class (str (name add-thing-type) "-form"))
-        btn-cancel (-> form 
+        btn-cancel (-> form
                        (dx/xpath "//button[@id='cancel']"))]
     (.log js/console (str "enable add thing form cancel " add-thing-type))
     (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))))
@@ -355,13 +355,13 @@
     (let [messages [{msgs/topic [:create add-thing-type]
                      msgs/type :create-thing
                      (msgs/param :details) {}}] ]
-      (handle-add-thing-submit add-thing-type navpath messages 
+      (handle-add-thing-submit add-thing-type navpath messages
                                override-map input-queue)))
-  
+
   ([add-thing-type navpath messages override-map input-queue]
     (let [thing-id (second (reverse navpath))
           form (dom/by-class (str (name add-thing-type) "-form"))
-          submit-fn (submit-fn add-thing-type navpath form override-map 
+          submit-fn (submit-fn add-thing-type navpath form override-map
                                messages input-queue)
           ]
       (.log js/console (str "enable add thing form submit " add-thing-type navpath))
@@ -407,16 +407,16 @@
     (let [messages [{msgs/topic [:create add-thing-type]
                      msgs/type :create-thing
                      (msgs/param :details) {}}] ]
-      (handle-inline-form-submit add-thing-type 
-                                 thing-id 
-                                 form 
-                                 messages 
-                                 override-map 
+      (handle-inline-form-submit add-thing-type
+                                 thing-id
+                                 form
+                                 messages
+                                 override-map
                                  input-queue)))
-  
+
   ([add-thing-type thing-id form messages override-map input-queue]
     ; create inline form submit-fn closure of all args
-    (let [submit-fn 
+    (let [submit-fn
             (inline-form-submit-fn add-thing-type thing-id form override-map messages)]
       (.log js/console (str "enable add thing form submit " add-thing-type thing-id))
       (handle-inline-form-submit form input-queue submit-fn)))
@@ -440,7 +440,7 @@
           thing-id (:db/id thing-map)
           ; render path for current node is in (:rpath message)
           rpath ((msgs/param :rpath) (first messages))
-          
+
           upvote (entity-view/thing-attr-val thing-map thing-type "upvote")
           thing-title (entity-view/thing-attr-val thing-map thing-type "title")
           details (-> {:like/origin thing-id
@@ -462,14 +462,12 @@
 (defn handle-details-view-btn
   [thing-type]
   (let [form (dom/by-class (str (name thing-type) "-form"))
-        btn-cancel (-> form 
-                       (dx/xpath "//button[@id='cancel']"))
-        btn-ok (-> form
-                   (dx/xpath "//button[@id='submit']"))
+        cancel (dx/xpath form "//button[@id='cancel']")
+        ok (dx/xpath form "//button[@id='submit']")
         ]
     (.log js/console (str "handle detail view btns " thing-type))
-    (de/listen! btn-cancel :click (fn [e] (dom/destroy! form)))
-    (de/listen! btn-ok :click (fn [e] (dom/destroy! form)))
+    (de/listen! cancel :click (fn [e] (de/prevent-default e) (dom/destroy! form)))
+    (de/listen! ok :click (fn [e] (de/prevent-default e) (dom/destroy! form)))
     ))
 
 

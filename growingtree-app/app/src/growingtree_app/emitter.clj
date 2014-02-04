@@ -23,14 +23,14 @@
 
 ; emitter fn destructs the path of node [:todo :tasks task-id :completed]
 ; when adding task, (assoc todo :tasks (assoc (:tasks todo) id tasks)
-; (defn todo-emitter 
+; (defn todo-emitter
 ;   [inputs]
 ;   ; from inputs tracking map, ret a vector of app model delta
 ;   (vec (concat
 ;         ; still use the default emitter, which emit [:value path old new]
-;         ((app/default-emitter) inputs)  
+;         ((app/default-emitter) inputs)
 ;         ; at path node [:todo :filtered :* :*]  a new value is added.
-;         ; this is 
+;         ; this is
 ;         (mapcat (fn [[_ _ task]]  ; added a task, destructure path = [:todo :tasks task-id]
 ;                   ;; When a new task is added, it needs to have transform-enables associated with it
 ;                   ;; It needs to be able to be toggled, and it should be removed.
@@ -38,17 +38,17 @@
 ;                     [[:transform-enable [:todo :filtered-tasks task] :toggle-task [{msgs/topic [:todo] msgs/type :toggle-task :id task}]]
 ;                      [:transform-enable [:todo :filtered-tasks task] :remove-task [{msgs/topic [:todo] msgs/type :remove-task :id task}]]]))
 ;                 (:added inputs))  ; the added-map from inputs
-;         ; 
+;         ;
 ;         (mapcat (fn [[_ _ task completed :as path]] ; updated a task, path is [:todo :tasks task-id :filter-type]
 ;                   ;; Right now the default emitter is not updating the value if it is nil or false
-;                   ;; So I'm manually inserting the value 
-;                   (when (and (symbol? task) (= completed :completed))                 
+;                   ;; So I'm manually inserting the value
+;                   (when (and (symbol? task) (= completed :completed))
 ;                     [[:value path (get-in inputs (concat [:new-model] path))]]
 ;                     ))
 ;                 (:updated inputs))
 ;         (mapcat (fn [[_ _ task :as path]] ; deleted a task, path is [:todo :tasks task-id]
 ;                   ;; Make sure that the tasks are removed when they are removed from the data model
-;                   (when (symbol? task)                    
+;                   (when (symbol? task)
 ;                     [[:node-destroy path]]
 ;                     ))
 ;                 (:removed inputs)))
@@ -80,7 +80,7 @@
       }
 
     :user {}
-    
+
     :nav
       {
        :path []   ; nav path is a stack stores nav path. items in stack is nav target
@@ -101,7 +101,7 @@
   [
     [:node-create [:login :name]]
     [:transform-enable [:login :name]
-                       :login 
+                       :login
                        [{msgs/topic [:login :name] }]]
   ])
 
@@ -123,7 +123,7 @@
         [:node-create [:login :name]]
         [:value [:login :name] err-map]
         [:transform-enable [:login :name]
-                           :login 
+                           :login
                            [{msgs/topic [:login :name] }]]
       ])
     ))
@@ -146,17 +146,17 @@
         [:value [:nav :user] newv]
 
         [:node-create [:nav :sidebar]]
-        [:transform-enable [:nav :sidebar] 
+        [:transform-enable [:nav :sidebar]
                            :set-nav-path
                            [{msgs/topic [:nav :path]
                             (msgs/param :path) []} ]]
 
-        [:transform-enable [:nav :search] 
+        [:transform-enable [:nav :search]
                            :set-nav-search
                            [{msgs/topic [:nav :search]
                             (msgs/param :searchkey) ""} ]]
 
-        ; enable login modal, for modal, msg must be 
+        ; enable login modal, for modal, msg must be
         [:transform-enable [:nav :login-modal]
                            :login-modal
                            [{msgs/type :login-modal
@@ -188,7 +188,7 @@
         newpath (vec (last (get-in inputs [:new-model :nav :path])))
         datapath (concat [:data] oldpath)
         old-things-vec (get-in inputs (concat [:old-model] datapath))
-        destroy-old-thing 
+        destroy-old-thing
           (if old-things-vec
             (mapcat (fn [entity]
                     (let [renderpath (navpath->renderpath oldpath (:db/id entity))]
@@ -253,10 +253,10 @@
 ; render-path = [:main :all 0 :course 17592186045425]
 ;        [:header :parent 17592186045498]
 ;        [:filtered :course 17592186045428 :lecture 17592186045430]
-; thing-map is db entity {:db/id 17592186045425, :course/url "math.com/Math-I", 
+; thing-map is db entity {:db/id 17592186045425, :course/url "math.com/Math-I",
 ; :course/author [{:person/lname "rich", :person/title "rich-dad",}] ..
 ; qpath record the path next path, from [:course 1 to :comments]
-; thing data emit qpath [:course 17592186045425 :comments] changemap {[:data :course 1 :course] 
+; thing data emit qpath [:course 17592186045425 :comments] changemap {[:data :course 1 :course]
 ; data-path is :msg-topic in effect request thing.
 ;
 ; from qpath, create render path for [:node-create [:main/:header/:filtered ...] ]
@@ -273,7 +273,7 @@
     (.log js/console (str "thing data emit qpath " qpath " changemap " changemap))
     ;(.log js/console (str "thing data emit removed " removed))
     ;(.log js/console (str "thing data emit msg " msg))
-    (vec 
+    (vec
       (concat
         ; with this, will emit [:value [:all :course] old-value new-val]
         ;((app/default-emitter) inputs)
@@ -286,7 +286,7 @@
           changemap)))))
 
 
-; ret a vector of delta tuples of node-create and value delat from a vector of 
+; ret a vector of delta tuples of node-create and value delat from a vector of
 ; thing data value. value is a vector of entity tuples, mapcat vec is de-pack and re-pack vec.
 ; data for navpath stored in [:data :thing 1 :next-thing]
 ; thing data emit qpath [:course 1 :comments] changemap {[:data :course 1 :course]
@@ -300,8 +300,8 @@
           (let [; each thing map has navpath indicates query path, for UI nav and display
                 thing-map (keyword-thing-navpath entity-map)
                 id (:db/id thing-map)  ; get :db/id as each node render path id
-                
-                ; thing-map has a :navpath filled by (util/add-navpath % qpath), 
+
+                ; thing-map has a :navpath filled by (util/add-navpath % qpath),
                 ; navpath tells who is the parent of this entity during navigation.
                 ; :navpath ["all" 0 "course"], or  ["course" 1 "comments"], or ["course" 1 "course"]
                 render-path (thing-navpath->renderpath (:navpath thing-map) thing-map)
@@ -324,9 +324,9 @@
       ))))
 
 
-; thing qpath, akas navpath of thing map, record how we get to current thing. 
-; ["all" 0 "course" 17592186045425], or  
-; ["course" 17592186045425 "course" 17592186045425], for header 
+; thing qpath, akas navpath of thing map, record how we get to current thing.
+; ["all" 0 "course" 17592186045425], or
+; ["course" 17592186045425 "course" 17592186045425], for header
 ; ["course" 17592186045425 "comments" 17592186045433], for filtered details view.
 (defn keyword-thing-navpath
   "given a thing entity map, convert navpath segment from json string token to keyword"
@@ -342,20 +342,21 @@
 ; prefix main, header, filtered to it, form the render path for render to dispatch.
 ; :qpath ["all" 0 "course" 1], or  ["course" 1 "comments" 2], or ["course" 1 "course" 2]
 ; rpath for render thing node, [:value [:main/:header/:filtered/:details :* :* :* :*]]
-; for author case, (:person 17592186045419 :person)
+; for author case, (:person 1 :person), title case (:course 1 :title)
 (defn thing-navpath->renderpath
   [thing-navpath thing-map]
   (let [[parent pid child] (take 3 thing-navpath)]
     (.log js/console (str "navpath renderpath " (take 3 thing-navpath)))
-    (cond 
+    (cond
       (= parent :all) (vec (concat [:main] thing-navpath))
       (= child :title) (vec (concat [:details] thing-navpath))
-      ; for person thing, map to person type for choosing right person template.
-      ; [:parent 1 :person 1], thing node html dispatch on :person, pick parent template.
+
+      ; person entity, resolve to parent/child.
+      ; [:details :parent 1 :person 1], thing node html dispatch on :person, pick parent template.
       (= parent :person)
         (let [person-id (:db/id thing-map)
               person-type (keyword (:person/type thing-map))]
-          (vec (concat [:details] [person-type person-id])))
+          (vec (concat [:details] [person-type person-id :person person-id])))
 
       ; substitute enrollment with person, as enrollment list all person.
       (= child :enrollment)
@@ -368,9 +369,14 @@
         (let [person-id (:db/id thing-map)
               person-type (keyword (:person/type thing-map))]
           (vec (concat [:filtered] [parent pid person-type person-id])))
-        
-      (= parent child) (vec (concat [:header] (take 2 thing-navpath))) ; [:header :parent 1]
-      :else (vec (concat [:filtered] thing-navpath))))) ; [filtered :thing id :next-thing id]
+
+      ; [:course 1 :course], display course in header
+      (= parent child)
+        (vec (concat [:header] (take 2 thing-navpath))) ; [:header :parent 1]
+
+      ; display [filtered :thing id :next-thing id]
+      :else
+        (vec (concat [:filtered] thing-navpath)))))
 
 
 ;;==================================================================================
@@ -384,7 +390,7 @@
   (fn [thing-type render-path entity-map]
     thing-type))
 
-; created node path for render at [:nav :thing-type :thing-id :extra ] :transkey, 
+; created node path for render at [:nav :thing-type :thing-id :extra ] :transkey,
 ; thing nav actionkey is taken from entity-vew with thing-type
 ; thing-type :enrollment render-path [:filtered :course 1 :child 2]
 (defmethod thing-navpath-transforms
@@ -399,14 +405,14 @@
     (mapcat
       ; [:nav :parent 17592186045499 :child] :child
       (fn [[nav type id transkey :as navpath]]
-        (let [messages (thing-nav-messages navpath render-path entity-map)] 
+        (let [messages (thing-nav-messages navpath render-path entity-map)]
           (.log js/console (str "thing-navpath-transforms :default " type " " transkey " " navpath))
-          (vector 
+          (vector
             [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
             [:node-destroy navpath]
             [:transform-enable navpath    ; transforms navpath [:nav :parent 1 :child]
                                transkey   ; nav next thing, :child, :coure
-                               messages] 
+                               messages]
           )))
       navpaths)))
 
@@ -429,14 +435,14 @@
   (let [head-thing-type (second render-path)]
     (.log js/console (str "thing-navpath-transforms :title " thing-type render-path))
     (thing-navpath-transforms head-thing-type render-path entity-map)))
-  
+
 
 (defmethod thing-navpath-transforms
   :author
   [thing-type render-path entity-map]
    (let [thing-id (:db/id entity-map)
          thing-type (keyword (:person/type entity-map))
-        ;thing nav action keys defined in entity-view 
+        ;thing nav action keys defined in entity-view
         transkeys (keys (get entity-view/thing-nav-actionkey thing-type))
         navpaths (map #(conj [:nav thing-type thing-id] %) transkeys)
        ]
@@ -444,14 +450,14 @@
       ; [:nav :parent 17592186045499 :child] :child
       (fn [[nav type id transkey :as navpath]]
         ; thing nav msg diff for each actionkey.
-        (let [messages (thing-nav-messages navpath render-path entity-map)] 
+        (let [messages (thing-nav-messages navpath render-path entity-map)]
           (.log js/console (str "thing-navpath-transforms :author " type " " transkey " " navpath))
-          (vector 
+          (vector
             [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
             [:node-destroy navpath]
             [:transform-enable navpath ; always [:nav :parent 17592186045499 :child]
                                transkey   ; nav next thing, :child, :coure
-                               messages] 
+                               messages]
           )))
       navpaths)))
 
@@ -466,7 +472,7 @@
 
 
 ; for non input form nav next, ask render to send msg to [:nav :path] to update nav path.
-; path [:thing 1 :thing] is for header, and qpath [:thing 1 :next] to for filtered 
+; path [:thing 1 :thing] is for header, and qpath [:thing 1 :next] to for filtered
 ; rpath is cur thing's path. [:main :course 1 :lecture 2] or [:header :course 1]
 ; nav-path = [:nav :parent 17592186045499 :child], include thing title and author link.
 (defmethod thing-nav-messages
@@ -474,7 +480,7 @@
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [hdpath (concat (butlast (rest nav-path)) [thing-type]) ; replace last as nav next target
         qpath (rest nav-path) ; [:nav :parent 17592186045499 :child]
-        messages [{msgs/topic [:nav :path] 
+        messages [{msgs/topic [:nav :path]
                    msgs/type :set-nav-path
                    :path (vec hdpath)    ; path is for [:header :course 1 :course]
                    :qpath (vec qpath)    ; qpath is for [:filtered :course 1 :lecture]
@@ -492,7 +498,7 @@
   :upvote
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
-                    msgs/topic [:create transkey]  
+                    msgs/topic [:create transkey]
                     msgs/type :create-thing
                     (msgs/param :thing-map) entity-map
                     (msgs/param :rpath) render-path
@@ -571,7 +577,7 @@
         ]
     messages))
 
-; add comments, render transformer will display comments template 
+; add comments, render transformer will display comments template
 (defmethod thing-nav-messages
   :add-comments
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
@@ -613,7 +619,7 @@
   :enroll
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
-                    msgs/topic [:create transkey]  
+                    msgs/topic [:create transkey]
                     msgs/type :create-thing
                     (msgs/param :thing-map) entity-map
                     (msgs/param :rpath) render-path
@@ -628,7 +634,7 @@
   :assignto
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
-                    msgs/topic [:create transkey]  
+                    msgs/topic [:create transkey]
                     msgs/type :create-thing
                     (msgs/param :thing-map) entity-map
                     (msgs/param :rpath) render-path
@@ -643,7 +649,7 @@
   :submit-answer
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
-                    msgs/topic [:create transkey]  
+                    msgs/topic [:create transkey]
                     msgs/type :create-thing
                     (msgs/param :thing-map) entity-map
                     (msgs/param :rpath) render-path
@@ -659,7 +665,7 @@
   :grade
   [[nthing-av type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
-                    msgs/topic [:create transkey]  
+                    msgs/topic [:create transkey]
                     msgs/type :create-thing
                     (msgs/param :thing-map) entity-map
                     (msgs/param :rpath) render-path
@@ -676,7 +682,7 @@
   :reply-form
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
-                    msgs/topic [:create transkey]  
+                    msgs/topic [:create transkey]
                     msgs/type :create-thing
                     (msgs/param :thing-map) entity-map
                     (msgs/param :rpath) render-path
@@ -693,7 +699,7 @@
   :join-group
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
   (let [messages [{ ; do not matter. render always transform [:create :thing-type]
-                    msgs/topic [:create :group]  ; join a group  
+                    msgs/topic [:create :group]  ; join a group
                     msgs/type :create-thing
                     (msgs/param :thing-map) entity-map
                     (msgs/param :rpath) render-path
@@ -716,7 +722,7 @@
   (let [
         hdpath [:author id :author]  ; the author of thing id, not author's id
         qpath (rest nav-path) ; [:nav :parent 17592186045499 :child]
-        messages [{msgs/topic [:nav :path] 
+        messages [{msgs/topic [:nav :path]
                    msgs/type :set-nav-path
                    :path (vec hdpath)    ; path is current path [:author 1 :author]
                    :rpath (vec render-path)}   ; [:main :course 1 :author 2]
@@ -734,7 +740,7 @@
   (let [; replace last to be title for proper nav path to render path
         hdpath (concat (butlast (rest nav-path)) [:title])
         qpath (rest nav-path) ; [:nav :parent 17592186045499 :child]
-        messages [{msgs/topic [:nav :path] 
+        messages [{msgs/topic [:nav :path]
                    msgs/type :set-nav-path
                    :path (vec hdpath)    ; path is current path [:title 1 :title]
                    :rpath (vec render-path)}   ; [:main :course 1 :title 2]
@@ -783,9 +789,9 @@
   (let [deltamap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         oldcat (get-in inputs [:old-model :sse-data])
         newcat (get-in inputs [:new-model :sse-data])]
-    (vec (concat 
+    (vec (concat
       ((app/default-emitter) inputs) ; still emit [:value [:nav :category] nil :course]
-      (mapcat 
+      (mapcat
         (fn [[path] nval]
           (if oldcat
             [[:node-destroy (conj path oldcat)]
