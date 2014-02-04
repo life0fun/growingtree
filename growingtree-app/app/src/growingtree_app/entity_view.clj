@@ -403,11 +403,14 @@
 (defmethod thing-template-value
   :default
   [thing-type thing-map]
-  (let [value-map 
+  (let [author-attr (util/thing-attr-keyword thing-type "author")
+        value-map 
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :thing-content (thing-attr-val thing-map thing-type "content")
            :entryhref "javascript:void(0);"
            :author-name (get-in thing-map [author-attr 0 :person/title])
+           :author-class (get-in thing-map [author-attr 0 :person/title])
+           :id-author (str thing-id "-author")
            :upvote (str (thing-attr-val thing-map thing-type "upvote"))
            :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
            :start (util/format-time (thing-attr-val thing-map thing-type "start"))
@@ -565,6 +568,7 @@
            :thumbhref (thing-type thing-thumbnail)
            :title-id (str (:db/id thing-map) "-title")
            :author-name (get-in thing-map [author-attr 0 :person/title])
+           :author-class (get-in thing-map [author-attr 0 :person/title])
            :id-author (str (:db/id thing-map) "-author")
            :upvote upvotes
           }

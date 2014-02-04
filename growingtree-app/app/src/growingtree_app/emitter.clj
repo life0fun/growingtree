@@ -306,6 +306,7 @@
                 ; :navpath ["all" 0 "course"], or  ["course" 1 "comments"], or ["course" 1 "course"]
                 render-path (thing-navpath->renderpath (:navpath thing-map) thing-map)
                 ; thing-type shall take from converted render path
+                ;thing-type (last data-path)
                 thing-type (second (reverse render-path))
                 actiontransforms (thing-navpath-transforms thing-type render-path thing-map)
                 comments-box (add-comments-box render-path qpath)
@@ -341,9 +342,11 @@
 ; prefix main, header, filtered to it, form the render path for render to dispatch.
 ; :qpath ["all" 0 "course" 1], or  ["course" 1 "comments" 2], or ["course" 1 "course" 2]
 ; rpath for render thing node, [:value [:main/:header/:filtered/:details :* :* :* :*]]
+; for author case, (:person 17592186045419 :person)
 (defn thing-navpath->renderpath
   [thing-navpath thing-map]
   (let [[parent pid child] (take 3 thing-navpath)]
+    (.log js/console (str "navpath renderpath " (take 3 thing-navpath)))
     (cond 
       (= parent :all) (vec (concat [:main] thing-navpath))
       (= child :title) (vec (concat [:details] thing-navpath))
@@ -387,7 +390,6 @@
 (defmethod thing-navpath-transforms
   :default
   [thing-type render-path entity-map]
-  (.log js/console (str "thing-navpath-transforms " thing-type render-path))
   (let [thing-id (:db/id entity-map)
         ;a list of nav action keys defined in entity-view
         transkeys (keys (get entity-view/thing-nav-actionkey thing-type))
@@ -398,7 +400,7 @@
       ; [:nav :parent 17592186045499 :child] :child
       (fn [[nav type id transkey :as navpath]]
         (let [messages (thing-nav-messages navpath render-path entity-map)] 
-          (.log js/console (str "thing nav path emitter " type " " transkey " " navpath))
+          (.log js/console (str "thing-navpath-transforms :default " type " " transkey " " navpath))
           (vector 
             [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
             [:node-destroy navpath]
@@ -425,7 +427,7 @@
   :title
   [thing-type render-path entity-map]
   (let [head-thing-type (second render-path)]
-    (.log js/console (str "thing-navpath-transforms " thing-type render-path))
+    (.log js/console (str "thing-navpath-transforms :title " thing-type render-path))
     (thing-navpath-transforms head-thing-type render-path entity-map)))
   
 
@@ -441,8 +443,9 @@
     (mapcat
       ; [:nav :parent 17592186045499 :child] :child
       (fn [[nav type id transkey :as navpath]]
+        ; thing nav msg diff for each actionkey.
         (let [messages (thing-nav-messages navpath render-path entity-map)] 
-          (.log js/console (str "thing nav path emitter " type " " transkey " " navpath))
+          (.log js/console (str "thing-navpath-transforms :author " type " " transkey " " navpath))
           (vector 
             [:transform-disable navpath]  ; fucking need to clean up your shit before re-enable.
             [:node-destroy navpath]
@@ -705,11 +708,13 @@
 ; following are links to the details of the thing, not link to next thing.
 ; -----------------------------------------------------------------------------------
 ; when click author, header will be author entry and details will be author details
-; note that the id in [:author id :author] is the id of the thing, not id of author.
+; XXX the id in [:author id :author] is the id of the thing, not id of author.
+; :path [:author 17592186045428 :author], :rpath [:main :all 0 :course 17592186045428]}
 (defmethod thing-nav-messages
   :author
   [[nav thing-type id transkey :as nav-path] render-path entity-map]
-  (let [hdpath [:author id :author]  ; the author of thing id, not author's id
+  (let [
+        hdpath [:author id :author]  ; the author of thing id, not author's id
         qpath (rest nav-path) ; [:nav :parent 17592186045499 :child]
         messages [{msgs/topic [:nav :path] 
                    msgs/type :set-nav-path

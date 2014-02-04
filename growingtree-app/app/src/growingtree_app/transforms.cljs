@@ -303,7 +303,7 @@
 
 
 ; ------------------------------------------------------------------------------------
-; enable author link click for thing
+; enable author link click for thing, author link by id 1-author
 ; [:transform-enable [:nav :courses 17592186045496 :author] :author
 ; message :set-nav-path :path [:person nil :person], :qpath [:course 1 :author], :rpath [:main :all 0 :course 1]
 ; ------------------------------------------------------------------------------------
