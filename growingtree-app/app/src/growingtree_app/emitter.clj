@@ -290,6 +290,7 @@
 ; thing data value. value is a vector of entity tuples, mapcat vec is de-pack and re-pack vec.
 ; data for navpath stored in [:data :thing 1 :next-thing]
 ; thing data emit qpath [:course 1 :comments] changemap {[:data :course 1 :course]
+; (:data :author 1 :author) rpath [:details :parent 1 :person 1]
 (defn- thing-data-deltas
   [inputs data-path qpath things-vec]  ; data-path is where data vector is stored.
   ; data-path = [:data :* :* :*] = [:data :all 0 :parent] [:data :course 1 :comments]
@@ -305,14 +306,13 @@
                 ; navpath tells who is the parent of this entity during navigation.
                 ; :navpath ["all" 0 "course"], or  ["course" 1 "comments"], or ["course" 1 "course"]
                 render-path (thing-navpath->renderpath (:navpath thing-map) thing-map)
-                ; thing-type shall take from converted render path
-                ;thing-type (last data-path)
                 thing-type (second (reverse render-path))
                 actiontransforms (thing-navpath-transforms thing-type render-path thing-map)
                 comments-box (add-comments-box render-path qpath)
                 details-box (add-details-box render-path qpath)
                ]
-            (.log js/console (str "node-create and value thing data render path" render-path " navpath " navpath))
+            ; (:data :author 1 :author) rpath [:details :parent 1 :person 1]
+            (.log js/console (str "thing-data-deltas " thing-type " navpath " navpath "rpath " render-path))
             (concat [ [:node-destroy render-path]
                       [:node-create render-path :map]
                       [:value render-path {:qpath qpath :thing-map thing-map}] ]
@@ -437,8 +437,10 @@
     (thing-navpath-transforms head-thing-type render-path entity-map)))
 
 
+; thing-type is person, rpath [:details :parent 1 :person 1]
 (defmethod thing-navpath-transforms
-  :author
+  ;:author
+  :person
   [thing-type render-path entity-map]
    (let [thing-id (:db/id entity-map)
          thing-type (keyword (:person/type entity-map))
