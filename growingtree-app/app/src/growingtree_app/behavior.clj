@@ -135,16 +135,16 @@
 ; extract the user clicked nav path from msg, and store it in [:nav :path] node
 ; nav path store a list of paths, each path is a list of target id. id=0 mean no filter.
 ; [:course 17592186045425 :course] and [:course 17592186045425 :lecture]
-; for sidebar nav, it is [:all 0 :thing-tyep]
-; concat qpath if we have it.
+; path query things for header, [:group 1 :group], sidebar :main, [:all 0 :thing-tyep]
+; qpath query things for filtered. [:group 1 :group-members]
 (defn set-nav-path
   [oldv message]
   ; :path was setup in thing-nav-messages and init-nav-emitter for sidebar
-  (let [path (:path message)
-        qpath (:qpath message)   ; in thing nav filtered view, we have qpath
+  (let [path (:path message)     ; things in main, or headers.
+        qpath (:qpath message)   ; things in filtered, or details
         npath (->> (if qpath 
-                       (concat oldv [path] [qpath]) 
-                       (concat oldv [path]))
+                     (concat oldv [path] [qpath]) 
+                     (concat oldv [path]))
                    (take-last 6)
                    (vec))
        ]
@@ -334,7 +334,7 @@
     :effect #{
               [#{[:login :name]} effect/signup-validate-login :mode :always]
 
-              ; nav path changed, request all things by path. 
+              ; nav path changed, request all things by path. request header and filtered
               ; note we specific tranform msg topic and type here so response data got
               ; dispatch to the right data model directly.
               [#{[:nav :path]} effect/request-navpath-things :mode :always]
@@ -369,10 +369,12 @@
 
            {:in #{[:sse-data]} :fn emitter/sse-data-emitter :mode :always}
 
-           [#{[:pedestal :debug :dataflow-time]
-              [:pedestal :debug :dataflow-time-max]
-              [:debug [:pedestal :**] swap-transform]
-              [:pedestal :debug :dataflow-time-avg]
-             } (app/default-emitter [])]
+           ; XXX do not debug for now.
+           ; [#{[:pedestal :debug :dataflow-time]
+           ;    [:pedestal :debug :dataflow-time-max]
+           ;    [:debug [:pedestal :**] swap-transform]
+           ;    [:pedestal :debug :dataflow-time-avg]
+           ;   } (app/default-emitter [])]
+
           ]
   })

@@ -292,7 +292,8 @@
     )))
 
 ;;==================================================================================
-;; submt fn for new thing form save btn, called from submit action transoform event
+; submt fn for new thing form save btn, called from submit action transoform event
+; nav path is (:group 1 :join-group), 
 ;;==================================================================================
 (defn submit-fn
   [add-thing-type navpath form override-map messages input-queue]
@@ -328,7 +329,7 @@
       (doseq [m newthing-msgs]
         (p/put-message input-queue m))
 
-      ; refresh by re-sending the nav path, navpath (:question 1 :assignto)
+      ; after add, refresh screen by send :set-nav-path msg (:question 1 :assignto)
       (util/refresh-nav-path add-thing-type navpath input-queue)
     )))
 

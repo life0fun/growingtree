@@ -153,7 +153,7 @@
   :group-members
   [type qpath details]
   (let [members (dda/find-group-members qpath)]
-    (prn "peer get group member " qpath members)
+    (prn "peer get group members " qpath members)
     members))
 
 

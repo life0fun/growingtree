@@ -365,6 +365,7 @@
     groups))
 
 
+; each path response for getting data for one div template.
 (defn find-group-members
   "find all group members"
   [qpath]

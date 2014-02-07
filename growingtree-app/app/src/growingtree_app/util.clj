@@ -133,10 +133,10 @@
 
 
 ;==============================================================================
-; refresh after new thing form submitted
-; the goal is send :set-nav-path msg to behavior to simulate the click.
-; the current nav path is the last nav path in [:nav :path] node.
-; :lecture navpath = [:course 1 :add-lecture] [:lecture 2 :enroll]
+; refresh current screen after new thing form submitted
+; send :set-nav-path msg to behavior to trigger effect query. fill :path and :qpath.
+; :path = [:group 1 :group], showing the header.
+; :qpath = [:group 1 :group-member], a list of next thing shows in filtered.
 ;==============================================================================
 (defn refresh-nav-path
   [add-thing-type navpath input-queue]
@@ -155,8 +155,8 @@
                   (vec (concat (butlast navpath) [nxt])))
         messages [{msgs/topic [:nav :path]
                    msgs/type :set-nav-path
-                   :path curpath
-                   :qpath qpath}]
+                   :path curpath     ; the result of this is header
+                   :qpath qpath}]    ; the result of qpath is filtered.
         ]
       (.log js/console (str "refresh nav path " add-thing-type " " navpath " msgs " messages))
       (doseq [m messages] ;[m new-msgs]  do not need render to fill anything

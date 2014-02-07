@@ -42,23 +42,24 @@
 
 
 ;;==================================================================================
-;; effect flow, effec-fn gets arg by input specifier and ret a vector of msg,
-;; msgs got enq to (:output app) where service-fn consumes them.
-;; effect-fn gets single arg, the tracking map, or maps, or single-val.
+; effect flow, effec-fn gets arg by input specifier and ret a vector of msg,
+; msgs got enq to (:output app) where service-fn consumes them.
+; effect-fn gets single arg, the tracking map, or maps, or single-val.
 ;;==================================================================================
-;; XXX we specific tranform msg topic and type here so response data got dispatch 
-;; to the right locaton in data model directly.
-; we make 2 requests by combining cur path for header and next path in qpath
+; XXX we specific tranform msg topic and type here so response data got dispatch 
+; to the right locaton in data model directly.
+; each request gets data for one div template.
 ;;==================================================================================
 (defn request-navpath-things
   "ret msg to be inject to effect queue where service-fn consume it and make xhr request"
   [inputs]  ; request path things by thing-type
   (let [user (get-user inputs)  ; get the currently login user
         msg (:message inputs)  ; get the active msg
-        curpath (:path msg)    ; [:all 0 :children] or [:parent 1 :parent]
-        nxtpath (:qpath msg)   ; [:parent 1 :children]
+        curpath (:path msg)    ; header div [:all 0 :children] or [:parent 1 :parent]
+        nxtpath (:qpath msg)   ; filtered [:parent 1 :children]
         allpath (filter (comp not nil?) [curpath nxtpath]) ; filter out no qpath case
 
+        ; request thing-type is the last item in msg
         bodies (map (fn [p]
                       (let [thing-type (last p)
                             ; set data store topic [:data :thing id :next-thing]
@@ -82,7 +83,7 @@
                             (msgs/param :body) body
                            }])
                         bodies))
-        ]
+       ]
     (.log js/console (str "effect request nav things " requests))
     (if (last curpath)
       requests)))
