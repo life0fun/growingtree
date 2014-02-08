@@ -215,6 +215,13 @@
     type))
 
 
+(defmethod add-thing
+  :default
+  [type details]
+  (prn "XXX add-thing default " type details)
+  )
+
+
 ; add family
 (defmethod add-thing
   :parent
@@ -277,9 +284,9 @@
     ;(prn "peer add thing " type " details " details " result ")
     details))
 
-; watch non ref-ed attr entity. :transact/bad-data Unable to resolve entity: rich
+; add assignment triggered by :assignto, and key is :assign, to diff from assignment form.
 (defmethod add-thing
-  :assignment
+  :assign
   [type details]
   (let [author (:author details)
         result (dda/create-assignment details)
@@ -287,6 +294,7 @@
     (newline)
     ;(prn "peer add thing " type " details " details " result " result)
     result))
+
 
 ; add an answer
 (defmethod add-thing

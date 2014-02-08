@@ -570,6 +570,7 @@
                      }
           
         ; show assign form, assignment form is used for show details for assignment.
+        ; :assign is the key to select input form from thing-input-map.
         toggle-fn (newthing-form/toggle-add-thing-form-fn :assign
                                                           r navpath
                                                           (str "child-form-" thing-id)

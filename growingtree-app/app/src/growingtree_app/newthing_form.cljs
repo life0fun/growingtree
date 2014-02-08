@@ -293,7 +293,7 @@
 
 ;;==================================================================================
 ; submt fn for new thing form save btn, called from submit action transoform event
-; nav path is (:group 1 :join-group), 
+; nav path is (:group 1 :join-group), (:question 1 :assignto)
 ;;==================================================================================
 (defn submit-fn
   [add-thing-type navpath form override-map messages input-queue]

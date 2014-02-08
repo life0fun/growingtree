@@ -227,12 +227,15 @@
     assignments))
 
 
+; to assign to group, the :assignment/person is a list of name, separated by comma.
+; "fun math,rich-baby", we need split and strip it.
 (defn create-assignment
   "new assignment form the submitted form data"
   [details]
   (let [author-id (:db/id (dbconn/find-by :person/title (:author details)))
-        ; this find all children whose parent is author-di
-        person-id (:db/id (dbconn/find-by :person/title (:assignment/person details)))
+        ; this find all children whose parent is author-id,
+        person (:assignment/person details)
+        person-id (:db/id (dbconn/find-by :person/title person))
         entity (-> details
                 (select-keys (keys assignment-schema))
                 (assoc :assignment/author author-id)
@@ -242,7 +245,7 @@
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn author-id "create assignment to " person-id " entity " entity)
+    (prn author-id "create assignment to " person-id " " person " entity " entity)
     (prn "create assignment trans " trans)
     entity))
 
