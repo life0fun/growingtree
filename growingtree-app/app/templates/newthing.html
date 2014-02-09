@@ -2,14 +2,14 @@
 
 <div id="content">
 
-  <!-- 
+  <!--
     create new parent form
   -->
   <div template="parent-form" field="id:id">
     <form class="form-horizontal parent-form">
       <fieldset>
         <legend>Parent Details</legend>
-        
+
         <div class="control-group">
           <label class="control-label" for="person-name">Name</label>
           <div class="controls">
@@ -23,7 +23,7 @@
             <input id="person-lname" type="text" class="input-xlarge" placeholder="user last name ...">
           </div>
         </div>
-       
+
 
         <div class="control-group">
           <label class="control-label" for="person-type">Type</label>
@@ -91,14 +91,14 @@
   </div>
 
 
-  <!-- 
+  <!--
     create new child form
   -->
   <div template="child-form" field="id:id">
     <form class="form-horizontal child-form">
       <fieldset>
         <legend>Child Details</legend>
-        
+
          <div class="control-group">
           <label class="control-label" for="person-name">Name</label>
           <div class="controls">
@@ -178,14 +178,14 @@
   </div>
 
 
-  <!-- 
+  <!--
     create new family form
   -->
   <div template="family-form" field="id:id">
     <form class="form-horizontal family-form">
       <fieldset>
         <legend>Family Details</legend>
-        
+
         <div class="control-group">
           <label class="control-label" for="family-name">Name</label>
           <div class="controls">
@@ -232,13 +232,13 @@
           <button type="submit" class="btn btn-primary">OK</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
-        
+
       </fieldset>
     </form>
   </div>
 
 
-  <!-- 
+  <!--
     create new course form
   -->
   <div template="course-form" field="id:id">
@@ -301,7 +301,7 @@
           <input id="course-wiki" type="text" class="input-xlarge" placeholder="course/wiki">
           </div>
         </div>
-       
+
         <div class="usertext-buttons control-group">
           <button id="submit" type="submit" class="btn btn-primary">OK</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
@@ -311,7 +311,7 @@
   </div>
 
 
-  <!-- 
+  <!--
     create new lecture form, input fields has text name to be ided from domina.
   -->
   <div template="lecture-form" field="id:id">
@@ -365,7 +365,7 @@
         <div class="control-group">
           <label class="control-label" for="lecture-start">Start Time</label>
           <div class="controls">
-            <div id="lecture-start-picker" class="input-append">  
+            <div id="lecture-start-picker" class="input-append">
               <input id="lecture-start" type="text" class="input-xlarge" placeholder="lecture start time" data-format="hh:mm:ss MM/dd/yyyy">
               <span class="add-on">
                 <i data-time-icon="icon-time" data-date-icon="icon-calendar">
@@ -378,7 +378,7 @@
         <div class="control-group">
           <label class="control-label" for="lecture-end">End Time</label>
           <div class="controls">
-            <div id="lecture-end-picker" class="input-append">    
+            <div id="lecture-end-picker" class="input-append">
               <input id="lecture-end" type="text" class="input-xlarge" placeholder="lecture end time" data-format="hh:mm:ss MM/dd/yyyy">
               <span class="add-on">
                 <i data-time-icon="icon-time" data-date-icon="icon-calendar">
@@ -415,7 +415,7 @@
             <input id="lecture-wiki" type="text" class="input-xlarge" placeholder="lecture/wiki">
           </div>
         </div>
-       
+
         <div class="usertext-buttons control-group">
           <button id="submit" type="submit" class="btn btn-primary">OK</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
@@ -425,8 +425,8 @@
   </div>
 
 
-  <!-- 
-    question 
+  <!--
+    question
   -->
   <div template="question-form" field="id:id">
     <form class="form-horizontal question-form">
@@ -489,7 +489,7 @@
           </div>
         </div>
 
-        
+
         <div class="usertext-buttons control-group">
           <button id="submit" type="submit" class="btn btn-primary">OK</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
@@ -500,8 +500,8 @@
 
 
 
-  <!-- 
-    assignment 
+  <!--
+    assignment
   -->
   <div template="assignment-form" field="id:id">
     <form class="form-horizontal assignment-form">
@@ -561,7 +561,7 @@
         <div class="control-group">
           <label class="control-label" for="assignment-start">Start Time</label>
           <div class="controls">
-            <div id="assignment-start-picker" class="input-append">  
+            <div id="assignment-start-picker" class="input-append">
               <input id="assignment-start" type="text" class="input-xlarge" field="placeholder:assignment-start" data-format="hh:mm:ss MM/dd/yyyy">
               <span class="add-on">
                 <i data-time-icon="icon-time" data-date-icon="icon-calendar">
@@ -574,7 +574,7 @@
         <div class="control-group">
           <label class="control-label" for="assignment-end">End Time</label>
           <div class="controls">
-            <div id="assignment-end-picker" class="input-append">    
+            <div id="assignment-end-picker" class="input-append">
               <input id="assignment-end" type="text" class="input-xlarge" field="placeholder:assignment-end" data-format="hh:mm:ss MM/dd/yyyy">
               <span class="add-on">
                 <i data-time-icon="icon-time" data-date-icon="icon-calendar">
@@ -615,8 +615,8 @@
   </div>
 
 
-  <!-- 
-    group 
+  <!--
+    group
   -->
   <div template="group-form" field="id:id">
     <form class="form-horizontal group-form">
@@ -676,19 +676,19 @@
           <button id="submit" type="submit" class="btn btn-primary">OK</button>
           <button id="cancel" type="button" class="btn">Cancel</button>
         </div>
-        
+
       </fieldset>
     </form>
   </div>
 
 
-  <!-- 
-    comments 
+  <!--
+    comments
   -->
   <div template="comments-form" field="id:id">
     <form class="add-comments-form">
       <textarea id="comments-title" rows="3" cols="1" name="text" class="textarea" style="width:98%;height:60px;"></textarea>
-    
+
       <div class="usertext-buttons">
         <button type="submit" class="btn btn-primary">Save</button>
       </div>

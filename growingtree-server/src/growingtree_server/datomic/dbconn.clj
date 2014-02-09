@@ -33,21 +33,21 @@
 ; a named rule is a list of clause [(community-type ?c ?t) [?c :community/type ?t]])]
 ; a set of rules is a list of rules. [[[rule1 ?c] [_ :x ?c]] [[rule2 ?d] [_ :x ?d]]]
 ; rules with the same name defined multiple times in rule set make rule OR.
-;   [[northern ?c] (region ?c :region/ne)] 
+;   [[northern ?c] (region ?c :region/ne)]
 ;   [[northern ?c] (region ?c :region/n)]
 ; Within the same rule, multiple tuples are AND.
 ;
 ;
-; all eids must be number, use read-string to convert from command line. 
+; all eids must be number, use read-string to convert from command line.
 ; all the :ref :many attribute stores clojure.lang.MapEntry. use :db/id to get the id.
 ; knowing entity id, query with (d/entity db eid). otherwise, [:find $t :where []]
 ; (d/entity db eid) rets the entity. entity is LAZY. attr only availabe when touch.
-; To add data to a new entity, build a transaction using :db/add implicitly 
-; with the map structure (or explicitly with the list structure), a temporary id, 
+; To add data to a new entity, build a transaction using :db/add implicitly
+; with the map structure (or explicitly with the list structure), a temporary id,
 ; and the attributes and values being added.
 ;
 ; #db/id[partition-name value*] : value is an optional negative number.
-; all instances of the same temp id are mapped to the same actual entity id in a given transaction, 
+; all instances of the same temp id are mapped to the same actual entity id in a given transaction,
 ; {:db/id entity-id attribute value attribute value ... }
 ; [:db/add entity-id attribute value]
 ; (d/transact conn [newch [:db/add pid :parent/child (:db/id newch)]]
@@ -62,14 +62,14 @@
 ; when one of the attribute is :db/unique :db.unique/identity, system will map to existing entity if matches or make a new.
 ; to add fact to existing entity, retrieve entity id the add using the entity id.
 ; adding entity ref, must specify an entity id(could be tempid) as the attribute's value.
-; takes advantage of the fact that the same temporary id can be generated multiple times by 
-; specifying the same partition and negative number; and that all instances of a given temporary id 
+; takes advantage of the fact that the same temporary id can be generated multiple times by
+; specifying the same partition and negative number; and that all instances of a given temporary id
 ; within a transaction will resolve to a single entity id.
 ;
 ; (def e (d/entity (db conn) attr-id) gets all entity with ids
 ; (keys e) or (:parent/child (d/entity db 17592186045703))
 ; entity attr rets a map entry for all children. (:parent/child (d/entity db pid))
-; 
+;
 ; entity-id can be used at both side of the datom, e.g., give a parent entity id,
 ;   (d/q '[:find ?e :in $ ?attr :where [17592186045703 ?attr ?e] [...] ] db :parent/child)
 ;   (d/q '[:find ?e :in $ ?attr :where [?e ?attr 17592186045703] [...] ] db :child/parent)
@@ -80,7 +80,7 @@
 ; using parent id, get list of children
 ;   (:parent/child (d/entity db 17592186045476))
 ;
-; inbound query(who refed me) is used for query another entity that refs this entity. 
+; inbound query(who refed me) is used for query another entity that refs this entity.
 ; parent entity can be used to query all child entity that refs to this parent entity.
 ; use inbound query with convention is prefix attr name with _.
 ;   (:child/_parent (d/entity db 17592186045476))
@@ -88,7 +88,7 @@
 ;   (-> (d/entity db 17592186045476) :child/_parent)
 ; this reverse look-up might be time consuming, use explicit linking might be better.
 ;
-; (map (fn [id] (d/touch (d/entity db (:db/id id)))) 
+; (map (fn [id] (d/touch (d/entity db (:db/id id))))
 ;   (-> (d/entity db 17592186045476) :child/_parent))
 ;
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
@@ -121,7 +121,7 @@
 ;
 ; timeline query across all time
 ;   (def hist (d/history db))
-;   (->> (d/q '[:find ?tx ?v ?op :in $ ?e ?attr :where [?e ?attr ?v ?tx ?op]] 
+;   (->> (d/q '[:find ?tx ?v ?op :in $ ?e ?attr :where [?e ?attr ?v ?tx ?op]]
 ;               hist 17592186045703 :parent/fname) (sort-by first))
 ;
 
@@ -174,7 +174,7 @@
   (d/touch (d/entity (get-db) eid)))
 
 ; give an entity, it can not resolve to entity namespace keyword.
-(defn ident 
+(defn ident
   "ret the keyword associated with an id, or the key itself if passed"
   [eid]
   (d/ident (get-db) eid))
@@ -238,25 +238,25 @@
 (defn all-transactions
   "list all transactions "
   [db since]
-  (let [alltxs (reverse (sort 
-              (d/q '[:find ?e ?when 
+  (let [alltxs (reverse (sort
+              (d/q '[:find ?e ?when
                      :where [?e :db/txInstant ?when]] db)))]
     (prn alltxs)
     alltxs))
 
 
-; add entity attribute value. 
+; add entity attribute value.
 ; build a transaction using :db/add implicitly with the map structure or list structure
 ; an existing entity id or entity identifier, and the attributes and values being added.
 ; if adding entity reference, the attr value must be entity id, or iden keyword.
-; if attr is ref type, attr-val must be entity id, or 
-; return a vector of operation for transaction. 
+; if attr is ref type, attr-val must be entity id, or
+; return a vector of operation for transaction.
 (defn add-entity-attr
   [entity-id attr-key attr-val]
   [:db/add entity-id attr-key attr-val])
 
 ;;==========================================================================
-; datomic query 
+; datomic query
 ;;==========================================================================
 (defn first-entity
   "Return the first entity from a query result"
@@ -353,7 +353,7 @@
   (->> (d/q '[:find ?val
               :in $ ?attr [?val ...]
               :where [_ ?attr ?val]]
-            (get-db) 
+            (get-db)
             attr vals)
        (map first)
        (into #{})))
@@ -375,20 +375,20 @@
 
 ;;==========================================================================
 ; schema query, schema itself, like transactors and everything in db, is entities.
-; Schema entities are ordinary entities, like any other data in the system. 
-; Rather then return their entity ids, you can join through :db/ident to find the 
+; Schema entities are ordinary entities, like any other data in the system.
+; Rather then return their entity ids, you can join through :db/ident to find the
 ; programmatic identifiers that name each attribute
 ; all db installed attributes are under :db.install/attribute. schema attr has no namespace.
 ; (d/q '[:find ?attr-name :where [?ref :comments] [?ref ?attr] [?attr :db/ident ?attr-name]]
 ;   [:story/title] [:comment/body] [:story/url]
 ;;==========================================================================
-; get attr details by attr ident. 
+; get attr details by attr ident.
 ; {:db/id :db/ident :community/url :db/valueType :db.type/string }
 (defn list-attr
   "list all attributes for ident, if no ident, list all"
   ([]  ; db is (d/db conn)
-    (let [eid (d/q '[:find ?attr 
-                     :where [_ :db.install/attribute ?attr]] 
+    (let [eid (d/q '[:find ?attr
+                     :where [_ :db.install/attribute ?attr]]
                     db)]
       (prn "list all attr " eid)
       (map entity-attr eid)))
@@ -459,7 +459,7 @@
           [?vt :db/ident ?t]
           [?attr :db/cardinality ?card]
           [?card :db/ident ?v]]  ; ident is keyword, :db.cardinality/one, many.
-        (get-db) 
+        (get-db)
         attr)
     first))
 
@@ -516,12 +516,12 @@
 ;;==========================================================================
 
 ; query the entire history of an entity's one attr.
-; the transaction entity is the 4th arg of any data pattern. 
+; the transaction entity is the 4th arg of any data pattern.
 ; given a transction id, d/tx->t, tx to time, ret relative time when transaction happened.
 (defn entity-attr-tx
   "ret a list of [tx-id attr-val] of an attribute of the passed in entity"
   [eid attr]
-  (let [txhist (->> (d/q '[:find ?tx ?e ?v ?op 
+  (let [txhist (->> (d/q '[:find ?tx ?e ?v ?op
                            :in $ ?e ?attr
                            :where [?e ?attr ?v ?tx ?op]
                           ]
@@ -541,7 +541,7 @@
   [refed-id attr]
   (let [entities (->> (d/q '[:find ?e :in $ ?attr :where [?e ?attr]] (get-db) attr)
                       (mapv first)) ; use mapv to get a vec as subq result for hist query
-        
+
         ; no need to check empty entities, d/q will handle it.
         txhist (->> (d/q '[:find ?tx ?e ?v ?op
                            :in $ ?refed-id ?attr [?e ...]
@@ -560,7 +560,7 @@
 
 ;;==========================================================================
 ; query against a fulltext index with system fn (fulltext $db ?attr ?searchkey)
-; $ means single db input src. 
+; $ means single db input src.
 ; [:find ?n :where
 ;   [(fulltext $ :community/name "Wallingford") [[?e ?n]]]]
 ;;==========================================================================

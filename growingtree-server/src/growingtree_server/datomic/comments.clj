@@ -34,21 +34,21 @@
 ; a named rule is a list of clause [(community-type ?c ?t) [?c :community/type ?t]])]
 ; a set of rules is a list of rules. [[[rule1 ?c] [_ :x ?c]] [[rule2 ?d] [_ :x ?d]]]
 ; rules with the same name defined multiple times in rule set make rule OR.
-;   [[northern ?c] (region ?c :region/ne)] 
+;   [[northern ?c] (region ?c :region/ne)]
 ;   [[northern ?c] (region ?c :region/n)]
 ; Within the same rule, multiple tuples are AND.
 ;
 ;
-; all eids must be number, use read-string to convert from command line. 
+; all eids must be number, use read-string to convert from command line.
 ; all the :ref :many attribute stores clojure.lang.MapEntry. use :db/id to get the id.
 ; knowing entity id, query with (d/entity db eid). otherwise, [:find $t :where []]
 ; (d/entity db eid) rets the entity. entity is LAZY. attr only availabe when touch.
-; To add data to a new entity, build a transaction using :db/add implicitly 
-; with the map structure (or explicitly with the list structure), a temporary id, 
+; To add data to a new entity, build a transaction using :db/add implicitly
+; with the map structure (or explicitly with the list structure), a temporary id,
 ; and the attributes and values being added.
 ;
 ; #db/id[partition-name value*] : value is an optional negative number.
-; all instances of the same temp id are mapped to the same actual entity id in a given transaction, 
+; all instances of the same temp id are mapped to the same actual entity id in a given transaction,
 ; {:db/id entity-id attribute value attribute value ... }
 ; [:db/add entity-id attribute value]
 ; (d/transact conn [newch [:db/add pid :parent/child (:db/id newch)]]
@@ -63,14 +63,14 @@
 ; when one of the attribute is :db/unique :db.unique/identity, system will map to existing entity if matches or make a new.
 ; to add fact to existing entity, retrieve entity id the add using the entity id.
 ; adding entity ref, must specify an entity id(could be tempid) as the attribute's value.
-; takes advantage of the fact that the same temporary id can be generated multiple times by 
-; specifying the same partition and negative number; and that all instances of a given temporary id 
+; takes advantage of the fact that the same temporary id can be generated multiple times by
+; specifying the same partition and negative number; and that all instances of a given temporary id
 ; within a transaction will resolve to a single entity id.
 ;
 ; (def e (d/entity (db conn) attr-id) gets all entity with ids
 ; (keys e) or (:parent/child (d/entity db 17592186045703))
 ; entity attr rets a map entry for all children. (:parent/child (d/entity db pid))
-; 
+;
 ; entity-id can be used at both side of the datom, e.g., give a parent entity id,
 ;   (d/q '[:find ?e :in $ ?attr :where [17592186045703 ?attr ?e] [...] ] db :parent/child)
 ;   (d/q '[:find ?e :in $ ?attr :where [?e ?attr 17592186045703] [...] ] db :child/parent)
@@ -81,7 +81,7 @@
 ; using parent id, get list of children
 ;   (:parent/child (d/entity db 17592186045476))
 ;
-; inbound query(who refed me) is used for query another entity that refs this entity. 
+; inbound query(who refed me) is used for query another entity that refs this entity.
 ; parent entity can be used to query all child entity that refs to this parent entity.
 ; use inbound query with convention is prefix attr name with _.
 ;   (:child/_parent (d/entity db 17592186045476))
@@ -89,7 +89,7 @@
 ;   (-> (d/entity db 17592186045476) :child/_parent)
 ; this reverse look-up might be time consuming, use explicit linking might be better.
 ;
-; (map (fn [id] (d/touch (d/entity db (:db/id id)))) 
+; (map (fn [id] (d/touch (d/entity db (:db/id id))))
 ;   (-> (d/entity db 17592186045476) :child/_parent))
 ;
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
@@ -102,7 +102,7 @@
 
 
 (def get-like-by
-  '[[(:all ?e ?val) [?e :like/origin]]   ; select all 
+  '[[(:all ?e ?val) [?e :like/origin]]   ; select all
     [(:origin ?e ?val) [?e :like/origin ?val]]
     [(:title ?e ?val) [?e :like/title ?val]]
     [(:url ?e ?val) [?e :like/url ?val]]
@@ -154,7 +154,8 @@
   "query comments by path, [:course 1 :comments] or [:course 1 :comments 2 :comments]"
   [navpath]
   (let [projkeys (keys comments-schema)  ; must select-keys from datum entity attributes])
-        comments (->> (util/get-entities-by-rule-query (take-last 3 navpath) get-comments-by)
+        qpath (take-last 3 navpath)
+        comments (->> (util/get-qpath-entities qpath get-comments-by)
                       (map #(select-keys % projkeys) )
                       (map #(util/add-upvote-attr %) )
                       (map #(util/ref->dbid % :comments/thingroot))
@@ -180,8 +181,8 @@
   "find all comments by query path"
   [qpath]
   (let [; list comprehension, cartesian production, need to use hash-set to remove dups.
-        comments (->> (for [c (query-comments qpath) 
-                            l1 (comments-of c) 
+        comments (->> (for [c (query-comments qpath)
+                            l1 (comments-of c)
                            ]
                         [c l1])
                       (reduce #(concat %1 %2) []))
@@ -197,7 +198,7 @@
     comments))
 
 
-; for now, all courses are created and lectured by person 
+; for now, all courses are created and lectured by person
 (defn create-comments
   "create a comments with details "
   [details]
@@ -217,14 +218,14 @@
 
 ;;==============================================================
 ; like, create like, or add user to like ref person.
-; find all likes of certain 
+; find all likes of certain
 ;;==============================================================
 ; find a course, thread thru project keys, and fill :course/likes
 (defn find-like
   "find like by query path"
   [qpath]
   (let [projkeys (keys like-schema)  ; must select-keys from datum entity attributes
-        likes (->> (util/get-entities-by-rule qpath get-like-by)
+        likes (->> (util/get-qpath-entities qpath get-like-by)
                    (map #(select-keys % projkeys) )
                    (map #(util/add-navpath % qpath) )
               )
@@ -234,7 +235,7 @@
     likes))
 
 
-; for now, all courses are created and lectured by person 
+; for now, all courses are created and lectured by person
 (defn create-like
   "create a like with details "
   [details]

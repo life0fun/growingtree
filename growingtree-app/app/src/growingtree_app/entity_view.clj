@@ -57,10 +57,8 @@
 
     :course {:title "" :author ""
              :lecture "" :add-lecture " hide"
-             :question "" :add-question " hide"
              :comments ""
              :enrollment "" :enroll ""
-             :schedule ""
              :upvote "" :like "" :share ""
             }
 
@@ -68,8 +66,6 @@
               :course ""
               :question "" :add-question " hide"
               :comments ""
-              :enrollment "" :enroll ""
-              :schedule ""
               :upvote "" :like "" :share ""
              }
 

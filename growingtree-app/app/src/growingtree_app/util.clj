@@ -35,7 +35,7 @@
 
 
 ; pad time with leading 0 upon single digit.
-(defn pad-time 
+(defn pad-time
   "pad time with leading 0 upon single digit"
   [d]
   (let [pad (fn [n] (if (< n 10) (str "0" n) (str n)))]
@@ -46,7 +46,7 @@
 
 ; format a unix epoch time of long, in seconds, which we get from (.unix (js/moment))
 ; back to moment object, and format to readable
-; moment constructor takes 
+; moment constructor takes
 (defn format-time
   [unix-epoch]
   (let [m (js/moment (* 1000 unix-epoch))
@@ -77,7 +77,7 @@
   (keyword (str (name thing-type) "/" attr-name)))
 
 
-; get the namespace of thing 
+; get the namespace of thing
 (defn thing-ident
   "get thing type of the entity, the namespace, or ident of entity. remove :db/id"
   [entity]
@@ -118,7 +118,7 @@
             ]
         new-map)  ; return updated new val if value map contains schema key
       thing-map)))
-  
+
 
 ; get thing value from thing map by name of the attr, regardless of its namespace.
 ; e.g., get title from any of namespace, :course/title, :lecture/title, etc
@@ -148,7 +148,7 @@
                   add-thing-type)
         ; the case for nav create :course [:create :course] ; [:course 1]
         curpath (if (< (count navpath) 3)
-                    [:all 0 add-thing-type] 
+                    [:all 0 add-thing-type]
                     (vec (concat (butlast navpath) [(first navpath)])))
         qpath (if (< (count navpath) 3)
                   nil

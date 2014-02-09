@@ -21,10 +21,10 @@
 
 
 ; when path node in data model gets value, it was already parsed to cljs.core ds by
-; response-handler. We store cljs ds into data model path node. 
+; response-handler. We store cljs ds into data model path node.
 ; data model can directly use the data structure. We only need one time parse at response-handler.
 ;
-; From tracking map, you can always access data model using 
+; From tracking map, you can always access data model using
 ;   (get-in input [:new-model :path])
 ;   (get-in input [:old-model :path])
 ;
@@ -142,8 +142,8 @@
   ; :path was setup in thing-nav-messages and init-nav-emitter for sidebar
   (let [path (:path message)     ; things in main, or headers.
         qpath (:qpath message)   ; things in filtered, or details
-        npath (->> (if qpath 
-                     (concat oldv [path] [qpath]) 
+        npath (->> (if qpath
+                     (concat oldv [path] [qpath])
                      (concat oldv [path]))
                    (take-last 6)
                    (vec))
@@ -152,7 +152,7 @@
     npath))
 
 
-; extract user input search 
+; extract user input search
 (defn set-nav-search
   [oldv message]
   ; :searchkey was setup in thing-nav-messages and init-nav-emitter for sidebar
@@ -163,7 +163,7 @@
     nkey))
 
 
-; setup in effect, and callback by xhr respond handler, store list of all things data into 
+; setup in effect, and callback by xhr respond handler, store list of all things data into
 ; [:data :all 0 :parent] or [:data :parent 1 :child]
 ; we store cljs.core.Vector data structure into path node. when clj get the ds out,
 ; no more parse needed. We only need one parse at response-handler.
@@ -195,7 +195,7 @@
         thing-type (last msg-topic)  ; [:created-thing thing-type]
         things-vec (:data message)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
     (.log js/console (str "set created thing data at " msg-topic " things-vec " things-vec))
-    things-vec))  
+    things-vec))
 
 
 ;;==================================================================================
@@ -224,16 +224,16 @@
 ; clear all things by type upon nav type change, as we will restful request from service.
 ; input specifier defines what inputs var is, i.e., what upstream inputs are
 ; to get the clicked thing, [:old-model :data parent id child]
-; from [:parent 17592186045498 :parent] to [:parent 17592186045498 :child] parent () 
+; from [:parent 17592186045498 :parent] to [:parent 17592186045498 :child] parent ()
 ;-----------------------------------------------------------------------------------------
 (defn refresh-thing-data
   "remove stale things vec under [:data nav-path] upon nav path change"
-  [oldv inputs] 
+  [oldv inputs]
   (let [; the activemsg is the dataflow msg that triggers nav path transform.
-        activemsg (:message inputs) 
+        activemsg (:message inputs)
         path (:path activemsg)
         qpath (:qpath activemsg)
-        
+
         oldpath (vec (last (get-in inputs [:old-model :nav :path])))
         newpath (vec (last (get-in inputs [:new-model :nav :path])))
         ; not used, just for experiments.
@@ -263,13 +263,13 @@
 
 
 
-;; all mutable type are clj maps. use (gensym prefix-string) to generate unique id as 
+;; all mutable type are clj maps. use (gensym prefix-string) to generate unique id as
 ;; map key to nest a list of maps into outer big map !
 
 ;; nav function. store current nav things, :parent, :child, :course, :lecture.
 ;; [:nav :parent|:child|:course|:lecture] - current things
 
-;; all function. list of all things. 
+;; all function. list of all things.
 ;; [:all :parent|:child|:course|:lecture] - all things list
 
 ;; filter type function. filter type of each things
@@ -278,8 +278,8 @@
 ;; filtered function. filtered list of  type for each type of things
 ;; [:filtered :parent|:child|:course|:lecture] - filtered list of each thing
 
-   
-;; App Model Paths: represent div in template. linking UI action handle to 
+
+;; App Model Paths: represent div in template. linking UI action handle to
 
 ; client app dataflow is a record that impls Receiver protocol.
 (def growingtree-app
@@ -296,9 +296,9 @@
 
                 ; set login error after validation or signup failed
                 [:set-login-error [:login :error] set-login-error]
-                ; set user after login validation, 
+                ; set user after login validation,
                 [:set-user [:user] set-user]
-                
+
                 ; UI event sent to outbound node, then derive to [:nav :path] node
                 [:set-nav-path [:nav :path] set-nav-path]
 
@@ -314,13 +314,13 @@
                 [:create-thing [:create :*] create-thing]
                 ; app model node store just creatd thing, no emitter, so just store.
                 [:created-thing [:created :*] created-thing-data]
-                
+
                ]
 
     :derive #{
             ;; derive fn triggered by data change, not by inject data into node!!
             ;; input specifier :single-val :map :default(tracking map)
-            ;; the oldv to derive fn varies based on input specifier. 
+            ;; the oldv to derive fn varies based on input specifier.
             ;; can be old val or tracking map
 
             ; derive can not use wildcard path, as the msg topic is for upstream src.
@@ -330,7 +330,7 @@
             }
 
     ; effect fn takes msg and ret a vec of msg consumed by services-fn to xhr to back-end.
-    ; the input path node for effect is recursively match from top. 
+    ; the input path node for effect is recursively match from top.
     :effect #{
               [#{[:login :name]} effect/signup-validate-login :mode :always]
 
@@ -340,7 +340,7 @@
               [#{[:nav :path]} effect/request-navpath-things :mode :always]
 
               [#{[:nav :search]} effect/request-navsearch-things :mode :always]
-              
+
               ; create thing template form submitted, post data to server.
               [#{[:create :*]} effect/post-create-thing :mode :always]
 
@@ -348,15 +348,15 @@
 
     ; emitter, all emitter fn must be defined, otherwise, NPE.
     :emit [
-           {:init emitter/init-app-model}  ; create all app nodes upon init.  
-           
+           {:init emitter/init-app-model}  ; create all app nodes upon init.
+
            {:init emitter/login-emitter}  ; render login dialog upon app init
            {:in #{[:login :error]} :fn emitter/login-error-emitter :mode :always}
 
            ; after user logged in, create homepage
            ;{:in #{[:login :name]} :fn emitter/init-nav-emitter :mode :always}
            {:in #{[:user]} :fn emitter/init-nav-emitter :mode :always}
-           
+
            ; create modal is deprecated, use nav new thing
            {:in #{[:nav :create-modal]} :fn emitter/create-modal-emitter}
            {:in #{[:nav :newthing]} :fn emitter/nav-newthing-emitter}

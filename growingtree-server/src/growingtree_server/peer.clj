@@ -11,7 +11,7 @@
   )
 
 
-;; datomic EntityMap 
+;; datomic EntityMap
 ; query result is datomic entity, we touch the entity to get all entity entries.
 ; server route interceptor converts datomic entity to json string to sent to client.
 ; when json-response coerce datomic entity to json string, it recursively resolve each
@@ -28,7 +28,7 @@
 ; project non-circular ref attrs of datomic entityMap to simple map to avoid infinit loop in json stringify
 ; usage: data (map (partial entity->map coursekeys) courses)
 ; Deprecated !
-(defn entity->map 
+(defn entity->map
   "given a list of attributes in convert-data, find their values from entity and put as map attr"
   [entity-keys entity]
   (reduce (fn [m attr]
@@ -60,7 +60,7 @@
 ;;===========================================================================
 ; defmulti needs a name and a dispatch fn, which rets value for dispatching
 (defmulti get-things
-  (fn [thing-type qpath details] 
+  (fn [thing-type qpath details]
     thing-type))
 
 
@@ -252,7 +252,7 @@
     result))
 
 
-;; type:newthing {:action :newthing, :type "course", :title "", :content "", :author "rich"} 
+;; type:newthing {:action :newthing, :type "course", :title "", :content "", :author "rich"}
 (defmethod add-thing
   :course
   [type details]
@@ -263,7 +263,7 @@
     result))
 
 
-;; type:newthing {:action :newthing, :type "course", :title "", :content "", :author "rich"} 
+;; type:newthing {:action :newthing, :type "course", :title "", :content "", :author "rich"}
 (defmethod add-thing
   :lecture
   [type details]
@@ -274,7 +274,7 @@
     result))
 
 
-;; type:newthing {:action :newthing, :type "course", :title "", :content "", :author "rich"} 
+;; type:newthing {:action :newthing, :type "course", :title "", :content "", :author "rich"}
 (defmethod add-thing
   :question
   [type details]
@@ -290,7 +290,7 @@
   [type details]
   (let [author (:author details)
         result (dda/create-assignment details)
-        ]  
+        ]
     (newline)
     ;(prn "peer add thing " type " details " details " result " result)
     result))
@@ -302,7 +302,7 @@
   [type details]
   (let [author (:author details)
         result (dda/create-answer details)
-        ]  
+        ]
     (newline)
     ;(prn "peer add thing " type " details " details " result " result)
     result))
@@ -314,7 +314,7 @@
   (prn "peer add thing grade " type " details " details)
   (let [author (:author details)
         result (dda/create-grade details)
-        ]  
+        ]
     (newline)
     ;(prn "peer add thing " type " details " details " result " result)
     result))
@@ -325,7 +325,7 @@
   [type details]
   (let [author (:author details)
         result (dda/create-comments details)
-        ]  
+        ]
     (newline)
     ;(prn "peer add thing " type " result " result " details " details )
     result))
@@ -336,7 +336,7 @@
   [type details]
   (let [author (:author details)
         result (dda/create-group details)
-        ]  
+        ]
     (newline)
     ;(prn "peer add thing " type " result " result " details " details )
     result))
@@ -347,7 +347,7 @@
   [type details]
   (let [
         result (dda/join-group details)
-       ]  
+       ]
     (newline)
     ;(prn "peer add thing " type " result " result " details " details )
     result))
@@ -359,7 +359,7 @@
   [type details]
   (let [author (:author details)
         result (dda/create-like details)
-        ]  
+        ]
     (newline)
     ;(prn "peer add thing " type " details " details " result " result)
     result))
@@ -371,7 +371,7 @@
   [type details]
   (let [author (:author details)
         result (dda/create-enrollment details)
-        ]  
+        ]
     (newline)
     ;(prn "peer add thing " type " result " result " details " details )
     result))

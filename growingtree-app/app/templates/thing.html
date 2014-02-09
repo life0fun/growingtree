@@ -2,8 +2,8 @@
 
 <div id="content">
 
-  <!-- 
-    parent thing node div 
+  <!--
+    parent thing node div
   -->
   <div class="offset0 thing link" template="thing-parent" field="id:id">
     <p class="parent"></p>
@@ -21,7 +21,7 @@
 
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
-      
+
       <p class="title">
         <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
         <span class="domain"></span>
@@ -35,17 +35,17 @@
         <span class="tagline"> email: </span>
         <a field="content:email"></a>
       </p>
-      
+
       <p class="subtitle">
         <span class="tagline"> url: </span>
         <a field="content:url"></a>
       </p>
 
       <p class="tagline">
-        Joined since <time> Aug 2013 </time> 
+        Joined since <time> Aug 2013 </time>
       </p>
 
-      
+
       <!-- tag line sublink buttons -->
       <ul class="flat-list buttons">
 
@@ -140,8 +140,8 @@
   </div>
 
 
-  <!-- 
-    child thing node div 
+  <!--
+    child thing node div
   -->
   <div class="offset0 thing link" template="thing-child" field="id:id">
     <p class="child"></p>
@@ -151,7 +151,7 @@
       <span class="score unvoted" field="content:upvote">12</span>
       <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
-    
+
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <a class="thumbnail" template="thing-thumbnail" field="href:thumbhref">
       <img field="src:thumbhref" width="70" height="52" alt="">
@@ -179,7 +179,7 @@
       </p>
 
       <p class="tagline">
-        Joined since <time> Aug 2013 </time> 
+        Joined since <time> Aug 2013 </time>
       </p>
 
 
@@ -226,14 +226,14 @@
             </span>
           </div>
         </li>
-        
+
          <li class="share">
           <div field="class:activity-class">
             <span class="share-button toggle" style>
               <a class="option active" href="#">activities</a>
             </span>
           </div>
-        </li> 
+        </li>
 
         <li class="share">
           <div field="class:like-class">
@@ -290,9 +290,9 @@
     </div>
   </div>
 
-  
-  <!-- 
-    course thing node div 
+
+  <!--
+    course thing node div
   -->
   <div class="offset0 thing link" template="thing-course" field="id:id">
     <p class="course"></p>
@@ -344,22 +344,6 @@
           <div>
         </li>
 
-        <!-- question -->
-        <li class="share">
-          <div field="class:question-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">questions</a>
-            </span>
-          <div>
-        </li>
-
-        <li class="share">
-          <div field="class:add-question-class">
-            <span class="share-button" style>
-              <a class="option active" href="#">add question</a>
-            </span>
-          <div>
-        </li>
 
         <!-- comments like -->
         <li class="first">
@@ -388,17 +372,9 @@
         </li>
 
         <li class="share">
-          <div field="class:schedule-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">schedule</a>
-            </span>
-          </div>
-        </li>
-
-        <li class="share">
           <div field="class:enrollment-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">enrollment</a>
+              <a class="option active" href="#">enrollments</a>
             </span>
           </div>
         </li>
@@ -406,7 +382,7 @@
         <li class="share">
           <div field="class:enroll-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">enroll to</a>
+              <a class="option active" href="#">buy</a>
             </span>
           </div>
         </li>
@@ -422,15 +398,15 @@
 
       </ul>
 
-      
+
       <div field="id:child-form-id" class="child-form"></div>
       <div class="clearleft"></div>
     </div>
   </div>
 
-  
-  <!-- 
-    lecture thing node div 
+
+  <!--
+    lecture thing node div
   -->
   <div class="offset0 thing link" template="thing-lecture" field="id:id">
     <p class="lecture"></p>
@@ -466,9 +442,9 @@
       </p>
 
       <p class="tagline">
-        <span field="content:start"></span>
+        <a field="content:start"></a>
         <span> -- <span>
-        <span field="content:end"></span>
+        <a field="content:end"></a>
       </p>
 
       <!-- action keys -->
@@ -497,30 +473,6 @@
           <div>
         </li>
 
-        <li class="share">
-          <div field="class:schedule-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">schedule</a>
-            </span>
-          </div>
-        </li>
-
-        <li class="share">
-          <div field="class:enrollment-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">enrollments</a>
-            </span>
-          </div>
-        </li>
-
-        <li class="share">
-          <div field="class:enroll-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">enroll to</a>
-            </span>
-          </div>
-        </li>
-
         <!-- comments like -->
         <li class="first">
           <div field="class:comments-class">
@@ -546,16 +498,16 @@
           </div>
         </li>
       </ul>
-           
+
       <div field="id:child-form-id" class="child-form"></div>
       <div class="clearleft"></div>
     </div>
   </div>
 
-  
 
-  <!-- 
-    question node div 
+
+  <!--
+    question node div
   -->
   <div class="offset0 thing link" template="thing-question" field="id:id">
     <p class="question"></p>
@@ -565,7 +517,7 @@
       <span class="score unvoted" field="content:upvote">12</span>
       <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
-    
+
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <a class="thumbnail" template="thing-thumbnail" field="href:thumbhref">
       <img field="src:thumbhref" width="70" height="56" alt="">
@@ -615,7 +567,7 @@
             </span>
           </div>
         </li>
- 
+
         <li class="share">
           <div field="class:like-class">
             <span class="share-button toggle" style>
@@ -655,10 +607,10 @@
     </div>
   </div>
 
-  
 
-  <!-- 
-    assignment node div 
+
+  <!--
+    assignment node div
   -->
   <div class="offset0 thing link" template="thing-assignment" field="id:id">
     <p class="assignment"></p>
@@ -668,7 +620,7 @@
       <span class="score unvoted" field="content:upvote">12</span>
       <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
-    
+
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <a class="thumbnail" template="thing-thumbnail" field="href:thumbhref">
       <img field="src:thumbhref" width="70" height="52" alt="">
@@ -678,11 +630,11 @@
     <div class="entry unvoted" template="thing-entry">
       <p class="subtitle">
         <span class="tagline"> by </span>
-        <a field="content:author-name,class:author-class"></a> 
+        <a field="content:author-name,class:author-class"></a>
         <span class="tagline"> at </span>
         <span field="content:start"></span>
       </p>
- 
+
       <p class="title">
         <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
         <span class="domain"></span>
@@ -691,7 +643,7 @@
       <p class="subtitle">
         <span class="tagline"> due at </span>
         <span field="content:end"></span>
-      </p>    
+      </p>
 
       <ul class="flat-list buttons">
         <li class="share">
@@ -750,7 +702,7 @@
             </span>
           </div>
         </li>
-       
+
         <li class="share">
           <div field="class:similar-class">
             <span class="share-button toggle" style>
@@ -760,7 +712,7 @@
         </li>
 
       </ul>
-      
+
 
       <div field="id:child-form-id" class="child-form"></div>
       <div class="clearleft"></div>
@@ -769,8 +721,8 @@
 
 
 
-  <!-- 
-    answer node div 
+  <!--
+    answer node div
   -->
   <div class="offset0 thing link" template="thing-answer" field="id:id">
     <p class="answer"></p>
@@ -780,7 +732,7 @@
       <span class="score unvoted" field="content:upvote">12</span>
       <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
-    
+
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <a class="thumbnail" template="thing-thumbnail" field="href:thumbhref">
       <img field="src:thumbhref" width="70" height="52" alt="">
@@ -798,16 +750,16 @@
         <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
       </p>
 
-      <p class="subtitle">  
+      <p class="subtitle">
         <span> at </span>
         <span field="content:start"></span>
       </p>
 
-      <p class="subtitle">  
+      <p class="subtitle">
         <span class="tagline"> Score </span>
         <span field="content:score"></span>
       </p>
-     
+
       <ul class="flat-list buttons">
         <li class="share">
           <div field="class:assignment-class">
@@ -865,10 +817,10 @@
     </div>
   </div>
 
-  
 
-  <!-- 
-    comments thing node div 
+
+  <!--
+    comments thing node div
   -->
   <div class="thing link comment" template="thing-comments" field="id:id">
     <p class="comments"></p>
@@ -887,7 +839,7 @@
         <span class="score dislikes">1021 points</span>
         <span field="content:comments-time">2 hours</span> ago
       </p>
-      
+
       <div class="usertext-body">
         <a class="title" field="content:thing-title,href:entryhref"></a>
       </div>
@@ -902,7 +854,7 @@
         <li class="first">
           <a class="option active" href="#">give tips</a>
         </li>
-   
+
         <li class="share">
           <div field="class:reply-class">
             <span class="share-button toggle" style>
@@ -926,14 +878,14 @@
 
     <!-- comemnts tree div block, named by thingtype-tree -->
     <div id="comments-tree" class="child"></div>
-    
+
     <div class="clearleft"></div>
   </div>
 
 
 
-  <!-- 
-    like thing node div 
+  <!--
+    like thing node div
   -->
   <div class="offset0 thing link" template="thing-like" field="id:id">
     <p class="like"></p>
@@ -948,7 +900,7 @@
 
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
-  
+
       <p class="subtitle">
         <a field="content:author-name,class:author-class"></a>
         <span class="tagline"> liked it </span>
@@ -983,8 +935,8 @@
   </div>
 
 
-  <!-- 
-    group thing node div 
+  <!--
+    group thing node div
   -->
   <div class="offset0 thing link" template="thing-group" field="id:id">
     <p class="group"></p>
@@ -994,7 +946,7 @@
       <span class="score unvoted" field="content:upvote">12</span>
       <div class="arrow down" role="button" arial-label="downvote" tabindex="0"></div>
     </div>
-    
+
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <a class="thumbnail" template="thing-thumbnail" field="href:thumbhref">
       <img field="src:thumbhref" width="70" height="52" alt="">
@@ -1003,9 +955,9 @@
     <div class="entry unvoted" template="thing-entry">
       <p class="subtitle">
         <span class="tagline">Admin by </span>
-        <a href="javascript:void(0)" field="content:author-name,class:author-class,href:entryhref,id:id-author"></a> 
+        <a href="javascript:void(0)" field="content:author-name,class:author-class,href:entryhref,id:id-author"></a>
       </p>
-   
+
       <p class="title">
         <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
         <span class="domain"></span>
@@ -1048,13 +1000,13 @@
     </div>
 
     <div field="id:child-form-id" class="child-form"></div>
-    
+
     <div class="clearleft"></div>
   </div>
 
 
   <!--
-    timeline thing node div 
+    timeline thing node div
   -->
   <div class="offset0 thing link" template="thing-timeline" field="id:id">
     <p class="timeline"></p>
@@ -1079,7 +1031,7 @@
         <a class="title" field="content:origin-title,href:entryhref,id:origin-title-id"></a>
       </p>
 
-      <p class="tagline">  
+      <p class="tagline">
         <span> At </span>
         <span field="content:txtime"></span>
       </p>
@@ -1105,7 +1057,7 @@
   </div>
 
 
-  <!-- 
+  <!--
     Search node
   -->
   <div class="offset0 thing link" template="thing-search" field="id:id">
@@ -1119,7 +1071,7 @@
       <img field="src:thumbhref" width="70" height="52" alt="">
     </a>
 
-    <div class="entry unvoted" template="thing-entry">  
+    <div class="entry unvoted" template="thing-entry">
 
       <p class="subtitle">
         <span class="tagline"> found </span>
@@ -1155,14 +1107,14 @@
   </div>
 
 
-  <!-- 
-      ************** 
-       details forms and add thing forms 
-      ************** 
+  <!--
+      **************
+       details forms and add thing forms
+      **************
   -->
 
-  <!-- 
-    thing details div 
+  <!--
+    thing details div
   -->
   <div class="offset0" template="thing-details" field="id:id">
     <div id="thing-root"> </div>
@@ -1175,28 +1127,28 @@
   </div>
 
 
-  <!-- 
-    enrollment to form, 
+  <!--
+    enrollment to form,
   -->
-  <div template="enrollment-form" field="id:id">  
+  <div template="enrollment-form" field="id:id">
     <form class="enrollment-form" style="float:left;">
       <input field="id:enrollment-name" type="text" style="display:block" placeholder="attendee">
       <input field="id:enrollment-remarks" type="text" style="display:block" placeholder="remarks">
-    
+
       <div class="usertext-buttons">
         <button type="submit" class="btn btn-primary assign-button">Enroll</button>
       </div>
     </form>
   </div>
 
-  <!-- 
-    join group to form, 
+  <!--
+    join group to form,
   -->
-  <div template="join-group-form" field="id:id">  
+  <div template="join-group-form" field="id:id">
     <form class="join-group-form" style="float:left;">
       <input field="id:join-group-name" type="text" style="display:block" placeholder="member">
       <input field="id:join-group-remarks" type="text" style="display:block" placeholder="remarks">
-    
+
       <div class="usertext-buttons">
         <button type="submit" class="btn btn-primary assign-button">Join</button>
       </div>
@@ -1204,21 +1156,21 @@
   </div>
 
 
-  <!-- 
+  <!--
     assign form, note we use assignment form for assignment details!
   -->
   <div template="assign-form" field="id:id">
     <form class="assign-form" style="">
       <input field="id:assign-name" type="text" style="display:block" placeholder="assign to">
       <input field="id:assign-hint" type="text" style="display:block" placeholder="hints">
-      
-      <div field="id:picker-assign-end" class="input-append date"> 
+
+      <div field="id:picker-assign-end" class="input-append date">
         <input field="id:assign-end" type="text" placeholder="due time" data-format="hh:mm:ss MM/dd/yyyy">
         <span class="add-on">
           <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
         </span>
       </div>
-    
+
       <div class="usertext-buttons">
         <button type="submit" class="btn btn-primary assign-button">Assign</button>
       </div>
@@ -1226,8 +1178,8 @@
   </div>
 
 
-  <!-- 
-    answer form, 
+  <!--
+    answer form,
   -->
   <div template="answer-form" field="id:id">
     <form class="answer-form form-horizonta" style="">
@@ -1239,8 +1191,8 @@
   </div>
 
 
-  <!-- 
-    grade form, 
+  <!--
+    grade form,
   -->
   <div template="grade-form" field="id:id">
     <form class="grade-form" style="">
@@ -1251,7 +1203,7 @@
       </div>
     </form>
   </div>
-  
+
 
 </div>
 </_within>

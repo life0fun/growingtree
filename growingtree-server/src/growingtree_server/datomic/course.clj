@@ -35,21 +35,21 @@
 ; a named rule is a list of clause [(community-type ?c ?t) [?c :community/type ?t]])]
 ; a set of rules is a list of rules. [[[rule1 ?c] [_ :x ?c]] [[rule2 ?d] [_ :x ?d]]]
 ; rules with the same name defined multiple times in rule set make rule OR.
-;   [[northern ?c] (region ?c :region/ne)] 
+;   [[northern ?c] (region ?c :region/ne)]
 ;   [[northern ?c] (region ?c :region/n)]
 ; Within the same rule, multiple tuples are AND.
 ;
 ;
-; all eids must be number, use read-string to convert from command line. 
+; all eids must be number, use read-string to convert from command line.
 ; all the :ref :many attribute stores clojure.lang.MapEntry. use :db/id to get the id.
 ; knowing entity id, query with (d/entity db eid). otherwise, [:find $t :where []]
 ; (d/entity db eid) rets the entity. entity is LAZY. attr only availabe when touch.
-; To add data to a new entity, build a transaction using :db/add implicitly 
-; with the map structure (or explicitly with the list structure), a temporary id, 
+; To add data to a new entity, build a transaction using :db/add implicitly
+; with the map structure (or explicitly with the list structure), a temporary id,
 ; and the attributes and values being added.
 ;
 ; #db/id[partition-name value*] : value is an optional negative number.
-; all instances of the same temp id are mapped to the same actual entity id in a given transaction, 
+; all instances of the same temp id are mapped to the same actual entity id in a given transaction,
 ; {:db/id entity-id attribute value attribute value ... }
 ; [:db/add entity-id attribute value]
 ; (d/transact conn [newch [:db/add pid :parent/child (:db/id newch)]]
@@ -64,14 +64,14 @@
 ; when one of the attribute is :db/unique :db.unique/identity, system will map to existing entity if matches or make a new.
 ; to add fact to existing entity, retrieve entity id the add using the entity id.
 ; adding entity ref, must specify an entity id(could be tempid) as the attribute's value.
-; takes advantage of the fact that the same temporary id can be generated multiple times by 
-; specifying the same partition and negative number; and that all instances of a given temporary id 
+; takes advantage of the fact that the same temporary id can be generated multiple times by
+; specifying the same partition and negative number; and that all instances of a given temporary id
 ; within a transaction will resolve to a single entity id.
 ;
 ; (def e (d/entity (db conn) attr-id) gets all entity with ids
 ; (keys e) or (:parent/child (d/entity db 17592186045703))
 ; entity attr rets a map entry for all children. (:parent/child (d/entity db pid))
-; 
+;
 ; entity-id can be used at both side of the datom, e.g., give a parent entity id,
 ;   (d/q '[:find ?e :in $ ?attr :where [17592186045703 ?attr ?e] [...] ] db :parent/child)
 ;   (d/q '[:find ?e :in $ ?attr :where [?e ?attr 17592186045703] [...] ] db :child/parent)
@@ -82,7 +82,7 @@
 ; using parent id, get list of children
 ;   (:parent/child (d/entity db 17592186045476))
 ;
-; inbound query(who refed me) is used for query another entity that refs this entity. 
+; inbound query(who refed me) is used for query another entity that refs this entity.
 ; parent entity can be used to query all child entity that refs to this parent entity.
 ; use inbound query with convention is prefix attr name with _.
 ;   (:child/_parent (d/entity db 17592186045476))
@@ -90,7 +90,7 @@
 ;   (-> (d/entity db 17592186045476) :child/_parent)
 ; this reverse look-up might be time consuming, use explicit linking might be better.
 ;
-; (map (fn [id] (d/touch (d/entity db (:db/id id)))) 
+; (map (fn [id] (d/touch (d/entity db (:db/id id))))
 ;   (-> (d/entity db 17592186045476) :child/_parent))
 ;
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
@@ -107,10 +107,11 @@
 
 
 ; course does not have lecture, use in-bound query from lecture to course.
+; [ rule head = (rule-name rule-arg*)  rule-body = [where clause] ]
 (def get-course-by
-  '[[(:all ?e ?val) [?e :course/title]]   ; select all 
+  '[[(:all ?e ?val) [?e :course/title]]   ; select all
     [(:author ?e ?val) [?e :course/author ?val]]
-    
+
     [(:type ?e ?val) [?e :course/type ?val]]
     [(:content ?e ?val) [?e :course/content ?val]]
     [(:title ?e ?val) [?e :course/title ?val]]
@@ -142,7 +143,7 @@
   "find course by query path"
   [qpath]
   (let [projkeys (keys course-schema)  ; must select-keys from datum entity attributes
-        courses (->> (util/get-entities-by-rule qpath get-course-by)
+        courses (->> (util/get-qpath-entities qpath get-course-by)
                      (map #(select-keys % projkeys) )
                      (map #(util/add-upvote-attr %) )
                      (map #(util/add-numcomments-attr %) )
@@ -154,7 +155,7 @@
     courses))
 
 
-; for now, all courses are created and lectured by person 
+; for now, all courses are created and lectured by person
 (defn create-course
   "create a course with details "
   [details]
@@ -181,7 +182,7 @@
   "find lecture by query path "
   [qpath]
   (let [projkeys (keys lecture-schema)
-        lectures (->> (util/get-entities-by-rule qpath get-lecture-by)
+        lectures (->> (util/get-qpath-entities qpath get-lecture-by)
                      (map #(select-keys % projkeys) )
                      (map #(util/add-upvote-attr %) )
                      (map #(util/add-numcomments-attr %) )
@@ -193,7 +194,7 @@
     lectures))
 
 
-; for now, all courses are created and lectured by person 
+; for now, all courses are created and lectured by person
 (defn create-lecture
   "create a lecture with details "
   [details]
@@ -236,10 +237,10 @@
 (defn find-enrollment
   "find all person that enrolls to the course by query path "
   [qpath]
-  ;(prn "find enrollment " qpath (util/get-entities-by-rule qpath get-enrollment-by))
+  ;(prn "find enrollment " qpath (util/get-qpath-entities qpath get-enrollment-by))
   (let [projkeys (keys enrollment-schema)
         person-keys (keys (assoc (list-attr :person) :db/id :db.type/id))
-        attendee (->> (first (util/get-entities-by-rule qpath get-enrollment-by))
+        attendee (->> (first (util/get-qpath-entities qpath get-enrollment-by))
                       (:enrollment/person)  ; select-keys ret a map with subset keys
                       (map (comp get-entity :db/id))
                       (map #(select-keys % person-keys) )
@@ -251,7 +252,7 @@
     attendee))
 
 
-; for now, all courses are created and lectured by person 
+; for now, all courses are created and lectured by person
 ; using cond-> threading, the same as threading to anonymous (-> state (#(if true (inc %) %))
 (defn create-enrollment
   "create a enrollment with details "
@@ -259,7 +260,7 @@
   (prn "create-enrollment " details  "schema " (keys enrollment-schema))
   (let [course-id (:enrollment/course details)
         lecture-id (:enrollment/lecture details)
-        enrollment (if course-id 
+        enrollment (if course-id
                       (dbconn/find-by :enrollment/course course-id)
                       (dbconn/find-by :enrollment/lecture lecture-id))
         enrollment-id (if enrollment (:db/id enrollment) (d/tempid :db.part/user))

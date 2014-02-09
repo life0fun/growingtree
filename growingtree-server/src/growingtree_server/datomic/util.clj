@@ -20,20 +20,20 @@
 ; (namespace :parent.status/active) = "parent.status"
 ; (name :parent.status/active) = "active"
 ; (keyword (str entity-name "." attr "/" enum-str))
-; :type :course.type/math, 
+; :type :course.type/math,
 
 
 ;
 ; datomic #inst type is java Date class, not DateTime.
-; 
+;
 ;  (.toDate (clj-time.format/parse (clj-time.format/formatters :date-time) "2012-09-11T11:51:26.00Z"))
 ;  (from-long 893462400000)  -> Joda DateTime object.
 ;  (to-date (from-long (to-long (now))))
 ;
-;  (read-string "#inst \"2012-09-11T11:51:26.00Z\"") 
-;   #inst "2012-09-11T11:51:26.000-00:00" 
-;  (read-string (pr-str '#inst "2012-09-11T11:51:26.00Z")) 
-;   #inst "2012-09-11T11:51:26.000-00:00" 
+;  (read-string "#inst \"2012-09-11T11:51:26.00Z\"")
+;   #inst "2012-09-11T11:51:26.000-00:00"
+;  (read-string (pr-str '#inst "2012-09-11T11:51:26.00Z"))
+;   #inst "2012-09-11T11:51:26.000-00:00"
 ;
 ;  (read-string (str "#inst " (pr-str "2012-09-11T11:51:26.00Z")))
 ;
@@ -71,7 +71,7 @@
                 (= clojure.lang.PersistentHashSet curtype)
                   (conj tot (vec curv))
                 ; instant to unix epoch
-                (= java.util.Date curtype) 
+                (= java.util.Date curtype)
                   (conj tot (to-long (from-date curv))) ; conver to epoch
                 ; default use value
                 :else (conj tot curv))))
@@ -94,10 +94,10 @@
                   (into tot (vector [k (mills-date (* 1000 v))]))
 
                 ; for number type, read-string to convert it, only when val type is String.
-                (and (= :db.type/long attr-type) (= java.lang.String (type v))) 
+                (and (= :db.type/long attr-type) (= java.lang.String (type v)))
                   (into tot (vector [k (read-string v)]))
 
-                :else 
+                :else
                   (into tot (vector [k v])))))
           {}
           details))
@@ -107,70 +107,68 @@
 ; get entities by qpath, formulate query rules from qpath
 ; qpath is [:all 0 :child] or [:parent 1 :child] or [:parent 1 :parent]
 ; for entity origin ref type to itself, e.g, comments can be made to comments,
-; use this fn to query.
 ; XXX Note we touch each entity to eagerly realize all attributes of entity.
 ; ============================================================================
-(defn get-entities-by-rule-query
-  "get entities by qpath and rule-set, for each tuple, touch to realize all attrs
-   called directly for comments comments case"
-  [qpath rule-set]
-  (let [thing-id (second qpath)
-        rule-name (first qpath)
-        rule (list rule-name '?e '?val)
+; rule-set is list of [rule-head=(rule-name rule-arg*) rule-body=[where clause]]
+(defn get-entities-by-rule
+  "get entities by arg-val and rule-name, rule-set, for each tuple, touch to realize
+   all attrs called directly for comments comments case"
+  [rule-name rule-set arg-val]
+  (let [;thing-id (second qpath)
+        ;rule-name (first qpath)
+        rule (list rule-name '?e '?val)  ; rule-head specify which rule-body to pick
         q (conj '[:find ?e :in $ % ?val :where ] rule)
-        eids (d/q q (get-db) rule-set thing-id)
-        ; touch to not lazy.
-        entities (map (comp get-entity first) eids)  
+        eids (d/q q (get-db) rule-set arg-val)  ; normally, arg-val is thing-id
+        ; touch entity to realize/materialize all attributes.
+        entities (map (comp get-entity first) eids)
        ]
     entities))
 
 
 ; in case like assignment can be created by course or lecture, in assignment schema,
-; it only has :origin ref back to either course or lecture. 
+; it only has :origin ref back to either course or lecture.
 ; if query course by assignment, or query lecture by assignment, we need to not only
 ; check direct attr name, but also origin ref for those cases.
 ; add origin type to diff thing created from different origin type, maybe ?
-(defn get-entities-by-rule
+(defn get-qpath-entities
   "ret a list of entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
   (prn "get entities by rule " qpath)
   (let [qpath (take-last 3 qpath)  ; only take the last 3 segment in query path
         ;[:question 17592186045429 :assignment]
-        eid (second qpath)
-        src (first qpath)
-        dst (last qpath)
+        [thing-type eid attr] qpath  ; destructure from eid proj.
         e (get-entity eid)
-        origin-e (wildcard-origin-ref-entity e src dst)]
+        origin-e (wildcard-origin-ref-entity e thing-type attr)]
     ; (when (seq origin-e)
-    ;   (prn "entity origin namespace " (entity-keyword (first origin-e)) " dst " dst " origin " (first origin-e)))
+    ;   (prn "entity origin namespace " (entity-keyword (first origin-e)) " attr " attr " origin " (first origin-e)))
     (cond
       ; head thing [:course 1 :course], however, comments can ref to comments.
-      (= src dst) [e]
+      (= thing-type attr) [e]
 
       ; entity has a ref named origin, which is the wildcard ref to parent thing
-      ; make sure that refed entity is the dst of qpath, then we can ret entity directly.
+      ; make sure that refed entity is the attr of qpath, then we can ret entity directly.
       (and (seq origin-e)  ;nil punning when seq
-           (= dst (entity-keyword (first origin-e))))  ; origin really point to dst
+           (= attr (entity-keyword (first origin-e))))  ; origin really point to attr
         (map (comp get-entity :db/id) origin-e)
 
-      ; perform the real query
-      :else (get-entities-by-rule-query qpath rule-set))))
+      :else   ; we use thing-type is rule name in query head.
+        (get-entities-by-rule thing-type rule-set eid))))
 
 
 ; either entity has the attr directly, or entity has :origin reference back
-; to the entity we want to find. 
-; we 
+; to the entity we want to find.
 (defn wildcard-origin-ref-entity
   "ret a vector of entities of the required attr, or the origin ref entity
    as some origin :ref :one, some origin :ref :many, need to set? check"
-  [e e-ns attr]
-  (let [e-attr (keyword (str (name e-ns) "/" (name attr)))
+  [e thing-type attr]
+  (let [e-attr (keyword (str (name thing-type) "/" (name attr)))
         e-attr-val (e-attr e)
-        e-origin (keyword (str (name e-ns) "/" (name :origin)))
+        e-origin (keyword (str (name thing-type) "/" (name :origin)))
         e-origin-val (e-origin e)
         origin-val-type (set? e-origin)
        ]
-    (prn "wildcard origin ref entity " e-ns e-attr e-attr-val " origin ref " e-origin e-origin-val)
+    (prn "wildcard origin ref entity " thing-type e-attr e-attr-val
+         " origin ref " e-origin e-origin-val)
     (if e-attr-val
       (vector e-attr-val)  ; ret a list of matching entities
       ; some origin :ref :one, some are :ref :many, always ret a list.

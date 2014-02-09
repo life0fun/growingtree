@@ -46,7 +46,7 @@
 ; msgs got enq to (:output app) where service-fn consumes them.
 ; effect-fn gets single arg, the tracking map, or maps, or single-val.
 ;;==================================================================================
-; XXX we specific tranform msg topic and type here so response data got dispatch 
+; XXX we specific tranform msg topic and type here so response data got dispatch
 ; to the right locaton in data model directly.
 ; each request gets data for one div template.
 ;;==================================================================================
@@ -72,11 +72,11 @@
                                             :author user}
                                  }
                            ]
-                        body)) 
+                        body))
                   allpath)
 
         ; send to [:server], type is :request-things, post data in body
-        requests (vec (mapcat 
+        requests (vec (mapcat
                         (fn [body]
                           [{msgs/topic [:server]
                             msgs/type :request-things
@@ -103,7 +103,7 @@
               :details {:searchkey searchkey}
              }
 
-        request [{msgs/topic [:server] 
+        request [{msgs/topic [:server]
                   msgs/type :request-things
                   (msgs/param :body) body}]
        ]
@@ -114,7 +114,7 @@
 
 
 ;;==================================================================================
-;; XXX we specify tranform msg topic and type here so response data got dispatch 
+;; XXX we specify tranform msg topic and type here so response data got dispatch
 ;; to the right locaton in data model directly.
 ;;==================================================================================
 ; inputs contains {:mesage {topic [] :details} :new-model {} :old-model {}}
@@ -133,7 +133,7 @@
         ; after create new thing, change nav path to [:all 0 thing-type]
         resp-msg-topic [:created-thing thing-type]  ; created thing
         resp-msg-type :created-thing-data
-        body {:msg-topic resp-msg-topic :msg-type resp-msg-type 
+        body {:msg-topic resp-msg-topic :msg-type resp-msg-type
               :thing-type thing-type :details details}
        ]
     (.log js/console (str user " post create thing " thing-type " body " body))

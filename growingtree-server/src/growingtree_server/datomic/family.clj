@@ -35,26 +35,26 @@
 ; a named rule is a list of clause [(community-type ?c ?t) [?c :community/type ?t]])]
 ; a set of rules is a list of rules. [[[rule1 ?c] [_ :x ?c]] [[rule2 ?d] [_ :x ?d]]]
 ; rules with the same name defined multiple times in rule set make rule OR.
-;   [[northern ?c] (region ?c :region/ne)] 
+;   [[northern ?c] (region ?c :region/ne)]
 ;   [[northern ?c] (region ?c :region/n)]
 ; Within the same rule set, multiple tuples are AND.
 ; rules with the same name, results are OR.
 ;
-; To use rules, First, you have to pass the rule set as an input source and reference it in 
-; the :in section of your query using the '%' symbol. 
-; Second, you have to invoke one or more rules from the :where section of your query. 
+; To use rules, First, you have to pass the rule set as an input source and reference it in
+; the :in section of your query using the '%' symbol.
+; Second, you have to invoke one or more rules from the :where section of your query.
 ;
 ;
-; all eids must be number, use read-string to convert from command line. 
+; all eids must be number, use read-string to convert from command line.
 ; all the :ref :many attribute stores clojure.lang.MapEntry. use :db/id to get the id.
 ; knowing entity id, query with (d/entity db eid). otherwise, [:find $t :where []]
 ; (d/entity db eid) rets the entity. entity is LAZY. attr only availabe when touch.
-; To add data to a new entity, build a transaction using :db/add implicitly 
-; with the map structure (or explicitly with the list structure), a temporary id, 
+; To add data to a new entity, build a transaction using :db/add implicitly
+; with the map structure (or explicitly with the list structure), a temporary id,
 ; and the attributes and values being added.
 ;
 ; #db/id[partition-name value*] : value is an optional negative number.
-; all instances of the same temp id are mapped to the same actual entity id in a given transaction, 
+; all instances of the same temp id are mapped to the same actual entity id in a given transaction,
 ; {:db/id entity-id attribute value attribute value ... }
 ; [:db/add entity-id attribute value]
 ; (d/transact conn [newch [:db/add pid :parent/child (:db/id newch)]]
@@ -69,14 +69,14 @@
 ; when one of the attribute is :db/unique :db.unique/identity, system will map to existing entity if matches or make a new.
 ; to add fact to existing entity, retrieve entity id the add using the entity id.
 ; adding entity ref, must specify an entity id(could be tempid) as the attribute's value.
-; takes advantage of the fact that the same temporary id can be generated multiple times by 
-; specifying the same partition and negative number; and that all instances of a given temporary id 
+; takes advantage of the fact that the same temporary id can be generated multiple times by
+; specifying the same partition and negative number; and that all instances of a given temporary id
 ; within a transaction will resolve to a single entity id.
 ;
 ; (def e (d/entity (db conn) attr-id) gets all entity with ids
 ; (keys e) or (:parent/child (d/entity db 17592186045703))
 ; entity attr rets a map entry for all children. (:parent/child (d/entity db pid))
-; 
+;
 ; entity-id can be used at both side of the datom, e.g., give a parent entity id,
 ;   (d/q '[:find ?e :in $ ?attr :where [17592186045703 ?attr ?e] [...] ] db :parent/child)
 ;   (d/q '[:find ?e :in $ ?attr :where [?e ?attr 17592186045703] [...] ] db :child/parent)
@@ -87,7 +87,7 @@
 ; using parent id, get list of children
 ;   (:parent/child (d/entity db 17592186045476))
 ;
-; inbound query(who refed me) is used for query another entity that refs this entity. 
+; inbound query(who refed me) is used for query another entity that refs this entity.
 ; parent entity can be used to query all child entity that refs to this parent entity.
 ; use inbound query with convention is prefix attr name with _.
 ;   (:child/_parent (d/entity db 17592186045476))
@@ -95,18 +95,18 @@
 ;   (-> (d/entity db 17592186045476) :child/_parent)
 ; this reverse look-up might be time consuming, use explicit linking might be better.
 ;
-; (map (fn [id] (d/touch (d/entity db (:db/id id)))) 
+; (map (fn [id] (d/touch (d/entity db (:db/id id))))
 ;   (-> (d/entity db 17592186045476) :child/_parent))
 ;
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
 
 
 ; parent record example
-; {:db/id 17592186045498 :parent/status :parent.status/active, 
-;  :parent/name "rich-dad", :parent/lname "rich-dad", 
-;  :parent/phone #{"1385741609164"}, :parent/gender :M, 
+; {:db/id 17592186045498 :parent/status :parent.status/active,
+;  :parent/name "rich-dad", :parent/lname "rich-dad",
+;  :parent/phone #{"1385741609164"}, :parent/gender :M,
 ;  :parent/address "addr-rich-dad", :parent/email #{"rich-dad@email.com"},
-;  :parent/children #{{:db/id 17592186045497} {:db/id 17592186045496}}, 
+;  :parent/children #{{:db/id 17592186045497} {:db/id 17592186045496}},
 ;  :parent/age 32, :parent/popularity 6}
 
 
@@ -122,8 +122,8 @@
 (def PersonId (atom (to-long (clj-time/now))))
 
 ; get the id for a person
-(defn getPersonId [] 
-  (let [n (swap! PersonId inc)] 
+(defn getPersonId []
+  (let [n (swap! PersonId inc)]
     (str n)))
 
 ;; parse schema dtm file
@@ -141,9 +141,9 @@
 (def group-schema (assoc (list-attr :group) :db/id :db.type/id))
 
 
-; rules to find person by any name, 
+; rules to find person by any name,
 ; for all rule lists with the same name, results are OR logic.
-(def nameruleset '[[[byname ?e ?n] 
+(def nameruleset '[[[byname ?e ?n]
                    [?e :person/title ?n]]  ; multiple tuples within a rule are AND.
                   [[byname ?e ?n]
                    [?e :person/lname ?n]]])
@@ -167,7 +167,7 @@
 
 ; rule set for get family by.
 (def get-family-by
-  '[[(:all ?e ?val) [?e :family/title]]  
+  '[[(:all ?e ?val) [?e :family/title]]
     [(:title ?e ?val) [?e :family/title ?val]]
     [(:parent ?e ?val) [?e :family/parent ?val]]
     [(:child ?e ?val) [?e :family/child ?val]]
@@ -204,7 +204,7 @@
 
 ;;==========================================================================
 ; :find rets entity id, find all person's pid and name.
-; 
+;
 ;;==========================================================================
 (defn find-user
   "find user by login credential, if type = :signup, create the new user"
@@ -214,13 +214,13 @@
         user (-> (dbconn/find-by :person/title name)
                  (select-keys projkeys)  ; select-keys ret {} on anything nil
              )
-        user (cond 
+        user (cond
                 (and (empty? user) (= :login type)) {:user details :error "invalid user or passowrd"}
                 (= :login type) {:user user :error nil}
                 (and (= :signup type) (not (empty? user))) {:user details :error "user already exist, try another user name."}
                 :else
-                  (let [person (clojure.set/rename-keys 
-                                  details 
+                  (let [person (clojure.set/rename-keys
+                                  details
                                   {:name :person/title
                                    :email :person/email})]
                     (if (= :parent (keyword role))
@@ -237,7 +237,7 @@
   "find person by query path "
   [qpath]
   (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
-        person (->> (util/get-entities-by-rule qpath get-person-by)
+        person (->> (util/get-qpath-entities qpath get-person-by)
                     (map #(select-keys % projkeys) )
                     (map #(util/add-upvote-attr %) )
                     (map #(util/add-navpath % qpath) )
@@ -256,7 +256,7 @@
   "find parent by query path "
   [qpath]
   (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
-        parents (->> (util/get-entities-by-rule qpath get-parent-by)
+        parents (->> (util/get-qpath-entities qpath get-parent-by)
                      (map #(select-keys % projkeys) )
                      (map #(util/add-upvote-attr %) )
                      (map #(util/add-navpath % qpath) )
@@ -290,7 +290,7 @@
   "find children by passed in query path"
   [qpath]
   (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
-        children (->> (util/get-entities-by-rule qpath get-child-by)
+        children (->> (util/get-qpath-entities qpath get-child-by)
                      (map #(select-keys % projkeys) )
                      (map #(util/add-upvote-attr %) )
                      (map #(util/add-navpath % qpath) )
@@ -340,7 +340,7 @@
 ;;==========================================================================
 ; rule set for get group by. rule name is the group thing type.
 (def get-group-by
-  '[[(:all ?e ?val) [?e :group/title]] 
+  '[[(:all ?e ?val) [?e :group/title]]
     [(:title ?e ?val) [?e :group/title ?val]]
     [(:author ?e ?val) [?e :group/author ?val]]
     [(:person ?e ?val) [?e :group/person ?val]]
@@ -354,20 +354,20 @@
   "find groups by passed in query path"
   [qpath]
   (let [projkeys (keys group-schema)  ; must select-keys from datum entity attributes
-        groups (->> (util/get-entities-by-rule qpath get-group-by)
+        groups (->> (util/get-qpath-entities qpath get-group-by)
                     (map #(select-keys % projkeys) )
                     (map #(util/add-upvote-attr %) )
                     (map #(util/add-navpath % qpath) )  ;: navpath [:all 0 :group 17592186045441]
                  )
        ]
     (doseq [e groups]
-      (prn "group --> " e))
+      (prn "find group --> " e))
     groups))
 
 
-; each path response for getting data for one div template.
+; each qpath response for getting data for one div template. [:group 1 :group-members]
 (defn find-group-members
-  "find all group members"
+  "find all group members by query path"
   [qpath]
   (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
         person (->> (:group/person (dbconn/get-entity (second qpath)))
@@ -377,7 +377,20 @@
                  )
        ]
     (doseq [e person]
-      (prn "group person --> " e))
+      (prn "find group members --> " e))
+    person))
+
+
+; get group member by group title
+(defn get-group-members
+  [group-title]
+  (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
+        ;group (util/get-entities-by-rule :title get-group-by group-title)
+        group (dbconn/find-by :group/title group-title)
+        person (:group/person group)
+       ]
+    (doseq [e person]
+      (prn "get group members --> " e))  ; {:db/id 17592186045419}
     person))
 
 
@@ -419,3 +432,4 @@
     (prn "join group " group)
     (prn "join group trans " trans)
     [group]))
+
