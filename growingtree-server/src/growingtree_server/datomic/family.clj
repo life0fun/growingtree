@@ -204,8 +204,13 @@
 
 ;;==========================================================================
 ; :find rets entity id, find all person's pid and name.
-;
 ;;==========================================================================
+(defn get-person-by-title
+  "get person by title"
+  [title]
+  (dbconn/find-by :person/title title))
+
+
 (defn find-user
   "find user by login credential, if type = :signup, create the new user"
   [details]
@@ -387,10 +392,10 @@
   (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
         ;group (util/get-entities-by-rule :title get-group-by group-title)
         group (dbconn/find-by :group/title group-title)
-        person (:group/person group)
+        person (:group/person group)  ; :ref :many set
        ]
     (doseq [e person]
-      (prn "get group members --> " e))  ; {:db/id 17592186045419}
+      (prn "group " group-title " members --> " e))  ; {:db/id 17592186045419}
     person))
 
 
@@ -414,16 +419,19 @@
     [group]))
 
 
+; if blank input, take the current user as input
 (defn join-group
   "join group from the submitted new thing form details from parent add-group"
   [details]
-  (let [person-id (if (clojure.string/blank? (:group/person details))
-                      (:db/id (find-by :person/title (:author details)))
-                      (:db/id (find-by :person/title (:group/person details))))
+  (let [person-ids (if (clojure.string/blank? (:group/person details))
+                       [(:db/id (find-by :person/title (:author details)))]
+                       (->> (map #(:db/id (find-by :person/title %))
+                                 (util/tagsInputs (:group/person details)))
+                            (filter identity)))
         group-id (:db/id details)
         group (-> details
                 (select-keys (keys group-schema))
-                (assoc :group/person person-id)
+                (assoc :group/person person-ids)  ; group person if ref many
                 (assoc :db/id group-id))
 
         trans (submit-transact [group])  ; transaction is a list of maps to update db values

@@ -10,7 +10,7 @@
 <_within file="application.html">
 
   <div id="content">
- 
+
     <!-- the landing homepage, include nav bar, sigde bar, and main div -->
     <div template="homepage" class="homepage" field="id:id">
       <!-- nav bar -->
@@ -47,19 +47,19 @@
                         <label for="newthing-group">Group</label><br/>
 
                         <button type="submit" id="nav-newthing-submit" class="form-button">Create</button>
-                      </form>        
+                      </form>
                     </div>
                   </div>
                 <li>
 
                 <li id="login" class="active"><a href="#">Login</a></li>
               </ul>
-              
+
             </div>
           </div>
         </div>
       </div>
- 
+
       <!-- body include side bar and main body -->
       <div class="container-fluid">
         <!-- sidebar nav is static, and common to all -->
@@ -75,10 +75,10 @@
               <ul class="nav nav-list">
                 <li class="nav-header"> Family </li>
                 <li>
-                  <a class="sidenav-selected" id="sidenav-parent"> Parents</a> 
+                  <a class="sidenav-selected" id="sidenav-parent"> Parents</a>
                 </li>
                 <li>
-                  <a id="sidenav-child"> Children</a> 
+                  <a id="sidenav-child"> Children</a>
                 </li>
 
                 <li class="nav-header"> Learning </li>
@@ -91,80 +91,80 @@
                 <li>
                   <a id="sidenav-enrollment"> Enrollment </a>
                 </li>
-                
+
                 <li class="nav-header"> Practice </li>
-                <li> 
-                  <a id="sidenav-question"> Questions </a> 
+                <li>
+                  <a id="sidenav-question"> Questions </a>
                 </li>
                 <li>
                   <a id="sidenav-assignment"> Assignments </a>
                 </li>
-                
+
                 <li class="nav-header"> Social </li>
-                <li> 
-                  <a id="sidenav-schoolclass">School Classes</a>
+                <li>
+                  <a id="sidenav-schoolclass">Classes</a>
                 </li>
-                <li> 
+                <li>
                   <a id="sidenav-group">Groups</a>
                 </li>
-                <li> 
+                <li>
                   <a id="sidenav-like">Likes</a>
                 </li>
-                <li> 
+                <li>
                   <a id="sidenav-comments">Comments</a>
                 </li>
-                <li> 
+                <li>
                   <a id="sidenav-topquestion">Top Questions </a>
                 </li>
-                <li> 
+                <li>
                   <a id="sidenav-topanswer">Top Answers </a>
                 </li>
-                <li> 
-                  <a id="sidenav-ask">Ask Question</a>
+                <li>
+                  <a id="sidenav-ask">Ask A Question</a>
                 </li>
                 <li>
                   <a id="sidenav-answer">Answer Question</a>
                 </li>
-                
+
                 <li class="nav-header">History</li>
-                <li> 
+                <li>
                   <a id="sidenav-timeline">TimeLine</a>
                 </li>
                 <li>
                   <a id="sidenav-knowledge">Knowledge</a>
                 </li>
-                <li> 
+                <li>
                   <a id="sidenav-activity">Activities</a>
                 </li>
-                <li> 
+                <li>
                   <a id="sidenav-location">Locations</a>
                 </li>
               </ul>
             </div> <!-- well sidebar-->
           </div> <!-- span 3 -->
-         
+
           <!-- this is the main container  -->
           <div id="main" class="span9 main">
             <div class="leaderboard" field="content:leaderboard">
                 <h1> Learn, Practice, Develop -- Together ! </h1>
                 <h4> Hello Parents, this is the social learning management system for your kids !</h4>
             </div>
-            
+
             <!-- container for a list of things [:all :course "course1"] -->
             <div id="topthings"> </div>
 
           </div>  <!-- end of span9 -->
         </div> <!-- end of row fluid -->
-      </div> <!-- end of container fluid, end of homepage--> 
+      </div> <!-- end of container fluid, end of homepage-->
     </div>
 
-    
+
     <!-- login template, should use _include -->
     <div class="container login" template="login" field="id:id">
       <div class="row">
         <div class="center span4 well">
           <h3>Welcome To GrowingTrees</h3>
-         
+
           <div id="error" class="alert alert-error">
               <!-- <a class="close" data-dismiss="alert"></a> -->
               <span field="content:login-error"></span>
@@ -174,11 +174,11 @@
             <input type="text" id="login-name" value="rich-dad" class="span4" placeholder="Username or email" />
 
             <input type="password" id="login-pass" value="rich" class="span4" placeholder="Password" />
-            
+
             <label class="checkbox">
               <input type="checkbox" name="remember" value="1" /> Remember Me
             </label>
-          
+
             <button id="login-button" type="submit" name="submit" class="btn btn-primary btn-block">Login in</button>
           </form>
 
@@ -203,9 +203,9 @@
             <input type="password" id="signup-pass" value="" class="span4" placeholder="Password" />
 
             <input type="password" id="signup-pass-rep" value="" class="span4" placeholder="Repeat Password" />
-          
+
             <button id="signup-button" type="submit" name="submit" class="btn btn-primary btn-block">Sign up</button>
-    
+
           </form>
 
           <br>

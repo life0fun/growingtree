@@ -228,33 +228,38 @@
     assignments))
 
 
-; to assign to group, the :assignment/person is a list of name, separated by comma.
+; tagsInput sep is , weto assign to group, the :assignment/person is a list of name, separated by comma.
 ; "fun math,rich-baby", we need split and strip it.
 (defn create-assignment
   "new assignment form the submitted form data"
   [details]
   (let [author-id (:db/id (dbconn/find-by :person/title (:author details)))
         ; this find all children whose parent is author-id,
-        person (->> (clojure.string/split (:assignment/person details) #",")
-                    (map clojure.string/trim )
-                    )
-        person-id (->> (map #(:db/id (dbconn/find-by :person/title %)) person)
+        person (util/tagsInputs (:assignment/person details))
+        person-id (->> (map #(family/get-person-by-title %) person)
+                       (map :db/id )
                        (filter identity))
+        ; use mapcat as group person is ref many.
+        group-person (->> (mapcat #(family/get-group-members %) person)
+                          (map :db/id )
+                          (filter identity))
+        all-person (set (concat person-id group-person))
 
-        group-person (mapcat #(:db/id (family/get-group-members %)) person)
+        entity (fn [person-id]
+                (-> details
+                  (select-keys (keys assignment-schema))
+                  (assoc :assignment/author author-id)
+                  (assoc :assignment/person person-id)
+                  (util/to-datomic-attr-vals)
+                  (assoc :db/id (d/tempid :db.part/user))))
 
-        entity (-> details
-                (select-keys (keys assignment-schema))
-                (assoc :assignment/author author-id)
-                (assoc :assignment/person person-id)
-                (util/to-datomic-attr-vals)
-                (assoc :db/id (d/tempid :db.part/user)))
-        trans (submit-transact [entity])  ; transaction is a list of entity
+        assigns (map entity all-person)
+        trans (submit-transact assigns)  ; transaction is a list of assigns
       ]
     (newline)
-    (prn author-id "create assignment to " person-id " " person " entity " entity)
+    (prn author-id "create assignment to " person " " all-person " assigns " assigns)
     (prn "create assignment trans " trans)
-    entity))
+    assigns))
 
 
 ;;================================================================================

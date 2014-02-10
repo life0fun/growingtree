@@ -55,6 +55,14 @@
 (defn mills-date [mills] (to-date (from-long mills)))
 
 
+; tagsInput box delimiter is comma, we need to string split and trim
+(defn tagsInputs
+  "get a tagsInput input text sep by comma, ret a list of values cleaned"
+  [input-text]
+  (->> (clojure.string/split input-text #",")
+       (map clojure.string/trim )))
+
+
 ; ============================================================================
 ; coerce datomic entity attribute value to entity key value
 ; actually, we do not need this, framework already handles it.
