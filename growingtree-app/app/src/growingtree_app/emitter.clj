@@ -288,23 +288,21 @@
 
 ; ret a vector of delta tuples of node-create and value delat from a vector of
 ; thing data value. value is a vector of entity tuples, mapcat vec is de-pack and re-pack vec.
-; data for navpath stored in [:data :thing 1 :next-thing]
+; data for navpath stored in [:data :header 1 :filtered]
 ; thing data emit qpath [:course 1 :comments] changemap {[:data :course 1 :course]
 ; (:data :author 1 :author) rpath [:details :parent 1 :person 1]
 (defn- thing-data-deltas
   [inputs data-path qpath things-vec]  ; data-path is where data vector is stored.
   ; data-path = [:data :* :* :*] = [:data :all 0 :parent] [:data :course 1 :comments]
-  (let [navpath (rest data-path)] ; [:data :course 1 :lecture] stores data for nav path [:course 1 :lecture]
+  (let [navpath (rest data-path)] ; [:data :header 1 :filtered]
     (vec (concat
       (mapcat
         (fn [entity-map]
           (let [; each thing map has navpath indicates query path, for UI nav and display
                 thing-map (keyword-thing-navpath entity-map)
                 id (:db/id thing-map)  ; get :db/id as each node render path id
-
                 ; thing-map has a :navpath filled by (util/add-navpath % qpath),
-                ; navpath tells who is the parent of this entity during navigation.
-                ; :navpath ["all" 0 "course"], or  ["course" 1 "comments"], or ["course" 1 "course"]
+                ; navpath = [:header 1 :filtered], ["all" 0 "course"], or ["course" 1 "comments"]
                 render-path (thing-navpath->renderpath (:navpath thing-map) thing-map)
                 thing-type (second (reverse render-path))
                 actiontransforms (thing-navpath-transforms thing-type render-path thing-map)
@@ -313,6 +311,7 @@
                ]
             ; (:data :author 1 :author) rpath [:details :parent 1 :person 1]
             (.log js/console (str "thing-data-deltas " thing-type " navpath " navpath "rpath " render-path))
+            ; emit thing node value at render-path, and add comments and details box, lastly action transforms.
             (concat [ [:node-destroy render-path]
                       [:node-create render-path :map]
                       [:value render-path {:qpath qpath :thing-map thing-map}] ]
@@ -439,7 +438,6 @@
 
 ; thing-type is person, rpath [:details :parent 1 :person 1]
 (defmethod thing-navpath-transforms
-  ;:author
   :person
   [thing-type render-path entity-map]
    (let [thing-id (:db/id entity-map)

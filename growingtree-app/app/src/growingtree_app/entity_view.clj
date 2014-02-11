@@ -78,7 +78,7 @@
                :assignto ""
               }
 
-    :assignment {:title ""
+    :assignment {:title "" :author ""
                  :question "" :hint "" :similar ""
                  :answer "" :submit-answer ""
                  :comments ""
@@ -363,20 +363,6 @@
     (.log js/console (str "thing value view template :default " rpath " new-value " thing-map))
     thing-view))
 
-
-; template value for thing details under qpath title
-; (defmethod thing-value-view
-;   :title
-;   [r rpath qpath thing-map input-queue]
-;   (let [thing-id (last rpath)
-;         thing-type (second (reverse rpath))
-
-;         thing-val (thing-template-value thing-type thing-map)
-;         ]
-;     (.log js/console (str "update thing node value " rpath " new-value " thing-map))
-;     thing-val))
-
-
 ;;===========================================================================
 ; xhr response data stored into [:data navpath], thing data emitter
 ; [:node-create render-path :map] [:value render-path entity-map]
@@ -500,6 +486,7 @@
            :entryhref "javascript:void(0);"
            :title-id (str (:db/id thing-map) "-title")
            :author-name (get-in thing-map [author-attr :person/title]) ; author is ref one for assignment
+           :author-class (get-in thing-map [author-attr :person/title])
            :id-author (str (:db/id thing-map) "-author")
            :upvote upvotes
            :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")

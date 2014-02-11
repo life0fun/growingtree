@@ -224,7 +224,9 @@
 ; clear all things by type upon nav type change, as we will restful request from service.
 ; input specifier defines what inputs var is, i.e., what upstream inputs are
 ; to get the clicked thing, [:old-model :data parent id child]
-; from [:parent 17592186045498 :parent] to [:parent 17592186045498 :child] parent ()
+; from [:parent 1 :parent] to [:parent 1 :child] parent ()
+; oldv map of [:data] with navpath [:data :question 1 :question] [:data :question 1 :assignment]
+; {:question {1 {:question [{:question/origin ...}] :assignment [{:assignment/title}]
 ;-----------------------------------------------------------------------------------------
 (defn refresh-thing-data
   "remove stale things vec under [:data nav-path] upon nav path change"
@@ -234,14 +236,11 @@
         path (:path activemsg)
         qpath (:qpath activemsg)
 
-        oldpath (vec (last (get-in inputs [:old-model :nav :path])))
-        newpath (vec (last (get-in inputs [:new-model :nav :path])))
-        ; not used, just for experiments.
-        old-thing-vec (get-in inputs (concat [:old-model :data] oldpath))
-        parent-thing-id (second (reverse newpath))
-        parent (filter #(= parent-thing-id (:db/id %)) old-thing-vec)
+        oldpath (vec (last (get-in inputs [:old-model :nav :path]))) ; [:question 1 :assignment]
+        newpath (vec (last (get-in inputs [:new-model :nav :path]))) ; [:author 1 :author]
+        thing-type (first oldpath)
        ]
-    (.log js/console (str "refresh-thing-data upon nav path from " oldpath " to " newpath " " activemsg))
+    (.log js/console (str "refresh-thing-data upon navpath from " oldpath " to " newpath " " activemsg))
     (if oldv
       ; ret new map to stored [:all], squash everything in old path so all nodes get deleted
       (-> oldv
@@ -249,8 +248,8 @@
         (assoc-in qpath [])
         (assoc-in oldpath [])
         (assoc-in newpath [])
+        (assoc-in [thing-type] [])
       ))))
-
 
 
 ;;==================================================================================
