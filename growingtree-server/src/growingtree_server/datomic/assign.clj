@@ -127,14 +127,15 @@
     [(:assignment ?e ?val) [?e :question/origin ?val]]
   ])
 
-
+; rule name is the parent of navpath [:parent 1 :assignment] [:child 1 :assignment]
 (def get-assignment-by
   '[[(:all ?e ?val) [?e :assignment/author]]   ; select all assignment that has author
     [(:title ?e ?val) [?e :assignment/title ?val]]
-    [(:author ?e ?val) [?e :assignment/author ?val]]
-    [(:child ?e ?val) [?e :assignment/person ?val]]
     [(:status ?e ?val) [?e :assignment/status ?val]]
     [(:end ?e ?val) [?e :assignment/end ?val]]
+
+    [(:parent ?e ?val) [?e :assignment/author ?val]]
+    [(:child ?e ?val) [?e :assignment/person ?val]]
 
     [(:question ?e ?val) [?e :assignment/origin ?val]]
     [(:lecture ?e ?val) [?e :assignment/origin ?val]]

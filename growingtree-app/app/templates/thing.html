@@ -66,11 +66,10 @@
           <div>
         </li>
 
-        <!-- assignments -->
         <li class="share">
           <div field="class:assignment-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">assignments</a>
+              <a class="option active" href="#">assigned by me</a>
             </span>
           <div>
         </li>
@@ -629,17 +628,15 @@
     <div class="entry unvoted" template="thing-entry">
       <p class="subtitle">
         <span class="tagline"> by </span>
-        <a href="javascript:void(0)" field="content:author-name,class:author-class,href:entryhref,id:id-author"></a>
-        <span class="tagline"> at </span>
-        <span field="content:start"></span>
+        <a field="content:author-name,class:author-class,href:entryhref,id:id-author"></a>
       </p>
 
       <p class="title">
         <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
-        <span class="domain"></span>
       </p>
 
       <p class="subtitle">
+        <!-- <span field="content:start"></span> -->
         <span class="tagline"> due at </span>
         <span field="content:end"></span>
       </p>

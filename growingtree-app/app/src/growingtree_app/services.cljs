@@ -22,7 +22,7 @@
 ;; to access keys in cljs object, use cljs.core.Keyword.
 ;; (.log js/console ((keyword "foo") (cljs.reader/read-string "{:foo :bar}")))
 ;; need to support lein cljsbuild clean, or will rm -fr out/
-;; 
+;;
 ;; for json processing, https://github.com/yogthos/cljs-ajax/blob/master/src/ajax/core.cljs
 ;; when response is json string, parse to cljs object.
 ;;    bodyjson (JSON/parse (:body response))
@@ -30,7 +30,7 @@
 ;; when response is edn, read-string to parse to cljs.core.PersistentHashMap
 ;; convert cljs object to cljs data structre, use js->clj
 ;;    (js->clj (JSON/parse (:body response)) :keywordize-keys true)
-;; 
+;;
 ;; access json object, (aget jsonobject "key-name")
 ;; access cljs persistentMap, ((keyword "course/title") cljs.core.PersistentHashMap)
 ;;
@@ -79,7 +79,7 @@
         :publish (xhr-request "/msgs" "POST" body xhr-log xhr-log)
 
         :signup-login (signup-login body input-queue)
-        
+
         :request-things (request-things body input-queue)
         :add-thing (add-thing body input-queue)
 
@@ -91,10 +91,10 @@
   [body input-queue]
   (let [{:keys [type login pass email]} body
         api (str "/login")
-        resp 
+        resp
           (fn [response]
             (when-let [body (:body response)] ; only when we have valid body
-              (let [bodyjson (JSON/parse body)  
+              (let [bodyjson (JSON/parse body)
                     ; parse js json object to cljs.core.PersisitentVector data structre.
                     result (js->clj bodyjson :keywordize-keys true)
                     status (:status result)
@@ -137,19 +137,19 @@
     ; parse response body into json and convert json to cljs PersistentVector
     (when-let [body (:body response)] ; only when we have valid body
       ;(.log js/console (str "app service receive response : " body))
-      (let [bodyjson (JSON/parse body)  
+      (let [bodyjson (JSON/parse body)
             ; parse js json object to cljs.core.PersisitentVector data structre.
             result (js->clj bodyjson :keywordize-keys true)
             status (:status result)
             things-vec (:data result)  ; alway ret a list of things
             dbid (:db/id (first things-vec))
-            ]
+           ]
         ;(.log js/console (str "xhr response tuples " dbid " type " thing-type msg-topic msg-type things-vec))
-        (.log js/console (str "xhr response to input-queue " dbid " type " thing-type msg-topic msg-type))
+        (.log js/console (str "app service response handler " dbid " " thing-type msg-topic))
         ; dispatch to different transformer in behavior directly.
         (p/put-message input-queue
-                       {msgs/topic msg-topic  ; store vec in [:all :parent]
-                        msgs/type msg-type
+                       {msgs/topic msg-topic  ; [:data :assignment 1 :answer]
+                        msgs/type msg-type    ; msg-type always :set-thing-data to store thing-vec
                         :thing-type thing-type    ; set thing type
                         :details details      ; for request, contains [:path :qpat]
                         :data things-vec})  ; store cljs.core.PersistVector into path node
@@ -161,9 +161,9 @@
 ; request body contains callback transformer msg and thing-type, query path, details.
 ; msg type topic is setup in effect flow when nav path changed. [:data nav-path]
 ;  /api/comments [:data :course 1 :comments] :set-thing-data :msg-topic [:data :course 1 :comments]
-; body {:msg-type :set-thing-data, :msg-topic [:data :group 1 :group-members], 
-; :thing-type :group-members, :path [:group 1 :group-members], 
-; :details {:path [:group 1 :group-members], :qpath [:group 1 :group-members], :author "rich-dad"}} 
+; body {:msg-type :set-thing-data, :msg-topic [:data :group 1 :group-members],
+; :thing-type :group-members, :path [:group 1 :group-members],
+; :details {:path [:group 1 :group-members], :qpath [:group 1 :group-members], :author "rich-dad"}}
 ;;=======================================================================================
 (defn request-things
   [body input-queue]
@@ -189,7 +189,7 @@
     (xhr-request api "POST" body resp xhr-log)))
 
 
-; received server send event 
+; received server send event
 (defn received-sse
   "recvd sse, put it into received inbound path node in app input queue"
   [app e]
@@ -203,10 +203,10 @@
                     :id (util/random-id)})))
 
 
-; Service type is the interface that receives back-end SSE event. 
+; Service type is the interface that receives back-end SSE event.
 ; The /msgs endpoint is channel to receive SSE. After receiving SSE data,
 ; convert data into [:inbound] :received msgs into (:input app) queue.
-(defrecord Services 
+(defrecord Services
   [app]
   p/Activity
   (start [this]

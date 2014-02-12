@@ -176,7 +176,7 @@
         msg-type (msgs/type message)
         thing-type (:thing-type message)  ; for all, thing-type is all
         things-vec (:data message)]  ; cljs.core.PersistentVector [{thing1} {thing2}]
-    (.log js/console (str "set thing data at " msg-topic " thing-type " thing-type " things-vec " things-vec))
+    (.log js/console (str "set-thing-data " msg-topic " thing-type " thing-type " things-vec " things-vec))
     things-vec))  ; now vector is stored in [:all :parent]
 
 
@@ -225,7 +225,7 @@
 ; input specifier defines what inputs var is, i.e., what upstream inputs are
 ; to get the clicked thing, [:old-model :data parent id child]
 ; from [:parent 1 :parent] to [:parent 1 :child] parent ()
-; oldv map of [:data] with navpath [:data :question 1 :question] [:data :question 1 :assignment]
+; oldv stores embedded map with [:data] with navpath [:data :question 1 :question] [:data :question 1 :assignment]
 ; {:question {1 {:question [{:question/origin ...}] :assignment [{:assignment/title}]
 ;-----------------------------------------------------------------------------------------
 (defn refresh-thing-data
@@ -240,15 +240,14 @@
         newpath (vec (last (get-in inputs [:new-model :nav :path]))) ; [:author 1 :author]
         thing-type (first oldpath)
        ]
-    (.log js/console (str "refresh-thing-data upon navpath from " oldpath " to " newpath " " activemsg))
+    ; (.log js/console (str "refresh-thing-data upon navpath from " oldpath " to " newpath " " activemsg))
     (if oldv
-      ; ret new map to stored [:all], squash everything in old path so all nodes get deleted
       (-> oldv
         (assoc-in path [])
         (assoc-in qpath [])
         (assoc-in oldpath [])
         (assoc-in newpath [])
-        (assoc-in [thing-type] [])
+        (assoc-in [thing-type] {})
       ))))
 
 

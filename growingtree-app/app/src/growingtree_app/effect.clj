@@ -59,7 +59,7 @@
         nxtpath (:qpath msg)   ; filtered [:parent 1 :children]
         allpath (filter (comp not nil?) [curpath nxtpath]) ; filter out no qpath case
 
-        ; request thing-type is the last item in msg
+        ; two msgs, one query header part, and the other for filtered thing.
         bodies (map (fn [p]
                       (let [thing-type (last p)
                             ; set data store topic [:data :thing id :next-thing]
