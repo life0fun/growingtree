@@ -133,32 +133,29 @@
     entities))
 
 
-; in case like assignment can be created by course or lecture, in assignment schema,
-; it only has :origin ref back to either course or lecture.
-; if query course by assignment, or query lecture by assignment, we need to not only
-; check direct attr name, but also origin ref for those cases.
-; add origin type to diff thing created from different origin type, maybe ?
+; Leaf thing, assignment, answer, only have :origin ref back to things they pointed to.
+; for leaf thing origin query, e.g, question of assignment, or assignment of answer,
 (defn get-qpath-entities
   "ret a list of entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
-  (prn "get entities by rule " qpath)
-  (let [qpath (take-last 3 qpath)  ; [:course 1 :comments 2 :comments] 
+  (let [qpath (take-last 3 qpath)  ; [:course 1 :comments 2 :comments]
         ;[:question 1 :assignment] [:course 1 :comments 2 :comments]
         [thing-type eid attr] qpath  ; qpath is thing thing-id attr
         e (get-entity eid)   ; we have thing-id, get thing entity
-        ; get thing attr directly, or its origin if it is leaf
-        attr-val (leaf-thing-origin e thing-type attr)]
-    ; (when (seq attr-val)
-    ;   (prn "entity origin namespace " (entity-keyword (first attr-val)) " attr " attr " origin " (first attr-val)))
+        attr-val (leaf-thing-origin e thing-type attr)
+       ]
     (cond
+      ; for comments of comments, query directly. (:comments 1 :comments)
+      (and (= thing-type :comments) (= attr :comments))
+        (get-entities-by-rule thing-type rule-set eid)
+
       ; head thing [:course 1 :course], however, comments can ref to comments.
-      (and (not= attr :comments) (= thing-type attr)) [e]
-      ;(= thing-type attr) [e]
+      (= thing-type attr) [e]
 
       ; for leaf things, they have :origin outbound ref to thing they attached to.
       ; to find attr of leaf thing, it's either attr by name, or its :origin ref.
-      (and (seq attr-val)  ;nil punning when seq
-           (= attr (dbconn/entity-keyword (first attr-val)))) ; if the keyword of found entity match the attr we are looking for
+      (and (seq attr-val)  ;nil pun seq
+           (= attr (dbconn/entity-keyword (first attr-val)))) ; [:answer 1 :assignment]
         (map (comp get-entity :db/id) attr-val)
 
       ; entity does not have attr, attr is inbound to entity from target [:course 1 :lectures]
@@ -166,7 +163,7 @@
         (get-entities-by-rule thing-type rule-set eid))))
 
 
-; find an attr of a thing, either find the attr by its name directly. If thing does not have 
+; find an attr of a thing, either find the attr by its name directly. If thing does not have
 ; attr, try to find its origin ref, as attr could be repr-ed by origin.
 (defn leaf-thing-origin
   "ret a vector of entities of thing's attr, or the entity refred by origin

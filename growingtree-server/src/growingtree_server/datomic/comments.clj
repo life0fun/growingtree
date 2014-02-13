@@ -148,12 +148,11 @@
 
 
 ;;==============================================================
-; comments
+; for comments query, always
 ;;==============================================================
 (defn query-comments
   "query comments by path, [:course 1 :comments] or [:course 1 :comments 2 :comments]"
   [navpath]
-  (prn "query-comments of qpath " (take-last 3 navpath))
   (let [projkeys (keys comments-schema)  ; must select-keys from datum entity attributes])
         qpath (take-last 3 navpath)
         comments (->> (util/get-qpath-entities qpath get-comments-by)
@@ -171,24 +170,23 @@
   [c]
   (when-not (nil? c)
     (let [navpath (concat (:navpath c) [:comments])
-          comments (query-comments navpath)
-          ]
-      (doseq [e comments]
-        (prn "comments of " navpath " --> " e ))
+          comments (query-comments navpath)]
+      ; (doseq [e comments]
+      ;   (prn "comments of " navpath " --> " e ))
       comments)))
 
 
+; [:course 17592186045425 :comments]
 (defn find-comments
   "find all comments by query path"
   [qpath]
-  (prn "find-comments " qpath)
   (let [; list comprehension, cartesian production, need to use hash-set to remove dups.
-        comments (->> (for [c (query-comments qpath)
-                            l1 (comments-of c)
-                           ]
-                        [c l1])
-                      (reduce #(concat %1 %2) []))
+        ; comments (->> (for [c (query-comments qpath)
+        ;                     l1 (comments-of c)]
+        ;                 [c l1])
+        ;               (reduce #(concat %1 %2) []))
 
+        ; iteratively apply a fn to a coll. result is a new lazy sequence.
         ; (iterate f x), ret a lazy sequence of x, (f x), (f (f x)), mapcat to get one list.
         comments (->> (iterate (fn [c] (mapcat #(comments-of %) c)) (query-comments qpath))
                       (take 3)  ; how many levels of recursive comments tree

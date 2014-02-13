@@ -45,20 +45,20 @@
   {
     :parent {:child "" :add-child " hide"
              :group "" :add-group " hide"
-             :assignment "" :comments "" :activity ""
+             :assignment "" :activity ""
              :upvote "" :like "" :follow ""
             }
 
     :child {:parent "" :add-parent " hide"
             :schoolclass "" :add-schoolclass " hide"
-            :assignment "" :comments "" :activity ""
+            :assignment "" :activity ""
             :upvote "" :like "" :follow ""
            }
 
     :course {:title "" :author ""
              :lecture "" :add-lecture " hide"
-             :comments ""
              :enrollment "" :enroll ""
+             :comments ""
              :upvote "" :like "" :share ""
             }
 
@@ -85,7 +85,8 @@
                  :upvote "" :like "" :share ""
                 }
 
-    :comments {:reply "" :reply-form ""
+    :comments {:author ""
+               :reply "" :reply-form ""
                :upvote "" :like "" :share ""
               }
 
@@ -360,13 +361,13 @@
         thing-val (thing-template-value thing-type thing-map)
         thing-view (merge thing-val nav-add-clz)
        ]
-    (.log js/console (str "thing value view template :default " rpath " new-value " thing-map))
+    (.log js/console (str "thing value view template :default " rpath " " thing-map))
     thing-view))
 
 ;;===========================================================================
 ; xhr response data stored into [:data navpath], thing data emitter
 ; [:node-create render-path :map] [:value render-path entity-map]
-; we have created thing node, now value thing node and return thing-view
+; use thing value map to fill thing-XXX template.
 ; rpath = [:main :all 0 :course 17592186045425]
 ;        [:header :parent 17592186045498]
 ;        [:filtered :course 17592186045428 :lecture 17592186045430]
@@ -383,6 +384,7 @@
     thing-type))
 
 
+; each thing type deserves a dedicate method. do not use default.
 (defmethod thing-template-value
   :default
   [thing-type thing-map]
@@ -403,7 +405,7 @@
        ]
     value-map))
 
-; template value for each thing type varies greatly, default can not  capture
+
 (defmethod thing-template-value
   :course
   [thing-type thing-map]
@@ -423,12 +425,10 @@
            :start (util/format-time (thing-attr-val thing-map thing-type "start"))
            :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
           }
-
        ]
     value-map))
 
 
-; template value for each thing type varies greatly, default can not  capture
 (defmethod thing-template-value
   :lecture
   [thing-type thing-map]
@@ -453,7 +453,6 @@
     value-map))
 
 
-; template value for each thing type varies greatly, default can not  capture
 (defmethod thing-template-value
   :question
   [thing-type thing-map]
@@ -497,7 +496,7 @@
     value-map))
 
 
-; template value for :answer
+; answer has score
 (defmethod thing-template-value
   :answer
   [thing-type thing-map]
@@ -521,6 +520,7 @@
     value-map))
 
 
+; comments can be made to comments. Also, calculate time.
 (defmethod thing-template-value
   :comments
   [thing-type thing-map]
@@ -528,15 +528,18 @@
         origin-title (-> (get-in thing-map [:comments/origin])
                          (util/thing-val-by-name "title")
                          (second)) ; value is the second of kv vector
+        author-attr (util/thing-attr-keyword thing-type "author")
+
         value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :thumbhref (thing-type thing-thumbnail)
            :entryhref "javascript:void(0);"
+           :author-name (get-in thing-map [author-attr :person/title]) ; author is ref one for assignment
+           :author-class (get-in thing-map [author-attr :person/title])
+           :id-author (str (:db/id thing-map) "-author")
            :upvote upvotes
            :comments-time "  6 hours"
-           :author-name (get-in thing-map [:comments/author :person/title])
-           :id-author (str (:db/id thing-map) "-author")
-           :origin-title "We do not need this if we organize comment tree hierarchy"}
+          }
         ]
     value-map))
 

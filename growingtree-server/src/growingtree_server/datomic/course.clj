@@ -152,6 +152,7 @@
        ]
     (doseq [e courses]
       (prn "course --> " e))
+    (newline)
     courses))
 
 

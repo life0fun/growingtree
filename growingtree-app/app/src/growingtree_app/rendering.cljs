@@ -279,7 +279,7 @@
          ]
       ; [:filtered :question 17592186045432 :lecture 17592186045430]
       (.log js/console (str "append filtered child tree " thing-id " offset " offset rpath))
-      (.log js/console (str "child tree " thing))
+      ;(.log js/console (str "child tree " thing))
       (dom/append! parent-node thing)
       (entity-view/thing-node-add-class thing-id (str "offset" offset)))))
 
