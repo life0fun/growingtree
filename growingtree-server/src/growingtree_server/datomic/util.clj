@@ -45,7 +45,7 @@
 
 
 ; forward declarations
-(declare wildcard-origin-ref-entity)
+(declare leaf-thing-origin)
 
 
 ; ============================================================================
@@ -142,32 +142,35 @@
   "ret a list of entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
   (prn "get entities by rule " qpath)
-  (let [qpath (take-last 3 qpath)  ; only take the last 3 segment in query path
-        ;[:question 17592186045429 :assignment]
-        [thing-type eid attr] qpath  ; destructure from eid proj.
-        e (get-entity eid)
-        origin-e (wildcard-origin-ref-entity e thing-type attr)]
-    ; (when (seq origin-e)
-    ;   (prn "entity origin namespace " (entity-keyword (first origin-e)) " attr " attr " origin " (first origin-e)))
+  (let [qpath (take-last 3 qpath)  ; [:course 1 :comments 2 :comments] 
+        ;[:question 1 :assignment] [:course 1 :comments 2 :comments]
+        [thing-type eid attr] qpath  ; qpath is thing thing-id attr
+        e (get-entity eid)   ; we have thing-id, get thing entity
+        ; get thing attr directly, or its origin if it is leaf
+        attr-val (leaf-thing-origin e thing-type attr)]
+    ; (when (seq attr-val)
+    ;   (prn "entity origin namespace " (entity-keyword (first attr-val)) " attr " attr " origin " (first attr-val)))
     (cond
       ; head thing [:course 1 :course], however, comments can ref to comments.
-      (= thing-type attr) [e]
+      (and (not= attr :comments) (= thing-type attr)) [e]
+      ;(= thing-type attr) [e]
 
-      ; entity has a ref named origin, which is the wildcard ref to parent thing
-      ; make sure that refed entity is the attr of qpath, then we can ret entity directly.
-      (and (seq origin-e)  ;nil punning when seq
-           (= attr (entity-keyword (first origin-e))))  ; origin really point to attr
-        (map (comp get-entity :db/id) origin-e)
+      ; for leaf things, they have :origin outbound ref to thing they attached to.
+      ; to find attr of leaf thing, it's either attr by name, or its :origin ref.
+      (and (seq attr-val)  ;nil punning when seq
+           (= attr (dbconn/entity-keyword (first attr-val)))) ; if the keyword of found entity match the attr we are looking for
+        (map (comp get-entity :db/id) attr-val)
 
-      :else   ; we use thing-type is rule name in query head.
+      ; entity does not have attr, attr is inbound to entity from target [:course 1 :lectures]
+      :else
         (get-entities-by-rule thing-type rule-set eid))))
 
 
-; either entity has the attr directly, or entity has :origin reference back
-; to the entity we want to find.
-(defn wildcard-origin-ref-entity
-  "ret a vector of entities of the required attr, or the origin ref entity
-   as some origin :ref :one, some origin :ref :many, need to set? check"
+; find an attr of a thing, either find the attr by its name directly. If thing does not have 
+; attr, try to find its origin ref, as attr could be repr-ed by origin.
+(defn leaf-thing-origin
+  "ret a vector of entities of thing's attr, or the entity refred by origin
+   origin :ref can be :one or :many, need to set? check"
   [e thing-type attr]
   (let [e-attr (keyword (str (name thing-type) "/" (name attr)))
         e-attr-val (e-attr e)
@@ -175,11 +178,10 @@
         e-origin-val (e-origin e)
         origin-val-type (set? e-origin)
        ]
-    (prn "wildcard origin ref entity " thing-type e-attr e-attr-val
-         " origin ref " e-origin e-origin-val)
+    (prn "leaf-thing-origin" thing-type e-attr e-attr-val " origin " e-origin-val)
     (if e-attr-val
       (vector e-attr-val)  ; ret a list of matching entities
-      ; some origin :ref :one, some are :ref :many, always ret a list.
+      ; origin :ref can be :one or :many, always ret a list.
       (if (and e-origin-val (not (set? e-origin-val)))
         (vector e-origin-val)
         e-origin-val)

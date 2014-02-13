@@ -153,6 +153,7 @@
 (defn query-comments
   "query comments by path, [:course 1 :comments] or [:course 1 :comments 2 :comments]"
   [navpath]
+  (prn "query-comments of qpath " (take-last 3 navpath))
   (let [projkeys (keys comments-schema)  ; must select-keys from datum entity attributes])
         qpath (take-last 3 navpath)
         comments (->> (util/get-qpath-entities qpath get-comments-by)
@@ -164,7 +165,7 @@
        ]
     comments))
 
-
+; concat the comments of comments by [:course 1 :comments 2 :comments]
 (defn comments-of
   "give a comments, find all comments whose origin point to this comments"
   [c]
@@ -172,14 +173,15 @@
     (let [navpath (concat (:navpath c) [:comments])
           comments (query-comments navpath)
           ]
-      ; (doseq [e comments]
-      ;   (prn "comments of " navpath " --> " e ))
+      (doseq [e comments]
+        (prn "comments of " navpath " --> " e ))
       comments)))
 
 
 (defn find-comments
   "find all comments by query path"
   [qpath]
+  (prn "find-comments " qpath)
   (let [; list comprehension, cartesian production, need to use hash-set to remove dups.
         comments (->> (for [c (query-comments qpath)
                             l1 (comments-of c)

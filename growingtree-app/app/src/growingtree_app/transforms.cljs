@@ -85,6 +85,7 @@
 (defn enable-login-submit
   "listen login btn event and sent transform msgs back to behavior"
   [_ [_ rpath transkey messages] input-queue]
+  (.log js/console (str "enable login form submit " rpath messages))
   (let [
         login-form (dx/xpath (str "//form[@id='login-form']"))
         login-fn
