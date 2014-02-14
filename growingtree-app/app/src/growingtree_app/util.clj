@@ -120,6 +120,13 @@
       thing-map)))
 
 
+; calc the relation between two moment timestamps.
+; we use moment.from(), the args are moment instance
+(defn moment-from
+  [txtime nowtime]
+    (str " " (.from txtime nowtime)))
+
+
 ; get thing value from thing map by name of the attr, regardless of its namespace.
 ; e.g., get title from any of namespace, :course/title, :lecture/title, etc
 (defn thing-val-by-name

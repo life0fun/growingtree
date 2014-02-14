@@ -526,9 +526,10 @@
                       (d/history (get-db))
                       eid
                       attr)
-                  (sort-by first))  ; sort by tx time
+                    (sort-by first) ; sort by tx time
+                    (reverse ))  
         ]
-    (prn txhist " entity " txhist)
+    (prn " entity " eid " txhist " txhist)
     txhist))
 
 
@@ -550,7 +551,8 @@
                       refed-id
                       attr
                       entities)
-                    (sort-by first))   ; sort by tx time
+                    (sort-by first)   ; sort by tx time
+                    (reverse ))       ; reverse time
         ]
     (prn txhist " entity " txhist)
     txhist))

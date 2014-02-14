@@ -159,6 +159,7 @@
                       (map #(select-keys % projkeys) )
                       (map #(util/add-upvote-attr %) )
                       (map #(util/ref->dbid % :comments/thingroot))
+                      (map #(util/get-entity-attr-tx %))
                       (map #(util/add-navpath % navpath) )
                  )
        ]

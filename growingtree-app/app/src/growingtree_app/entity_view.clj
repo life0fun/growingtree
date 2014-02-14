@@ -124,6 +124,7 @@
     :lecture "lecture.jpg"
     :question "question.jpg"
     :assignment "homework.jpg"
+    :enrollment "enrollment.png"
     :answer "answer.jpg"
     :comments "comments.jpg"
     :like "like.jpg"
@@ -529,7 +530,7 @@
                          (util/thing-val-by-name "title")
                          (second)) ; value is the second of kv vector
         author-attr (util/thing-attr-keyword thing-type "author")
-
+        txtime (thing-attr-val thing-map thing-type "txtime")
         value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
            :thumbhref (thing-type thing-thumbnail)
@@ -538,7 +539,7 @@
            :author-class (get-in thing-map [author-attr :person/title])
            :id-author (str (:db/id thing-map) "-author")
            :upvote upvotes
-           :comments-time "  6 hours"
+           :comments-time (util/moment-from (js/moment txtime) (js/moment))
           }
         ]
     value-map))

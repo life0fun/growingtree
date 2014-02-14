@@ -257,6 +257,17 @@
     (assoc-in entity [numcomments-attr] numcomments)
     ))
 
+; ============================================================================
+; get tx timestamp, #inst "2014-01-08T21:07:24.366-00:00"
+; ============================================================================
+(defn get-entity-attr-tx
+  [entity]
+  (let [eid (:db/id entity)
+        [txid eid v op] (first (dbconn/entity-attr-tx eid :comments/title)) ; latest on top
+        txtm (:db/txInstant (get-entity txid))]
+    (prn "get-entity-attr-tx " eid " " txtm)
+    (assoc-in entity [:comments/txtime] txtm)))
+
 
 ; ============================================================================
 ; for timeline query, we got [?tx ?e ?v ?op]
