@@ -39,20 +39,20 @@
 ;;==================================================================================
 ; action key for each thing nav sublink type,
 ; the value for each sublink is thing class selector hide or not.
-; also used by thing-navpath-transforms to emit transform enable msg.
+; referred by emitter thing-navpath-transforms to emit transform enable msg.
 ;;==================================================================================
 (def thing-nav-actionkey
   {
     :parent {:child "" :add-child " hide"
              :group "" :add-group " hide"
-             :assignment "" :activity ""
+             :assignment "" :timeline ""
              :upvote "" :like "" :follow ""
             }
 
     :child {:parent "" :add-parent " hide"
             :schoolclass "" :add-schoolclass " hide"
-            :assignment "" :activity ""
-            :upvote "" :like "" :follow ""
+            :enrollment "" :assignment "" :activity "" :group ""
+            :timeline "" :upvote "" :like "" :follow ""
            }
 
     :course {:title "" :author ""

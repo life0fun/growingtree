@@ -527,7 +527,7 @@
                       eid
                       attr)
                     (sort-by first) ; sort by tx time
-                    (reverse ))  
+                    (reverse ))
         ]
     (prn " entity " eid " txhist " txhist)
     txhist))

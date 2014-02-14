@@ -36,21 +36,21 @@
 ; a named rule is a list of clause [(community-type ?c ?t) [?c :community/type ?t]])]
 ; a set of rules is a list of rules. [[[rule1 ?c] [_ :x ?c]] [[rule2 ?d] [_ :x ?d]]]
 ; rules with the same name defined multiple times in rule set make rule OR.
-;   [[northern ?c] (region ?c :region/ne)] 
+;   [[northern ?c] (region ?c :region/ne)]
 ;   [[northern ?c] (region ?c :region/n)]
 ; Within the same rule, multiple tuples are AND.
 ;
 ;
-; all eids must be number, use read-string to convert from command line. 
+; all eids must be number, use read-string to convert from command line.
 ; all the :ref :many attribute stores clojure.lang.MapEntry. use :db/id to get the id.
 ; knowing entity id, query with (d/entity db eid). otherwise, [:find $t :where []]
 ; (d/entity db eid) rets the entity. entity is LAZY. attr only availabe when touch.
-; To add data to a new entity, build a transaction using :db/add implicitly 
-; with the map structure (or explicitly with the list structure), a temporary id, 
+; To add data to a new entity, build a transaction using :db/add implicitly
+; with the map structure (or explicitly with the list structure), a temporary id,
 ; and the attributes and values being added.
 ;
 ; #db/id[partition-name value*] : value is an optional negative number.
-; all instances of the same temp id are mapped to the same actual entity id in a given transaction, 
+; all instances of the same temp id are mapped to the same actual entity id in a given transaction,
 ; {:db/id entity-id attribute value attribute value ... }
 ; [:db/add entity-id attribute value]
 ; (d/transact conn [newch [:db/add pid :parent/child (:db/id newch)]]
@@ -67,13 +67,13 @@
 
 ; Everything is entity and querable in datomic, including transaction and schema.
 ;
-; Given any datom, there are three time-related pieces of data you can request: 
+; Given any datom, there are three time-related pieces of data you can request:
 ;   the transaction entity tx that created the datom
 ;   the relative time, t of the transaction
 ;   the clock time :db/txInstant of the transaction
 
-; The transaction *entity* is available as a 4th optional arg of any data pattern. 
-;   :where [?e ?attr ?v ?tx ?op]] 
+; The transaction *entity* is available as a 4th optional arg of any data pattern.
+;   :where [?e ?attr ?v ?tx ?op]]
 ; given a transction id, d/tx->t, tx to time, ret relative time when transaction happened.
 ;   (d/tx->t txid)
 ; for wall time,  :db/txInstant property of the transaction entity:
@@ -81,39 +81,39 @@
 ;
 ; tx entity, relative time t = (d/tx->t tx), and wall time, (:db/txInstant (d/entity tx))
 
-; Time travel, d/as-of take a tx id, and show the snapshot of 
+; Time travel, d/as-of take a tx id, and show the snapshot of
 ;   (def older-db (d/as-of db (dec txid)))
 ;
 
 ; history query with (d/history db)
-; 
+;
 
 ;first, a list of ref attributes that ref to a person entity
 (def person-inbound-attrs
-  [;:family/parent :family/child 
+  [;:family/parent :family/child
    :follow/person :follow/followee
-   :schoolclass/person 
+   :schoolclass/person
    :group/author :group/person
    :comments/author :like/person
    :activity/author :activity/person
-   :course/author :lecture/author :question/author 
+   :course/author :lecture/author :question/author
    :enrollment/person :answer/author
-   :assignment/author :assignment/person 
+   :assignment/author :assignment/person
   ])
 
 
 (def fulltext-attrs
   [
    :person/title :person/lname :person/email :person/address
-   :group/title 
+   :group/title
    :comments/title :like/title
    :activity/content :activity/tag
    :location/title :location/address
    :course/title :course/content :course/reference
    :lecture/title :lecture/content :lecture/reference
    :question/title :question/content
-   :assignment/title 
-   :enrollment/title :enrollment/content 
+   :assignment/title
+   :enrollment/title :enrollment/content
    :answer/title :answer/content
   ])
 
@@ -132,20 +132,24 @@
       (prn "attr timeline " e))
     txhist))
 
+
 ; for now, find all inbound tx for current user
+; [:parent 17592186045419 :timeline]
 (defn find-timeline
-  "find timeline of an author"
+  "find timeline of a user"
   [qpath details]
   (let [author (:author details)
         author-id (:db/id (find-by :person/title author))
-        timelines (->> (mapcat #(author-inbound-tx author-id author %) 
+        author-id (second qpath)
+        timelines (->> (mapcat #(author-inbound-tx author-id author %)
                                person-inbound-attrs)
-                       (sort-by :timeline/txtime))
+                       (map #(util/add-navpath % qpath) )
+                       (sort-by :timeline/txtime)
+                       (reverse ))
        ]
     (doseq [e timelines]
       (prn "timeline --> " e))
     timelines))
-
 
 
 ; list an entity attribute's tx history
@@ -180,7 +184,7 @@
   "search a fulltext attr with the keyword"
   [qpath details]
   (let [searchkey (:searchkey details)
-        entities (->> (mapcat #(fulltext-attr % searchkey) 
+        entities (->> (mapcat #(fulltext-attr % searchkey)
                               fulltext-attrs)
                       (map #(search-result %)))
        ]

@@ -416,7 +416,7 @@
       navpaths)))
 
 
-; for enrollment, we need to substitute with either parent or child
+; for enrollment, show person, so replace thing-type by either parent or child.
 (defmethod thing-navpath-transforms
   :enrollment
   [thing-type render-path entity-map]

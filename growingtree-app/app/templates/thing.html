@@ -35,11 +35,6 @@
         <a field="content:email"></a>
       </p>
 
-      <p class="subtitle">
-        <span class="tagline"> url: </span>
-        <a field="content:url"></a>
-      </p>
-
       <p class="tagline">
         Joined since <time> Aug 2013 </time>
       </p>
@@ -90,23 +85,6 @@
         </li>
 
         <li class="share">
-          <div field="class:add-follow-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">follow me</a>
-            </span>
-          <div>
-        </li>
-
-        <!-- comments lik -->
-        <li class="first">
-          <div field="class:comments-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">comments</a>
-            </span>
-          </div>
-        </li>
-
-        <li class="share">
           <div field="class:group-class">
             <span class="share-button toggle" style>
               <a class="option active" href="#">groups</a>
@@ -123,9 +101,9 @@
         </li>
 
         <li class="share">
-          <div field="class:activity-class">
+          <div field="class:timeline-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">activities</a>
+              <a class="option active" href="#">timeline</a>
             </span>
           </div>
         </li>
@@ -170,18 +148,13 @@
         <a field="content:email"></a>
       </p>
 
-      <p class="subtitle">
-        <span class="tagline"> url: </span>
-        <a field="content:url"></a>
-      </p>
-
       <p class="tagline">
         Joined since <time> Aug 2013 </time>
       </p>
 
 
       <ul class="flat-list buttons">
-        <!-- parent -->
+
         <li class="share">
           <div field="class:parent-class">
             <span class="share-button toggle" style>
@@ -198,23 +171,6 @@
           <div>
         </li>
 
-        <!-- courses -->
-        <li class="share">
-          <div field="class:course-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">courses</a>
-            </span>
-          <div>
-        </li>
-
-        <!-- assignments -->
-        <li class="share">
-          <div field="class:assignment-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">assignments</a>
-            </span>
-          <div>
-        </li>
 
         <li class="share">
           <div field="class:enrollment-class">
@@ -223,6 +179,16 @@
             </span>
           </div>
         </li>
+
+
+        <li class="share">
+          <div field="class:assignment-class">
+            <span class="share-button toggle" style>
+              <a class="option active" href="#">assignments</a>
+            </span>
+          <div>
+        </li>
+
 
          <li class="share">
           <div field="class:activity-class">
@@ -257,6 +223,14 @@
         </li>
 
         <li class="share">
+          <div field="class:group-class">
+            <span class="share-button toggle" style>
+              <a class="option active" href="#">groups</a>
+            </span>
+          </div>
+        </li>
+
+        <li class="share">
           <div field="class:add-schoolclass-class">
             <span class="share-button toggle" style>
               <a class="option active" href="#">join class</a>
@@ -264,19 +238,10 @@
           </div>
         </li>
 
-        <!-- comments lik -->
-        <li class="first">
-          <div field="class:comments-class">
-            <span class="share-button toggle" style>
-              <a class="option active" href="#">comments</a>
-            </span>
-          </div>
-        </li>
-
         <li class="share">
-          <div field="class:activity-class">
+          <div field="class:timeline-class">
             <span class="share-button toggle" style>
-              <a class="option active" href="#">activities</a>
+              <a class="option active" href="#">timeline</a>
             </span>
           </div>
         </li>
@@ -339,7 +304,6 @@
             </span>
           <div>
         </li>
-
 
         <!-- comments like -->
         <li class="first">
@@ -473,7 +437,7 @@
         <li class="first">
           <div field="class:comments-class">
             <span class="share-button toggle" style>
-              <a class="option active" field="content:numcomments">comments</a>
+              <a class="option active" href="#" field="content:numcomments">comments</a>
             </span>
           </div>
         </li>
@@ -559,7 +523,7 @@
         <li class="first">
           <div field="class:comments-class">
             <span class="share-button toggle" style>
-              <a class="option active" field="content:numcomments">comments</a>
+              <a class="option active" href="#" field="content:numcomments">comments</a>
             </span>
           </div>
         </li>
@@ -676,7 +640,7 @@
         <li class="first">
           <div field="class:comments-class">
             <span class="share-button toggle" style>
-              <a class="option active" field="content:numcomments">comments</a>
+              <a class="option active" href="#" field="content:numcomments">comments</a>
             </span>
           </div>
         </li>
@@ -775,7 +739,7 @@
         <li class="first">
           <div field="class:comments-class">
             <span class="share-button toggle" style>
-              <a class="option active" field="content:numcomments">comments</a>
+              <a class="option active" href="#" field="content:numcomments">comments</a>
             </span>
           </div>
         </li>
@@ -870,7 +834,6 @@
 
     <!-- comemnts tree div block, named by thingtype-tree -->
     <div id="comments-tree" class="child"></div>
-
     <div class="clearleft"></div>
   </div>
 
@@ -899,7 +862,6 @@
         <span field="content:like-time">2 hours</span>
         <span> ago </span>
       </p>
-
 
       <p class="title">
         <a class="title" field="content:origin-title,href:originhref,id:origin-title-id"></a>
