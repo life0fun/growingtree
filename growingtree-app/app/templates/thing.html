@@ -980,8 +980,10 @@
         <span class="title" field="content:type"> type </span>
       </p>
 
-      <p class="subtitle">
-        <a field="content:origin-title,class:origin-id"></a>
+      <!-- not sure why I can not set <a id>, always wrap <a> by <p> with id -->
+      <p field="id:origin-id">
+        <a href="#" field="content:origin-title"></a>
+        <span class="domain"></span>
       </p>
 
       <p class="tagline">

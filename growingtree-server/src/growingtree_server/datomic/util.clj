@@ -283,7 +283,6 @@
                   :timeline/origin entity
                   :timeline/value v
                   :timeline/add op
-                  :navpath [:all 0 :timeline (:db/id entity)]  ; [ :all 0 :timeline 1 ]
                  }
        ]
     (prn "tx timeline entity " (entity-keyword entity)  timeline)

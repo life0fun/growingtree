@@ -598,16 +598,16 @@
            :txtime (thing-attr-val thing-map thing-type "txtime")
            :author-name (get-in thing-map [:timeline/author])
            :id-author (str (:db/id thing-map) "-author")
-           :origin-id (str (:db/id thing-map) "-origin")  ; id must be in str.
+           :origin-id (str (:db/id thing-map) "-title")  ; id must be in str.
            :origin-title origin-title
            :type (:timeline/type thing-map)
            :thumbhref ((keyword (:timeline/type thing-map)) thing-thumbnail)
           }
         ]
-    (.log js/console (str "timeline template value " (:db/id thing-map) value-map))
+    (.log js/console (str "timeline template value " (:db/id thing-map) " " value-map))
     value-map))
 
-  
+
 ; --------------------------------------------------------------------------
 ;
 ; --------------------------------------------------------------------------

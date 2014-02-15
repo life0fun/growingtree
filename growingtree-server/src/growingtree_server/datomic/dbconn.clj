@@ -511,8 +511,8 @@
 
 ;;==========================================================================
 ; transaction entity query, and timeline traval
+; Given any datum, find the transaction tx that set an attr's value.
 ;;==========================================================================
-
 ; query the entire history of an entity's one attr.
 ; the transaction entity is the 4th arg of any data pattern.
 ; given a transction id, d/tx->t, tx to time, ret relative time when transaction happened.
@@ -533,24 +533,32 @@
     txhist))
 
 
-; found the history of an attr, and ret all tx that value matches the entity
-; first, find all entities who have the attr, then for each entity, find its hist,
-; and if hist value matches passed in entity id, out put.
-(defn entity-inbound-tx
-  [refed-id attr]
-  (let [entities (->> (d/q '[:find ?e :in $ ?attr :where [?e ?attr]] (get-db) attr)
-                      (mapv first)) ; use mapv to get a vec as subq result for hist query
+; find the transaction that set the value of the attribute
+(defn entity-attr-val-tx
+  "ret a transaction that set the entity's attribute to value"
+  [eid attr v]
+  (let [tx (->> (d/q '[:find ?tx ?e ?v ?op
+                       :in $ ?e ?attr ?v
+                       :where [?e ?attr ?v ?tx ?op]
+                      ]
+                      (d/history (get-db))
+                      eid attr v)
+                      (sort-by first))]
+    (prn tx " set " eid " " attr " to " v)
+    tx))
 
-        ; no need to check empty entities, d/q will handle it.
-        txhist (->> (d/q '[:find ?tx ?e ?v ?op
-                           :in $ ?refed-id ?attr [?e ...]
+
+; found all entity has the attr with value, and the transaction that set the attr value
+; along the query. ret a list of all entity value transaction records.
+(defn attr-val-tx
+  [attr attrval]
+  (let [txhist (->> (d/q '[:find ?tx ?e ?v ?op
+                           :in $ ?attr ?v
                            :where [?e ?attr ?v ?tx ?op]
-                                  [(= ?v ?refed-id)]
                           ]
                       (d/history (get-db))
-                      refed-id
                       attr
-                      entities)
+                      attrval)
                     (sort-by first)   ; sort by tx time
                     (reverse ))       ; reverse time
         ]

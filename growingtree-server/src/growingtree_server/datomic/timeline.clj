@@ -19,52 +19,7 @@
 
 ;
 ; http://blog.datomic.com/2013/05/a-whirlwind-tour-of-datomic-query_16.html
-; query API results as a list of fact tuples. Fact tuple is a list of entity Ids.
-;   [ [tuple1...] [tuple2...] ]
 ;
-; the intermediate value for joining are :db/id, can be in both [entity attr val] pos
-; to join, the attribute col in tuple is the join col, and val.
-;
-; find ?e ret entity id, (d/touch(d/entity db) to convert to lazy entity.
-;   (d/touch (d/entity db (ffirst (d/q '[:find ?e :where [?e :parent/fname]] db)))
-;
-;
-; query stmt is a list, or a map, with :find :in :where seps query args.
-;   [?a …]  collection   [ [?a ?b ] ]  relation
-;   [(predicate ...)] [(function ...) bindings]
-;
-; a named rule is a list of clause [(community-type ?c ?t) [?c :community/type ?t]])]
-; a set of rules is a list of rules. [[[rule1 ?c] [_ :x ?c]] [[rule2 ?d] [_ :x ?d]]]
-; rules with the same name defined multiple times in rule set make rule OR.
-;   [[northern ?c] (region ?c :region/ne)]
-;   [[northern ?c] (region ?c :region/n)]
-; Within the same rule, multiple tuples are AND.
-;
-;
-; all eids must be number, use read-string to convert from command line.
-; all the :ref :many attribute stores clojure.lang.MapEntry. use :db/id to get the id.
-; knowing entity id, query with (d/entity db eid). otherwise, [:find $t :where []]
-; (d/entity db eid) rets the entity. entity is LAZY. attr only availabe when touch.
-; To add data to a new entity, build a transaction using :db/add implicitly
-; with the map structure (or explicitly with the list structure), a temporary id,
-; and the attributes and values being added.
-;
-; #db/id[partition-name value*] : value is an optional negative number.
-; all instances of the same temp id are mapped to the same actual entity id in a given transaction,
-; {:db/id entity-id attribute value attribute value ... }
-; [:db/add entity-id attribute value]
-; (d/transact conn [newch [:db/add pid :parent/child (:db/id newch)]]
-; d/transact tx-data is a list of lists, each of which specifies a write operation
-; for single write datom(map tuple), wrap with [datom-tuple]
-; for a list of write datom tuple from map, use (vec ([] [])) to wrap them.
-; (d/transact conn (vec (map make-attr (d/q '[:find ?e :where []))))
-;
-; entity-id can be used at both side of the datom, e.g., give a parent entity id,
-;   (d/q '[:find ?e :in $ ?attr :where [17592186045703 ?attr ?e] [...] ] db :parent/child)
-;   (d/q '[:find ?e :in $ ?attr :where [?e ?attr 17592186045703] [...] ] db :child/parent)
-; query :where takes a vardic list, not a list of list.
-;
-
 ; Everything is entity and querable in datomic, including transaction and schema.
 ;
 ; Given any datom, there are three time-related pieces of data you can request:
@@ -86,14 +41,24 @@
 ;
 
 ; history query with (d/history db)
-;
 
-;first, a list of ref attributes that ref to a person entity
-(def person-inbound-attrs
+
+; A user's timeline means find all entities created by a user, or find entity attributes
+; updated by the user.
+; first, list all attrs that ref to person.
+; for each attr, find all entities that has this attribute
+; for each entity, find the transaction that set the value to cur user
+; Note that a user can create a group, and then join a group.
+; you get different transaction, but both transactions origin is the same group entity,
+; just different transaction time.
+
+; a list of attributes that ref to a person, we need to find all entities that have
+; attributes that ref to a person, then filter those who person attr is user.
+(def person-attrs
   [;:family/parent :family/child
    :follow/person :follow/followee
    :schoolclass/person
-   :group/author :group/person
+   :group/author ;:group/person
    :comments/author :like/person
    :activity/author :activity/person
    :course/author :lecture/author :question/author
@@ -118,31 +83,32 @@
   ])
 
 
-(defn author-inbound-tx
-  "find timeline of one attr for a person"
+(defn attr-refto-user-tx
+  "find transaction entity of all entities that refto user"
   [author-id author attr]
   (let [;txhist (entity-inbound-tx author-id attr)
-        txhist (->> (entity-inbound-tx author-id attr)
-                    (map #(util/tx-timeline %))
+        txhist (->> (dbconn/attr-val-tx attr author-id)  ; find all trans entity set attr to val
+                    (map #(util/tx-timeline %))   ; format to :timeline/attr
                     (map #(assoc-in % [:timeline/author] author))
                 )
 
        ]
     (doseq [e txhist]
-      (prn "attr timeline " e))
+      (prn attr " " author-id " txhist " e))
     txhist))
 
 
-; for now, find all inbound tx for current user
+; find all entities that has author/person attributes with value to user id.
 ; [:parent 17592186045419 :timeline]
 (defn find-timeline
   "find timeline of a user"
   [qpath details]
   (let [author (:author details)
         author-id (:db/id (find-by :person/title author))
-        author-id (second qpath)
-        timelines (->> (mapcat #(author-inbound-tx author-id author %)
-                               person-inbound-attrs)
+        user-id (second qpath)
+        user (:person/title (dbconn/get-entity user-id))
+        timelines (->> (mapcat #(attr-refto-user-tx user-id user %)
+                               person-attrs)
                        (map #(util/add-navpath % qpath) )
                        (sort-by :timeline/txtime)
                        (reverse ))

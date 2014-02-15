@@ -169,7 +169,7 @@
   :timeline
   [type qpath details]
   (let [timeline (dda/find-timeline qpath details)]
-    (prn "peer get timeline " qpath timeline)
+    (prn "peer get timeline " qpath)
     timeline))
 
 

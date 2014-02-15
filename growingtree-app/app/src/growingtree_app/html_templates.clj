@@ -18,8 +18,8 @@
   ; dtfn stands for dynamic template fn. tnodes is template nodes.
   ; dtfn creates template that can be udpated even after attached to DOM.
 
-  ; dtfn takes two arguments, the sequence of nodes and a set of static fields. 
-  ; Static fields can be set once when the template is first added to the DOM, 
+  ; dtfn takes two arguments, the sequence of nodes and a set of static fields.
+  ; Static fields can be set once when the template is first added to the DOM,
   ; but they cannot be changed later. All div ids must be static ids.
   ;
   ; (use 'growingtree-app.html-templates)
@@ -32,7 +32,7 @@
    :login (dtfn (tnodes "growingtree-app.html" "login") #{:id})
    :homepage (dtfn (tnodes "growingtree-app.html" "homepage") #{:id})
    :user (dtfn (tnodes "growingtree-app.html" "user") #{:id})
-   
+
 
    :thing-parent  (dtfn (tnodes "thing.html" "thing-parent") #{:id :child-form-id})
    :thing-child  (dtfn (tnodes "thing.html" "thing-child") #{:id :child-form-id})
@@ -47,7 +47,7 @@
    :thing-timeline  (dtfn (tnodes "thing.html" "thing-timeline") #{:id})
    :thing-search  (dtfn (tnodes "thing.html" "thing-search") #{:id :origin-title-id})
 
-   
+
    ; add thing forms, we already have assignment form for assignment details
    :thing-details  (dtfn (tnodes "thing.html" "thing-details") #{:id})
    :enrollment-form (dtfn (tnodes "thing.html" "enrollment-form") #{:id :enrollment-name :enrollment-remarks})
