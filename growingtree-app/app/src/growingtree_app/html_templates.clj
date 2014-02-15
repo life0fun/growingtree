@@ -43,9 +43,9 @@
    :thing-answer  (dtfn (tnodes "thing.html" "thing-answer") #{:id :child-form-id})
    :thing-comments  (dtfn (tnodes "thing.html" "thing-comments") #{:id :child-form-id})
    :thing-group  (dtfn (tnodes "thing.html" "thing-group") #{:id :child-form-id})
-   :thing-like  (dtfn (tnodes "thing.html" "thing-like") #{:id})
+   :thing-like  (dtfn (tnodes "thing.html" "thing-like") #{:id :origin-title-id})
    :thing-timeline  (dtfn (tnodes "thing.html" "thing-timeline") #{:id})
-   :thing-search  (dtfn (tnodes "thing.html" "thing-search") #{:id})
+   :thing-search  (dtfn (tnodes "thing.html" "thing-search") #{:id :origin-title-id})
 
    
    ; add thing forms, we already have assignment form for assignment details

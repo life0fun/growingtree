@@ -250,7 +250,7 @@
 
 
 ; default action for sublink, no params to fill, thing-nav-messages already setup
-; msg :path [:nav :thing id :next] with transkey = :next, so just send back transforms.
+; msg :path [:nav thing-type id transkey], transkey = entity-view/thing-nav-actionkey
 ; default for all next thing navigation, e.g, from course to lecture, to question.
 (defmethod enable-thing-nav
   :default

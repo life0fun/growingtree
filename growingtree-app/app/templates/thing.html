@@ -973,16 +973,15 @@
       <img field="src:thumbhref" width="70" height="52" alt="">
     </a>
 
-
     <div class="entry unvoted" template="thing-entry">
       <p class="title">
         <a field="content:author-name,class:author-class"></a>
         <span class="tagline"> created </span>
-        <a class="title" field="content:type,href:thingref"></a>
+        <span class="title" field="content:type"> type </span>
       </p>
 
-      <p class="title">
-        <a class="title" field="content:origin-title,href:entryhref,id:origin-title-id"></a>
+      <p class="subtitle">
+        <a field="content:origin-title,class:origin-id"></a>
       </p>
 
       <p class="tagline">
@@ -991,7 +990,6 @@
       </p>
 
       <ul class="flat-list buttons">
-        <!-- lecture -->
         <li class="first">
           <a class="option active" href="#">permalink</a>
         </li>
