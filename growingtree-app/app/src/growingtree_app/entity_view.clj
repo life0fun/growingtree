@@ -96,7 +96,7 @@
             :upvote "" :like "" :share ""
            }
 
-    :answer {:title ""
+    :answer {:title "" :author ""
              :grade ""
              :assignment ""
              :question ""
@@ -132,6 +132,19 @@
     :group "group.jpg"
   })
 
+;-----------------------------------------------------------------
+; template for details title view, refed by thing-node-html :title
+;-----------------------------------------------------------------
+(defn thing-details-template
+  [thing-type]
+  (let [tmpl (condp = thing-type
+                :answer :answer-details-form
+                (keyword (str (name thing-type) "-form")))
+        tmpl (case thing-type
+                :answer :answer-details-form
+                (keyword (str (name thing-type) "-form")))
+       ]
+    (tmpl templates)))
 
 ;;===============================================================
 ; xpath selector for inline form
@@ -310,7 +323,8 @@
   (let [thing-id (last rpath)
         thing-type (second rpath)   ; [thing-type 1 :title 1]
         ; slice templ from newthing form for title.
-        templ ((keyword (str (name thing-type) "-form")) templates)
+        ;templ ((keyword (str (name thing-type) "-form")) templates)
+        templ (thing-details-template thing-type)
         ; add the rendered template attached to rpath node
         html (templates/add-template render rpath templ)
 
@@ -506,10 +520,11 @@
                          (second)) ; value is the second of kv vector
         value-map
           {:thing-title (thing-attr-val thing-map thing-type "title")
-           :entryhref "javascript:void(0);"
-           :origin-title origin-title
            :author-name (get-in thing-map [:answer/author :person/title])
-           :id-author (str (:db/id thing-map) "-author")
+           :author-class (get-in thing-map [:answer/author :person/title])
+           :id-author (str (:db/id thing-map) "-author") ; id is thing-id, not author id
+           :origin-title origin-title
+           :title-id (str (:db/id thing-map) "-title")
            :start (util/format-time (:answer/start thing-map))
            :thumbhref (thing-type thing-thumbnail)
            :upvote (str (thing-attr-val thing-map thing-type "upvote"))

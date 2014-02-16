@@ -66,4 +66,5 @@
    :assignment-form (dtfn (tnodes "newthing.html" "assignment-form") #{:id})
    :group-form (dtfn (tnodes "newthing.html" "group-form") #{:id})
    :comments-form (dtfn (tnodes "newthing.html" "comments-form") #{:id})
+   :answer-details-form (dtfn (tnodes "newthing.html" "answer-details-form") #{:id})
   })

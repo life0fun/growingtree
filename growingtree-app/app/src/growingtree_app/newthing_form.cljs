@@ -124,6 +124,10 @@
     :answer {:answer/title
               (fn [thing-id]
                 ["answer-title" (str "answer-title-" thing-id) "my answer is..." :text])
+
+             :answer/content
+              (fn [thing-id]
+                ["answer-content" (str "answer-content-" thing-id) "answer content is..." :text])
             }
 
     :grade {:grade/score
@@ -166,12 +170,13 @@
 ; input field id is the key of thing-details-view.
 (defn set-input-value
   [thing-type thing-details-view]
-  (doseq [k (keys thing-details-view)]
-    (.log js/console (str "set-input-val " k (k thing-details-view)))
-    (dom/set-value! (dx/xpath (str "//input[@id='" (name k) "']"))
-                    (k thing-details-view))
+  (doseq [[k v] thing-details-view]
+    (.log js/console (str "set-input-val " k " " v))
+    ; for key is input field, set it
+    (dom/set-value! (dx/xpath (str "//input[@id='" (name k) "']")) v)
+    ; for key is input textarea
+    (dom/set-text! (dx/xpath (str "//form/textarea[@id='" (name k) "']")) v)
     ))
-
 
 ;;================================================================================
 ; a mapping for datetimepicker id for each new thing type
@@ -474,6 +479,7 @@
 
 ;;==================================================================================
 ; thing details view, called from render value-thing-details
+; the returned value map is used to set-input-value
 ;;==================================================================================
 (defmulti thing-details-view
   (fn [r rpath qpath thing-map input-queue]
@@ -582,4 +588,18 @@
         }
        ]
     (.log js/console (str "thing details view assignment " thing-view))
+    thing-view))
+
+
+; for details of answer, content is either title or content
+(defmethod thing-details-view
+  :answer
+  [r rpath qpath thing-map input-queue]
+  (let [thing-type (second rpath)
+        thing-view {
+          :answer-content (or (get-in thing-map [:answer/content])
+                              (get-in thing-map [:answer/title]))
+        }
+       ]
+    (.log js/console (str "thing details view answer " thing-view))
     thing-view))

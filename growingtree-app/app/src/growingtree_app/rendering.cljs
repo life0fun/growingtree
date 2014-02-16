@@ -306,7 +306,8 @@
 
 
 ; rpath [:details :parent 1 :person 1], qpath=[]
-; thing-details-view  {:course-title "Math-I", :course-author "rich-dad", :course-content "first grade Math-I", :course-url "math.com/Math-I", :course-email "Math-I@math.com", :course-wiki nil}
+; thing-details-view  {:course-title "Math-I", :course-author "rich-dad" }
+; [:details :answer 1 :title 1]
 (defn value-thing-details
   [r [op rpath oldv newv] input-queue]
   (when newv
@@ -428,8 +429,8 @@
     [:node-destroy [:details] clear-all-things]
 
 
-    ;============== add comments box [:setup :lecture 1 :comments] ============
-    [:node-create [:setup :* :* :*] transforms/enable-add-comments]
+    ;============== add comments box [:comments :lecture 1 :comments] ============
+    [:node-create [:comments :* :* :*] transforms/enable-add-comments]
 
     ;; ============== other thing nav links setup and submit handling ============
     ; setup and submit action handler, path [:setup :homework id :assign]

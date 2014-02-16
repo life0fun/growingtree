@@ -699,13 +699,13 @@
     <!-- no need to use template, maybe dom append by-idand more concise -->
     <div class="entry unvoted" template="thing-entry">
       <p class="subtitle">
-        <a field="content:author-name,class:author-class"></a>
-        <span class="tagline"> submitted answer to </span>
-        <a class="subtitle" field="content:origin-title,href:entryhref,id:origin-title-id"></a>
+        <a field="content:author-name,class:author-class,id:id-author"></a>
+        <span class="tagline"> answered </span>
+        <a href="#" field="content:origin-title"></a>
       </p>
 
       <p class="title">
-        <a class="title" field="content:thing-title,href:entryhref,id:title-id"></a>
+        <a class="title" href="#" field="content:thing-title,id:title-id"></a>
       </p>
 
       <p class="subtitle">
@@ -975,8 +975,8 @@
 
     <div class="entry unvoted" template="thing-entry">
       <p class="title">
-        <a field="content:author-name,class:author-class"></a>
-        <span class="tagline"> created </span>
+        <a field="content:author-name,class:id-author"></a>
+        <span class="tagline"> on </span>
         <span class="title" field="content:type"> type </span>
       </p>
 

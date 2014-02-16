@@ -181,7 +181,7 @@
     search))
 
 
-; get thing details by field, by title
+; get thing by title, we can get the entity by id directly.
 ; qpath [:lecture 17592186045430 :title]
 (defmethod get-things
   :title

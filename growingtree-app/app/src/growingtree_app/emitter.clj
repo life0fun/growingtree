@@ -249,10 +249,10 @@
 
 ;;==================================================================================
 ; received thing data from xhr request and stored in [:data nav-path]
+; based on navpath, emit render path for render to display data into different template.
+; we have main, header, filtered, details templates in the page for now.
+;
 ; XXX the meat is [:node-create render-path :map] [:value render-path entity-map]
-; render-path = [:main :all 0 :course 17592186045425]
-;        [:header :parent 17592186045498]
-;        [:filtered :course 17592186045428 :lecture 17592186045430]
 ; thing-map is db entity {:db/id 17592186045425, :course/url "math.com/Math-I",
 ; :course/author [{:person/lname "rich", :person/title "rich-dad",}] ..
 ; qpath record the path next path, from [:course 1 to :comments]
@@ -270,7 +270,7 @@
         changemap (merge (d/added-inputs inputs) (d/updated-inputs inputs))
         removed (d/removed-inputs inputs)]
     ; each change tuple consists of node-path and a vector of values
-    (.log js/console (str "thing data emit qpath " qpath " changemap " changemap))
+    (.log js/console (str "thing data emit qpath " qpath " changemap "))
     ;(.log js/console (str "thing data emit removed " removed))
     ;(.log js/console (str "thing data emit msg " msg))
     (vec
@@ -336,44 +336,48 @@
     (assoc-in thing-map [:navpath] knavpath)))
 
 
+; which template this thing-map data should be rendered.
 ; thing-map :navpath was set in server side with qpath by (util/add-navpath % qpath)
-; navpath tells the query path we reach to this entity during navigation.
+; navpath is app's nav path which server uses to query this thing-map out.
 ; prefix main, header, filtered to it, form the render path for render to dispatch.
 ; :qpath ["all" 0 "course" 1], or  ["course" 1 "comments" 2], or ["course" 1 "course" 2]
-; rpath for render thing node, [:value [:main/:header/:filtered/:details :* :* :* :*]]
-; for author case, (:person 1 :person), title case (:course 1 :title)
+; rpath tells which templ to render data into. [:value [:main/:header/:filtered/:details :* :* :* :*]]
+; special case: author, (:person 1 :person), title case (:course 1 :title)
 (defn thing-navpath->renderpath
   [thing-navpath thing-map]
   (let [[parent pid child] (take 3 thing-navpath)]
-    (.log js/console (str "navpath renderpath " (take 3 thing-navpath)))
+    (.log js/console (str "navpath to renderpath " (take 3 thing-navpath)))
     (cond
+      ; no filter, side nav, render to main template.
       (= parent :all) (vec (concat [:main] thing-navpath))
+
+      ; title case, render path to details template.
       (= child :title) (vec (concat [:details] thing-navpath))
 
-      ; person entity, resolve to parent/child.
+      ; person entity, resolve to parent/child, render to details template.
       ; [:details :parent 1 :person 1], thing node html dispatch on :person, pick parent template.
       (= parent :person)
         (let [person-id (:db/id thing-map)
               person-type (keyword (:person/type thing-map))]
           (vec (concat [:details] [person-type person-id :person person-id])))
 
-      ; substitute enrollment with person, as enrollment list all person.
+      ; enrollment are list of persons, resolve to parent/child, render to filtered.
       (= child :enrollment)
         (let [person-id (:db/id thing-map)
               person-type (keyword (:person/type thing-map))]
           (vec (concat [:filtered] [parent pid person-type person-id])))
 
-      ; substitute group-members with person, as group-member list all person
+      ; group-members is a list person, resolve to parent/child, render to filtered.
       (= child :group-members)
         (let [person-id (:db/id thing-map)
               person-type (keyword (:person/type thing-map))]
           (vec (concat [:filtered] [parent pid person-type person-id])))
 
-      ; [:course 1 :course], display course in header
+      ; [:course 1 :course], render to header template.
       (= parent child)
         (vec (concat [:header] (take 2 thing-navpath))) ; [:header :parent 1]
 
-      ; display [filtered :thing id :next-thing id]
+      ; all else, render to list filtered template. [filtered :thing id :next-thing id]
       :else
         (vec (concat [:filtered] thing-navpath)))))
 
@@ -751,38 +755,37 @@
 
 ;;==================================================================================
 ; upon nav to comments, ask render to display add comments box on filtered details
-; qpath is [:lecture 1 :comments], we get to comments from lecture.
-; node path [:setup :lecture 1 :comments]  Always destroy before create !!!
+; qpath [:assignment 1 :answer] render-path [:filtered :assignment 1 :answer 2]
+; ask render to display [:details qpath] only when we are rendering header and qpath is title
 ;;==================================================================================
 (defn add-comments-box
   [render-path qpath]
-  (let [filtered-hd (first render-path)
-        nxt (last qpath)]
-    (.log js/console (str "add comments transforms " qpath nxt filtered-hd render-path))
-    (if (and (= filtered-hd :header) (= nxt :comments)) ; only display comments box when nav to comments.
-      [ [:node-destroy (concat [:setup] qpath)]
-        [:node-create (concat [:setup] qpath)]
+  (let [render-hd (first render-path)
+        target (last qpath)]
+    (if (and (= render-hd :header) (= target :comments)) ; only display comments box when nav to comments.
+      [ [:node-destroy (concat [:comments] qpath)]
+        [:node-create (concat [:comments] qpath)]
       ]
       [])))
 
 
 ;;==================================================================================
 ; upon title clicked, nav to details pages, ask render to display details section.
-; qpath is [:lecture 1 :title], we get to title from lecture.
-; node path [:setup :lecture 1 :title]  Always destroy before create !!!
+; qpath [:assignment 1 :answer] render-path [:filtered :assignment 1 :answer 2]
+; ask render to display [:details qpath] only when we are rendering header and qpath is title
 ;;==================================================================================
 (defn add-details-box
   [render-path qpath]
-  (let [filtered-hd (first render-path)
-        nxt (last qpath)]
-    (.log js/console (str "add details box " qpath nxt filtered-hd render-path))
-    (if (and (= filtered-hd :header) (= nxt :title))
+  (let [render-hd (first render-path)
+        target (last qpath)]
+    ; only add details box for header thing with :title target.
+    (if (and (= render-hd :header) (= target :title))
       [ [:node-destroy (concat [:details] qpath)]
         [:node-create (concat [:details] qpath)]
       ]
       [])))
 
-;;
+
 ;; emitter when getting sse-data, dispatch by sse event type
 (defn sse-data-emitter
   [inputs]  ; tracking map of data model
