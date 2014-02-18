@@ -336,7 +336,7 @@
     (assoc-in thing-map [:navpath] knavpath)))
 
 
-; Note that the order of cond matters. 
+; Note that the order of cond matters.
 ; 1. :person ahead :title. 2. :title ahead parent=child, 3. parent=child least priority just.
 ; which template this thing-map data should be rendered.
 ; thing-map :navpath was set in server side with qpath by (util/add-navpath % qpath)
@@ -354,7 +354,7 @@
       (= parent :all) (vec (concat [:main] thing-navpath))
 
       ; for showing person details template, resolve to parent/child,  thing node html dispatch to :person transkey.
-      ; [:details :parent 1 :person 1], (:person 1 :title) 
+      ; [:details :parent 1 :person 1], (:person 1 :title)
       (= parent :person)
         (let [person-id (:db/id thing-map)
               person-type (keyword (:person/type thing-map))]

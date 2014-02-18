@@ -43,7 +43,8 @@
 ;;==================================================================================
 (def thing-nav-actionkey
   {
-    :parent {:child "" :add-child " hide"
+    :parent {:title ""
+             :child "" :add-child " hide"
              :group "" :add-group " hide"
              :assignment "" :timeline ""
              :upvote "" :like "" :follow ""
@@ -133,20 +134,6 @@
     :group "group.jpg"
   })
 
-;-----------------------------------------------------------------
-; template for details title view, refed by thing-node-html :title
-; default template for title is thing-type-form
-;-----------------------------------------------------------------
-(defn thing-details-template
-  [thing-type]
-  (let [tmpl (condp = thing-type
-                :answer :answer-details-form
-                (keyword (str (name thing-type) "-form")))
-        tmpl (case thing-type
-                :answer :answer-details-form
-                (keyword (str (name thing-type) "-form")))
-       ]
-    (tmpl templates)))
 
 ;;===============================================================
 ; xpath selector for inline form
@@ -275,8 +262,23 @@
         (dx/xpath xpath))))
 
 
+;-----------------------------------------------------------------
+; template for details title view, refed by thing-node-html :title
+; default template for title is thing-type-form
+;-----------------------------------------------------------------
+(defn thing-details-template
+  [thing-type]
+  (let [tmpl (condp = thing-type
+                :answer :answer-details-form
+                (keyword (str (name thing-type) "-form")))
+        tmpl (case thing-type
+                :answer :answer-details-form
+                (keyword (str (name thing-type) "-form")))
+       ]
+    (tmpl templates)))
+
 ;;=============================================================================
-;; generate thing template based on thing type, and attach template to render path.
+; slice template based on thing type, and attach template to render path.
 ;; when rendering node-create with thing-type and id, ret thing node div html
 ;; [:node-create [:main :all 0 :parent 17592186045505] :map]
 ;; [:node-create [:main :parent 1 :child 17592186045505] :map]
@@ -287,10 +289,13 @@
 ;;=============================================================================
 (defmulti thing-node-html
   (fn [render-path render thing-idx]  ; the last segment of path
-    (second (reverse render-path))))
+    (case (second (reverse render-path))
+      :title :details
+      :person :details
+      :default)))
 
 
-; generated template html is attached to render path, and updatable from render-path
+; slice thing list block view template.
 ; make child div unique with template child form id that includes thing-id
 (defmethod thing-node-html
   :default
@@ -317,22 +322,17 @@
     thing-div))
 
 
-; for details by title, show course template from newthing.html
+; for details by title, or details of person, show details template
 ; [:details :lecture 17592186045430 :title 17592186045430]
+; [:details :parent 1 :person 1]
 (defmethod thing-node-html
-  :title
+  :details
   [rpath render thing-idx]
   (.log js/console (str "thing-node-html title " rpath))
   (let [thing-id (last rpath)
         thing-type (second rpath)   ; [thing-type 1 :title 1]
         ; slice templ from newthing form for title.
-        ;templ ((keyword (str (name thing-type) "-form")) templates)
-        templ (if (thing-type #{:person :parent :child})
-                ((keyword (str (name thing-type) "-form")) templates)
-                (thing-details-template thing-type)
-                )
-
-        ; add the rendered template attached to rpath node
+        templ (thing-details-template thing-type)
         html (templates/add-template render rpath templ)
 
         ; id must not be only thing-id, thing entry div already took it.
@@ -340,25 +340,6 @@
         thing-div (html templ-map)
         ]
     (.log js/console (str "thing-node-html :title " rpath " " thing-type))
-    thing-div))
-
-
-; render path [:details :parent 1 :person 1]
-(defmethod thing-node-html
-  :person
-  [rpath render thing-idx]
-  (.log js/console (str "thing-node-html person " rpath))
-  (let [thing-id (last rpath)
-        thing-type (second rpath) ; [parent/child 1 :person 1]
-        ; slice templ thing-parent, thing-child, from app templates
-        templ ((keyword (str (name thing-type) "-form")) templates)
-        ; add the rendered template attached to rpath node
-        html (templates/add-template render rpath templ)
-
-        templ-map {:id (str "details-" thing-id)}
-        thing-div (html templ-map)
-        ]
-    (.log js/console (str "thing-node-html :person " rpath " " thing-type))
     thing-div))
 
 
@@ -432,6 +413,28 @@
 
 
 (defmethod thing-template-value
+  :parent
+  [thing-type thing-map]
+  (let [thing-id (:db/id thing-map)
+        upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+        ; we need have attr keyword for get-in of :ref :many attr value
+        author-attr (util/thing-attr-keyword thing-type "author")
+        value-map
+          {:thing-title (thing-attr-val thing-map thing-type "title")
+           :thing-content (thing-attr-val thing-map thing-type "content")
+           :title-id (str thing-id "-title")
+           :id-author (str thing-id "-author")
+           :author-name (get-in thing-map [author-attr 0 :person/title])
+           :author-class (get-in thing-map [author-attr 0 :person/title])
+           :upvote (str (thing-attr-val thing-map thing-type "upvote"))
+           :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
+           :phone (first (thing-attr-val thing-map thing-type "phone"))
+           :email (first (thing-attr-val thing-map thing-type "email"))
+          }
+       ]
+    value-map))
+
+(defmethod thing-template-value
   :child
   [thing-type thing-map]
   (let [thing-id (:db/id thing-map)
@@ -444,7 +447,7 @@
            :title-id (str thing-id "-title")
            :id-author (str thing-id "-author")
            :author-name (get-in thing-map [author-attr 0 :person/title])
-           :author-class (get-in thing-map [author-attr 0 :person/title]) 
+           :author-class (get-in thing-map [author-attr 0 :person/title])
            :upvote (str (thing-attr-val thing-map thing-type "upvote"))
            :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
            :phone (first (thing-attr-val thing-map thing-type "phone"))
