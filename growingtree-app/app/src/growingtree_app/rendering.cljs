@@ -286,7 +286,7 @@
 
 ;----------------------------------------------------------------------------------------------
 ; title(details) of a thing takes the div block of new-things in thing-details template
-; rpath [:details :lecture 1 :title 1] :map] [:details :parent 1 :person 1]
+; rpath [:details :lecture 1 :title 1] :map] [:details :parent 1 :person 1] [:details :person 1 :title 2]
 ; break into thing-header [:header :parent 1] and thing-details [:details :parent 1 :person 1]
 ;----------------------------------------------------------------------------------------------
 (defn add-thing-details

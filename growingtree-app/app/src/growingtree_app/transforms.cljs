@@ -309,11 +309,12 @@
 ; message :set-nav-path :path [:person nil :person], :qpath [:course 1 :author], :rpath [:main :all 0 :course 1]
 ; ------------------------------------------------------------------------------------
 (defmethod enable-thing-nav  ; author, qpath [:course 1 :author]
-  :author
+  :author  ; transkey is author.
   [r [_ navpath transkey messages] input-queue]
   (let [navpath (rest navpath)  ; [:parent 1 :author]
         thing-id (first (reverse (butlast navpath)))
         thing-type (first navpath)
+        ; author link <a id="17592186045428-author" class="rich-dad" href="">rich-dad</a>
         author-link (dom/by-id (str thing-id "-" (name transkey)))
         click-fn
           (fn [e]

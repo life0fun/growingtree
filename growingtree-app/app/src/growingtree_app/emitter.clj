@@ -336,10 +336,12 @@
     (assoc-in thing-map [:navpath] knavpath)))
 
 
+; Note that the order of cond matters. 
+; 1. :person ahead :title. 2. :title ahead parent=child, 3. parent=child least priority just.
 ; which template this thing-map data should be rendered.
 ; thing-map :navpath was set in server side with qpath by (util/add-navpath % qpath)
 ; navpath is app's nav path which server uses to query this thing-map out.
-; prefix main, header, filtered to it, form the render path for render to dispatch.
+; render path formed by prefix [main, header, filtered, details] to tell render to use the right template.
 ; :qpath ["all" 0 "course" 1], or  ["course" 1 "comments" 2], or ["course" 1 "course" 2]
 ; rpath tells which templ to render data into. [:value [:main/:header/:filtered/:details :* :* :* :*]]
 ; special case: author, (:person 1 :person), title case (:course 1 :title)
@@ -351,15 +353,15 @@
       ; no filter, side nav, render to main template.
       (= parent :all) (vec (concat [:main] thing-navpath))
 
-      ; title case, render path to details template.
-      (= child :title) (vec (concat [:details] thing-navpath))
-
-      ; person entity, resolve to parent/child, render to details template.
-      ; [:details :parent 1 :person 1], thing node html dispatch on :person, pick parent template.
+      ; for showing person details template, resolve to parent/child,  thing node html dispatch to :person transkey.
+      ; [:details :parent 1 :person 1], (:person 1 :title) 
       (= parent :person)
         (let [person-id (:db/id thing-map)
               person-type (keyword (:person/type thing-map))]
           (vec (concat [:details] [person-type person-id :person person-id])))
+
+      ; title case, render path to details template.
+      (= child :title) (vec (concat [:details] thing-navpath))
 
       ; enrollment are list of persons, resolve to parent/child, render to filtered.
       (= child :enrollment)

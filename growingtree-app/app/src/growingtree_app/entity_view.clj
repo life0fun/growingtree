@@ -49,7 +49,8 @@
              :upvote "" :like "" :follow ""
             }
 
-    :child {:parent "" :add-parent " hide"
+    :child {:title ""
+            :parent "" :add-parent " hide"
             :schoolclass "" :add-schoolclass " hide"
             :enrollment "" :assignment "" :activity "" :group ""
             :timeline "" :upvote "" :like "" :follow ""
@@ -134,6 +135,7 @@
 
 ;-----------------------------------------------------------------
 ; template for details title view, refed by thing-node-html :title
+; default template for title is thing-type-form
 ;-----------------------------------------------------------------
 (defn thing-details-template
   [thing-type]
@@ -320,11 +322,16 @@
 (defmethod thing-node-html
   :title
   [rpath render thing-idx]
+  (.log js/console (str "thing-node-html title " rpath))
   (let [thing-id (last rpath)
         thing-type (second rpath)   ; [thing-type 1 :title 1]
         ; slice templ from newthing form for title.
         ;templ ((keyword (str (name thing-type) "-form")) templates)
-        templ (thing-details-template thing-type)
+        templ (if (thing-type #{:person :parent :child})
+                ((keyword (str (name thing-type) "-form")) templates)
+                (thing-details-template thing-type)
+                )
+
         ; add the rendered template attached to rpath node
         html (templates/add-template render rpath templ)
 
@@ -340,6 +347,7 @@
 (defmethod thing-node-html
   :person
   [rpath render thing-idx]
+  (.log js/console (str "thing-node-html person " rpath))
   (let [thing-id (last rpath)
         thing-type (second rpath) ; [parent/child 1 :person 1]
         ; slice templ thing-parent, thing-child, from app templates
@@ -356,6 +364,7 @@
 
 ;;===========================================================================
 ; value a node [:value [:filtered :co] nil {thing-map},  dispatch by thing-type
+; the render path for person, the actual type(parent/child) is used.
 ;;===========================================================================
 (defmulti thing-value-view
   (fn [r rpath qpath thing-map input-queue]
@@ -364,6 +373,7 @@
 
 ; multi fn of thing template value assemble value for each thing type
 ; rpath [:header :group 1] qpath [:group 1 :group-members]
+; [:filtered :group 1 :child 2]
 (defmethod thing-value-view
   :default
   [r rpath qpath thing-map input-queue]
@@ -422,6 +432,29 @@
 
 
 (defmethod thing-template-value
+  :child
+  [thing-type thing-map]
+  (let [thing-id (:db/id thing-map)
+        upvotes (str (thing-attr-val thing-map thing-type "upvote"))
+        ; we need have attr keyword for get-in of :ref :many attr value
+        author-attr (util/thing-attr-keyword thing-type "author")
+        value-map
+          {:thing-title (thing-attr-val thing-map thing-type "title")
+           :thing-content (thing-attr-val thing-map thing-type "content")
+           :title-id (str thing-id "-title")
+           :id-author (str thing-id "-author")
+           :author-name (get-in thing-map [author-attr 0 :person/title])
+           :author-class (get-in thing-map [author-attr 0 :person/title]) 
+           :upvote (str (thing-attr-val thing-map thing-type "upvote"))
+           :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
+           :phone (first (thing-attr-val thing-map thing-type "phone"))
+           :email (first (thing-attr-val thing-map thing-type "email"))
+          }
+       ]
+    value-map))
+
+
+(defmethod thing-template-value
   :course
   [thing-type thing-map]
   (let [thing-id (:db/id thing-map)
@@ -433,9 +466,9 @@
            :thing-content (thing-attr-val thing-map thing-type "content")
            :entryhref "javascript:void(0);"
            :title-id (str thing-id "-title")
+           :id-author (str thing-id "-author")
            :author-name (get-in thing-map [author-attr 0 :person/title])
            :author-class (get-in thing-map [author-attr 0 :person/title])
-           :id-author (str thing-id "-author")
            :upvote upvotes
            :start (util/format-time (thing-attr-val thing-map thing-type "start"))
            :numcomments (str (thing-attr-val thing-map thing-type "numcomments") " comments")
