@@ -101,7 +101,6 @@
     :answer {:title "" :author ""
              :grade ""
              :assignment ""
-             :question ""
              :comments ""
              :upvote "" :like "" :share ""
             }

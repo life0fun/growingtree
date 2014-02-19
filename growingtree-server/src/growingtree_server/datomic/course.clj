@@ -12,7 +12,8 @@
             [clj-time.format :refer [parse unparse formatter]]
             [clj-time.coerce :refer [to-long from-long]])
   (:require [datomic.api :as d])
-  (:require [growingtree-server.datomic.dbschema :as dbschema]
+  (:require [growingtree-server.datomic.family :as family]
+            [growingtree-server.datomic.dbschema :as dbschema]
             [growingtree-server.datomic.dbconn :as dbconn :refer :all]
             [growingtree-server.datomic.util :as util]))
 
@@ -266,22 +267,31 @@
                       (dbconn/find-by :enrollment/lecture lecture-id))
         enrollment-id (if enrollment (:db/id enrollment) (d/tempid :db.part/user))
 
-        person-id (:db/id (find-by :person/title (:enrollment/person details)))
-        entity (cond-> {:db/id enrollment-id
-                        :enrollment/person person-id
-                        :enrollment/title (:enrollment/title details)
-                        :enrollment/content (:enrollment/content details)
-                        :enrollment/url (:enrollment/url details)
-                        :enrollment/email (:enrollment/email details)}
-                      ; using cond-> expr test/form pairs. if predicate is true, exec, continue.
-                      lecture-id (assoc :enrollment/lecture lecture-id)
-                      course-id (assoc :enrollment/course course-id)
-                  )
+        person (util/tagsInputs (:enrollment/person details))
+        person-id (->> (map #(family/get-person-by-title %) person)
+                       (map :db/id )
+                       (filter identity))
+        group-person (->> (mapcat #(family/get-group-members %) person)
+                          (map :db/id )
+                          (filter identity))
+        all-person (set (concat person-id group-person))
+        entity (fn [person-id]
+                (cond-> {:db/id enrollment-id
+                         :enrollment/person person-id
+                         :enrollment/title (:enrollment/title details)
+                         :enrollment/content (:enrollment/content details)
+                         :enrollment/url (:enrollment/url details)
+                         :enrollment/email (:enrollment/email details)}
+                        ; using cond-> expr test/form pairs. if predicate is true, exec, continue.
+                        lecture-id (assoc :enrollment/lecture lecture-id)
+                        course-id (assoc :enrollment/course course-id)
+                  ))
+        enrolls (map entity all-person)
 
-        ;trans (submit-transact [entity])  ; transaction is a list of entity
+        trans (submit-transact enrolls)  ; transaction is a list of entity
       ]
     (newline)
-    (prn "create enrollment entity " entity)
-    ;(prn "submit enrollment trans " trans)
-    [entity]))
+    (prn "create enrollment " enrolls)
+    (prn "submit enrollment trans " trans)
+    enrolls))
 
