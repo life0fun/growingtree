@@ -363,6 +363,11 @@
       ; title case, render path to details template.
       (= child :title) (vec (concat [:details] thing-navpath))
 
+
+      ; person's enrollment is a list of courses
+      (and (#{:parent :child} parent) (= child :enrollment))
+        (vec (concat [:filtered] [parent pid :course (last thing-navpath)]))
+
       ; enrollment are list of persons, resolve to parent/child, render to filtered.
       (= child :enrollment)
         (let [person-id (:db/id thing-map)

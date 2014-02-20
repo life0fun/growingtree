@@ -218,8 +218,7 @@
 (defmethod add-thing
   :default
   [type details]
-  (prn "XXX add-thing default " type details)
-  )
+  (prn "XXX add-thing default " type details))
 
 
 ; add family

@@ -236,22 +236,32 @@
   ])
 
 
+; one course can have many enrollments. how do we differentiate ?
+; for [:course 1 :enrollment], we should show attendee
+; however, for [:child 1 :enrollment], we should show course, not attendee.
 (defn find-enrollment
   "find all person that enrolls to the course by query path "
   [qpath]
   ;(prn "find enrollment " qpath (util/get-qpath-entities qpath get-enrollment-by))
   (let [projkeys (keys enrollment-schema)
         person-keys (keys (assoc (list-attr :person) :db/id :db.type/id))
-        attendee (->> (first (util/get-qpath-entities qpath get-enrollment-by))
-                      (:enrollment/person)  ; select-keys ret a map with subset keys
-                      (map (comp get-entity :db/id))
-                      (map #(select-keys % person-keys) )
-                      (map #(util/add-navpath % qpath) )
-                 )
+        course-keys (keys (assoc (list-attr :course) :db/id :db.type/id))
+
+        result (if (#{:parent :child} (first qpath))
+                (->> (util/get-qpath-entities qpath get-enrollment-by)
+                     (map :enrollment/course )
+                     (map (comp get-entity :db/id))
+                     (map #(select-keys % course-keys) )
+                     (map #(util/add-navpath % qpath) ))
+                (->> (first (util/get-qpath-entities qpath get-enrollment-by))
+                          (:enrollment/person)  ; select-keys ret a map with subset keys
+                          (map (comp get-entity :db/id))
+                          (map #(select-keys % person-keys) )
+                          (map #(util/add-navpath % qpath) )))
         ]
-    (doseq [e attendee]
+    (doseq [e result]
       (prn "enrollment --> " e))
-    attendee))
+    result))
 
 
 ; for now, all courses are created and lectured by person
