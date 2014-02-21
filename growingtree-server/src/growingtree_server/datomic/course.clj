@@ -250,14 +250,16 @@
         result (if (#{:parent :child} (first qpath))
                 (->> (util/get-qpath-entities qpath get-enrollment-by)
                      (map :enrollment/course )
+                     (filter identity)      ; always filter identity
                      (map (comp get-entity :db/id))
                      (map #(select-keys % course-keys) )
                      (map #(util/add-navpath % qpath) ))
                 (->> (first (util/get-qpath-entities qpath get-enrollment-by))
-                          (:enrollment/person)  ; select-keys ret a map with subset keys
-                          (map (comp get-entity :db/id))
-                          (map #(select-keys % person-keys) )
-                          (map #(util/add-navpath % qpath) )))
+                     (:enrollment/person)  ; select-keys ret a map with subset keys
+                     (filter identity)      ; always filter identity
+                     (map (comp get-entity :db/id))
+                     (map #(select-keys % person-keys) )
+                     (map #(util/add-navpath % qpath) )))
         ]
     (doseq [e result]
       (prn "enrollment --> " e))

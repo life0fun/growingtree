@@ -203,7 +203,9 @@
 (defn add-navpath
   [thing-map qpath]
   (let [thing-id (:db/id thing-map)  ; just append thing-id to the end of navpath
+        thing-type (dbconn/entity-keyword thing-map)
         navpath (vec (concat qpath [thing-id]))
+        ;navpath (vec (concat (butlast qpath) [thing-type thing-id]))
         nthing (assoc-in thing-map [:navpath] navpath)
        ]
     nthing))
