@@ -348,13 +348,14 @@
   '[[(:all ?e ?val) [?e :group/title]]
     [(:title ?e ?val) [?e :group/title ?val]]
     [(:author ?e ?val) [?e :group/author ?val]]
-    [(:person ?e ?val) [?e :group/person ?val]]
+    [(:parent ?e ?val) [?e :group/person ?val]]
+    [(:child ?e ?val) [?e :group/person ?val]]
     [(:type ?e ?val) [?e :group/type ?val]]
     [(:email ?e ?val) [?e :group/email ?val]]
     [(:url ?e ?val) [?e :group/url ?val]]
   ])
 
-
+; for parents, [:parent 1 :group]
 (defn find-group
   "find groups by passed in query path"
   [qpath]

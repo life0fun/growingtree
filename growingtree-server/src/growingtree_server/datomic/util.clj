@@ -133,6 +133,7 @@
     entities))
 
 
+; this is the query processing, transform to query plan with some specialities.
 ; Leaf thing, assignment, answer, only have :origin ref back to things they pointed to.
 ; for leaf thing origin query, e.g, question of assignment, or assignment of answer,
 (defn get-qpath-entities
