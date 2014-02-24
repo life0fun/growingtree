@@ -308,8 +308,8 @@
 ; [:transform-enable [:nav :courses 17592186045496 :author] :author
 ; message :set-nav-path :path [:person nil :person], :qpath [:course 1 :author], :rpath [:main :all 0 :course 1]
 ; ------------------------------------------------------------------------------------
-(defmethod enable-thing-nav  ; author, qpath [:course 1 :author]
-  :author  ; transkey is author.
+(defmethod enable-thing-nav  ; author, qpath [:course 1 :author] ; transkey is author.
+  :author
   [r [_ navpath transkey messages] input-queue]
   (let [navpath (rest navpath)  ; [:parent 1 :author]
         thing-id (first (reverse (butlast navpath)))

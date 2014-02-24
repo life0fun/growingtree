@@ -94,6 +94,7 @@
 
     :group {:title "" :author ""
             :group-members "" :join-group ""
+            :comments ""
             :activity "" :add-activity " hide"
             :upvote "" :like "" :share ""
            }
