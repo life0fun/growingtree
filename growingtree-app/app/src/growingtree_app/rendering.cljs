@@ -174,7 +174,7 @@
   [r [op rpath] input-queue]
   (let [thingid (last rpath)
         main (dom/by-id "main")
-        child-idx (nchildren main)
+        child-idx (nchildren main)  ;nchildren taks dom node
         thing-div (entity-view/thing-node-html rpath r (inc child-idx))]
     (.log js/console (str "adding thing node " nchild rpath thingid))
     (dom/append! main thing-div)))
@@ -250,9 +250,9 @@
   ; render thing-details template if it is not rendered yet
   ; need to render page first, so the following by-id subthings-list make sense
   (render-filtered-page r (take 2 (rest rpath))) ; [:course 1]
-  (let [child-idx (nchildren subthings-div)]
+  (let [child-idx (nchildren (dom/by-id "subthings-list"))]
     ; [:filtered :question 17592186045432 :lecture 17592186045430]
-    (.log js/console (str "append filtered child node " rpath " child-idx " child-idx))
+    (.log js/console (str "append-filtered-child-node " rpath " child-idx " child-idx))
     (dom/append! (dom/by-id "subthings-list")
                  (entity-view/thing-node-html rpath r (inc child-idx)))
     ; do not offset1 for filtered details
