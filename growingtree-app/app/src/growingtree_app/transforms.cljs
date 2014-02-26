@@ -727,7 +727,7 @@
 
 ;;==================================================================================
 ; enable add comments input box on top of a list of all comments.
-; triggered by thing data emitter [:setup :lecture 1 :comments]
+; [:node-create [:comments :* :* :*] transforms/enable-add-comments]
 ;;==================================================================================
 (def enable-add-comments
   "upon comments link clicked for any thing, display add comment dialog"
@@ -750,12 +750,13 @@
                                         messages
                                         {:details details})
                     ]
-                (.log js/console (str "add comments submitted " messages))
+                (.log js/console (str "add-comments submitted " messages))
                 (de/prevent-default e)  ; submit ret false, prevent refresh or redirect
+                (dom/set-text! (dom/by-id "comments-title") "Type your notes here !")
                 (doseq [m messages]
                   (p/put-message input-queue m))))
          ]
-      (.log js/console (str "enable add comments "  thing-id navpath))
+      (.log js/console (str "enable-add-comments "  thing-id navpath))
       (events/send-on :submit form input-queue submit-fn)
       )))
 

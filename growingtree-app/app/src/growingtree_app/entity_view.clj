@@ -231,6 +231,7 @@
 ;;====================================================================
 (defn toggle-nav-add-subthing-class
   [thing-id thing-type qpath]
+  (.log js/console "toggle-nav-add-subthing-class " thing-id thing-type qpath)
   (when-let [nxt-thing-type (last qpath)]
     (let [nmsp (keyword (str (name thing-type)))
           ; hide nav subthing
@@ -358,7 +359,7 @@
 (defmethod thing-value-view
   :default
   [r rpath qpath thing-map input-queue]
-  (.log js/console (str "thing-value-view " rpath qpath))
+  (.log js/console (str "thing-value-view " rpath " qpath " qpath))
   (let [thing-id (last rpath)
         thing-type (second (reverse rpath))
         ; use qpath to toggle list thing and add-thing transkey, for qpath next thing only.
@@ -610,6 +611,7 @@
            :author-class (get-in thing-map [author-attr 0 :person/title])
            :id-author (str (:db/id thing-map) "-author")
            :upvote upvotes
+           :comments-class (str "comments-" (:db/id thing-map))
           }
        ]
     value-map))
