@@ -726,14 +726,15 @@
 
 
 ;;==================================================================================
-; enable add comments input box on top of a list of all comments.
-; [:node-create [:comments :* :* :*] transforms/enable-add-comments]
+; create add comments input box on top of a list of all comments. called upon render[:comments *]
+; [:node-create [:comments :* :* :*] transforms/create-add-comments-box]
+; navpath: [:comments :group 1 :comments)
 ;;==================================================================================
-(def enable-add-comments
+(def create-add-comments-box
   "upon comments link clicked for any thing, display add comment dialog"
-  (fn [r [op navpath] input-queue]
-    (let [thing-id (last (butlast navpath))
-          form (entity-view/add-comments-form r navpath)
+  (fn [r [op rpath] input-queue]
+    (let [thing-id (last (butlast rpath))
+          form (entity-view/add-comments-form r rpath)
           override-map {:comments/origin thing-id
                         :comments/thingroot thing-id
                        }
@@ -750,13 +751,15 @@
                                         messages
                                         {:details details})
                     ]
-                (.log js/console (str "add-comments submitted " messages))
+                (.log js/console (str "add-comments submit " messages))
                 (de/prevent-default e)  ; submit ret false, prevent refresh or redirect
-                (dom/set-text! (dom/by-id "comments-title") "Type your notes here !")
+                (dom/set-value! (dom/by-id "comments-title") "Type your notes here !")
                 (doseq [m messages]
-                  (p/put-message input-queue m))))
+                  (p/put-message input-queue m))
+                ; after add, refresh screen by send :set-nav-path msg (:group 1 :comments
+                (util/refresh-nav-path :comments (rest rpath) input-queue)))
          ]
-      (.log js/console (str "enable-add-comments "  thing-id navpath))
+      (.log js/console (str "create-add-comments-box "  thing-id rpath))
       (events/send-on :submit form input-queue submit-fn)
       )))
 

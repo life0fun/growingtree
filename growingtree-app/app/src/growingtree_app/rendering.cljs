@@ -430,7 +430,7 @@
 
 
     ;============== add comments box [:comments :lecture 1 :comments] ============
-    [:node-create [:comments :* :* :*] transforms/enable-add-comments]
+    [:node-create [:comments :* :* :*] transforms/create-add-comments-box]
 
     ;; ============== other thing nav links setup and submit handling ============
     ; setup and submit action handler, path [:setup :homework id :assign]

@@ -144,6 +144,7 @@
 ; send :set-nav-path msg to behavior to trigger effect query. fill :path and :qpath.
 ; :path = [:group 1 :group], showing the header.
 ; :qpath = [:group 1 :group-member], a list of next thing shows in filtered.
+; :path [:group 1 :group], :qpath [:group 1 :comments]
 ;==============================================================================
 (defn refresh-nav-path
   [add-thing-type navpath input-queue]
@@ -154,9 +155,11 @@
                   :join-group :group-members   ; after join-group, list all members of group
                   add-thing-type)
         ; the case for nav create :course [:create :course] ; [:course 1]
+        ; curpath query for header, append first of navpath
         curpath (if (< (count navpath) 3)
                     [:all 0 add-thing-type]
                     (vec (concat (butlast navpath) [(first navpath)])))
+        ; qpath query for filtered list, the next target.
         qpath (if (< (count navpath) 3)
                   nil
                   (vec (concat (butlast navpath) [nxt])))
