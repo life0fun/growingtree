@@ -86,6 +86,7 @@
 (defn attr-refto-user-tx
   "find transaction entity of all entities that refto user"
   [author-id author attr]
+  (prn "attr-refto-user-tx " author-id author attr)
   (let [;txhist (entity-inbound-tx author-id attr)
         txhist (->> (dbconn/attr-val-tx attr author-id)  ; find all trans entity set attr to val
                     (map #(util/tx-timeline %))   ; format to :timeline/attr
@@ -103,9 +104,10 @@
 (defn find-timeline
   "find timeline of a user"
   [qpath details]
+  (prn "find-timeline " qpath (seq qpath))
   (let [author (:author details)
         author-id (:db/id (find-by :person/title author))
-        user-id (second qpath)
+        user-id (if-not (= :all (first qpath)) (second qpath) author-id)
         user (:person/title (dbconn/get-entity user-id))
         timelines (->> (mapcat #(attr-refto-user-tx user-id user %)
                                person-attrs)

@@ -62,10 +62,10 @@
   (get-in sse-context [:request :cookies "user-id" :value]))
 
 
-(defn- session-from-request                               
-  "Extract the session id from a request."                
-  [request]                                               
-  (get-in request [:cookies "user-id" :value])) 
+(defn- session-from-request
+  "Extract the session id from a request."
+  [request]
+  (get-in request [:cookies "user-id" :value]))
 
 
 (defn add-subscriber
@@ -129,12 +129,12 @@
   (let [session-id (or (get-in request [:cookies "user-id" :value])
                        (gen-session-id))
         cookie {:user-id {:value session-id :path "/"}}]
-    (prn "get /msgs ends with subscribe here...")   
+    (prn "get /msgs ends with subscribe here...")
     (-> (ring-response/redirect (url-for ::wait-for-events)) ; namespaced keyword for route.
         (update-in [:cookies] merge cookie))))
 
 
-;; - - - - - - - route handler - - - - - - - 
+;; - - - - - - - route handler - - - - - - -
 ;; route interceptor can be defined by
 ;;  1. fn accept ring request map and rets ring response map.
 ;;  2. interceptor defined by io.pedestal.service.interceptor/handler
@@ -145,7 +145,7 @@
 ;;  ["/hello/:who" {:get hello-who}]  (get-in req [:path-params :who])
 ;;
 ;; curl --cookie-jar /tmp/x --location localhost:8080/api/courses
-;; post handler get a app.messages as arg, have topic and type keys. 
+;; post handler get a app.messages as arg, have topic and type keys.
 ;;    [{msg-data :edn-params :as request}]
 ;; when posting to api, use app.messages and ct application/edn
 ;; curl --data \
@@ -153,7 +153,7 @@
 ;;     :io.pedestal.app.messages/type :swap \
 ;;     :value 42}" \
 ;;   --header "Content-Type:application/edn" \
-;;   http://localhost:8080/msgs 
+;;   http://localhost:8080/msgs
 ;;
 ;; it has been benchmarked that sending json is more efficient than edn, albeit edn
 ;; let you tag attributes. the content type is application/json or application/edn.
@@ -163,7 +163,7 @@
 ;; to send edn, set content-type to application/edn
 ;;   (-> (ring-response/response things)
 ;;     (ring-response/content-type "application/edn"))))
-;; 
+;;
 
 (defn about-page
   [request]
@@ -186,15 +186,15 @@
                    (assoc :status (if-not (:error user) 200 404)))
         jsonresp (bootstrap/json-response result)
        ]
-    (newline)  
+    (newline)
     (println (str "service peer get-login-user " postdata " " result))
     jsonresp))
 
 
 ;;==================================================================================
-; GET request to get all things without post any filters
+; GET request handler to get all things without post any filters
 ; this fn is deprecated as nav path for all things is [:all 0 :parent]
-; deprecated !
+; XXX deprecated !
 ;;==================================================================================
 (defn get-all-things
   "get things by type, ret from peer a list of thing in a new line sep string"
@@ -213,16 +213,16 @@
 
 ;;==================================================================================
 ; POST filter from nav path to get things within parent.
-; reqbody {:msg-type :set-thing-data, :msg-topic [:data :group 1 :group-members], 
-; :thing-type :group-members, :path [:group 1 :group-members], 
-; :details {:path [:group 1 :group-members], :qpath [:group 1 :group-members], :author "rich-dad"}} 
+; reqbody {:msg-type :set-thing-data, :msg-topic [:data :group 1 :group-members],
+; :thing-type :group-members, :path [:group 1 :group-members],
+; :details {:path [:group 1 :group-members], :qpath [:group 1 :group-members], :author "rich-dad"}}
 ;;==================================================================================
 (defn get-things
   "get things by type, ret from peer a list of thing in a new line sep string"
   [{reqbody :edn-params :as request}]
   ; path segment in req contains request params, /api/:thing, /api/:course
   (let [type (get-in request [:path-params :thing])
-        path (:path reqbody)   ; effect msg body, [:group 1 :group-members], 
+        path (:path reqbody)   ; effect msg body, [:group 1 :group-members],
         thing-type (:thing-type reqbody)
         things (peer/get-things thing-type path (:details reqbody))
         result {:status 200 :data things}

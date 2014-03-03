@@ -56,6 +56,7 @@
 
 ;;===========================================================================
 ;; get all things multi method, return data is thing-vec. [{tuple1} {tuple2}]
+; qpath is the :path in request body, and real :path and :qpath in details dict.
 ;; (defmulti name docstring? attr-map? dispatch-fn & options)
 ;;===========================================================================
 ; defmulti needs a name and a dispatch fn, which rets value for dispatching
@@ -165,11 +166,14 @@
     likes))
 
 
+; qpath is [:all 0 :timeline] for request all, and :qpath inside details dict.
+; :path [:all 0 :timeline]
+; :details {:path [:all 0 :timeline], :qpath [], :author "rich-dad"}}}]
 (defmethod get-things
   :timeline
   [type qpath details]
   (let [timeline (dda/find-timeline qpath details)]
-    (prn "peer get timeline " qpath)
+    (prn "peer get timeline " qpath details)
     timeline))
 
 
