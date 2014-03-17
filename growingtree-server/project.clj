@@ -1,5 +1,7 @@
 (defproject growingtree-server "0.0.1-SNAPSHOT"
-  :description "growingtree-server"
+  :description "growingtree server"
+  :license {:name "private"
+            :distribution :none}
   :url "http://growingtree.com"
   :license {:name "copyright reserved !" }
   :dependencies [[org.clojure/clojure "1.5.1"]
@@ -22,7 +24,7 @@
                  [org.clojure/java.jdbc "0.0.6"]
                  [mysql/mysql-connector-java "5.1.6"]
                  [com.datomic/datomic-pro "0.9.4324"]
-                 
+
                  [datomic-schema "1.0.2"]  ; macro for db schema
                  [clj-redis "0.0.12"]
                  [org.clojure/data.json "0.2.2"]    ; json package]

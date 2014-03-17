@@ -26,7 +26,7 @@
 ;
 ; (defroutes routes
 ;       [[["/order"
-;           ^:interceptor [verify-request]
+;           ^:interceptor [ verify-request load-order-from-db ]
 ;           {:get o/list-orders
 ;            :post [:make-an-order o/create-order]}
 ;           ["/:id"
@@ -42,18 +42,18 @@
 ; store subscribe user id map to SSE context in atom {}
 (def ^{:doc "Map of subscriber IDs to SSE contexts"} subscribers (atom {}))
 
-; create schema
-(defn create-schema
-  []
+; create db schema thru peer.
+(defn create-schema []
   (peer/init-db))
 
 ; gen uuid session id
 (defn- gen-session-id [] (.toString (java.util.UUID/randomUUID)))
 
 ; session intercept to extract cookie.
+; An interceptor is one instance of an Interceptor record or a map with
+; :enter, :leave, :pause, :resume, and :error keys.
 (definterceptor session-interceptor
   (middlewares/session {:store (cookie/cookie-store)}))
-
 
 ; wrap each request into sse-context map, and store user-id in request cookie.
 (defn context-key
@@ -164,6 +164,10 @@
 ;;   (-> (ring-response/response things)
 ;;     (ring-response/content-type "application/edn"))))
 ;;
+;; -------------------------------------------------------------------------------
+;; for xhr/request from pedestal app, request body was edn encoded, hence under :end-params key.
+;; destrcture [{reqbody :edn-params :as request}], request context map still :as request.
+;;
 
 (defn about-page
   [request]
@@ -179,7 +183,7 @@
 ;;==================================================================================
 (defn get-signup-login
   "get signup or login user info"
-  [{postdata :edn-params :as request}]
+  [{postdata :edn-params :as request}]  ; post data under :edn-params key :as request
   (prn "get-signup-login " postdata)
   (let [user (peer/get-user postdata)
         result (-> user
@@ -213,18 +217,18 @@
 
 ;;==================================================================================
 ; POST filter from nav path to get things within parent.
-; reqbody {:msg-type :set-thing-data, :msg-topic [:data :group 1 :group-members],
+; postbody {:msg-type :set-thing-data, :msg-topic [:data :group 1 :group-members],
 ; :thing-type :group-members, :path [:group 1 :group-members],
 ; :details {:path [:group 1 :group-members], :qpath [:group 1 :group-members], :author "rich-dad"}}
 ;;==================================================================================
 (defn get-things
   "get things by type, ret from peer a list of thing in a new line sep string"
-  [{reqbody :edn-params :as request}]
+  [{postbody :edn-params :as request}] ; post data under :edn-params key :as request
   ; path segment in req contains request params, /api/:thing, /api/:course
   (let [type (get-in request [:path-params :thing])
-        path (:path reqbody)   ; effect msg body, [:group 1 :group-members],
-        thing-type (:thing-type reqbody)
-        things (peer/get-things thing-type path (:details reqbody))
+        path (:path postbody)   ; effect msg body, [:group 1 :group-members],
+        thing-type (:thing-type postbody)
+        things (peer/get-things thing-type path (:details postbody))
         result {:status 200 :data things}
         jsonresp (bootstrap/json-response result)
        ]
@@ -249,29 +253,37 @@
 
 ;;==================================================================================
 ; POST form details to add a particular thing
-; reqbody is body when xhr-request on api service side
+; postbody is body when xhr-request on api service side
 ;;==================================================================================
 (defn add-thing
   "add a thing upon post request, request contains http post data"
-  [{reqbody :edn-params :as request}]
+  [{postbody :edn-params :as request}]
   (let [;resp (bootstrap/json-print {:result msg-data})
         type (get-in request [:path-params :thing])  ; /api/:thing
-        added-things (peer/add-thing (keyword type) (:details reqbody))
+        added-things (peer/add-thing (keyword type) (:details postbody))
         result {:status 200 :data added-things}
         jsonresp (bootstrap/json-response result)
         ]
-    (log/info :message "received message" :request request :msg-data reqbody)
+    (log/info :message "received message" :request request :msg-data postbody)
     (prn "service got peer adding thing done " added-things)
     jsonresp))
 
 
 ;;==================================================================================
-;; define routing table with verb map and route interceptor
+; define routing table with verb map and a list of route interceptors to invoke on request.
+; Each route table is a vector of route vectors. [ [:app-name [nested route vectors]] ]
+; Nested route vector contain path and verb map {:get/:post destination-interceptor}
+; Interceptor can be Ring hdl takes Ring request map and ret Ring resp map, or a vector of Ring handler.
+; Every route incl an interceptor vector marked with ^:interceptors [] to be executed.
+; [[["/order"  ^:interceptors [verify-request] ^:constraints {:user-id #"[0-9]+"}
+;    {:get list-orders :post create-order}
+;    ["/:id"  ^:constraints {:user-id #"[0-9]+"} ^:interceptors [verify-order-ownership load-order-from-db]
+;    {:get view-order :post [:make-an-order o/create-order]}]]]]
 ;;==================================================================================
 (defroutes routes
   [[["/" {:get home-page}
-     ;; Set default interceptors for /about and any other paths under /
-     ^:interceptors [(body-params/body-params) bootstrap/html-body]
+     ; set common intermediate interceptors before reach dest interceptor
+     ^:interceptors [(body-params/body-params) bootstrap/html-body session-interceptor]
      ["/msgs" {:get subscribe :post publish}
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
      ["/about" {:get about-page}]

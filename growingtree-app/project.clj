@@ -1,5 +1,7 @@
 (defproject growingtree-app "0.0.1-SNAPSHOT"
-  :description "FIXME: write description"
+  :description "growingtree client"
+  :license {:name "private"
+            :distribution :none}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/clojurescript "0.0-1835"]
                  [domina "1.0.1"]
