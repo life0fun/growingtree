@@ -3,7 +3,9 @@
   :license {:name "private"
             :distribution :none}
   :dependencies [[org.clojure/clojure "1.5.1"]
+                 [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [org.clojure/clojurescript "0.0-1835"]
+                 ;[org.clojure/clojurescript "0.0-2173"]
                  [domina "1.0.1"]
                  [ch.qos.logback/logback-classic "1.0.7" :exclusions [org.slf4j/slf4j-api]]
                  [io.pedestal/pedestal.app "0.2.1"]

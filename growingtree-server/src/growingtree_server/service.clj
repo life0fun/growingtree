@@ -263,9 +263,8 @@
         added-things (peer/add-thing (keyword type) (:details postbody))
         result {:status 200 :data added-things}
         jsonresp (bootstrap/json-response result)
-        ]
-    (log/info :message "received message" :request request :msg-data postbody)
-    (prn "service got peer adding thing done " added-things)
+       ]
+    (log/info "peer adding thing done " result added-things)
     jsonresp))
 
 

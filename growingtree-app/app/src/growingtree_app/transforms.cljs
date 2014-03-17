@@ -728,7 +728,7 @@
 ;;==================================================================================
 ; create add comments input box on top of a list of all comments. called upon render[:comments *]
 ; [:node-create [:comments :* :* :*] transforms/create-add-comments-box]
-; navpath: [:comments :group 1 :comments)
+; rpath: [:comments :group 1 :comments)
 ;;==================================================================================
 (def create-add-comments-box
   "upon comments link clicked for any thing, display add comment dialog"
@@ -756,7 +756,7 @@
                 (dom/set-value! (dom/by-id "comments-title") "Type your notes here !")
                 (doseq [m messages]
                   (p/put-message input-queue m))
-                ; after add, refresh screen by send :set-nav-path msg (:group 1 :comments
+                ; after add comments, refresh
                 (util/refresh-nav-path :comments (rest rpath) input-queue)))
          ]
       (.log js/console (str "create-add-comments-box "  thing-id rpath))

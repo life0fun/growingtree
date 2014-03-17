@@ -10,20 +10,24 @@
 ; You must not remove this notice, or any other, from this software.
 
 (ns ^:shared growingtree-app.util
-    (:require [domina :as dom]
-              [domina.css :as dc]
-              [domina.events :as de]
-              [domina.xpath :as dx]
-              [io.pedestal.app.util.platform :as platform]
-              [io.pedestal.app.render.push :as render]
-              [io.pedestal.app.render.events :as events]
-              [io.pedestal.app.render.push.templates :as templates]
-              [io.pedestal.app.protocols :as p]
-              [io.pedestal.app.messages :as msgs]
-              [io.pedestal.app.util.log :as log]
-              [io.pedestal.app.render.push.handlers :as h]
-              [io.pedestal.app.render.push.handlers.automatic :as auto]
-      ))
+  (:require [domina :as dom]
+            [domina.css :as dc]
+            [domina.events :as de]
+            [domina.xpath :as dx]
+            [io.pedestal.app.util.platform :as platform]
+            [io.pedestal.app.render.push :as render]
+            [io.pedestal.app.render.events :as events]
+            [io.pedestal.app.render.push.templates :as templates]
+            [io.pedestal.app.protocols :as p]
+            [io.pedestal.app.messages :as msgs]
+            [io.pedestal.app.util.log :as log]
+            [io.pedestal.app.render.push.handlers :as h]
+            [io.pedestal.app.render.push.handlers.automatic :as auto]
+            ; [cljs.core.async :as async
+            ;   :refer [<! >! chan close! sliding-buffer put! alts! timeout]]
+    )
+  ; (:require-macros [cljs.core.async.macros :as m :refer [go go-loop alt!]])
+)
 
 (defn random-id []
   (str (.getTime (platform/date)) "-" (rand-int 1E6)))
@@ -146,6 +150,13 @@
 ; :qpath = [:group 1 :group-member], a list of next thing shows in filtered.
 ; :path [:group 1 :group], :qpath [:group 1 :comments]
 ;==============================================================================
+
+; blocking for specified block
+(defn block [millsecond]
+  ; (go [timeout-chan (timeout millsecond)]
+  ;     (<! timeout-chan))
+  )
+
 (defn refresh-nav-path
   [add-thing-type navpath input-queue]
   (let [; we need to do some ugly name mangling for thing type.
@@ -168,9 +179,12 @@
                    :path curpath     ; the result of this is header
                    :qpath qpath}]    ; the result of qpath is filtered.
         ]
-      (.log js/console (str "refresh nav path " add-thing-type " " navpath " msgs " messages))
+
+      ; for refresh after :create-thing, let's wait
+      (.log js/console (str "refresh-nav-path " add-thing-type " " navpath " msgs " messages))
+      (block 1000)
+      (.log js/console (str "refresh timeout block done"))
       (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
         (p/put-message input-queue m))
     ))
-
 
