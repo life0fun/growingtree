@@ -9,21 +9,24 @@ Also, use incognito browser to avoid cookie settings.
 
   => (start)
   => (watch :development)
-  watching [:chat-client] / :development
+
+To checkout project deps,
+
+  lein deps :tree
 
 ## App model and Data model
 
 We have two options to arrange our information data model, by arranging functions under each thing type, or making thing types under each function.
- 
-which one? 
 
-    [:parent :all] 
-    [:parent :filtered]  
+which one?
+
+    [:parent :all]
+    [:parent :filtered]
 
 In this case, each type knows all, easy to add new type, However, boilerplate, we only have limited types.
 
-    [:all :parent] 
-    [:filtered :parent]  
+    [:all :parent]
+    [:filtered :parent]
 
 In this case, each fn knows all types. Easy to add new fn. [:fn-X :parent]. Hard to add new type.
 
@@ -31,11 +34,11 @@ As we only have limited know types. We choose functional way to model it for eas
 
 
 `current` function. store current things, :parent, :child, :course, :lecture.
-    
+
     [:current :parent|:child|:course|:lecture] - current things
 
-`all` function. list of all things. 
-    
+`all` function. list of all things.
+
     [:all :parent|:child|:course|:lecture] - all things list
 
 `filter type` function. filter type of each things
@@ -50,7 +53,7 @@ As we only have limited know types. We choose functional way to model it for eas
 Note that data stored in path node in data model is cljs.core.PersistentVector data structure. Response handler parses json string into cljs objects and convert them into cljs.core data structure and store them into path nodes. Once data structure is stored inside path node, clojure code can manipulate it as clj data structure easily !
 
 
-## Service 
+## Service
 
 Service object impls Activity protocol and uses function `service-fn` to consume-effects from app effect queue. You can post message content to other web service, or store content to connected datomic store.
 
@@ -78,15 +81,15 @@ Data flow programming means data flow along a path, across many path node, and a
 Data Flow model is a new way of to interact with data from UI other than MVC pattern.
 It centerlized around data, bridges functions that transform the data with user interactive UI events through messages.
 
-In data flow model, you first have data, or state. Those data in a map, or a information tree. Then you define a set of function that can change those states. Transform function is triggered by incoming messages from either UI render or service when  We call those functions transform functions. You put transform function in the app model map, each function keyed by it name. 
+In data flow model, you first have data, or state. Those data in a map, or a information tree. Then you define a set of function that can change those states. Transform function is triggered by incoming messages from either UI render or service when  We call those functions transform functions. You put transform function in the app model map, each function keyed by it name.
 
 Now you need to display the data, and you tell UI (render) that interaction with this data is possible by sending transform-enable message to render. The transform-enable message will config render to send message This is called render config. You then have some browser DOM elements to capture user interaction events. When handling those dom events, render will send pre-defined messages back to app model, and trigger transforming of data.
 
 From above, you see that we start from state/data, then define functions to change data, then associate transform function with messages. To interact with those state data, we config render with a series of messages that will be sent to app model to transform state/data. The final step is to setup UI elements to facilitate user interactions and bind UI events to trigger the sending of those messages.
 
-First, state data in a map, 
+First, state data in a map,
 
-    (assoc todo :tasks {} :count 0, :visible-count 0, :completed-count 0, 
+    (assoc todo :tasks {} :count 0, :visible-count 0, :completed-count 0,
                 :filter :any, :filtered-tasks {}))
 
 Second,  transform function, keyed by name, on data node [:todo], takes 2 args, the old value at the location, and the message sent from UI or service.
@@ -100,9 +103,9 @@ Third, from app model side, config render to say that this state can be interact
     [:transform-enable [:todo] :add-tasks [{msg/type :add-task msg/topic [:todo]
                                            (msg/param :details) {}}]]
 
-    [:transform-enable [:todo :filtered-tasks task] :toggle-task 
+    [:transform-enable [:todo :filtered-tasks task] :toggle-task
                        [{msg/topic [:todo] msg/type :toggle-task :id task}]]
-   
+
 Lastly, at render side, render-config dispatch app model transform-enable message, and use dom event handler to trigger the sending of those messages to transform app model states.
 
     [:transform-enable [:todo] handle-todo-transforms]
@@ -110,17 +113,17 @@ Lastly, at render side, render-config dispatch app model transform-enable messag
 Each transform-enable handler got 3 args, first is render, the second destructure to message type, data path, transform function key, and messages.
 
     (defmethod handle-todo-transforms :toggle-all [r [t p k messages] input-queue]
-      (cond       
-        (= k :toggle-task)                                           
+      (cond
+        (= k :toggle-task)
           (evts/send-on :click (dc/sel (str "#" (render/get-id r p) " input")) input-queue messages )
-        (= k :remove-task)                                           
+        (= k :remove-task)
           (evts/send-on :click (dc/sel (str "#" (render/get-id r p) " .destroy")) input-queue messages ))))
 
 
 
 Derive dataflow does not handle message directly. A derive dataflow is made up of 3 components, a set of upstream input path nodes, the output path node where updated value goes into, and the actual derive function. The derive function receives 2 args, the first item is the old value in the output path node, the second item is a tracking map. Note that tracking map is passed only when input specifier is default.
 
-A tracking map is a special pedestal map that keeps track of changes in the data model. use (get-in tracking-map [:path :nested-key]) to get the value. A tracking map is made up of the following keys: :removed, :added, :updated, :input-paths, :old-model, :new-model, and :message. 
+A tracking map is a special pedestal map that keeps track of changes in the data model. use (get-in tracking-map [:path :nested-key]) to get the value. A tracking map is made up of the following keys: :removed, :added, :updated, :input-paths, :old-model, :new-model, and :message.
 
     (defn wind-chill-fn [old-wind-chill inputs]
       (let [t (get-in inputs [:new-model :app :sensor :temperature])
@@ -145,7 +148,7 @@ A derive function will be called when any of its inputs change. Derive functions
 
 ## Render DOM and app model deltas
 
-The push renderer creates an internal DOM structure that is useful for creating templates and mapping from the application tree(node path) to the actual browser's DOM. It does this by creating an internal DomRenderer, which is defined by the following methods ** get-id, get-parent-id, new-id!, delete-id!, on-destroy!, set-data!, drop-data! and get-data**. 
+The push renderer creates an internal DOM structure that is useful for creating templates and mapping from the application tree(node path) to the actual browser's DOM. It does this by creating an internal DomRenderer, which is defined by the following methods ** get-id, get-parent-id, new-id!, delete-id!, on-destroy!, set-data!, drop-data! and get-data**.
 
 The idea is that these functions take a path from an application delta and map it to an object in the DOM. When creating render function, we say use render-config and browser DOM root is div id="content".
 
@@ -159,7 +162,7 @@ For :node-create delta, render fn gets 2 args, type, and path.
            id (render/new-id! renderer path "todoapp")
            html (templates/add-template renderer path (:todo-page templates))]
         (dom/append! (dom/by-id parent) (html {:id id}))))
- 
+
 The function templates/add-template takes all the hard work out of dealing with dynamic templates. This function associates the template with the given path and returns a function which generates the initial HTML. Calling the returned function with a map of data will return HTML which can be added to the DOM.
 
 There are two ways to create new node, one is create a render DOM node for a path that maps to a browser DOM id, for example, [:todo] maps to div id "todoapp". Then later we add-template to [:todo] node, render template to html and dom append to [:todo]'s parent.
@@ -169,7 +172,7 @@ The other way is call new-id to get an id for the path node [:x :y], then attach
 The other way is create a render dom id for the path node, attach template to it. and use templates prepend-t to attach path node's html to designated path node, for example, here we attach message path node's template to [:chat]. Note here the :chat node is at a div node with field="content:messages", means div's content is taken from :messages key in data, hence the html is wrapped inside :messages key of the passed in map.
 
     (defn create-message-node [r [_ path] d]
-      (let [id (render/new-id! r path)            
+      (let [id (render/new-id! r path)
             html (templates/add-template r path (:message templates))]
         (templates/prepend-t r [:chat] {:messages (html {:id id :status "pending"})})))
 
@@ -195,7 +198,7 @@ For derived dataflow, it has a set of input path, as up-stream changes, output p
 
 The derive function receives two arguments when it is called. The first item is the old data model value at the output path. The second item is a tracking map. A tracking map is a special pedestal map that keeps track of changes in the data model. A tracking map is made up of the following keys: :removed, :added, :updated, :input-paths, :old-model, :new-model, and :message.
 
-    (defn compute-filtered-tasks [_ inputs]  
+    (defn compute-filtered-tasks [_ inputs]
       (let [filter-type (get-in inputs [:new-model :todo :filter])
             tasks (get-in inputs [:new-model :todo :tasks])]
 
@@ -218,13 +221,13 @@ For example, if a path was added to the data model, this could be signalled with
         (mapcat (fn [[_ _ task] :as path] [[:node-destroy path]]) (:removed inputs)
 
 
-For value changes, the default emitter will emit 
-    
+For value changes, the default emitter will emit
+
     [:value [:nav :category] nil :courses]
 
-the emit handler in render side will get [op path old new] vector. op is :value obviously. d is transmitter, for 
+the emit handler in render side will get [op path old new] vector. op is :value obviously. d is transmitter, for
 
-    (defn emitter-handler [render [op path old new] d] ... )  
+    (defn emitter-handler [render [op path old new] d] ... )
 
 
 ## Back-end Service
@@ -256,16 +259,16 @@ UIs are defined in templates. Each template has two attributes, template and fie
     <div class="topthings" template="thing" field="content:things,href:link"> </div>
 
 Push template uses template-fn to make template html string. The template-fn for each template is a macro defined inside `app/src/growingtree_app/html_templates.clj`.
-    
+
     (def template-fn (dtfn (tnodes "growingtree-app.html" "thing")))
-    
+
     :thing (dtfn (tnodes "growingtree-app.html" "thing") #{:id})
 
 You slice out certain template with its template-fn from app htmp-templates macro.
 
     html (templates/add-template r path (:thing templates)) ; added template path node
 
-After getting template-fn for the template, you can gen the html code for the template by invoking it with field value map. The value map contains the attribute key value for the dom element. 
+After getting template-fn for the template, you can gen the html code for the template by invoking it with field value map. The value map contains the attribute key value for the dom element.
 
     (template-fn {:id 42 :message "Hello"})
 
@@ -277,7 +280,7 @@ The field attribute takes a comma delimited list of
 
 To set the value of dom element content, not element attributes, use filed="content:innerhtml". it means that the content (innerHTML) of the element will be set to the value of the innterhtml key of the passing map.
 
-    (templates/append-t 
+    (templates/append-t
               r [:nav]     ; put the template into nav node
               {:topthings (html {:id id :href path :thing-entry-title title})})
 
@@ -285,7 +288,7 @@ To set the value of dom element content, not element attributes, use filed="cont
 To verify template working, need to restart to reload app.
 
     (use 'growingtree-app.html-templates)
-    (def t (growingtree-app-templates))    
+    (def t (growingtree-app-templates))
     (def c (:thing-course t))
     (let [[_ ctor] (c)] (ctor {:id "1" :child-form-id "34" :child-form-class "rrr"}))
 
@@ -305,7 +308,7 @@ When trying to pass both attributes and content to a template with field="conten
 We use bootstrap 2.x as our base css. We borrow some styles from reddit for each thing in the category.
 We use sass for css compilation. config.rb specifies how compass compile should find and compile scss file.
 
-After (watch :development), just `compass compile` will generate css. 
+After (watch :development), just `compass compile` will generate css.
 Note that though you place all images under assets/images, inside scss file you need to refer them under top root /, this is because all assets are compiled and put directly under out/public where server refer all through link resources/public.
 
 ## Usage

@@ -13,10 +13,10 @@
             [io.pedestal.app.util.log :as log]
             [io.pedestal.app.render.push.handlers :as h]
             [io.pedestal.app.render.push.handlers.automatic :as auto]
-            ; [cljs.core.async :as async
-            ;   :refer [<! >! chan close! sliding-buffer put! alts! timeout]]
+            [cljs.core.async :as async
+              :refer [<! >! chan close! sliding-buffer put! alts! timeout]]
     )
-  ; (:require-macros [cljs.core.async.macros :as m :refer [go go-loop alt!]])
+  (:require-macros [cljs.core.async.macros :as m :refer [go go-loop alt!]])
 )
 
 (defn random-id []
@@ -143,8 +143,9 @@
 
 ; blocking for specified block
 (defn block [millsecond]
-  ; (go [timeout-chan (timeout millsecond)]
-  ;     (<! timeout-chan))
+  (go [timeout-chan (timeout millsecond)]
+      (.log js/console (str "blocking on timeout chan " timeout-chan))
+      (<! timeout-chan))  ;  no loop, block here until timeout rets
   )
 
 (defn refresh-nav-path
@@ -171,9 +172,9 @@
         ]
 
       ; for refresh after :create-thing, let's wait
-      (.log js/console (str "refresh-nav-path " add-thing-type " " navpath " msgs " messages))
+      (.log js/console (.now js/Date), (str " refresh-nav-path " add-thing-type " " navpath " msgs " messages))
       (block 1000)
-      (.log js/console (str "refresh timeout block done"))
+      (.log js/console (.now js/Date), (str " refresh timeout block done"))
       (doseq [m messages] ;[m new-msgs]  do not need render to fill anything
         (p/put-message input-queue m))
     ))
