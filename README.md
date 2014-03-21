@@ -1,6 +1,6 @@
 # Growing Tree
 
-Inspired by Dr. Sugata Mitra's 2013 TED award talk, the project aims to build a school in cloud, and along with tools for learning management. 
+Inspired by Dr. Sugata Mitra's 2013 TED award talk, the project aims to build a school in cloud, and along with tools for learning management.
 
 Dr. Mitra asked, what did the poor do wrong ? let's answer it!
 
@@ -25,17 +25,17 @@ To create a connection string, simply replace DB-NAME with your db name.
     lein run create-homework  # run many times to create tons of homework
     lein run create-assignment
     lein run find-assignment  # get the assignment id and child id
-    lein run submit-answer assignment-id child-id 
+    lein run submit-answer assignment-id child-id
     lein run fake-comment     # fake a comment for testing
 
 You can use repl to verify database is initialized properly. Note datomic db schema, config and db-uri are defined inside project.clj.
 
 java console, remember to end the command with ;
 
+    bin/shell
     uri = "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic";
     Peer.createDatabase(uri);
     conn = Peer.connect(uri);
-
 
     lein repl
     (require '[datomic.api :as d])
@@ -78,14 +78,14 @@ After derive function done, you will need to update the emitter to report the ch
 We can also use a map instead of a set to config the derive data flow input. In this way, we can specify which keys are used in derived function from the upstream src.
 for mapEntries that have the same key, all values will be stored together as a set under the same key when passing to derive function.
 
-    [{[:my-counter] :me [:other-counters] :others [:login :name] :login-name} 
+    [{[:my-counter] :me [:other-counters] :others [:login :name] :login-name}
       [:counters] merge-counters :map]
 
     (defn merge-counters [_ {:keys [me others login-name]}]
       (assoc others login-name me))
 
 We can collect all nodes in a subtree into a map, using a derive function to store that map into a state/node, then other derive function can use it.
-  
+
     (defn merge-counters [_ {:keys [me others]}]
       (assoc others "Me" me))
 
