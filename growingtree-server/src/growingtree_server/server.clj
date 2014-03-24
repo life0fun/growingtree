@@ -8,9 +8,10 @@
   "The entry-point for 'lein run-dev'"
   [& args]
   (dev/init service/service #'service/routes)
-  ; create db schema
+  ; create db schema, enable for the first time.
   ; (service/create-schema)
-  (apply dev/-main args))
+  (apply dev/-main args)
+  )
 
 ;; To implement your own server, copy io.pedestal.service-tools.server and
 ;; customize it.

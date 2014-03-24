@@ -234,6 +234,7 @@
 (defn create-assignment
   "new assignment form the submitted form data"
   [details]
+  (prn "create-assignment " details)
   (let [author-id (:db/id (dbconn/find-by :person/title (:author details)))
         ; this find all children whose parent is author-id,
         person (util/tagsInputs (:assignment/person details))

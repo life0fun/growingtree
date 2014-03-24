@@ -318,6 +318,6 @@
 
               ;; Either :jetty or :tomcat (see comments in project.clj
               ;; to enable Tomcat)
-              ;;::bootstrap/host "localhost"
+              ::bootstrap/host "elephant-dev.locationlabs.com"
               ::bootstrap/type :jetty
               ::bootstrap/port 8080})

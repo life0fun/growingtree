@@ -179,3 +179,20 @@
         (p/put-message input-queue m))
     ))
 
+
+;============================================================
+; fake a nav path to force nav to certain screen.
+;============================================================
+(defn nav-to
+  [person-id person-type thing input-queue]
+  (let [messages [{msgs/topic [:nav :path]
+                   msgs/type :set-nav-path
+                   :path (conj [person-type] person-id person-type)
+                   :qpath (conj [person-type] person-id thing)
+                   :rpath (conj [:main :all 0 person-type] person-id)}
+                  ]
+        ]
+    (.log js/console (str "nav-to-thing " messages))
+    (doseq [m messages]
+      (p/put-message input-queue m))))
+

@@ -30,7 +30,8 @@
   ; note that keyword :homepage, must match tnode name "homepage", for id to take effect.
   {
    :login (dtfn (tnodes "growingtree-app.html" "login") #{:id})
-   :homepage (dtfn (tnodes "growingtree-app.html" "homepage") #{:id})
+   :homepage-parent (dtfn (tnodes "growingtree-app.html" "homepage-parent") #{:id})
+   :homepage-child (dtfn (tnodes "growingtree-app.html" "homepage-child") #{:id})
    :user (dtfn (tnodes "growingtree-app.html" "user") #{:id})
 
 

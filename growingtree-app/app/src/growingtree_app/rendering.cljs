@@ -122,21 +122,21 @@
   "user avatar template is under div id=user-avatar and path is [:user]"
   [r user rpath]
   (let [parent "user-avatar"  ; div id=user-avatar
-        id (str user "-avatar")
         title (:person/title user)
+        id (str title "-avatar")
         html (templates/add-template r rpath (:user templates)) ; stores homepage div at [:nav]
         divcode (html {:id id
-                       :user-avatar "avatar.jpg"
-                       :user-profile (str "/home/profile/" user)
+                       :user-avatar "icon_avatar_35.png"
+                       :user-profile (str "/home/profile/" title)
                        :user-greeting (str "Hi " title)})
        ]
 
-    (.log js/console (str "render avatar template for " user " at "))
+    (.log js/console (str "render avatar template for " title " " user " at " rpath))
     ; attach to dom using domina.
     (dom/append! (dom/by-id parent) divcode)   ; homepage no data val map
   ))
 
-
+; newv {:db/id 17592186045419, :person/lname "rich", :person/title "rich-dad"} at [:nav :user]
 (defn render-home-page
   "homepage template is attached to div id=content "
   ;[r [_ rpath] input-queue]
@@ -144,16 +144,21 @@
   (let [;parent (render/get-parent-id r rpath)  ; root of top level is [], maps to div id=content
         parent "content"  ; div id=content
         id (render/new-id! r rpath)  ; gen a new id to the rpath.
-        html (templates/add-template r rpath (:homepage templates)) ; stores homepage div at [:nav]
+        person-type (:person/type newv)
+        templ (if (= "parent" person-type) 
+                (:homepage-parent templates)
+                (:homepage-child templates))
+        html (templates/add-template r rpath templ) ; stores homepage div at [:nav]
         divcode (html {:id id})]
 
-    (.log js/console (str "render-home-page for " newv " at " rpath
+    (.log js/console (str "render-home-page for " newv " type " person-type " at " rpath
                           " id " (render/get-id r rpath)
                           " parent id " (render/get-parent-id r rpath) parent))
     (dom/destroy-children! (dom/by-id parent))
     ; attach to dom using domina.
     (dom/append! (dom/by-id parent) divcode)   ; homepage no data val map
     (render-avatar r newv [:user])  ; assoc avatar templ to [:user] node
+    (util/nav-to (:db/id newv) (keyword person-type) :assignment input-queue)
   ))
 
 

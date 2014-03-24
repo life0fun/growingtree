@@ -232,7 +232,8 @@
                           (create-parent person)
                           (create-child person))
                     {:user person})
-              )]
+              )
+       ]
     (prn "find user " type name pass email role)
     (prn " find-user --> " user)
     user))

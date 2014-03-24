@@ -97,11 +97,13 @@
               (let [bodyjson (JSON/parse body)
                     ; parse js json object to cljs.core.PersisitentVector data structre.
                     result (js->clj bodyjson :keywordize-keys true)
+                    ;result {:status 200, :user "rich-dad" :error nil}
                     status (:status result)
-                    user (:user result)  ; return full user data if good.
+                    ;user (:person/title result)  ; return full user data if good.
+                    user (:user result)
                     err (:error result)
                    ]
-                (.log js/console (str "app service signup login resp " result))
+                (.log js/console (str "app service signup-login result " result))
                 (if err
                   (p/put-message input-queue
                                  {msgs/topic [:login :error]

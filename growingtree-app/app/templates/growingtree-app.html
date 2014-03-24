@@ -12,7 +12,7 @@
   <div id="content">
 
     <!-- the landing homepage, include nav bar, sigde bar, and main div -->
-    <div template="homepage" class="homepage" field="id:id">
+    <div template="homepage-parent" class="homepage" field="id:id">
       <!-- nav bar -->
       <div class="navbar navbar-static-top">
         <div class="navbar-inner">
@@ -21,41 +21,34 @@
               <span class="icon-th-list"></span>
             </a>
 
-            <a href="#" class="brand"> GrowingTrees </a>
+            <h1>
+               <div id="app-logo"></div>
+               <span id="app-name" class="brand">GrowingTree</span>
+            </h1>
 
-            <!-- <div class="nav-collapse collapse"> -->
-            <div class="nav-collapse">
-              <ul class="nav pull-right">
+            <nav id="site-nav" class="nav-collapse clearfix">
+               <ul class="nav">
+                  <!-- <li class="active">
+                     <div class="dropdown nav nav-newthing-dropdown">
+                        <a id="nav-newthing" class="active" data-toggle="dropdown" href="#">Create</a>
+                        <div id="nav-newthing-div" class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                           <form class="nav-newthing-form" id="nav-newthing-form">
+                              <input id="newthing-parent" name="newthing-type" type="radio" value="parent"/>
+                              <label for="newthing-parent">Parent</label><br/>
+                              <input id="newthing-course" name="newthing-type" type="radio" value="course" />
+                              <label for="newthing-course">Course</label><br/>
+                              <input id="newthing-group" name="newthing-type" type="radio" value="group" />
+                              <label for="newthing-group">Group</label><br/>
 
-                <li id="search" class="nav-left">
-                  <form id="nav-search-form" class="navbar-form" role="search" style="float:left;">
-                    <input id="nav-search-key" type="text" class="form-control" placeholder="Search">
-                    <button id="nav-search-submit" type="submit" class="btn btn-default">Search</button>
-                  </form>
-                </li>
-
-                <li class="active">
-                  <div class="dropdown nav nav-newthing-dropdown">
-                    <a id="nav-newthing" class="active" data-toggle="dropdown" href="#">Create</a>
-                    <div id="nav-newthing-div" class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                      <form class="nav-newthing-form" id="nav-newthing-form">
-                        <input id="newthing-parent" name="newthing-type" type="radio" value="parent"/>
-                        <label for="newthing-parent">Parent</label><br/>
-                        <input id="newthing-course" name="newthing-type" type="radio" value="course" />
-                        <label for="newthing-course">Course</label><br/>
-                        <input id="newthing-group" name="newthing-type" type="radio" value="group" />
-                        <label for="newthing-group">Group</label><br/>
-
-                        <button type="submit" id="nav-newthing-submit" class="form-button">Create</button>
-                      </form>
-                    </div>
-                  </div>
-                <li>
-
-                <li id="login" class="active"><a href="#">Login</a></li>
-              </ul>
-
-            </div>
+                              <button type="submit" id="nav-newthing-submit" class="form-button">Create</button>
+                           </form>
+                        </div>
+                     </div>
+                  </li> -->
+                  <li><a href="#">Settings</a></li>
+                  <li id="login"><a href="#">Sign out</a></li><!-- class="active" -->
+               </ul>
+            </nav>
           </div>
         </div>
       </div>
@@ -65,38 +58,54 @@
         <!-- sidebar nav is static, and common to all -->
         <div class="row-fluid">
 
+          
+
+          <!-- this is the main container  -->
+          <div id="main" class="span9 main">
+
+            <div class="leaderboard" field="content:leaderboard">
+                <h1> Learn, Practice, Develop -- Together ! </h1>
+                <h4> Hello Parents, this is the social learning management system for your kids !</h4>
+            </div>
+
+            <!-- container for a list of things [:all :course "course1"] -->
+            <div id="topthings"> </div>
+
+          </div>  <!-- end of span9 -->
+
           <!-- side bar span3  -->
           <div class="span3">
 
             <!-- current user avatar -->
             <div id="user-avatar"></div>
 
-            <div class="well sidebar-nav">
-              <ul class="nav nav-list">
-                <li class="nav-header"> Family </li>
-                <li>
-                  <a class="sidenav-selected" id="sidenav-parent" href="#"> Parents</a>
-                </li>
-                <li>
-                  <a id="sidenav-child" href="#"> Children</a>
-                </li>
+            
 
-                <li class="nav-header"> Learning </li>
-                <li>
-                  <a id="sidenav-course" href="#"> Courses </a>
-                </li>
-                <li>
-                  <a id="sidenav-lecture" href="#"> Lectures </a>
-                </li>
+            <nav class="sidebar-nav" id="nav-sidebar">
+               <div id="search" class="nav-left">
+                  <form id="nav-search-form" class="navbar-form" role="search">
+                  <input id="nav-search-key" type="text" class="form-control" placeholder="Search">
+                  <button id="nav-search-submit" type="submit" class="btn btn-default clearfix"><span class="icon icon-search"></span><span class="btn-text">Search</span></button>
+                  </form>
+               </div>
 
-                <li class="nav-header"> Practice </li>
-                <li>
-                  <a id="sidenav-question" href="#"> Questions </a>
-                </li>
-                <li>
-                  <a id="sidenav-assignment" href="#"> Assignments </a>
-                </li>
+               <h3 class="nav-header">Family</h3>
+               <ul class="nav nav-list">
+                  <li><a class="sidenav-selected" id="sidenav-parent" href="#"> Parents</a></li>
+                  <li><a id="sidenav-child" href="#"> Children</a></li>
 
+               <h3 class="nav-header">Learning</h3>
+               <ul class="nav nav-list">
+                  <li><a id="sidenav-course" href="#"> Courses </a></li>
+                  <li><a id="sidenav-lecture" href="#"> Lectures </a></li>
+               </ul>
+
+               <h3 class="nav-header">Practice</h3>
+               <ul class="nav nav-list">
+                  <li><a id="sidenav-question" href="#"> Questions </a></li>
+                  <li><a id="sidenav-assignment" href="#"> Assignments </a></li>
+               </ul>
+               <!-- 
                 <li class="nav-header"> Social </li>
                 <li>
                   <a id="sidenav-schoolclass" href="#">Classes</a>
@@ -110,6 +119,7 @@
                 <li>
                   <a id="sidenav-comments" href="#">Comments</a>
                 </li>
+                
                 <li>
                   <a id="sidenav-topquestion" href="#">Top Questions </a>
                 </li>
@@ -122,7 +132,7 @@
                 <li>
                   <a id="sidenav-answer" href="#">Answer Question</a>
                 </li>
-
+   
                 <li class="nav-header">History</li>
                 <li>
                   <a id="sidenav-timeline" href="#">TimeLine</a>
@@ -135,13 +145,68 @@
                 </li>
                 <li>
                   <a id="sidenav-location" href="#">Locations</a>
-                </li>
+                </li> -->
               </ul>
-            </div> <!-- well sidebar-->
+            </nav> <!-- well sidebar-->
           </div> <!-- span 3 -->
+
+        </div> <!-- end of row fluid -->
+      </div> <!-- end of container fluid, end of homepage-->
+    </div>
+
+
+    <!-- the landing homepage, include nav bar, sigde bar, and main div -->
+    <div template="homepage-child" class="homepage" field="id:id">
+      <!-- nav bar -->
+      <div class="navbar navbar-static-top">
+        <div class="navbar-inner">
+          <div class="container">
+            <a class="btn btn-navbar" data-togger="collapse" data-target=".nav-collapse">
+              <span class="icon-th-list"></span>
+            </a>
+
+            <h1>
+               <div id="app-logo"></div>
+               <span id="app-name" class="brand">GrowingTree</span>
+            </h1>
+
+            <nav id="site-nav" class="nav-collapse clearfix">
+               <ul class="nav">
+                  <!-- <li class="active">
+                     <div class="dropdown nav nav-newthing-dropdown">
+                        <a id="nav-newthing" class="active" data-toggle="dropdown" href="#">Create</a>
+                        <div id="nav-newthing-div" class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                           <form class="nav-newthing-form" id="nav-newthing-form">
+                              <input id="newthing-parent" name="newthing-type" type="radio" value="parent"/>
+                              <label for="newthing-parent">Parent</label><br/>
+                              <input id="newthing-course" name="newthing-type" type="radio" value="course" />
+                              <label for="newthing-course">Course</label><br/>
+                              <input id="newthing-group" name="newthing-type" type="radio" value="group" />
+                              <label for="newthing-group">Group</label><br/>
+
+                              <button type="submit" id="nav-newthing-submit" class="form-button">Create</button>
+                           </form>
+                        </div>
+                     </div>
+                  </li> -->
+                  <li><a href="#">Settings</a></li>
+                  <li id="login"><a href="#">Sign out</a></li><!-- class="active" -->
+               </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <!-- body include side bar and main body -->
+      <div class="container-fluid">
+        <!-- sidebar nav is static, and common to all -->
+        <div class="row-fluid">
+
+          
 
           <!-- this is the main container  -->
           <div id="main" class="span9 main">
+
             <div class="leaderboard" field="content:leaderboard">
                 <h1> Learn, Practice, Develop -- Together ! </h1>
                 <h4> Hello Parents, this is the social learning management system for your kids !</h4>
@@ -151,62 +216,173 @@
             <div id="topthings"> </div>
 
           </div>  <!-- end of span9 -->
+
+          <!-- side bar span3  -->
+          <div class="span3">
+
+            <!-- current user avatar -->
+            <div id="user-avatar"></div>
+
+            
+
+            <nav class="sidebar-nav" id="nav-sidebar">
+               <div id="search" class="nav-left">
+                  <form id="nav-search-form" class="navbar-form" role="search">
+                  <input id="nav-search-key" type="text" class="form-control" placeholder="Search">
+                  <button id="nav-search-submit" type="submit" class="btn btn-default clearfix"><span class="icon icon-search"></span><span class="btn-text">Search</span></button>
+                  </form>
+               </div>
+
+               <h3 class="nav-header">Family</h3>
+               <ul class="nav nav-list">
+                  <li><a class="sidenav-selected" id="sidenav-parent" href="#"> Parents</a></li>
+                  <li><a id="sidenav-child" href="#"> Children</a></li>
+
+               <h3 class="nav-header">Learning</h3>
+               <ul class="nav nav-list">
+                  <li><a id="sidenav-course" href="#"> Courses </a></li>
+                  <li><a id="sidenav-lecture" href="#"> Lectures </a></li>
+               </ul>
+
+               <h3 class="nav-header">Practice</h3>
+               <ul class="nav nav-list">
+                  <li><a id="sidenav-question" href="#"> Questions </a></li>
+                  <li><a id="sidenav-assignment" href="#"> Assignments </a></li>
+               </ul>
+               <!-- 
+                <li class="nav-header"> Social </li>
+                <li>
+                  <a id="sidenav-schoolclass" href="#">Classes</a>
+                </li>
+                <li>
+                  <a id="sidenav-group" href="#">Groups</a>
+                </li>
+                <li>
+                  <a id="sidenav-like" href="#">Likes</a>
+                </li>
+                <li>
+                  <a id="sidenav-comments" href="#">Comments</a>
+                </li>
+                
+                <li>
+                  <a id="sidenav-topquestion" href="#">Top Questions </a>
+                </li>
+                <li>
+                  <a id="sidenav-topanswer" href="#">Top Answers </a>
+                </li>
+                <li>
+                  <a id="sidenav-ask" href="#">Ask A Question</a>
+                </li>
+                <li>
+                  <a id="sidenav-answer" href="#">Answer Question</a>
+                </li>
+   
+                <li class="nav-header">History</li>
+                <li>
+                  <a id="sidenav-timeline" href="#">TimeLine</a>
+                </li>
+                <li>
+                  <a id="sidenav-knowledge" href="#">Knowledge</a>
+                </li>
+                <li>
+                  <a id="sidenav-activity" href="#">Activities</a>
+                </li>
+                <li>
+                  <a id="sidenav-location" href="#">Locations</a>
+                </li> -->
+              </ul>
+            </nav> <!-- well sidebar-->
+          </div> <!-- span 3 -->
+
         </div> <!-- end of row fluid -->
       </div> <!-- end of container fluid, end of homepage-->
     </div>
 
-
     <!-- login template, should use _include -->
     <div class="container login" template="login" field="id:id">
-      <div class="row">
-        <div class="center span4 well">
-          <h3>Welcome To GrowingTrees</h3>
 
-          <div id="error" class="alert alert-error">
+      <div class="bg-tree"></div>
+
+      <div>
+        <div class="center span5">
+
+          <!-- <div id="error" class="alert alert-error"> -->
               <!-- <a class="close" data-dismiss="alert"></a> -->
-              <span field="content:login-error"></span>
-          </div>
+              <!-- <span field="content:login-error"></span> -->
+          <!-- </div> -->
 
           <form id="login-form" class="login-form" method="POST" action="" accept-charset="UTF-8">
-            <input type="text" id="login-name" value="rich-dad" class="span4" placeholder="Username or email" />
+            <h2>Sign in to <span class="app-name">GrowingTree</span></h2>
 
-            <input type="password" id="login-pass" value="rich" class="span4" placeholder="Password" />
-
-            <label class="checkbox">
-              <input type="checkbox" name="remember" value="1" /> Remember Me
-            </label>
-
-            <button id="login-button" type="submit" name="submit" class="btn btn-primary btn-block">Login in</button>
+            <fieldset>
+               <label for="login-name">Username or Email</label>
+               <input type="text" id="login-name" value="rich-dad" placeholder="Username or email" />
+            </fieldset>
+            
+            <fieldset class="fieldset-password">
+               <label for="login-pass">Password</label>
+               <input type="password" id="login-pass" value="rich" placeholder="Password" />  
+            </fieldset>
+         
+            <fieldset class="fieldset-rememberMe fieldset-checkbox">
+               <input id="rememberMe-input" type="checkbox" name="remember" value="1" />
+               <label for="rememberMe-input" class="checkbox">Remember Me</label>
+            </fieldset>
+            
+            <button id="login-button" type="submit" name="submit" class="btn btn-primary btn-block">Sign In</button>
+          
+            <p id="signup-link"><a class="option active" href="#">Create an account?</a></p>
           </form>
 
-          <div id="signup-link">
-            <a class="option active" href="#">Do not have an account ?</a>
-            <br>
-            <br>
-          </div>
 
           <!-- now sign up form -->
           <form id="signup-form" method="POST" action="" accept-charset="UTF-8" class="signup-form hide">
-            <lable> I am a   </lable>
-            <input id="parent-type" name="signup-role" type="radio" value="parent" checked=""> Parent  </input>
-            <input id="child-type" name="signup-role" type="radio" value="child" checked="">Child  </input>
-            <input id="teacher-type" name="signup-role" type="radio" value="teacher" checked="">Teacher  </input>
 
-            <br>
-            <input type="text" id="signup-name" value="" class="span4" placeholder="username" />
+            <h2>Create an Account</h2>
 
-            <input type="text" id="signup-email" value="" class="span4" placeholder="email" />
+            <fieldset class="fieldset-accountType">
+               <legend>Account Type</legend>
 
-            <input type="password" id="signup-pass" value="" class="span4" placeholder="Password" />
+               <p>What account type do you want to create?</p>
 
-            <input type="password" id="signup-pass-rep" value="" class="span4" placeholder="Repeat Password" />
+               <fieldset class="fieldset-radio">
+                  <input id="parent-type" name="signup-role" type="radio" value="parent" checked="">
+                  <label for="parent-type">Parent</label>
+               </fieldset>
+
+               <fieldset class="fieldset-radio">
+                  <input id="child-type" name="signup-role" type="radio" value="child" checked="">
+                  <label for="child-type">Child</label>
+               </fieldset>
+
+               <fieldset class="fieldset-radio">
+                  <input id="teacher-type" name="signup-role" type="radio" value="teacher" checked="">
+                  <label for="teacher-type">Teacher</label>
+               </fieldset>
+            </fieldset>
+            
+            <fieldset>
+               <input type="text" id="signup-name" value="" placeholder="username" />
+            </fieldset>
+
+            <fieldset>
+               <input type="text" id="signup-email" value="" placeholder="email" />
+            </fieldset>
+
+            <fieldset>
+               <input type="password" id="signup-pass" value="" placeholder="Password" />
+            </fieldset>
+
+            <fieldset>
+               <input type="password" id="signup-pass-rep" value="" placeholder="Repeat Password" />
+            </fieldset>
 
             <button id="signup-button" type="submit" name="submit" class="btn btn-primary btn-block">Sign up</button>
 
           </form>
 
           <br>
-          <p class="text-center center"> Copyright 2014 - GrowingTrees </p>
+          <p class="text-center center">&copy; 2014 - GrowingTree</p>
 
         </div>
       </div>
@@ -215,12 +391,9 @@
 
     <!-- current user avatar -->
     <div class="avatar-container section" template="user" field="id:id">
-      <img field="src:user-avatar" width="70" height="52" class="pull-left" alt="">
+      <img field="src:user-avatar" width="35" height="35" class="pull-left" alt="">
       <div class="pull-left">
         <a field="content:user-greeting, href:user-profile"></a>
-      </div>
-      <div class="pull-left">
-        <a href="#">Settings</a>
       </div>
       <div class="clearleft"></div>
     </div>
