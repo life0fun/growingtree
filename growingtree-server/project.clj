@@ -4,6 +4,7 @@
             :distribution :none}
   :url "http://growingtree.com"
   :license {:name "copyright reserved !" }
+
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
 
@@ -25,13 +26,20 @@
                  ;[com.datomic/datomic-free "0.8.4215"]
                  [org.clojure/java.jdbc "0.0.6"]
                  [mysql/mysql-connector-java "5.1.6"]
-                 [com.datomic/datomic-pro "0.9.4324"]
+                 [com.datomic/datomic-pro "0.9.4755"]
 
                  [datomic-schema "1.0.2"]  ; macro for db schema
                  [clj-redis "0.0.12"]
                  [org.clojure/data.json "0.2.2"]    ; json package]
                  [clj-time "0.5.1"]       ; clj-time wraps Joda time
                 ]
+  :plugins [[lein-pprint "1.1.1"]
+            [lein-datomic "0.2.0"]]
+  ;; These repositories will be searched for :dependencies and
+  ;; :plugins and will also be available to deploy to.
+  :repositories [["my.datomic.com" {:url "https://my.datomic.com/repo"
+                                   :creds :gpg}]]
+
   :profiles {
     :dev {
       :source-paths ["dev"]
