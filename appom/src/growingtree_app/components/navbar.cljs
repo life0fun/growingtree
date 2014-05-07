@@ -27,7 +27,7 @@
       (html/html
        (let [comm (get-in opts [:comms :controls])
              settings (:settings data)]
-         [:nav.nav {:class (when (get-in settings [:forms :search :focused]) "search-focus")}
+         [:nav#nav-sidebar.sidebar-nav {:class (when (get-in settings [:forms :search :focused]) "search-focus")}
           [:form.search
            {:action "/search"
             :method "get"
@@ -39,12 +39,30 @@
                           :on-key-up #(put! comm [:search-form-updated (.. % -target -value)])}]
            [:input.submit {:value "Search"
                            :type "submit"}]]
-          [:ul#channel_nav
-           (map (partial tab comm) (sort-by :order (vals (:channels data))))
-           [:li {:key "new-tab"
-                 :on-click #(put! comm [:create-channel-menu-opened])}
-            [:a#create_channel
-             {:href "#"
-              :on-click (comp (constantly false)
-                              #(put! comm [:create-channel-menu-opened]))}
-             [:strong " + "]]]]])))))
+          
+          ; [:ul#channel_nav
+          ;  (map (partial tab comm) (sort-by :order (vals (:channels data))))
+          ;  [:li {:key "new-tab"
+          ;        :on-click #(put! comm [:create-channel-menu-opened])}
+          ;   [:a#create_channel
+          ;    {:href "#"
+          ;     :on-click (comp (constantly false)
+          ;                     #(put! comm [:create-channel-menu-opened]))}
+          ;    [:strong " + "]]]]
+
+          [:h3.nav-header "Family"]
+          [:ul.nav.nav-list
+            [:li#sidenav-parent.sidenav-selected "Parents"]
+            [:li#sidenav-parent.sidenav-selected "Children"]]
+
+          [:h3.nav-header "Learning"]
+          [:ul.nav.nav-list
+            [:li#sidenav-parent.sidenav-selected "Courses"]
+            [:li#sidenav-parent.sidenav-selected "Lectures"]]
+
+          [:h3.nav-header "Practice"]
+          [:ul.nav.nav-list
+            [:li#sidenav-parent.sidenav-selected "Questions"]
+            [:li#sidenav-parent.sidenav-selected "Assignments"]]
+
+          ])))))

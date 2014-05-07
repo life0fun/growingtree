@@ -10,7 +10,8 @@
 
 (def delimiter-re #" ")
 
-(defn activity-content [current-user-email users settings author activity]
+
+(defn thing-content [current-user-email users settings author activity]
   (let [content (-> (string/split (:content activity) delimiter-re)
                     plugins/pastie
                     (plugins/mentions current-user-email users settings author)
@@ -22,9 +23,9 @@
                     plugins/hex-embed)]
     (interpose " " content)))
 
-(defn activity-entry [current-user-email users settings author activity]
+(defn thing-entry [current-user-email users settings author activity]
   (list
-   [:div.activity {:id (str "activity-" (:id activity))
+   [:div.thing.link {:id (str "activity-" (:id activity))
                    :class (when (= current-user-email (:email author)) "current_user")
                    :key (:created_at activity)}
     [:span.posted_at (str (dt/time-ago (:created_at activity)) " ago")]
@@ -32,7 +33,7 @@
     [:div.readable
      [:span.user (or (:full-name author)
                      (:email author))]
-     [:span.content (activity-content current-user-email users settings author activity)]
+     [:span.content (thing-content current-user-email users settings author activity)]
     ]
     (map (fn [media]
            [:div.media-entry
@@ -55,14 +56,14 @@
                     {:value (:input-value opts)}))]
    [:button.post {:on-click #(put! comm [:user-message-submitted])} "Post"]])
 
-(defn activities-list [filtered-activities opts]
+(defn things-list [filtered-things opts]
   (map #(let [author (get-in opts [:users (:author %)])]
-          (activity-entry (:current-user-email opts)
+          (thing-entry (:current-user-email opts)
                           (:users opts)
                           (:settings opts)
                           author
                           %))
-       filtered-activities))
+       filtered-things))
 
 (defn main-area [{:keys [channel search-filter]} owner opts]
   (reify
@@ -75,7 +76,7 @@
        (let [comm       (get-in opts [:comms :controls])
              re-filter  (when search-filter (js/RegExp. search-filter "ig"))
              activities (:activities channel)
-             filtered-activities (if re-filter
+             filtered-things (if re-filter
                                    (filter #(.match (:content %) re-filter) activities)
                                    activities)]
          [:article.main-area
@@ -91,15 +92,10 @@
              {:src "/assets/images/logo.png",
               :alt "growingtree-app"
               :title "growingtree-app"}]]]
-          [:div#channels
-           [:div.channels-pane {:id (str "channels-" (:id channel))
-                                :class (when (:selected channel) "active")}
+          [:div.container
+           [:div.content 
             [:div.paginated-activities
-             (when (:loading-more-messages channel)
-               [:div.pagination
-                [:i.icon-spinner.icon-spin.icon-2x]
-                "Loading previous messages"])
-             (activities-list filtered-activities opts)
+             (things-list filtered-things opts)
              ]
             (chatbox comm opts)
             ]]])))))

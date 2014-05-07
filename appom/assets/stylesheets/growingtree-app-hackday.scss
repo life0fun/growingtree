@@ -1,0 +1,521 @@
+/* ---------------------------------------------------------
+      H A C K   D A Y   S A F E L Y   B R A N D I N G 
+   ---------------------------------------------------------
+*/
+
+@import "compass";
+
+/* 
+      V a r i a b l e s
+   ---------------------------------------------------------
+ */
+$black: #000;
+$safely-white: #fff;
+$safely-gray: #cfd4d8;
+$safely-gray-secondary: lighten($black, 50%);
+$safely-blue-light: #b4d5f0;
+$safely-blue: #00b5cb; 
+$safely-green: #7ac142;
+$safely-green-light: #d6e03d;
+$safely-orange: #faa61a;
+
+/* 
+      T y p o g r a p h y
+   ---------------------------------------------------------
+*/ 
+// base font is 10px for easy math when using relative units
+%normalize-font-size {
+   font-size: 65%;
+}
+
+%default-font-size {
+   font-size: 1.3em;
+}
+
+body {
+   font-family: Arial, sans-serif; 
+   color: $safely-gray-secondary; 
+   background: $safely-white;
+   font-weight: 300; 
+   @extend %normalize-font-size;
+}
+
+label,
+input,
+textarea,
+select,
+option {
+   @extend %normalize-font-size;
+   @extend %default-font-size;
+
+}
+
+
+// Headers
+h1, h2, h3, h4 {
+   font-weight: normal; 
+}
+
+h1 {font-size: 3.75em;}
+
+h2 {font-size: 3em;}
+h3 {font-size: 2.5em;}
+h4 {font-size: 1em;}
+
+// text
+p {
+   @extend %default-font-size;
+}
+
+.app-name {color: $safely-green;}
+
+// Links
+a {
+   &:link,
+   &:visited,
+   &:hover,
+   &:active {
+      color: $safely-blue;
+   }
+
+   &:hover,
+   &:active {
+      color: darken($safely-gray-secondary, 25%);
+      text-decoration: underline;
+   }
+}
+
+//  Clear fix: add this class to any parent element of floating child
+.clearfix {
+   &:after {
+      clear: both;
+      content: "";
+      display: table;
+   }
+}
+
+/* 
+      B u t t o n s
+   ---------------------------------------------------------
+*/ 
+.btn {
+   padding: 0.5em 1em;
+   font-size: 1.5em;
+   line-height: auto;
+   text-transform: uppercase;
+   font-weight: bold;
+   letter-spacing: 0.02em;
+   word-spacing: 0.25em;
+
+   color: $safely-white;
+   text-shadow: none;
+   background: $safely-green;
+   border: 0;
+   @include border-radius(0.75em);
+   @include box-shadow(0);
+
+   &:hover,
+   &:active,
+   &.active,
+   &.disabled,
+   &[disabled] {
+      color: $safely-white;
+      background-color: $safely-gray-secondary;
+      *background-color: $safely-gray-secondary;
+   }
+
+   &:first-child {
+      *margin-left: 0;
+   }
+
+   
+   &:focus {
+     outline: thin dotted #333;
+     outline: 5px auto -webkit-focus-ring-color;
+     outline-offset: -2px;
+   }
+
+   &.disabled,
+   &[disabled] {
+      cursor: default;
+      background-color: #e6e6e6;
+      background-image: none;
+      opacity: 0.65;
+      filter: alpha(opacity=65);
+      @include box-shadow(none);
+   }
+}
+
+.btn-primary,
+.btn-warning,
+.btn-danger,
+.btn-success,
+.btn-info,
+.btn-inverse {
+   
+   &.active {
+      color: rgba(255, 255, 255, 0.75);
+   }
+}
+
+.btn-primary {
+
+  color: $safely-white;
+  text-shadow: none;
+  background: $safely-green;
+  border: 0;
+
+   &:hover,
+   &:active,
+   &.active,
+   &.disabled,
+   &[disabled] {
+      color: $safely-white;
+      background-color: $safely-gray-secondary;
+      *background-color: $safely-gray-secondary;
+   }
+}
+
+/* 
+      I c o n s
+   ---------------------------------------------------------
+*/ 
+.icon,
+.graphic {
+   display: inline-block;
+   text-indent: -99999px;
+}
+
+.icon-search {
+   width: 14px;
+   height: 15px;
+   background: url(icon_search.png) 0 0 no-repeat;
+}
+
+/* 
+      G r a p h i c s
+   ---------------------------------------------------------
+*/
+#app-logo {
+   background: url(logo_app.png) 0 0 no-repeat;
+   width: 150px;
+   height: 101px;
+   display: inline-block;
+}
+
+#app-name {
+   float: none;
+   display: inline-block;
+   vertical-align: middle;
+   padding: 0;
+   margin: 0;
+   vertical-align: top;
+   position: relative;
+   top: 1.25em;
+   left: 0.5em;
+   font-size: 3.5em;
+   font-weight: 100;
+}
+
+
+/* 
+      F o r m s
+   ---------------------------------------------------------
+*/ 
+#login-form,
+#signup-form {
+   border-top: 10px solid $safely-green;
+   padding: 1.25em 3.125em 3.125em;
+   @include box-shadow($safely-gray 0 0.2em 1em);
+   background: rgba(255, 255, 255, 1);
+   position: relative;
+   z-index: 200;
+
+   input[type="text"],
+   input[type="password"] {
+      width: 95.75%;
+   }
+}
+
+#login-form {
+
+   button {
+      margin-bottom: 1em;
+   }
+}
+
+#signup-form {
+
+   margin-top: 3em;
+
+   fieldset {
+
+      &.fieldset-accountType {
+         margin-bottom: 2em;
+      }
+
+      &.fieldset-radio {
+         margin-bottom: 0.25em;
+         display: inline-block;
+         margin-right: 3em;
+      }
+   }
+
+   p {
+      margin-bottom: 0.25em;
+   }
+}
+
+fieldset {
+   margin-bottom: 1.2em;
+
+   &.fieldset-password {
+      margin-bottom: 0;
+   }
+
+   &.fieldset-rememberMe {
+      margin: 0.25em 0 1.6em;
+   }
+
+   &.fieldset-checkbox,
+   &.fieldset-radio {
+
+      input[type="checkbox"],
+      input[type="radio"],
+      label {
+         display: inline-block;
+         vertical-align: middle;
+      }
+
+      input[type="checkbox"],
+      input[type="radio"], {
+         margin-top: 0;
+      }
+
+      label {
+         margin-bottom: 0;
+         padding-left: 0.65em;
+      }
+   }
+
+   legend {
+      display: none;
+   }
+}
+
+/* 
+      N a v i g a t i o n
+   ---------------------------------------------------------
+*/ 
+
+// Header
+.navbar-static-top{
+
+   .container {
+      width: auto;
+   }
+
+   .navbar-inner {
+      border: 0;
+      padding: 2em;
+      // border-bottom: 10px solid $safely-orange;
+      background: none;
+      @include box-shadow(none);
+
+      // background: $safely-gray; /* Old browsers */
+   }
+
+   /* 
+    nav new thing form, link and input
+    css must be comform to bootstrap .navbar .nav  .active .a
+   */
+   .nav-newthing-dropdown a {
+       display: block;
+       color: $safely-blue;
+       background: none;
+   }
+
+   .nav-newthing-form {
+
+       margin: 10px 10px 5px 10px; 
+   
+      label    {   
+         vertical-align: baseline;
+         margin: 10px 5px 5px 10px; 
+         display: inline;
+         font-size: 16px;
+         color: #005580;
+      }
+
+      .form-button{   
+         margin: 10px 5px 5px 10px; 
+         display: inline;
+         font-size: 16px;
+      }
+   }
+}
+
+#site-nav {
+   padding: 0.35em 1em;
+   @include border-radius(0.5em);
+   margin-bottom: 0;
+
+   ul {
+      float: right;
+      margin: 0;
+   }
+
+   li {
+      float: none;
+      display: inline-block;
+      line-height: inherit;
+   }
+
+   a {
+      padding: 0 0.75em;
+      @include text-shadow(none);
+      font-size: 1.15em;
+   }
+}
+
+#nav-sidebar {
+   margin-bottom: 3em;
+}
+
+// Sidebar
+nav {
+   border: 1px solid #eee;
+   background: #fdfdfd;
+   padding: 1.5em;
+   @include border-radius(1em);
+
+   .nav-header {
+      border-bottom: 1px solid $safely-gray;
+      padding: 0.25em 0 0.25em 1em;
+      @include text-shadow(none);
+      font-size: 1.4em;
+      letter-spacing: 0.2em;
+      // background-color: lighten($safely-blue-light, 10%);
+      @include border-top-radius(0.75em);
+
+   }
+}
+
+.nav-list {
+   margin-bottom: 2em;
+   // border: 1px solid $safely-blue;
+   border-top: 0;
+   padding-top: 1em;
+   padding-bottom: 1em;
+}
+
+.nav-list > li > a {
+
+   padding: 0;
+   margin-right: 0;
+   margin-left: 0;
+   font-size: 1.3em;
+   color: $safely-blue;
+
+   &:hover {
+      background: none;
+      text-decoration: underline;
+      color: $safely-gray-secondary;
+   }
+}
+
+.nav-list > li {
+   line-height: inherit;
+   margin-bottom: 1em;
+
+   &:last-child {
+      margin-bottom: 0;
+   }
+}
+
+/* 
+      S i d e b a r   ::   A v a t a r
+   ---------------------------------------------------------
+*/ 
+.avatar-container {
+    padding: 0;
+    overflow: hidden;
+    margin-top: 1em;
+    margin-bottom: 1em;
+
+    font-size: 1.5em;
+    line-height: 1.5em;
+    font-weight: 300;
+}
+
+.section {
+    background-color: $safely-white;
+    @include border-radius(0);
+    @include box-shadow(none);
+}
+
+
+/* 
+      S e a r c h
+   ---------------------------------------------------------
+*/ 
+#search {
+
+   display: block;
+   margin: 0 0 2em 0;
+   background: #f2f2f2;
+   padding: 1em;
+   padding: 1.5em 1em;
+   margin-left: -1.5em;
+   margin-right: -1.5em;
+   margin-top: -1.5em;
+   border-bottom: 1px solid #eee;
+   @include border-top-radius(0.5em);
+
+   form {
+      float: none;
+   }
+
+   input[type="text"] {
+      margin: 0 0.5em 0 0;
+      width: 72%;
+      vertical-align: bottom;
+   }
+   
+   .btn {
+      padding: 0.4em 0.5em;
+      font-size: 1.2em;
+      @include border-radius(0.75em);
+      text-indent: -99999px;
+      vertical-align: bottom;
+      width: 2.5em;
+
+      .icon {
+         display: inline-block;
+      }
+
+   }
+
+   .btn-text {
+      text-indent: -999999px;
+      display: none;
+   }
+}
+
+
+.container {
+
+   &.login {
+      position: relative;
+   }
+}
+.bg-tree {
+   background: url(graphic_tree_100_600.png) 0 0 no-repeat;
+   width: 600px;
+   height: 402px;
+   position: absolute;
+   @include opacity(0.2);
+   z-index: 100;
+   top: 4.5%;
+   left: -10%;
+}
