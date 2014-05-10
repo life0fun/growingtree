@@ -89,14 +89,15 @@
             {:href "#/"
              :on-click (constantly false)}
             [:img
-             {:src "/assets/images/logo.png",
+             {:src "images/logo.png",
               :alt "growingtree-app"
               :title "growingtree-app"}]]]
+          [:i {:class "icon-camera-retro"}]
           [:div.container
            [:div.content 
             [:div.paginated-activities
              (things-list filtered-things opts)
              ]
-            (chatbox comm opts)
+            ; (chatbox comm opts)
             ]]])))))
  

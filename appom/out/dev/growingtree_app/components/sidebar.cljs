@@ -182,7 +182,7 @@
              settings (:settings data)
              search-filter (:search-filter data)]
          (print "Sidebar render")
-         [:aside.sidebar
+         [:aside
           [:div.header.user-header {:class (when (get-in settings [:menus :user-menu :open]) "open-menu")}
            (current-user comm (get-in opts [:users (:current-user-email opts)]))
            [:ul.user-menu

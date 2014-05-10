@@ -10,6 +10,10 @@
 
 @import "compass/css3";
 
+@import "font-awesome.min.css";
+$baseFontFamily: 'FontAwesome';
+@import "bootstrap.css";
+
 @mixin vertical_gradient($from, $to) {
     @include background(linear-gradient(top, $from, $to));
     background-color: mix($from, $to); //Takes 2 colors, and gives their combination. Looks good on gradual gradients, not on "exciting" gradients
@@ -22,7 +26,6 @@ $static: "/";
 
 
 /* meat */
-
 body {
     background: rgb(197,204,211);
     font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
@@ -77,12 +80,6 @@ textarea {
     font-size: 14px;
 }
 
-/* main container, margin-top */
-// .main {
-//     overflow: hidden;
-//     margin-top: 10px;
-// }
-
 
 /* forms for create new things */
 
@@ -104,11 +101,222 @@ textarea {
     margin-bottom: 14px;
 }
 
-/** 
-    add comments box 
+/**
+   sidebar and nav with transition transform 
 **/
-.add-comments-form {
+.main-area, .sidebar, .nav {
+    padding: 45px 10px 10px;
+    -webkit-transition-property: -webkit-transform;
+    -moz-transition-property: -moz-transform;
+    transition-property: transform;
+    -webkit-transition-duration: 0.25s;
+    -moz-transition-duration: 0.25s;
+    transition-duration: 0.25s;
+    -webkit-transition-timing-function: ease;
+    -moz-transition-timing-function: ease;
+    transition-timing-function: ease;
+}
 
+.main-area .header .logo, .main-area .nav .search .logo, .nav .main-area .search .logo {
+    display: inline-block;
+    height: 100%;
+    padding: 7px 0;
+    color: #08c;
+    text-decoration: none;
+}
+
+/* content area, list of things, under main-area */
+#content {
+    margin: 10px;
+    padding: 1px 0 61px;
+    position: absolute;
+    top: 35px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 5px 0 #ccc;
+    overflow: hidden;
+}
+
+/* when contain div not slide-right, nav bar at top */
+.nav {
+    left: 0px;
+    height: 35px;
+    padding: 0 150px 0 0;
+    -webkit-transition-property: -webkit-transform,padding;
+    -moz-transition-property: -moz-transform,padding;
+    transition-property: transform,padding;
+    -webkit-transition-duration: 0.25s,0.25s;
+    -moz-transition-duration: 0.25s,0.25s;
+    transition-duration: 0.25s,0.25s;
+    -webkit-transition-timing-function: ease,ease;
+    -moz-transition-timing-function: ease,ease;
+    transition-timing-function: ease,ease;
+    width: auto;
+    left: 85px;
+    right: 28px;
+    z-index: 2000;
+}
+
+/* when container div slide-right, nav absolute positioned to the left side */
+.sidebar, .slide-right .nav {
+    width: 230px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+}
+
+
+/* when nav search is placed under header, */
+.header, .nav .search {
+    background-color: #566569;
+    background-image: -webkit-linear-gradient(#566569, #3f494b);
+    background-image: linear-gradient(#566569, #3f494b);
+    border-bottom: 1px solid #fff;
+    box-shadow: inset 0px -10px 10px -10px #000;
+    display: block;
+    height: 35px;
+    margin: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.header .button.left, .nav .search .button.left {
+    float: left;
+    line-height: 34px;
+    margin-right: 10px;
+    color: rgba(255,255,255,0.5);
+    display: block;
+    font-size: 21px;
+    height: 100%;
+    text-decoration: none;
+}
+
+.header .button.right, .nav .search .button.right {
+    float: right;
+    line-height: 34px;
+    margin-left: 10px;
+    color: rgba(255,255,255,0.5);
+    display: block;
+    font-size: 21px;
+    height: 100%;
+    text-decoration: none;
+}
+
+.slide-left {
+    -webkit-transform:translateX(-230px);
+    -moz-transform:translateX(-230px);
+    -ms-transform:translateX(-230px);
+    -o-transform:translateX(-230px);
+    transform:translateX(-230px)
+}
+
+.slide-right {
+    -webkit-transform:translateX(230px);
+    -moz-transform:translateX(230px);
+    -ms-transform:translateX(230px);
+    -o-transform:translateX(230px);
+    transform:translateX(230px)
+}
+
+/* when nav search is in nav top bar */
+.nav .search {
+    -webkit-transition: width 0.25s ease;
+    -moz-transition: width 0.25s ease;
+    transition: width 0.25s ease;
+    padding: 5px 10px;
+    width: 150px;
+    left: auto;
+}
+
+.nav .search input.query {
+    border-radius: 20px;
+    background: #5d676b;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    box-shadow: inset 0px 7px 6px -5px #3a4547,2px 7px 7px -6px #7f8587;
+    border: 2px solid #454d50;
+    width: 100%;
+    color: #ccc;
+    height: 24px;
+    line-height: 16px;
+    margin: 0;
+    padding: 2px 30px 2px 10px;
+}
+
+/* buttons on the header nav top section */
+.header .button.right, .nav .search .button.right {
+    float: right;
+    margin-left: 10px;
+    color: rgba(255,255,255,0.5);
+    display: block;
+    font-size: 21px;
+    height: 100%;
+    text-decoration: none;
+}
+
+/* nav ul and li*/
+.nav ul.nav-list {
+    min-height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: 0;
+    padding-top: 5px;
+    overflow-x: auto;
+    overflow-y: auto;
+    position: relative;
+    list-style: none;
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    white-space: nowrap;
+}
+
+.nav ul.nav-list li {
+    background: url("/images/tabs/tab-inactive-middle.png") bottom repeat-x;
+    color: #585d5f;
+    height: 30px;
+    line-height: 30px;
+    line-height: 20px;
+    margin: 0 30px;
+    margin-right: 1px;
+    border-bottom: 1px solid #dee6e8;
+    display: inline-block;
+    position: relative;
+}
+
+/* sidebar widget, widget header and content */
+.sidebar .widget {
+    background: #f3f8f9;
+    border: 1px solid #d0d5d8;
+    margin-bottom: 15px;
+}
+
+.sidebar .widget .widget-header {
+    background-image: -webkit-linear-gradient(#f3f8f9, #dbdfe0);
+    background-image: linear-gradient(#f3f8f9, #dbdfe0);
+    border-bottom: 1px solid #dbdfe0;
+    color: #7f8587;
+    line-height: 20px;
+    margin: 0 !important;
+    padding: 5px 10px;
+    text-transform: uppercase;
+}
+
+.sidebar .widget .widget-content {
+background: #f3f8f9;
+}
+
+/** - - - - add new  thing forms - - - - - - **/
+/* add comments box s*/
+.add-comments-form {
 }
 .add-comments-form .textarea {
     margin-top: 10px;
@@ -119,10 +327,7 @@ textarea {
     text-align: left;
 }
 
-
-/*
-   answer-form  and grade form
-*/
+/* answer-form  and grade form */
 .answer-form {
     margin-left: 20px;
     margin-bottom: 10px;
@@ -142,7 +347,6 @@ textarea {
     margin: 5px 5px 10px 20px;
 }
 
-// grade-form stack input fields
 .grade-form input {
     margin-top: 10px;
     margin-left: 20px;
@@ -154,9 +358,7 @@ textarea {
 }
 
 
-/*
-  // do not need to set individual ele, set the form.
-*/
+/* do not need to set individual ele, set the form. */
 .assign-form {
     margin-left: 20px;
     margin-bottom: 10px;
@@ -166,7 +368,6 @@ textarea {
     margin-bottom: 10px;
 }
 
-// assign-form stack textarea fields
 .assign-form textarea {
     margin-top: 10px;
     width: 300px;
@@ -185,9 +386,7 @@ textarea {
 }
 
 
-/*
-// enrollment form, do not need to set individual ele, set the form.
-*/
+/* enrollment form, do not need to set individual ele, set the form. */
 .enrollment-form {
     margin-left: 20px;
     margin-bottom: 10px;
@@ -197,7 +396,6 @@ textarea {
     margin-bottom: 10px;
 }
 
-// enrollment-form stack textarea fields
 .enrollment-form textarea {
     margin-top: 10px;
     width: 300px;
@@ -216,9 +414,7 @@ textarea {
 }
 
 
-/* 
-    create new thing form
-*/
+/*  create new thing form  */
 .control-group label {
     display: inline-block; 
     width: 140px; 
@@ -273,7 +469,7 @@ textarea {
 
 
 /* 
-    UI stuff
+    Reddit UI stuff
 */
 .newbutton {
     @include appearance(none);
@@ -352,7 +548,7 @@ button.button {
 }
 
 
-/*Things*/
+/* - - - - - -  Things - - - - - - - - - - */
 .thing {
     padding: 10px 0 0 0;
     background-color: #fff;

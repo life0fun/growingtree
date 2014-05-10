@@ -35,8 +35,8 @@
                                             "resources/private/js/unit-test.js"]} 
               :builds [{:id "dev"
                         :source-paths ["src"]
-                        :compiler {:output-to "growingtree.dev.js"
-                                   :output-dir "out/dev"
+                        :compiler {:output-to "out/public/growingtree.dev.js"
+                                   :output-dir "out/public"
                                    :optimizations :none
                                    :source-map true}}
                        {:id "test"

@@ -112,7 +112,7 @@
       {:href "#"
        :on-click (constantly false)
        :target "_blank"}
-      [:img {:src (str "/assets/images/" (get icon-map extension "file") "_icon.png")}]
+      [:img {:src (str "/images/" (get icon-map extension "file") "_icon.png")}]
       [:span (:name media)]]]))
 
 (defn media-widget [{:keys [channel-id media search-filter]} owner opts]
@@ -205,7 +205,7 @@
                                      :search-filter search-filter}
                       :content-opts opts}
                      {:opts {:title "People"
-                             :icon "/assets/images/people_icon.png"
+                             :icon "images/people_icon.png"
                              :content-comp people-widget}})
            (om/build widget
                      {:content-data {:player        (:player channel)
@@ -214,7 +214,7 @@
                       :action-data {:player (:player channel)}
                       :action-opts opts}
                      {:opts {:title "Playlist"
-                             :icon "/assets/images/video_icon.png"
+                             :icon "images/video_icon.png"
                              :content-comp playlist-widget
                              :action-comp playlist-action-widget}})
            (om/build widget
@@ -224,6 +224,23 @@
                       :content-opts {:comm comm}
                       :action-data {:channel-id (:id channel)}}
                      {:opts {:title "My Media"
-                             :icon "/assets/images/media_icon.png"
+                             :icon "images/media_icon.png"
                              :content-comp media-widget
-                             :action-comp media-action-widget}})]])))))
+                             :action-comp media-action-widget}})]
+
+          [:h3.nav-header "Family"]
+          [:ul.nav.nav-list
+            [:li#sidenav-parent.sidenav-selected "Parents"]
+            [:li#sidenav-parent.sidenav-selected "Children"]]
+
+          [:h3.nav-header "Learning"]
+          [:ul.nav.nav-list
+            [:li#sidenav-parent.sidenav-selected "Courses"]
+            [:li#sidenav-parent.sidenav-selected "Lectures"]]
+
+          [:h3.nav-header "Practice"]
+          [:ul.nav.nav-list
+            [:li#sidenav-parent.sidenav-selected "Questions"]
+            [:li#sidenav-parent.sidenav-selected "Assignments"]]
+
+           ])))))
