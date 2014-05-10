@@ -82,9 +82,9 @@
          [:article.main-area
           [:header.header
            [:a.nav-toggle.button.left {:href "#"
-                                       :on-click #(put! comm [:left-sidebar-toggled])} [:i.icon-comments]]
+                                       :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
            [:a.sidebar-toggle.button.right {:href "#"
-                                            :on-click #(put! comm [:right-sidebar-toggled])} [:i.icon-reorder]]
+                                            :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-reorder]]
            [:a.logo
             {:href "#/"
              :on-click (constantly false)}
@@ -92,7 +92,6 @@
              {:src "images/logo.png",
               :alt "growingtree-app"
               :title "growingtree-app"}]]]
-          [:i {:class "icon-camera-retro"}]
           [:div.container
            [:div.content 
             [:div.paginated-activities

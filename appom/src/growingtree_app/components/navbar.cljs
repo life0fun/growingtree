@@ -40,7 +40,7 @@
            [:input.submit {:value "Search"
                            :type "submit"}]]
           
-          [:ul.nav-list
+          [:ul.nav-ul
            (map (partial tab comm) (sort-by :order (vals (:channels data))))
            [:li {:key "new-tab"
                  :on-click #(put! comm [:create-channel-menu-opened])}
