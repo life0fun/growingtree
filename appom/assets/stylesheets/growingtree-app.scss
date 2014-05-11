@@ -22,7 +22,7 @@
 $static: "/";
 
 
-/* box-sizing to avoid padding blow off width */
+/* box-sizing width to avoid padding blow off width */
 * {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -107,7 +107,48 @@ textarea {
     margin-bottom: 14px;
 }
 
-/* content area, list of things, under main-area */
+
+/* main area, z-index overlap sidebar and nav.*/
+.main-area {
+    background: #e6ebee url(/images/page_bg.png) repeat !important;
+    box-shadow: 0 0 15px 0 rgba(0,0,0,0.5);
+    min-height: 100%;
+    position: relative;
+    z-index: 1000;
+}
+@media (min-width: 1024px){.main-area{box-shadow:none}}
+
+/* main area and header z-index big ! */
+.main-area .header, .main-area .nav .search, .nav .main-area .search {
+    padding: 0 10px;
+    text-align: center;
+    z-index: 90001;
+}
+@media (min-width: 768px){
+  .main-area .header,.main-area .nav .search,.nav .main-area .search {
+    text-align:left
+  }
+}
+.main-area .header .logo,.main-area .nav .search .logo,.nav .main-area .search .logo {
+  display:inline-block;
+  height:100%;
+  padding:7px 0
+}
+.main-area .header .button, .main-area .nav .search .button, .nav .main-area .search .button {
+  line-height:34px
+}
+@media (min-width: 768px){
+  .main-area .nav-toggle {
+    display:none !important
+  }
+}
+@media (min-width: 1024px){
+  .main-area .sidebar-toggle{
+    display:none !important
+  }
+}
+
+/* contain have thing-list as content. under main-area */
 .container {
     margin: 10px;
     padding: 1px 0 61px;
@@ -128,14 +169,7 @@ textarea {
     padding: 0 1px 0 0;
     overflow-y: auto;
     display: block;
-}
-
-
-/* main area header z-index big ! */
-.main-area .header, .main-area .nav .search, .nav .main-area .search {
-    padding: 0 10px;
-    text-align: center;
-    z-index: 90001;
+    min-height: 100%;
 }
 
 /**
@@ -154,17 +188,6 @@ textarea {
     transition-timing-function: ease;
 }
 
-.main-area .header .logo, .main-area .nav .search .logo, .nav .main-area .search .logo {
-    display: inline-block;
-    height: 100%;
-    padding: 7px 0;
-    color: #08c;
-    text-decoration: none;
-}
-
-
-
-/* when contain div not slide-right, nav bar at top */
 .sidebar, .nav {
   width: 230px;
   position: absolute;
@@ -172,7 +195,10 @@ textarea {
   bottom: 0;
   z-index: 0;
 }
-
+/* apply left before min-width squeeze left and right edge*/
+.nav {
+    left: 0;
+}
 /* when wide, width is auto, override 230px*/
 @media (min-width: 768px) {
   .nav {
@@ -198,20 +224,13 @@ textarea {
 .sidebar, .slide-right .nav {
     width: 230px;
     position: absolute;
-    left: 0px;
     top: 0;
     right: 0;
     bottom: 0;
     z-index: 0;
 }
 
-@media (min-width: 768px) {
-  .main-area .nav-toggle {
-    display: none !important;
-  }
-}
-
-/* when nav search is placed under header, */
+/* header buttons */
 .header, .nav .search {
     background-color: #566569;
     background-image: -webkit-linear-gradient(#566569, #3f494b);
@@ -249,6 +268,7 @@ textarea {
     text-decoration: none;
 }
 
+/* slide left right css to translateX */
 .slide-right .main-area,.slide-right .sidebar{
     -webkit-transform:translateX(230px);
     -moz-transform:translateX(230px);
@@ -297,7 +317,7 @@ textarea {
     overflow: hidden;
 }
 
-/* when nav search is in nav top bar */
+/* search box css for min-width and max-width */
 @media (min-width: 768px) {
   .nav .search {
       -webkit-transition: width 0.25s ease;
@@ -351,11 +371,18 @@ textarea {
     text-decoration: none;
 }
 
-/* nav ul and li*/
+/* nav ul and li, styles for max-width and min-width */
 .nav ul.nav-ul {
     list-style: none;
     margin: 0;
     padding: 0;
+}
+@media (max-width: 767px) {
+  .nav ul.nav-ul {
+    max-height: 100%;
+    overflow-y: auto;
+    position: relative;
+  }
 }
 @media (min-width: 768px) {
   .nav ul.nav-ul {
@@ -369,8 +396,9 @@ textarea {
       overflow: hidden;
   }
 }
-
-.nav ul.nav-ul li {
+/* ul nav-ul li, style max-width and min-width */
+@media (max-width: 767px) {
+  .nav ul.nav-ul li {
     background: url("/images/tabs/tab-inactive-middle.png") bottom repeat-x;
     color: #585d5f;
     height: 30px;
@@ -381,9 +409,65 @@ textarea {
     border-bottom: 1px solid #dee6e8;
     display: inline-block;
     position: relative;
+  }
+  .nav ul.nav-ul li a{
+    color:#797d7f;display:block;padding:10px 30px 10px 10px
+  }
+}
+@media (min-width: 768px) {
+  .nav ul.nav-ul li {
+    height: 30px;
+    display: inline-block;
+  }
+  .nav ul.nav-ul li a {
+    color:#585d5f;font-weight:bold
+  }
 }
 
-/* sidebar */
+.nav ul.nav-ul li .close_channel {
+  color:#aeb9bd
+}
+@media (max-width: 767px) {
+  .nav ul.nav-ul li .close_channel {
+    position:absolute;
+    top:10px;
+    right:10px;
+    bottom:10px
+  }
+}
+.nav ul.nav-ul li #create_channel {
+  text-align:center
+}
+@media (max-width: 767px) {
+  .nav ul.nav-ul li #create_channel:after{
+    content:" Create channel"
+  }
+}
+@media (max-width: 767px) {
+  .nav ul.nav-ul li {
+    border-bottom:1px solid #dee6e8;line-height:20px;margin-right:1px
+  }
+  .nav ul.nav-ul li:last-child {border-bottom:none}
+  .nav ul.nav-ul li.active,.nav ul.nav-ul .main-area .slide-right li.nav-toggle,.main-area .slide-right .nav ul.nav-ul li.nav-toggle,.nav ul.nav-ul .main-area .slide-left li.sidebar-toggle,.main-area .slide-left .nav ul.nav-ul li.sidebar-toggle,.nav ul.nav-ul .sidebar .user-header.open-menu a.user-menu-toggle li.button,.sidebar .user-header.open-menu a.user-menu-toggle .nav ul.nav-ul li.button{background-color:#f5f5f5}
+  .nav ul.nav-ul li i {line-height:20px}
+}
+@media (min-width: 768px) {
+  .nav ul.nav-ul li {
+    background:url(/images/tabs/tab-inactive-middle.png) bottom repeat-x;
+    color:#585d5f;line-height:30px;
+    margin:0 30px
+  }
+  .nav ul.nav-ul li:before{background:url(/images/tabs/tab-inactive-left.png) right bottom no-repeat;right:100%}
+  .nav ul.nav-ul li:after{background:url(/images/tabs/tab-inactive-right.png) left bottom no-repeat;left:100%}
+  .nav ul.nav-ul li:before,.nav ul.nav-ul li:after{content:"";width:30px;position:absolute;bottom:0}
+  .nav ul.nav-ul li,.nav ul.nav-ul li:before,.nav ul.nav-ul li:after{height:30px;display:inline-block}
+  .nav ul.nav-ul li.active,.nav ul.nav-ul .main-area .slide-right li.nav-toggle,.main-area .slide-right .nav ul.nav-ul li.nav-toggle,.nav ul.nav-ul .main-area .slide-left li.sidebar-toggle,.main-area .slide-left .nav ul.nav-ul li.sidebar-toggle,.nav ul.nav-ul .sidebar .user-header.open-menu a.user-menu-toggle li.button,.sidebar .user-header.open-menu a.user-menu-toggle .nav ul.nav-ul li.button{background-image:url(/images/tabs/tab-active-middle.png)}
+  .nav ul.nav-ul li.active:before,.nav ul.nav-ul .main-area .slide-right li.nav-toggle:before,.main-area .slide-right .nav ul.nav-ul li.nav-toggle:before,.nav ul.nav-ul .main-area .slide-left li.sidebar-toggle:before,.main-area .slide-left .nav ul.nav-ul li.sidebar-toggle:before,.nav ul.nav-ul .sidebar .user-header.open-menu a.user-menu-toggle li.button:before,.sidebar .user-header.open-menu a.user-menu-toggle .nav ul.nav-ul li.button:before{background-image:url(/images/tabs/tab-active-left.png)}
+  .nav ul.nav-ul li.active:after,.nav ul.nav-ul .main-area .slide-right li.nav-toggle:after,.main-area .slide-right .nav ul.nav-ul li.nav-toggle:after,.nav ul.nav-ul .main-area .slide-left li.sidebar-toggle:after,.main-area .slide-left .nav ul.nav-ul li.sidebar-toggle:after,.nav ul.nav-ul .sidebar .user-header.open-menu a.user-menu-toggle li.button:after,.sidebar .user-header.open-menu a.user-menu-toggle .nav ul.nav-ul li.button:after{background-image:url(/images/tabs/tab-active-right.png)}
+  .nav ul.nav-ul li .close_channel{width:auto;position:relative;right:-5px;z-index:100}
+}
+
+/* sidebar and widget*/
 .sidebar {
     right: 0;
 }
@@ -407,7 +491,7 @@ textarea {
 }
 
 .sidebar .widget .widget-content {
-background: #f3f8f9;
+  background: #f3f8f9;
 }
 
 /** - - - - add new  thing forms - - - - - - **/
