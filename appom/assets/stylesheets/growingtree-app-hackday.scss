@@ -33,11 +33,11 @@ $safely-orange: #faa61a;
 }
 
 body {
-   font-family: Arial, sans-serif; 
+   /*font-family: Arial, sans-serif; */
    color: $safely-gray-secondary; 
    background: $safely-white;
    font-weight: 300; 
-   @extend %normalize-font-size;
+   /*@extend %normalize-font-size;*/
 }
 
 label,
@@ -45,9 +45,8 @@ input,
 textarea,
 select,
 option {
-   @extend %normalize-font-size;
-   @extend %default-font-size;
-
+   /*@extend %normalize-font-size;*/
+   /*@extend %default-font-size;*/
 }
 
 
@@ -383,7 +382,7 @@ fieldset {
 }
 
 // Sidebar
-nav {
+/*nav {
    border: 1px solid #eee;
    background: #fdfdfd;
    padding: 1.5em;
@@ -400,7 +399,7 @@ nav {
 
    }
 }
-
+*/
 .nav-list {
    margin-bottom: 2em;
    // border: 1px solid $safely-blue;

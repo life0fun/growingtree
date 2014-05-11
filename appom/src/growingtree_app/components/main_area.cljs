@@ -73,30 +73,31 @@
     om/IRender
     (render [this]
       (html/html
-       (let [comm       (get-in opts [:comms :controls])
+        (let [comm       (get-in opts [:comms :controls])
              re-filter  (when search-filter (js/RegExp. search-filter "ig"))
              activities (:activities channel)
              filtered-things (if re-filter
                                    (filter #(.match (:content %) re-filter) activities)
                                    activities)]
-         [:article.main-area
-          [:header.header
-           [:a.nav-toggle.button.left {:href "#"
+          [:article.main-area
+            [:header.header
+              [:a.nav-toggle.button.left {:href "#"
                                        :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
-           [:a.sidebar-toggle.button.right {:href "#"
-                                            :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-reorder]]
-           [:a.logo
-            {:href "#/"
-             :on-click (constantly false)}
-            [:img
-             {:src "images/logo.png",
-              :alt "growingtree-app"
-              :title "growingtree-app"}]]]
-          [:div.container
-           [:div.content 
-            [:div.paginated-activities
-             (things-list filtered-things opts)
-             ]
-            ; (chatbox comm opts)
-            ]]])))))
+              [:a.sidebar-toggle.button.right {:href "#"
+                                               :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
+              [:a.logo
+                {:href "#/"
+                 :on-click (constantly false)}
+                [:img
+                  {:src "images/logo.png",
+                   :alt "growingtree-app"
+                   :title "growingtree-app"}]]]
+            [:div.container
+              [:div#content
+                [:div.paginated-activities
+                  (things-list filtered-things opts)
+                ]
+              ; (chatbox comm opts)
+              ]]
+        ])))))
  

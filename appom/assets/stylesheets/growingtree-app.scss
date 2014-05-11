@@ -9,7 +9,7 @@
 /* mixins */
 
 @import "compass/css3";
-@import "bootstrap.css";
+/*@import "bootstrap.css";*/
 
 @mixin vertical_gradient($from, $to) {
     @include background(linear-gradient(top, $from, $to));
@@ -22,14 +22,23 @@
 $static: "/";
 
 
-/* meat */
+/* box-sizing to avoid padding blow off width */
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
 body {
     background: rgb(197,204,211);
     font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
-    font-size: 16px;
+    /*font-size: 16px;*/
+    font-size: 14px;
+    line-height: 20px;
     margin: 0;
     width: 100%; height: 100%;
     -webkit-font-smoothing: antialiased;
+    color: #333;
 }
 p {
     margin: 0; padding: 0;
@@ -98,8 +107,39 @@ textarea {
     margin-bottom: 14px;
 }
 
+/* content area, list of things, under main-area */
+.container {
+    margin: 10px;
+    padding: 1px 0 61px;
+    position: absolute;
+    top: 35px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 5px 0 #ccc;
+    overflow: hidden;
+}
+
+#content {
+    height: 100%;
+    margin-right: 1px;
+    padding: 0 1px 0 0;
+    overflow-y: auto;
+    display: block;
+}
+
+
+/* main area header z-index big ! */
+.main-area .header, .main-area .nav .search, .nav .main-area .search {
+    padding: 0 10px;
+    text-align: center;
+    z-index: 90001;
+}
+
 /**
-   sidebar and nav with transition transform 
+   main-area sidebar and nav with transition transform 
 **/
 .main-area, .sidebar, .nav {
     padding: 45px 10px 10px;
@@ -122,20 +162,7 @@ textarea {
     text-decoration: none;
 }
 
-/* content area, list of things, under main-area */
-#content {
-    margin: 10px;
-    padding: 1px 0 61px;
-    position: absolute;
-    top: 35px;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: #fff;
-    border-radius: 4px;
-    box-shadow: 0 1px 5px 0 #ccc;
-    overflow: hidden;
-}
+
 
 /* when contain div not slide-right, nav bar at top */
 .sidebar, .nav {
@@ -149,7 +176,6 @@ textarea {
 /* when wide, width is auto, override 230px*/
 @media (min-width: 768px) {
   .nav {
-    left: 0px;
     height: 35px;
     padding: 0 150px 0 0;
     -webkit-transition-property: -webkit-transform,padding;
@@ -172,12 +198,18 @@ textarea {
 .sidebar, .slide-right .nav {
     width: 230px;
     position: absolute;
+    left: 0px;
     top: 0;
     right: 0;
     bottom: 0;
     z-index: 0;
 }
 
+@media (min-width: 768px) {
+  .main-area .nav-toggle {
+    display: none !important;
+  }
+}
 
 /* when nav search is placed under header, */
 .header, .nav .search {
@@ -217,30 +249,64 @@ textarea {
     text-decoration: none;
 }
 
-.slide-left {
-    -webkit-transform:translateX(-230px);
-    -moz-transform:translateX(-230px);
-    -ms-transform:translateX(-230px);
-    -o-transform:translateX(-230px);
-    transform:translateX(-230px)
-}
-
-.slide-right {
+.slide-right .main-area,.slide-right .sidebar{
     -webkit-transform:translateX(230px);
     -moz-transform:translateX(230px);
     -ms-transform:translateX(230px);
     -o-transform:translateX(230px);
     transform:translateX(230px)
 }
+@media (min-width: 768px) {
+    .slide-right .main-area,.slide-right .sidebar{
+        -webkit-transform:none;
+        -moz-transform:none;
+        -ms-transform:none;
+        -o-transform:none;
+        transform:none
+    }
+}
+.slide-left .main-area,.slide-left .nav {
+    -webkit-transform:translateX(-230px);
+    -moz-transform:translateX(-230px);
+    -ms-transform:translateX(-230px);
+    -o-transform:translateX(-230px);
+    transform:translateX(-230px)
+}
+@media (min-width: 1024px) {
+    .slide-left .main-area,.slide-left .nav {
+        -webkit-transform:none;
+        -moz-transform:none;
+        -ms-transform:none;
+        -o-transform:none;
+        transform:none
+    }
+}
+.slide-right,.slide-left {
+    overflow:hidden
+}
+@media (min-width: 1024px) { 
+    .sidebar+.main-area {
+        margin-right:230px
+    }
+    .sidebar ~ .nav {
+        right:230px
+    }
+}
+
+.slide-right, .slide-left {
+    overflow: hidden;
+}
 
 /* when nav search is in nav top bar */
-.nav .search {
-    -webkit-transition: width 0.25s ease;
-    -moz-transition: width 0.25s ease;
-    transition: width 0.25s ease;
-    padding: 5px 10px;
-    width: 150px;
-    left: auto;
+@media (min-width: 768px) {
+  .nav .search {
+      -webkit-transition: width 0.25s ease;
+      -moz-transition: width 0.25s ease;
+      transition: width 0.25s ease;
+      padding: 5px 10px;  // padding only when min-width 
+      width: 150px;
+      left: auto;
+  }
 }
 
 .nav .search input.query {
@@ -287,14 +353,21 @@ textarea {
 
 /* nav ul and li*/
 .nav ul.nav-ul {
-    background: none;
-    border-radius: 0;
-    box-shadow: none;
-    min-height: 100%;
-    overflow-x: auto;
-    padding-top: 5px;
-    white-space: nowrap;
-    overflow: hidden;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+@media (min-width: 768px) {
+  .nav ul.nav-ul {
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+      min-height: 100%;
+      overflow-x: auto;
+      padding-top: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+  }
 }
 
 .nav ul.nav-ul li {
@@ -308,6 +381,11 @@ textarea {
     border-bottom: 1px solid #dee6e8;
     display: inline-block;
     position: relative;
+}
+
+/* sidebar */
+.sidebar {
+    right: 0;
 }
 
 /* sidebar widget, widget header and content */
@@ -1230,7 +1308,7 @@ body.toolbar {
 }
 
 .frame-toolbar {
-    @include vertical_gradient(hsla(210, 75%, 89%,.9), hsla(210, 47%, 77%,.9));
+  @include vertical_gradient(hsla(210, 75%, 89%,.9), hsla(210, 47%, 77%,.9));
   width: 300px;
   padding: 5px;
   top: 5px;
@@ -1250,8 +1328,7 @@ body.toolbar {
 
 .toolbar .entry.unvoted > .score.unvoted,
 .toolbar .entry.likes > .score.likes,
-.toolbar .entry.dislikes > .score.dislikes
-{
+.toolbar .entry.dislikes > .score.dislikes{
     display:block;
 } 
 
