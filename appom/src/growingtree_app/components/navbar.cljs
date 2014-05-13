@@ -17,6 +17,20 @@
       (when (:loading channel)
         [:i.icon-spinner.icon-spin])]]))
 
+ 
+(defn tab-thing [comm nav-thing]
+  (print "nav tab " nav-thing)
+  (let [id (:id nav-thing)]
+    [:li.protected {:key (:id nav-thing)
+                    :on-click #(put! comm [:tab-selected id])
+                    :class (str (:id nav-thing) (when (:selected nav-thing) " active"))}
+      [:a.show_channel
+        {:on-click (comp (constantly false) #(put! comm [:tab-selected id]))}
+        (:title nav-thing)
+        (when (:loading nav-thing)
+          [:i.icon-spinner.icon-spin])]]))
+
+; navbar data cursor select-keys from app state.
 (defn navbar [data owner opts]
   (reify
     om/IDisplayName
@@ -24,6 +38,7 @@
       (or (:react-name opts) "Navbar"))
     om/IRender
     (render [this]
+      (print "rendering navbar " (sort-by :order (:nav-list data))) ; " : " (sort-by :order (vals (:nav-list data))))
       (html/html
        (let [comm (get-in opts [:comms :controls])
              settings (:settings data)]
@@ -41,7 +56,8 @@
                            :type "submit"}]]
           
           [:ul.nav-ul
-           (map (partial tab comm) (sort-by :order (vals (:channels data))))
+           ; (map (partial tab comm) (sort-by :order (vals (:channels data))))
+           (map (partial tab-thing comm) (sort-by :order (:nav-list data)))
            [:li {:key "new-tab"
                  :on-click #(put! comm [:create-channel-menu-opened])}
             [:a#create_channel

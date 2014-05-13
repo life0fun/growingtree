@@ -33,6 +33,7 @@
                          "Hey @nb - I got you something nice... (not really)"])
      :channel-id channel-id}))
 
+
 (defn random-title []
   (rand-nth ["Background"
              "A dark place"
@@ -51,6 +52,7 @@
     :name "design.pdf"}
    {:src "/system/attachments/files/000/000/098/original/example.mp3?1392265218"
     :name "example.mp3"}])
+
 
 (defn random-channel [order & [title]]
   (let [title (or title (random-title))]
@@ -72,9 +74,22 @@
               :loading false
               :playlist []}}))
 
+; ret a map with initial key attributes for 
+(def nav-list [:parents :children :courses :lectures :questions :assignments])
+(defn nav-thing [idx nav-thing]
+  {:id nav-thing
+   :title (name nav-thing)
+   :order idx
+   :selected false
+   :users nil
+   :things []}
+  )
+
+; dep inj global comm channels into app state.
 (defn initial-state [comms]
   (let [channels (into {} (map (comp (juxt :id identity) random-channel) (range 2 100)))]
-    {:audio {:volume 100
+    {:nav-list (map-indexed nav-thing nav-list)
+     :audio {:volume 100
              :muted true}
      :windows {:window-inspector {:open false}}
      :settings {:message-limit 50

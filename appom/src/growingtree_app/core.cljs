@@ -27,6 +27,7 @@
 (def api-ch
   (chan))
 
+; global app state wrapped inside atom.
 (def app-state
   (atom (mock-data/initial-state {:controls controls-ch
                                   :api      api-ch})))
@@ -44,16 +45,14 @@
         record (if (filtered-message? m) m message)]
     (swap! history conj [channel record])))
 
+; create app component, which will create main area with app state
 (defn main [target state]
   (let [comms   (:comms @state)
         history (or history (atom []))]
     (routes/define-routes! state (.getElementById js/document "history-container"))
-    (print "main target " target)
-    (om/root
-     app/app
-     state
-     {:target target   ; dom div target
-      :opts {:comms comms}})
+    (om/root app/app state {:target target   ; dom div target
+                            :opts {:comms comms}})
+    ; end-less event loop
     (go (while true
           (alt!
            (:controls comms) ([v]
@@ -75,8 +74,10 @@
            (async/timeout 30000) (mprint (pr-str @history)))))
     ))
 
+; setup main component with app state
 (defn setup! []
-  (let [comms (:comms @app-state)]    
+  (let [comms (:comms @app-state)]
+    ; app-state is cursor to atom, pass to main as cursor to om/root
     (main (. js/document (getElementById "app")) app-state)
     (when (:restore-state? utils/initial-query-map)
       (put! (:controls comms) [:state-restored]))

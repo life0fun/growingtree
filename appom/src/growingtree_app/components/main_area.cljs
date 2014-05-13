@@ -56,6 +56,7 @@
                     {:value (:input-value opts)}))]
    [:button.post {:on-click #(put! comm [:user-message-submitted])} "Post"]])
 
+; a list of things for nav ul
 (defn things-list [filtered-things opts]
   (map #(let [author (get-in opts [:users (:author %)])]
           (thing-entry (:current-user-email opts)
@@ -65,24 +66,25 @@
                           %))
        filtered-things))
 
-(defn main-area [{:keys [channel search-filter]} owner opts]
+(defn main-area [{:keys [nav-list channel search-filter]} owner opts]
   (reify
     om/IDisplayName
     (display-name [_]
       "MainArea")
     om/IRender
     (render [this]
+      (print "rendering main-area ")
       (html/html
         (let [comm       (get-in opts [:comms :controls])
-             re-filter  (when search-filter (js/RegExp. search-filter "ig"))
-             activities (:activities channel)
-             filtered-things (if re-filter
-                                   (filter #(.match (:content %) re-filter) activities)
-                                   activities)]
+              re-filter  (when search-filter (js/RegExp. search-filter "ig"))
+              activities (:activities channel)
+              filtered-things (if re-filter
+                                (filter #(.match (:content %) re-filter) activities)
+                                activities)]
           [:article.main-area
             [:header.header
               [:a.nav-toggle.button.left {:href "#"
-                                       :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
+                                          :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
               [:a.sidebar-toggle.button.right {:href "#"
                                                :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
               [:a.logo
