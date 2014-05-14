@@ -227,20 +227,4 @@
                              :icon "images/media_icon.png"
                              :content-comp media-widget
                              :action-comp media-action-widget}})]
-
-          [:h3.nav-header "Family"]
-          [:ul.nav.nav-list
-            [:li#sidenav-parent.sidenav-selected "Parents"]
-            [:li#sidenav-parent.sidenav-selected "Children"]]
-
-          [:h3.nav-header "Learning"]
-          [:ul.nav.nav-list
-            [:li#sidenav-parent.sidenav-selected "Courses"]
-            [:li#sidenav-parent.sidenav-selected "Lectures"]]
-
-          [:h3.nav-header "Practice"]
-          [:ul.nav.nav-list
-            [:li#sidenav-parent.sidenav-selected "Questions"]
-            [:li#sidenav-parent.sidenav-selected "Assignments"]]
-
            ])))))

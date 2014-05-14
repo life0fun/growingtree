@@ -1,8 +1,23 @@
 (ns growingtree-app.mock-data
   (:require [growingtree-app.utils :as utils]))
 
-(def user-emails
-  ["sean@bushi.do" "nb@bushi.do" "sacha@bushi.do"])
+
+(def users
+  {"rich-dad@rich.com" {:full-name "Rich dad"
+                        :email "rich-dad@rich.com"
+                        :username "Rich dad"}
+   "rich-mom@rich.com" {:full-name "Rich mom"
+                        :email "rich-mom@rich.com"
+                        :username "Rich mom"}
+   "rich-daughter@rich.com" {:full-name "Rich daughter"
+                        :email "rich-daughter@rich.com"
+                        :username "Rich daughter"}
+   "rich-son@rich.com" {:full-name "Rich son"
+                        :email "rich-son@rich.com"
+                        :username "Rich son"}}
+  )
+
+(def user-emails (keys users))
 
 (defn random-message [channel-id & [at-now?]]
   (let [at (if at-now?
@@ -35,15 +50,15 @@
 
 
 (defn random-title []
-  (rand-nth ["Background"
-             "A dark place"
-             "한국어"
-             "Zork lovers"
+  (rand-nth ["math"
+             "science for youth"
+             "music"
+             "art lovers"
              "The War Room"
-             "Emotional Trance"
-             "8 out of 10 cats"
-             "Was it something I said?"
-             "Example"]))
+             "gymnastic"
+             "reading"
+             "Harry Potter"
+             "Frozen"]))
 
 (def media
   [{:src "/system/attachments/files/000/000/098/original/call-centre-woman.jpg?1392265218"
@@ -54,6 +69,7 @@
     :name "example.mp3"}])
 
 
+; each chan contains users in the chan and activities inisde chan. random title if no title.
 (defn random-channel [order & [title]]
   (let [title (or title (random-title))]
     {:id (utils/safe-sel title)
@@ -86,6 +102,7 @@
   )
 
 ; dep inj global comm channels into app state.
+; identity makes rand chan as val of :id key, channels = {:id (random-chan 1 (random-title))}
 (defn initial-state [comms]
   (let [channels (into {} (map (comp (juxt :id identity) random-channel) (range 2 100)))]
     {:nav-list (map-indexed nav-thing nav-list)
@@ -104,14 +121,6 @@
                      (assoc ch "1" (-> (random-channel 1 "Lobby")
                                        (assoc :id "1")))
                      (update-in ch ["1"] assoc :selected true))
-     :users {"sean@bushi.do" {:full-name "Sean Grove"
-                              :email "sean@bushi.do"
-                              :username "sgrove"}
-             "nb@bushi.do" {:full-name "Nathan Broadbent"
-                            :email "nb@bushi.do"
-                            :username "nb"}
-             "sacha@bushi.do" {:full-name "Sacha Greif"
-                               :email "sacha@bushi.do"
-                               :username "sacha"}}
-     :current-user-email "sean@bushi.do"
+     :users users
+     :current-user-email "rich-dad@rich.com"
      :comms comms}))
