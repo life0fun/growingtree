@@ -21,13 +21,13 @@
 
 (enable-console-print!)
 
-(def controls-ch
-  (chan))
+; control chan as data flow object connecting components.
+; api chan for api request handling.
+(def controls-ch (chan))
+(def api-ch (chan))
 
-(def api-ch
-  (chan))
-
-; global app state wrapped inside atom.
+; global app state wrapped inside atom, state include control and api chan, 
+; core passes data flow chan to sub components, and loop processing events from chan.
 (def app-state
   (atom (mock-data/initial-state {:controls controls-ch
                                   :api      api-ch})))
@@ -49,9 +49,14 @@
 (defn main [target state]
   (let [comms   (:comms @state)
         history (or history (atom []))]
-    (routes/define-routes! state (.getElementById js/document "history-container"))
+    
+    ; create app component, which in turn create all sub components, and start dom state updating. 
     (om/root app/app state {:target target   ; dom div target
                             :opts {:comms comms}})
+
+    ; we need route ui click event to control chan, and process control chan inside main comp.
+    (routes/define-routes! state (.getElementById js/document "history-container"))
+
     ; end-less event loop
     (go (while true
           (alt!

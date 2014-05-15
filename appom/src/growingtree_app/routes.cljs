@@ -25,6 +25,8 @@
                         #(get-in % [:channels channel-id])
                         #(put! controls-ch [:tab-selected channel-id])))
 
+
+; secretary client side named route dispatch ui click event to control chan. 
 (defn define-routes! [app history-el]
   (let [controls-ch (get-in @app [:comms :controls])
         api-ch      (get-in @app [:comms :api])]

@@ -5,6 +5,23 @@ This directory contains re-implementation of growingtree app with OM.
 For details of OM, please refer to my `omdoster` repo.
 
 
+## OM Application Architecture
+
+OM application is built from the following basic components:
+
+1. the core module creates main app component, which corresponds to the main component of single page app.
+
+2. core create control and api channels. The channles are data flow objects, and included into global app state, and pass around to all components.
+
+3. Main component creates all needed sub components, nav bar, side bar, content, etc.
+
+4. sub components send UI click event to chann, and core go-loop processing chan event.
+
+5. core creates named route to transform click event into route change event, and invoke the corresponding handler, return the new route path.
+
+6. core set window navigation location with the new route, hence navigation history is preserved.
+
+
 ## CSS and Animations
 
 1. The difference between animation and transform is that, animation will return to its original state after animation done, while transition will keep translated state.

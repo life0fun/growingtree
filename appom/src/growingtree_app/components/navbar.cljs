@@ -5,19 +5,8 @@
             [growingtree-app.utils :as utils]
             [sablono.core :as html :refer-macros [html]]))
 
-(defn tab [comm channel]
-  (let [id (:id channel)]
-    [:li.protected {:key (:id channel)
-                    :on-click #(put! comm [:tab-selected id])
-                    :class (str (utils/safe-sel (:id channel)) (when (:selected channel) " active"))}
-     [:a.show_channel
-      {:on-click (comp (constantly false)
-                       #(put! comm [:tab-selected id]))}
-      (:title channel)
-      (when (:loading channel)
-        [:i.icon-spinner.icon-spin])]]))
 
- 
+; ul list of nav list.
 (defn tab-thing [comm nav-thing]
   (print "nav tab " nav-thing)
   (let [id (:id nav-thing)]
@@ -30,6 +19,7 @@
         (when (:loading nav-thing)
           [:i.icon-spinner.icon-spin])]]))
 
+
 ; navbar data cursor select-keys from app state.
 (defn navbar [data owner opts]
   (reify
@@ -38,7 +28,6 @@
       (or (:react-name opts) "Navbar"))
     om/IRender
     (render [this]
-      (print "rendering navbar " (sort-by :order (:nav-list data))) ; " : " (sort-by :order (vals (:nav-list data))))
       (html/html
        (let [comm (get-in opts [:comms :controls])
              settings (:settings data)]
