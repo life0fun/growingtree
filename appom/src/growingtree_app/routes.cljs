@@ -21,6 +21,7 @@
 
 (defn open-to-channel!
   [app controls-ch channel-id]
+  (.log js/console "channel route handle open-to-channel " channel-id)
   (listen-once-for-app! app
                         #(get-in % [:channels channel-id])
                         #(put! controls-ch [:tab-selected channel-id])))
@@ -36,6 +37,8 @@
   ;; This triggers the dispatch on the above routes, when a deep link URL is provided.
   ;; goog.History(opt_invisible, opt_blankPageUrl, opt_input, opt_iframe)
   (let [history-el (goog.History. false nil history-el)]
-    (goog.events/listen history-el "navigate" #(sec/dispatch! (.-token %)))
+    (.log js/console " " history-el)
+    ; (goog.events/listen history-el "navigate" #(sec/dispatch! (.-token %)))
+    (goog.events/listen history-el goog.history.EventType.NAVIGATE, #(sec/dispatch! (.-token %)))
     (doto history-el
       (.setEnabled true))))

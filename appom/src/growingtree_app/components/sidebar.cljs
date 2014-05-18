@@ -169,6 +169,9 @@
             [:div.widget-action-bar
              (om/build (:action-comp opts) (:action-data data) {:opts (:action-opts data)})])])))))
 
+; app build sidebar with state map cursor :channel = selected-channel, settings
+; data is a map with vals are app state map 
+; sidebar filter users, conversations, etc, belong to the selected channel.
 (defn sidebar [data owner opts]
   (reify
     om/IDisplayName
@@ -178,10 +181,10 @@
     (render [this]
       (html/html
        (let [comm (get-in opts [:comms :controls])
-             channel (:channel data)
+             channel (:channel data)    ; the selected channel from click
              settings (:settings data)
              search-filter (:search-filter data)]
-         (print "Sidebar render")
+         (.log js/console "rendering sidebar with selected channel " (:id channel))
          [:aside.sidebar
           [:div.header.user-header {:class (when (get-in settings [:menus :user-menu :open]) "open-menu")}
            (current-user comm (get-in opts [:users (:current-user-email opts)]))

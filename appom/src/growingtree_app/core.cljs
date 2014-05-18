@@ -45,38 +45,42 @@
         record (if (filtered-message? m) m message)]
     (swap! history conj [channel record])))
 
-; create app component, which will create main area with app state
+
+; create app component on app div with app state.
 (defn main [target state]
   (let [comms   (:comms @state)
         history (or history (atom []))]
     
-    ; create app component, which in turn create all sub components, and start dom state updating. 
-    (om/root app/app state {:target target   ; dom div target
-                            :opts {:comms comms}})
-
     ; we need route ui click event to control chan, and process control chan inside main comp.
     (routes/define-routes! state (.getElementById js/document "history-container"))
 
+    ; create app component, which in turn create all sub components, and start dom state updating. 
+    (om/root app/app state {:target target   ; target is app dom dom element, <div id='app'/>
+                            :opts {:comms comms}})
+    
     ; end-less event loop
     (go (while true
           (alt!
-           (:controls comms) ([v]
-                                (when (:log-channels? utils/initial-player-state)
-                                  (mprint "Controls Verbose: " (pr-str v)))
-                                (let [previous-state @state]
-                                  (update-history! history :controls v)
-                                  (swap! state (partial controls-con/control-event target (first v) (second v)))
-                                  (controls-pcon/post-control-event! target (first v) (second v) previous-state @state)))
-           (:api comms) ([v]
-                           (when (:log-channels? utils/initial-player-state)
-                                  (mprint "API Verbose: " (pr-str v)))
-                           (let [previous-state @state]
-                             (update-history! history :api v)
-                             (swap! state (partial api-con/api-event target (first v) (second v)))
-                             (api-pcon/post-api-event! target (first v) (second v) previous-state @state)))
-           ;; Capture the current history for playback in the absence
-           ;; of a server to store it
-           (async/timeout 30000) (mprint (pr-str @history)))))
+            (:controls comms) 
+              ([v]   ; [:tab-selected :parents]
+                (print "Controls Verbose: " (pr-str v))
+                (when utils/logging-enabled?
+                  (mprint "Controls Verbose: " (pr-str v)))
+                (let [previous-state @state]
+                  (update-history! history :controls v)
+                  ; update state with selected state id. will cause re-render.
+                  (swap! state (partial controls-con/control-event target (first v) (second v)))
+                  (controls-pcon/post-control-event! target (first v) (second v) previous-state @state)))
+            (:api comms) 
+              ([v]
+                (when utils/logging-enabled?
+                    (mprint "API Verbose: " (pr-str v)))
+                 (let [previous-state @state]
+                   (update-history! history :api v)
+                   (swap! state (partial api-con/api-event target (first v) (second v)))
+                   (api-pcon/post-api-event! target (first v) (second v) previous-state @state)))
+            (async/timeout 30000) 
+              (mprint (pr-str @history)))))
     ))
 
 ; setup main component with app state

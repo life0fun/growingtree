@@ -6,11 +6,12 @@
             [sablono.core :as html :refer-macros [html]]))
 
 
-; ul list of nav list.
+; ul list of nav list. nav-thing is a map cursor to nav-thing map in mock_data {:id :title }
+; om.core.MapCursor {value: cljs.core.PersistentArrayMap, state: cljs.core.Atom,
 (defn tab-thing [comm nav-thing]
-  (print "nav tab " nav-thing)
   (let [id (:id nav-thing)]
-    [:li.protected {:key (:id nav-thing)
+    (.log js/console "tab-thing " (name (:id nav-thing)) " " (:title nav-thing))
+    [:li.protected {:key (:id nav-thing)  ; 
                     :on-click #(put! comm [:tab-selected id])
                     :class (str (:id nav-thing) (when (:selected nav-thing) " active"))}
       [:a.show_channel
@@ -20,7 +21,7 @@
           [:i.icon-spinner.icon-spin])]]))
 
 
-; navbar data cursor select-keys from app state.
+; data as MapCursor to app state by select-keys app [:nav-list :things :channels :settings]
 (defn navbar [data owner opts]
   (reify
     om/IDisplayName
@@ -46,7 +47,7 @@
           
           [:ul.nav-ul
            ; (map (partial tab comm) (sort-by :order (vals (:channels data))))
-           (map (partial tab-thing comm) (sort-by :order (:nav-list data)))
+           (map (partial tab-thing comm) (sort-by :order (vals (:things data))))
            [:li {:key "new-tab"
                  :on-click #(put! comm [:create-channel-menu-opened])}
             [:a#create_channel

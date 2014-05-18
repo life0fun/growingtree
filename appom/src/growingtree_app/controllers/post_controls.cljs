@@ -48,7 +48,8 @@
 
 (defmethod post-control-event! :tab-selected
   [target message channel-id previous-state current-state]
-  (utils/set-window-href! (routes/v1-channel-link {:channel-id channel-id}))
+  (print "post-control-event! tab-selected " channel-id)
+  (utils/set-window-href! (routes/v1-channel-link {:channel-id (name channel-id)}))
   (when-let [new-channel (get-in current-state [:channels channel-id])]
     (js/setTimeout #(imp-ui/scroll-to-latest-message! target (:id new-channel)) 35)))
 

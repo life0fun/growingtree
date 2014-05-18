@@ -14,7 +14,7 @@
 (def keymap (atom nil))
 
 ; called from om/root, app is root cursor app state and om component.
-; inside render phase, app cursor ref can be accessed without @ de-ref.
+; inside render phase, app state cursor ref can be accessed without @ de-ref.
 (defn app [app owner opts]
   (reify
     om/IDisplayName
@@ -22,6 +22,7 @@
       (or (:react-name opts) "growingtree-app"))
     om/IRender
     (render [this]
+      ; get app state cursors for related keys, and pass map state cursor when building sub-components.
       (let [nav-list                (get-in app [:nav-list])
             selected-channel        (get-in app [:channels (:selected-channel app)])
             current-user            (get-in app [:users (:current-user-email app)])
@@ -52,7 +53,7 @@
                               "ctrl+r"     restore-local-state!
                               "slash"      focus-search!
                               "esc"        blur-current-field!})]
-        (print "rending main")
+        (.log js/console "app state change, re-render all components, sidebar, main-area")
         (html/html
           [:div
             {:className (str (when (get-in app [:settings :sidebar :right :open]) "slide-left ")
@@ -70,6 +71,7 @@
             (om/build keyq/KeyboardHandler app {:opts {:keymap keymap
                                                        :error-ch (get-in app [:comms :error])}})
 
+            ; pass selected-chan app state MapCursor to sidebar subcomponent in data map.
             (om/build sidebar/sidebar {:channel selected-channel
                                        :settings (:settings app)
                                        :search-filter (get-in app [:settings :forms :search :value])}
@@ -78,6 +80,7 @@
                                               :current-user-email (:current-user-email app)
                                               :selected-channel (:selected-channel app)
                                               :channels (:channels app)}})
+            ; pass selected-chan app state MapCursor to main-area component to show content form selected chan.
             (om/build main-area/main-area {:nav-list nav-list
                                            :channel selected-channel
                                            :search-filter (get-in app [:settings :forms :search :value])} 
@@ -87,7 +90,7 @@
                                                   :input-focused? (get-in app [:settings :forms :user-message :focused])
                                                   :input-value (get-in app [:settings :forms :user-message :value])}}
                                                   )
-          (om/build navbar/navbar (select-keys app [:nav-list :channels :settings]) {:opts {:comms (:comms opts)}})
+          (om/build navbar/navbar (select-keys app [:nav-list :things :channels :settings]) {:opts {:comms (:comms opts)}})
           ; [:div#at-view.at-view [:ul#at-view-ul]]
           ])
       ))))

@@ -3,6 +3,13 @@
             [cljs.reader :as reader]
             [growingtree-app.utils :as utils :refer [mprint]]))
 
+(enable-console-print!)
+
+
+; this fn get args from events in control chan, and update it into app state.
+; XXX App state updated triggers IRender on app component, cascade to sidebar and main.
+
+; dispatch based on message type. 
 (defmulti control-event
   (fn [target message args state] message))
 
@@ -23,8 +30,9 @@
   [target message args state]
   (update-in state [:settings :menus :user-menu :open] not))
 
+;[:tab-selected :parent], update clicked chan as selected one, and other attrs in state map.
 (defmethod control-event :tab-selected
-  [target message args state]
+  [target message args state] ; args is :parent
   (let [old-channel    (get-in state [:channels (:selected-channel state)])
         new-channel    (get-in state [:channels args])]
     (-> state

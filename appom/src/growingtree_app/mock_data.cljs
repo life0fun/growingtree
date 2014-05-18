@@ -90,22 +90,28 @@
               :loading false
               :playlist []}}))
 
-; ret a map with initial key attributes for 
+; nav list of keyword 
 (def nav-list [:parents :children :courses :lectures :questions :assignments])
 (defn nav-thing [idx nav-thing]
   {:id nav-thing
    :title (name nav-thing)
    :order idx
    :selected false
-   :users nil
-   :things []}
+   :users (take (inc (rand-int (count user-emails))) (shuffle user-emails))
+   :things (vec (sort-by :created_at 
+                  (repeatedly (inc (rand-int 0)) 
+                              #(random-message (utils/safe-sel (name nav-thing))))))}
   )
 
 ; dep inj global comm channels into app state.
 ; identity makes rand chan as val of :id key, channels = {:id (random-chan 1 (random-title))}
 (defn initial-state [comms]
-  (let [channels (into {} (map (comp (juxt :id identity) random-channel) (range 2 100)))]
-    {:nav-list (map-indexed nav-thing nav-list)
+  (let [channels (into {} (map (comp (juxt :id identity) random-channel) (range 2 100)))
+        nav-list (map-indexed nav-thing nav-list)
+        things (into {} (map (juxt :id identity) nav-list))
+       ]
+    {:nav-list nav-list
+     :things things
      :audio {:volume 100
              :muted true}
      :windows {:window-inspector {:open false}}
