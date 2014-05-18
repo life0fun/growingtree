@@ -30,15 +30,24 @@
   [target message args state]
   (update-in state [:settings :menus :user-menu :open] not))
 
-;[:tab-selected :parent], update clicked chan as selected one, and other attrs in state map.
+; [:tab-selected :parent], update clicked chan as selected one, and other attrs in state map.
+; (defmethod control-event :tab-selected
+;   [target message args state] ; args is :parent
+;   (let [old-channel    (get-in state [:channels (:selected-channel state)])
+;         new-channel    (get-in state [:channels args])]
+;     (-> state
+;         (assoc :selected-channel args)
+;         (assoc-in [:channels (:id old-channel) :selected] false)
+;         (assoc-in [:channels args :selected] true))))
+
 (defmethod control-event :tab-selected
   [target message args state] ; args is :parent
-  (let [old-channel    (get-in state [:channels (:selected-channel state)])
-        new-channel    (get-in state [:channels args])]
+  (let [old-thing    (get-in state [:things (:cur-thing state)])
+        new-thing    (get-in state [:things args])]
     (-> state
-        (assoc :selected-channel args)
-        (assoc-in [:channels (:id old-channel) :selected] false)
-        (assoc-in [:channels args :selected] true))))
+        (assoc :cur-thing args)
+        (assoc-in [:things (:id old-thing) :selected] false)
+        (assoc-in [:things args :selected] true))))
 
 (defmethod control-event :search-form-focused
   [target message args state]

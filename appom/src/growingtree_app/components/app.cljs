@@ -24,6 +24,7 @@
     (render [this]
       ; get app state cursors for related keys, and pass map state cursor when building sub-components.
       (let [nav-list                (get-in app [:nav-list])
+            cur-thing               (get-in app [:things (:cur-thing app)])
             selected-channel        (get-in app [:channels (:selected-channel app)])
             current-user            (get-in app [:users (:current-user-email app)])
             controls-ch             (get-in app [:comms :controls])
@@ -82,6 +83,7 @@
                                               :channels (:channels app)}})
             ; pass selected-chan app state MapCursor to main-area component to show content form selected chan.
             (om/build main-area/main-area {:nav-list nav-list
+                                           :thing cur-thing
                                            :channel selected-channel
                                            :search-filter (get-in app [:settings :forms :search :value])} 
                                           {:opts {:comms (:comms opts)

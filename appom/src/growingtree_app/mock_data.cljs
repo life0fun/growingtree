@@ -111,7 +111,6 @@
         things (into {} (map (juxt :id identity) nav-list))
        ]
     {:nav-list nav-list
-     :things things
      :audio {:volume 100
              :muted true}
      :windows {:window-inspector {:open false}}
@@ -122,6 +121,11 @@
                 :sidebar {:left {:open false}
                           :right {:open false}}
                 :inspector {:path [:users]}}
+     
+     :cur-thing :parents
+     :things (as-> things ts
+                   (update-in ts [:parents] assoc :selected true))
+     ; channels is nested map keyed by id
      :selected-channel "1"
      :channels (as-> channels ch
                      (assoc ch "1" (-> (random-channel 1 "Lobby")
