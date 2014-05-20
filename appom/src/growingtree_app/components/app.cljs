@@ -23,8 +23,8 @@
     om/IRender
     (render [this]
       ; get app state cursors for related keys, and pass map state cursor when building sub-components.
-      (let [nav-list                (get-in app [:nav-list])
-            cur-thing               (get-in app [:things (:cur-thing app)])
+      (let [nav-path                (get-in app [:nav-path])
+            things                  (get-in app [:things])
             selected-channel        (get-in app [:channels (:selected-channel app)])
             current-user            (get-in app [:users (:current-user-email app)])
             controls-ch             (get-in app [:comms :controls])
@@ -82,8 +82,8 @@
                                               :selected-channel (:selected-channel app)
                                               :channels (:channels app)}})
             ; pass selected-chan app state MapCursor to main-area component to show content form selected chan.
-            (om/build main-area/main-area {:nav-list nav-list
-                                           :thing cur-thing
+            (om/build main-area/main-area {:nav-path nav-path
+                                           :things things
                                            :channel selected-channel
                                            :search-filter (get-in app [:settings :forms :search :value])} 
                                           {:opts {:comms (:comms opts)
@@ -92,7 +92,7 @@
                                                   :input-focused? (get-in app [:settings :forms :user-message :focused])
                                                   :input-value (get-in app [:settings :forms :user-message :value])}}
                                                   )
-          (om/build navbar/navbar (select-keys app [:nav-list :things :channels :settings]) {:opts {:comms (:comms opts)}})
+          (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
           ; [:div#at-view.at-view [:ul#at-view-ul]]
           ])
       ))))

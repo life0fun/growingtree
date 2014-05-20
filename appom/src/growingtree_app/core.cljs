@@ -50,7 +50,6 @@
 (defn main [target state]
   (let [comms   (:comms @state)
         history (or history (atom []))]
-    
     ; we need route ui click event to control chan, and process control chan inside main comp.
     (routes/define-routes! state (.getElementById js/document "history-container"))
 

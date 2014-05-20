@@ -19,14 +19,21 @@
 
 (def user-emails (keys users))
 
-(defn random-message [channel-id & [at-now?]]
+(def nav-types [:parents :children 
+                :courses :lectures 
+                :questions :assignments])
+
+; a message contains {:author, :content, :channel-id}
+(defn random-message [channel-id type & [at-now?]]
   (let [at (if at-now?
              (js/Date.)
              (as-> (js/Date.) x
                    (.getTime x)
                    (- x (rand-int (* 1000 60 24 60)))
                    (js/Date. x)))]
-    {:created_at at
+    {:id (str at)
+     :type type
+     :created_at at
      :author (rand-nth user-emails)
      :content (rand-nth ["deployed with ruby on...?"
                          "ha, dat stuff works"
@@ -46,7 +53,8 @@
                          "/queue https://dl.dropboxusercontent.com/u/412963/Why%20This%20Kolaveri%20Di%20Full%20Song%20Promo%20Video%20in%20HD%20-%20.mp3"
                          "@sacha Be careful with that"
                          "Hey @nb - I got you something nice... (not really)"])
-     :channel-id channel-id}))
+     :channel-id channel-id
+    }))
 
 
 (defn random-title []
@@ -79,7 +87,7 @@
      :users (take (inc (rand-int (count user-emails))) (shuffle user-emails))
      :activities (vec
                   (sort-by :created_at (repeatedly (inc (rand-int 0))
-                                                   #(random-message (utils/safe-sel title)))))
+                                                   #(random-message (utils/safe-sel title) (rand-nth nav-types)))))
      :media (vec
              (take (inc (rand-int 0))
                    (shuffle media)))
@@ -90,27 +98,27 @@
               :loading false
               :playlist []}}))
 
-; nav list of keyword 
-(def nav-list [:parents :children :courses :lectures :questions :assignments])
-(defn nav-thing [idx nav-thing]
-  {:id nav-thing
-   :title (name nav-thing)
+
+(defn thing-listing [idx type]
+  {:type type
+   :title (name type)
    :order idx
    :selected false
    :users (take (inc (rand-int (count user-emails))) (shuffle user-emails))
-   :things (vec (sort-by :created_at 
-                  (repeatedly (inc (rand-int 0)) 
-                              #(random-message (utils/safe-sel (name nav-thing))))))}
+   :thing-nodes (vec (sort-by :created_at 
+                     (repeatedly (inc (rand-int 0)) 
+                                 #(random-message (utils/safe-sel (name type)) type))))}
   )
 
 ; dep inj global comm channels into app state.
 ; identity makes rand chan as val of :id key, channels = {:id (random-chan 1 (random-title))}
 (defn initial-state [comms]
   (let [channels (into {} (map (comp (juxt :id identity) random-channel) (range 2 100)))
-        nav-list (map-indexed nav-thing nav-list)
-        things (into {} (map (juxt :id identity) nav-list))
+        thing-listing (map-indexed thing-listing nav-types)
+        things (into {} (map (juxt :type identity) thing-listing))
        ]
-    {:nav-list nav-list
+    {:nav-path [[:parents]]     ; current nav path
+
      :audio {:volume 100
              :muted true}
      :windows {:window-inspector {:open false}}
@@ -121,10 +129,10 @@
                 :sidebar {:left {:open false}
                           :right {:open false}}
                 :inspector {:path [:users]}}
-     
-     :cur-thing :parents
+
      :things (as-> things ts
                    (update-in ts [:parents] assoc :selected true))
+     
      ; channels is nested map keyed by id
      :selected-channel "1"
      :channels (as-> channels ch

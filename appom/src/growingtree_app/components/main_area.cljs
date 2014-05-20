@@ -67,7 +67,7 @@
 
 
 ; main-area get selected chan app state MapCursor to filter content for selected chan.
-(defn main-area [{:keys [nav-list thing channel search-filter]} owner opts]
+(defn main-area [{:keys [nav-path things channel search-filter]} owner opts]
   (reify
     om/IDisplayName
     (display-name [_] "MainArea")
@@ -75,15 +75,15 @@
     (render [this]
       (html/html
         (let [comm       (get-in opts [:comms :controls])
-              re-filter  (when search-filter (js/RegExp. search-filter "ig"))
               activities (:activities channel)
-              things (:things thing)
-              filtered-things (if re-filter
-                                (filter #(.match (:content %) re-filter) activities)
-                                activities)
-              filtered-things things
+              thing-nodes (:thing-nodes things)
+              re-filter  (when search-filter (js/RegExp. search-filter "ig"))
+              filtered-things   ; if search filter exist, filter thing's :content
+                (if re-filter
+                  (filter #(.match (:content %) re-filter) thing-nodes)
+                  thing-nodes)
              ]
-          (.log js/console "rendering main-area " (:id thing) " " things)
+          (.log js/console "rendering main-area " nav-path " " things)
           [:article.main-area
             [:header.header
               [:a.nav-toggle.button.left {:href "#"

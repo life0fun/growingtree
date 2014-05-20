@@ -6,18 +6,17 @@
             [sablono.core :as html :refer-macros [html]]))
 
 
-; ul list of nav list. nav-thing is a map cursor to nav-thing map in mock_data {:id :title }
-; om.core.MapCursor {value: cljs.core.PersistentArrayMap, state: cljs.core.Atom,
-(defn tab-thing [comm nav-thing]
-  (let [id (:id nav-thing)]
-    (.log js/console "tab-thing " (name (:id nav-thing)) " " (:title nav-thing))
-    [:li.protected {:key (:id nav-thing)  ; 
-                    :on-click #(put! comm [:tab-selected id])
-                    :class (str (:id nav-thing) (when (:selected nav-thing) " active"))}
+; ul list of things, things is {:type {:type :title :thing-node}}
+(defn tab-thing [comm thing-listing]
+  (let [type (:type thing-listing)]
+    (.log js/console "tab-thing " (:title thing-listing))
+    [:li.protected {:key type  ; 
+                    :on-click #(put! comm [:tab-selected type])
+                    :class (str type (when (:selected thing-listing) " active"))}
       [:a.show_channel
-        {:on-click (comp (constantly false) #(put! comm [:tab-selected id]))}
-        (:title nav-thing)
-        (when (:loading nav-thing)
+        {:on-click (comp (constantly false) #(put! comm [:tab-selected type]))}
+        (:title thing-listing)
+        (when (:loading thing-listing)
           [:i.icon-spinner.icon-spin])]]))
 
 
