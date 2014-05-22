@@ -115,6 +115,7 @@
 (defn initial-state [comms]
   (let [channels (into {} (map (comp (juxt :id identity) random-channel) (range 2 100)))
         thing-listing (map-indexed thing-listing nav-types)
+        ; things is map {:thing-type {:type :title :thing-nodes}}
         things (into {} (map (juxt :type identity) thing-listing))
        ]
     {:nav-path [[:parents]]     ; current nav path

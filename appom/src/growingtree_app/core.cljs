@@ -61,7 +61,7 @@
     (go (while true
           (alt!
             (:controls comms) 
-              ([v]   ; [:tab-selected :parents]
+              ([v]   ; [:tab-selected [:parents]], first is msg, second is args, here is nav-path
                 (print "Controls Verbose: " (pr-str v))
                 (when utils/logging-enabled?
                   (mprint "Controls Verbose: " (pr-str v)))

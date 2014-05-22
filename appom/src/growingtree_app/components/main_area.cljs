@@ -83,7 +83,7 @@
                   (filter #(.match (:content %) re-filter) thing-nodes)
                   thing-nodes)
              ]
-          (.log js/console "rendering main-area " nav-path " " things)
+          (.log js/console "rendering main-area " (pr-str nav-path) " ")
           [:article.main-area
             [:header.header
               [:a.nav-toggle.button.left {:href "#"

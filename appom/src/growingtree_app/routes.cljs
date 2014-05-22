@@ -26,6 +26,14 @@
                         #(get-in % [:channels channel-id])
                         #(put! controls-ch [:tab-selected channel-id])))
 
+; thing nodes of thing-type
+(defn thing-nodes!
+  [app controls-ch thing-type]
+  (.log js/console "thing type thing-nodes " thing-type)
+  (listen-once-for-app! app
+                        #(get-in % [:things thing-type])
+                        #(put! controls-ch [:tab-selected (vector thing-type)])))
+
 
 ; secretary client side named route dispatch ui click event to control chan. 
 (defn define-routes! [app history-el]
@@ -33,7 +41,10 @@
         api-ch      (get-in @app [:comms :api])]
     (defroute v1-channel-link "/v1/channels/:channel-id"
       [channel-id]
-      (open-to-channel! app controls-ch (utils/safe-sel channel-id))))
+      (open-to-channel! app controls-ch (utils/safe-sel channel-id)))
+    (defroute v1-thing-nodes "/v1/things/:thing-type"
+      [thing-type]
+      (thing-nodes! app controls-ch (utils/safe-sel thing-type))))
   ;; This triggers the dispatch on the above routes, when a deep link URL is provided.
   ;; goog.History(opt_invisible, opt_blankPageUrl, opt_input, opt_iframe)
   (let [history-el (goog.History. false nil history-el)]

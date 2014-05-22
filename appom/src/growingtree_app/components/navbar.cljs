@@ -7,14 +7,15 @@
 
 
 ; ul list of things, things is {:type {:type :title :thing-node}}
-(defn tab-thing [comm thing-listing]
+(defn nav-list [comm thing-listing]
   (let [type (:type thing-listing)]
-    (.log js/console "tab-thing " (:title thing-listing))
+    (.log js/console "nav-list type " (pr-str type) " title " (:title thing-listing))
     [:li.protected {:key type  ; 
-                    :on-click #(put! comm [:tab-selected type])
+                    :on-click #(put! comm [:tab-selected (vector type)])
                     :class (str type (when (:selected thing-listing) " active"))}
       [:a.show_channel
-        {:on-click (comp (constantly false) #(put! comm [:tab-selected type]))}
+        ; {:on-click (comp (constantly false) #(put! comm [:tab-selected (vector type)]))}
+        {:on-click #(put! comm [:tab-selected (vector type)])}
         (:title thing-listing)
         (when (:loading thing-listing)
           [:i.icon-spinner.icon-spin])]]))
@@ -46,7 +47,7 @@
           
           [:ul.nav-ul
            ; (map (partial tab comm) (sort-by :order (vals (:channels data))))
-           (map (partial tab-thing comm) (sort-by :order (vals (:things data))))
+           (map (partial nav-list comm) (sort-by :order (vals (:things data))))
            [:li {:key "new-tab"
                  :on-click #(put! comm [:create-channel-menu-opened])}
             [:a#create_channel

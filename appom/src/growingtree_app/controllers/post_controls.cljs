@@ -46,12 +46,20 @@
     (let [player (sel1 target [(str ".audio-player.audio-" channel-id)])]
       (js/setTimeout #(.play player) 35))))
 
+; (defmethod post-control-event! :tab-selected
+;   [target message channel-id previous-state current-state]
+;   (print "post-control-event! tab-selected " channel-id)
+;   (utils/set-window-href! (routes/v1-channel-link {:channel-id (name channel-id)}))
+;   (when-let [new-channel (get-in current-state [:channels channel-id])]
+;     (js/setTimeout #(imp-ui/scroll-to-latest-message! target (:id new-channel)) 35)))
+
+; called from core to process control event, nav-path for now [:course 1 :lecture] 
 (defmethod post-control-event! :tab-selected
-  [target message channel-id previous-state current-state]
-  (print "post-control-event! tab-selected " channel-id)
-  (utils/set-window-href! (routes/v1-channel-link {:channel-id (name channel-id)}))
-  (when-let [new-channel (get-in current-state [:channels channel-id])]
-    (js/setTimeout #(imp-ui/scroll-to-latest-message! target (:id new-channel)) 35)))
+  [target message nav-path previous-state current-state]
+  (print "post-control-event! tab-selected " nav-path)
+  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (first nav-path))}))
+  (when-let [new-path (get-in current-state [:nav-path])]
+    (js/setTimeout #(imp-ui/scroll-to-latest-message! target (last (last new-path))) 35)))
 
 (defmethod post-control-event! :user-message-submitted
   [target message args previous-state current-state]

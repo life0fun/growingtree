@@ -15,12 +15,13 @@
   (:require-macros [cljs.core.async.macros :as am :refer [go go-loop alt!]])
   (:use-macros [dommy.macros :only [sel sel1]]))
 
-(defn scroll-to-latest-message! [target channel-id]
-  (let [channel (sel1 target (str "#channels-" channel-id))
-        activities (and channel (sel channel :.activity))
+; called from controller, after thing switch, get all thing-nodes
+(defn scroll-to-latest-message! [target thing-type]
+  (let [thing-type (sel1 target (str "#channels-" (name thing-type)))
+        activities (and thing-type (sel thing-type :.activity))
         latest (last activities)]
-    (when (and channel latest)
-      (set! (.-scrollTop channel) (.-offsetTop latest)))))
+    (when (and thing-type latest)
+      (set! (.-scrollTop thing-type) (.-offsetTop latest)))))
 
 (defn scroll-to-latest-message-when-appropriate!
   "If the second-to-last message is visible in the chat viewport, then
