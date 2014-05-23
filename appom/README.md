@@ -57,6 +57,9 @@ Local component state is defined locally to component, component owner can set i
 
 ## CSS and Animations
 
+We are using scss for our styling. `config.rb` specifies the input and out directories for scss and css. `compass compile` will generated css file to out/public directory so html can include those css directly.
+
+
 1. The difference between animation and transform is that, animation will return to its original state after animation done, while transition will keep translated state.
 
    -webkit-animation with -webkit-keyframes Vs 

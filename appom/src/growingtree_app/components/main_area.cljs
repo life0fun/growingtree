@@ -22,22 +22,22 @@
                     plugins/hex-embed)]
     (interpose " " content)))
 
-(defn thing-entry [current-user-email users settings author activity]
+(defn thing-entry [current-user-email users settings author thing]
   (list
-   [:div.thing.link {:id (str "activity-" (:id activity))
-                   :class (when (= current-user-email (:email author)) "current_user")
-                   :key (:created_at activity)}
-    [:span.posted_at (str (dt/time-ago (:created_at activity)) " ago")]
+   [:div.thing {:id (str "thing-" (:id thing))
+                :class (when (= current-user-email (:email author)) "current_user")
+                :key (:created_at thing)}
+    [:span.posted_at (str (dt/time-ago (:created_at thing)) " ago")]
     (utils/gravatar-for (:email author))
     [:div.readable
      [:span.user (or (:full-name author)
                      (:email author))]
-     [:span.content (thing-content current-user-email users settings author activity)]
+     [:span.content (thing-content current-user-email users settings author thing)]
     ]
     (map (fn [media]
            [:div.media-entry
             media])
-         (remove string? (-> (string/split (:content activity) delimiter-re)
+         (remove string? (-> (string/split (:content thing) delimiter-re)
                              plugins/image-embed
                              plugins/youtube-embed
                              plugins/vimeo-embed)))]))
@@ -59,10 +59,10 @@
 (defn things-list [filtered-things opts]
   (map #(let [author (get-in opts [:users (:author %)])]
           (thing-entry (:current-user-email opts)
-                          (:users opts)
-                          (:settings opts)
-                          author
-                          %))
+                       (:users opts)
+                       (:settings opts)
+                       author
+                       %))
        filtered-things))
 
 
@@ -76,7 +76,8 @@
       (html/html
         (let [comm       (get-in opts [:comms :controls])
               activities (:activities channel)
-              thing-nodes (:thing-nodes things)
+              nav-path-type (last (last nav-path))  ; nav path is a vector
+              thing-nodes (get-in things [nav-path-type :thing-nodes])
               re-filter  (when search-filter (js/RegExp. search-filter "ig"))
               filtered-things   ; if search filter exist, filter thing's :content
                 (if re-filter

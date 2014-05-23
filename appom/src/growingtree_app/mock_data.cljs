@@ -24,14 +24,14 @@
                 :questions :assignments])
 
 ; a message contains {:author, :content, :channel-id}
-(defn random-message [channel-id type & [at-now?]]
+(defn create-thing [channel-id type & [at-now?]]
   (let [at (if at-now?
              (js/Date.)
              (as-> (js/Date.) x
                    (.getTime x)
                    (- x (rand-int (* 1000 60 24 60)))
                    (js/Date. x)))]
-    {:id (str at)
+    {:id (.-value at)
      :type type
      :created_at at
      :author (rand-nth user-emails)
@@ -87,7 +87,7 @@
      :users (take (inc (rand-int (count user-emails))) (shuffle user-emails))
      :activities (vec
                   (sort-by :created_at (repeatedly (inc (rand-int 0))
-                                                   #(random-message (utils/safe-sel title) (rand-nth nav-types)))))
+                                                   #(create-thing (utils/safe-sel title) (rand-nth nav-types)))))
      :media (vec
              (take (inc (rand-int 0))
                    (shuffle media)))
@@ -107,7 +107,7 @@
    :users (take (inc (rand-int (count user-emails))) (shuffle user-emails))
    :thing-nodes (vec (sort-by :created_at 
                      (repeatedly (inc (rand-int 0)) 
-                                 #(random-message (utils/safe-sel (name type)) type))))}
+                                 #(create-thing (utils/safe-sel (name type)) type))))}
   )
 
 ; dep inj global comm channels into app state.

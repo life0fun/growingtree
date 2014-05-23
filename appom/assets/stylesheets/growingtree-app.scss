@@ -549,6 +549,37 @@ h6{font-size:11.9px}
 .file_list .file_item a:hover span{text-decoration:underline !important}
 
 
+/* activity entry in the each thing node */
+.thing{background:#fff;*zoom:1;min-height:50px;position:relative}
+.thing:before,.thing:after{content:" ";display:table}
+.thing:after{clear:both}
+.thing:last-child{border-bottom:none}
+.thing .readable{*zoom:1;margin:0 100px 0 30px;padding:0 10px}
+.thing .readable:before,.thing .readable:after{content:" ";display:table}
+.thing .readable:after{clear:both}
+.thing .readable .user{color:#aeb9bd;font-weight:bold;float:left;width:100%;margin-bottom:4px;font-size:14px}
+.thing .readable .content{float:left;color:#797d7f;font-size:14px}
+.thing .image-preview,.thing .youtube-preview{background:#f3f8f9;border-radius:4px;box-shadow:0px 1px 5px 0px #ccc;float:left;padding:10px}
+.thing .image-preview,.thing .readable .content .image-preview>*,.thing .youtube-preview,.thing .youtube-preview>*{max-width:100%}
+.thing .image-preview a,.thing .youtube-preview a{display:block}
+.thing .image-preview .name,.thing .youtube-preview .name{color:#878d8f;font-weight:bold;margin-top:5px}
+.thing .readable .content img.image-embed{max-width:100%;height:auto}
+.thing .readable .content .color-preview{width:15px;height:15px;border-radius:3px;display:inline-block;margin:0 5px;vertical-align:bottom;border:1px solid gray}
+.thing .readable .content .mention{border:1px solid #bbb;background-color:#bcd3e8;color:#000;padding:2px 3px;border-radius:5px}
+.thing .readable .content .emoticon-embed{vertical-align:bottom}
+.thing .readable .content .emoticon-embed.small{height:20px;width:20px}
+.thing .readable .content .emoticon-embed.big{height:40px;width:40px}
+.thing .posted_at{background:#f3f8f9;border-radius:4px;color:#bdc6ca;font-size:11px;float:right;text-align:right;padding:4px}
+.thing .avatar{display:block;float:left;height:30px;width:30px}
+.thing.current_user{background-color:#f5f5f5}
+.thing.current_user .posted_at{background:#bcd3e8;color:#6f7477}
+.thing.mentioned_user{background-color:#e2ecf5}
+.thing.mentioned_user .posted_at{background:#bcd3e8;color:#6f7477}
+.pagination{font-size:14px;line-height:2em;padding:10px 0;text-align:center}
+.pagination i{margin-right:7px;vertical-align:middle}
+.thing,.pagination{border-bottom:1px solid #dee6e8;padding:10px}
+
+
 /** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     new  thing forms 
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **/

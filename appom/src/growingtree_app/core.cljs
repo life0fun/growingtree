@@ -108,4 +108,4 @@
 
 (comment
   ;; Uncomment to have random messages send
-  (js/setInterval #(api/random-message (get-in @app-state [:comms :api]) (rand-nth (keys (:channels @app-state)))) 2500))
+  (js/setInterval #(api/create-thing (get-in @app-state [:comms :api]) (rand-nth (keys (:channels @app-state)))) 2500))
