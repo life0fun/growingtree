@@ -31,7 +31,7 @@
                    (.getTime x)
                    (- x (rand-int (* 1000 60 24 60)))
                    (js/Date. x)))]
-    {:id (.-value at)
+    {:id (.-value at)  ; (.getTime at)
      :type type
      :created_at at
      :author (rand-nth user-emails)

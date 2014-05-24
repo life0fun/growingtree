@@ -4,6 +4,7 @@
             [growingtree-server.service :as service]
             [io.pedestal.service-tools.dev :as dev]))
 
+; project.clj alias run-dev to trampoline to this fn.
 (defn run-dev
   "The entry-point for 'lein run-dev'"
   [& args]
@@ -17,7 +18,7 @@
 ;; customize it.
 
 (defn -main
-  "The entry-point for 'lein run'"
+  "init server as container to run service logic"
   [& args]
   (server/init service/service)
   (apply server/-main args))

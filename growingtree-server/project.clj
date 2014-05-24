@@ -45,7 +45,9 @@
       :source-paths ["dev"]
       :datomic {
         :config "config/sql-transactor-template.properties"
-        :db-uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic"}}}
+        :db-uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic"
+      }
+    }}
 
   :min-lein-version "2.0.0"
   :resource-paths ["config", "resources"]

@@ -57,7 +57,7 @@ Local component state is defined locally to component, component owner can set i
 
 ## CSS and Animations
 
-We are using scss for our styling. `config.rb` specifies the input and out directories for scss and css. `compass compile` will generated css file to out/public directory so html can include those css directly.
+We are using scss for our styling. `config.rb` specifies the input and out directories for scss and css. `compass compile` will generate css file to out/public directory so html can include those css directly.
 
 
 1. The difference between animation and transform is that, animation will return to its original state after animation done, while transition will keep translated state.
@@ -72,3 +72,21 @@ We are using scss for our styling. `config.rb` specifies the input and out direc
 4. Relative position. We use absolution position for inner elements(nav list and sidebar list). We need to set position context for those inner elements inside their parents, li. using position:relative. So absolute position of inner element inside its parent, and parent set relative position context for inner element.
 
     .nav ul.nav-ul li { position: relative; }
+
+5. How to nav bar to left side when screen is small and on top when screen is big.
+The key is applying different css rules based on media query.
+
+First, normally, div.nav { position: absolute; width: 230px; z-index: 0}
+the main area z-index is 9000, so absolute left panel will be overlapped.
+
+when @media (min-width: 768px), width is auto, no absolute position.
+    { .nav {height:35px; width: auto; z-index:2000}}
+
+When slide btn clicked, add .slide class, transform translateX to right shift.
+    .slide-right .main-area,.slide-right .sidebar{ -webkit-transform:translateX(230px); }
+
+6. Float left avatar and float:right timestamp.
+   For each thing entry div, float:left avatar and float:right timestamp. 
+   The middle div contains upper span of user name and lower span of content. both float:left to align left.
+
+
