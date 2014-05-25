@@ -98,26 +98,24 @@ When client connects, server intercepts the session and store its session id in 
 
 we are using mysqld as storage server. `brew install mysql`.
 
-    sudo /usr/local/mysql/bin/mysqld_safe
-    control-z
-
     mysql.server start
     mysql.server stop
 
 For build automiation, add datomic credential to ~/.lein/credentials.clj.gpg and datomic repo to project.clj
 
-  {#"my\.datomic\.com" {:username "your-email@xxx.com"
-                        :password "xxxx-xxx-xxx"}}
+    {#"my\.datomic\.com" {:username "your-email@xxx.com"
+                          :password "xxxx-xxx-xxx"}}
 
 project.clj:
-  :dependencies[
-                [com.datomic/datomic-pro "0.9.4755"]
-                [datomic-schema "1.0.2"]
-                [org.clojure/java.jdbc "0.0.6"]
-                [mysql/mysql-connector-java "5.1.6"]
-               ]
-  :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
-                                   :creds :gpg}}
+
+    :dependencies[
+                  [com.datomic/datomic-pro "0.9.4755"]
+                  [datomic-schema "1.0.2"]
+                  [org.clojure/java.jdbc "0.0.6"]
+                  [mysql/mysql-connector-java "5.1.6"]
+                 ]
+    :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
+                                     :creds :gpg}}
 
 Create datomic tables and users in mysql.
 
@@ -127,9 +125,10 @@ Create datomic tables and users in mysql.
 
 set charset=latin1 to avoid Index column size too large. maximum size 767. 
 
-   ENGINE=INNODB DEFAULT CHARSET=latin1; as latin1 1 byte for 1 char.
+    ENGINE=INNODB DEFAULT CHARSET=latin1;  // as latin1 1 byte for 1 char.
     
-Add the following into $DATOMIC_HOME/config/sql-transactor-template.properties
+Add the following into `$DATOMIC_HOME/config/sql-transactor-template.properties`.
+
     sql-url=jdbc:mysql://localhost:3306/datomic
     sql-user=datomic
     sql-password=datomic
@@ -165,7 +164,7 @@ After colorcloud db created, start server.
 
 Port and resource path is defined in `service.clj`.
   
-  http://localhost:9090/dev.html
+    http://localhost:9090/dev.html
 
 To test server API endpoints, use curl.
 
@@ -197,25 +196,21 @@ After creating datomic user and datomic db in mysql, we need to create colorclou
     % tx = Util.list(Util.list(":db.fn/retractEntity", "17592186045496"));
     % txr = conn.transact(tx).get();
 
-console
+using console
+
     bin/console -p 8088 colorcloud "datomic:sql://?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic"
 
-
-## Datomic schema
 
 We define database scheme inside dbschema ns. DB schema shall only need to be created once. The function to create schema is defined inside `(service/create-schema)` and called from `(server/run-dev)`. Disable the call to service/create-schema after schema is created.
 
 The hardwork is in dbconn ns.
 
-  (defn create-schema
-    "create schema with connection to db"
-    []
-    (do
-      ; turn all defparts macro statement into schema transaction
-      (submit-transact (dschema/build-parts d/tempid))
-      ; turn all defschema macro statement into schema transaction
-      (submit-transact (dschema/build-schema d/tempid))))
-
+    (defn create-schema []
+      (do
+        ; turn all defparts macro statement into schema transaction
+        (submit-transact (dschema/build-parts d/tempid))
+        ; turn all defschema macro statement into schema transaction
+        (submit-transact (dschema/build-schema d/tempid))))
 
 
 The data model in datomic is represented by entity. Everything is entity.
@@ -253,4 +248,6 @@ We use datomic-schema to define our database schema.
 
 ## Datomic EntityMap
 
-Datomic query result is datomic entity, we touch the entity to get all entity entries. Server route interceptor converts datomic entity to json string to sent to client. When json-response coerces datomic entity to json string, it recursively resolve each attribute. This will cause infinit loop when the attribute is a circular reference. We need to filter out bi-directional reference attributes and only project none circular ref entity attributes when giving data back to json-response interceptor.
+Datomic query result is datomic entity, we touch the entity to get all entity entries. Server route interceptor converts datomic entity to json string to sent to client. 
+
+When json-response coerces datomic entity to json string, it recursively resolve each attribute. This will cause infinit loop when the attribute is a circular reference. We need to filter out bi-directional reference attributes and only project none circular ref entity attributes when giving data back to json-response interceptor.
