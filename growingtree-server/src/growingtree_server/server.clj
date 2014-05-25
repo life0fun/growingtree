@@ -4,7 +4,7 @@
             [growingtree-server.service :as service]
             [io.pedestal.service-tools.dev :as dev]))
 
-; project.clj alias run-dev to trampoline to this fn.
+; project.clj alias run-dev to trampoline here to start service main.
 (defn run-dev
   "The entry-point for 'lein run-dev'"
   [& args]
@@ -14,9 +14,7 @@
   (apply dev/-main args)
   )
 
-;; To implement your own server, copy io.pedestal.service-tools.server and
-;; customize it.
-
+; service main, init web server and start web service.
 (defn -main
   "init server as container to run service logic"
   [& args]

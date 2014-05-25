@@ -130,8 +130,8 @@
 ;(defonce uri "datomic:free://localhost:4334/colorcloud")
 (defonce uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
 ;; connect to database and the db
-(defonce conn (d/connect uri))
-(defonce db (d/db conn))
+; (defonce conn (d/connect uri))
+; (defonce db (d/db conn))
 
 
 ; the macro to stringify a form
@@ -388,7 +388,8 @@
 (defn list-attr
   "list all attributes for ident, if no ident, list all"
   ([]  ; db is (d/db conn)
-    (let [eid (d/q '[:find ?attr
+    (let [db (get-db)
+          eid (d/q '[:find ?attr
                      :where [_ :db.install/attribute ?attr]]
                     db)]
       (prn "list all attr " eid)
@@ -489,7 +490,8 @@
 (defn incby-stmt
   "ret a write datom to inc a counter by amt for d/transact conn (vec incby-stmt)"
   [eid attr amt]
-  (let [code [:db/add eid attr (-> (d/entity db eid) attr ((fnil + 0) amt))]]
+  (let [db (get-db)
+        code [:db/add eid attr (-> (d/entity db eid) attr ((fnil + 0) amt))]]
     (prn "code " code)
     code))
 

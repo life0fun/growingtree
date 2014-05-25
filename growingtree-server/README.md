@@ -1,39 +1,34 @@
 # growingtree-server
 
-To create
+To create web app using pedestal service template.
 
     lein new pedestal-service growingtree-server
     lein run-dev
-    Go to [localhost:8080](http://localhost:8080/)
-    lein test to run tests inside service_test.clj
 
-  link UI htmls from client so that server servlet can load them.
+The resource-path is defined in `service.clj`. link resources folder to it.
 
-      mkdir resources
-      cd resources
-      ln -s ../../growingtree-app/out/public
+    mkdir resources
+    cd resources
+    ln -s ../../growingtree-app/out/public
 
-To make client use the service, client shall add config :api-server in its config/config.edn file.
+For growingtree app to use the service, add config :api-server in its config/config.edn file.
 
     :api-server {:host "localhost" :port 8080 :log-fn nil}
-
     :use-api-server? true
 
-# Reload
-
   lein repl
-  => (dev)
-  => (watch)
-  => (start)
-  => (require 'growingtree-server.service :reload)
-  => (restart)
+    => (dev)
+    => (watch)
+    => (start)
+    => (require 'growingtree-server.service :reload)
+    => (restart)
 
-## Server
+## Web app service
 
 Server service is a record that defines the routes and handlers.
 Server route and other configuration definition inside `service.clj`.
 
-## Route, Interceptor, and URL.
+### Route, Interceptor, and URL.
 
 A URL refers is a string symbol with path segments.
 A Route definition specifies URL, http verb map, and interceptor path, router handler.
@@ -69,8 +64,8 @@ URL generation accepts a route name and return a URL that can be used in hyperli
 
 
 To create a route interceptor, you can:
-  1. define a function that accepts a Ring request map and returns a Ring response map
 
+  1. define a function that accepts a Ring request map and returns a Ring response map
 
   2. define a interceptor by using io.pedestal.service.interceptor/handler function takes a function and build an interceptor from it.
 
@@ -99,7 +94,85 @@ When client start, it send GET request /msgs, the route interceptor gets the
 When client connects, server intercepts the session and store its session id in the cookie. sse-setup to create context for the session and later use the context to push data to client.
 
 
-## Connecting to Datomic
+## Datomic Pro Version
+
+we are using mysqld as storage server. `brew install mysql`.
+
+    sudo /usr/local/mysql/bin/mysqld_safe
+    control-z
+
+    mysql.server start
+    mysql.server stop
+
+For build automiation, add datomic credential to ~/.lein/credentials.clj.gpg and datomic repo to project.clj
+
+  {#"my\.datomic\.com" {:username "your-email@xxx.com"
+                        :password "xxxx-xxx-xxx"}}
+
+project.clj:
+  :dependencies[
+                [com.datomic/datomic-pro "0.9.4755"]
+                [datomic-schema "1.0.2"]
+                [org.clojure/java.jdbc "0.0.6"]
+                [mysql/mysql-connector-java "5.1.6"]
+               ]
+  :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
+                                   :creds :gpg}}
+
+Create datomic tables and users in mysql.
+
+    mysql -uroot -proot < $DATOMIC_HOME/bin/sql/mysql-db.sql
+    mysql -uroot -proot datomic < $DATOMIC_HOME/bin/sql/mysql-user.sql
+    mysql -uroot -proot datomic < $DATOMIC_HOME/bin/sql/mysql-table.sql
+
+set charset=latin1 to avoid Index column size too large. maximum size 767. 
+
+   ENGINE=INNODB DEFAULT CHARSET=latin1; as latin1 1 byte for 1 char.
+    
+Add the following into $DATOMIC_HOME/config/sql-transactor-template.properties
+    sql-url=jdbc:mysql://localhost:3306/datomic
+    sql-user=datomic
+    sql-password=datomic
+    sql-driver-class=com.mysql.jdbc.Driver
+    license-key=CPG...Vpg==
+
+    cp ~/.m2/repository/mysql/mysql-connector-java/5.1.6/mysql-connector-java-5.1.6.jar $DATAMOC_HOME/lib
+
+copy mysql-connector-java-5.1.6.jar from ~/.m2 maven repo to transactor lib folder. Add lein deps to project.clj and update the url for lein datomic.
+
+    bin/maven-install
+    bin/transactor config/sql-transactor-template.properties
+
+    System started datomic:sql://<DB-NAME>?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic, you may need to change the user and password parameters to work with your jdbc driver
+
+## Usage
+
+Because Peer lib will try to establish connection to database upon start, we need to create database before hand using repl.
+
+start datomic transactor and lein repl connect to it.
+
+    bin/transactor config/sql-transactor-template.properties &
+
+    lein repl     ;; to delete and re-create database if needed
+      (require '[datomic.api :as d])
+      (def uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
+      (d/delete-database uri)
+      (d/create-database uri)         ;; see above command
+
+After colorcloud db created, start server.
+
+    lein run-dev
+
+Port and resource path is defined in `service.clj`.
+  
+  http://localhost:9090/dev.html
+
+To test server API endpoints, use curl.
+
+    curl --cookie-jar /tmp/cookie1 --location localhost:8080/msgs
+
+
+## Database Schema 
 
 Before we have web UI to input data, we need some command line tool to populate the databases. We will use my colorcloud project as the tool for database interact. Here we set our database uri point to
 `datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic`.
@@ -112,45 +185,38 @@ From service module, require the peer namespace and start to communicate to dato
 
 Create url and route interceptors to get request from app and send back response results.
 
-
-Datomic database is persistent under /Volumes/Build/datomic/data/db/, You can use lein repl to clean up and re-create databases.
-
-First, after create datomic user and datomic db in mysql, we need to create colorcloud database in datomic with datomic shell.
+After creating datomic user and datomic db in mysql, we need to create colorcloud database in datomic with datomic shell.
 
     bin/shell
     % uri = "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic";
     % Peer.createDatabase(uri);
 
-After creating database, we can connect to db uri with d/connect.
-
-    lein repl
-    (require '[datomic.api :as d])
-    (def uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
-    (def conn (d/connect uri))
-    (def db (d/db conn))
-    (d/delete-database uri)
-    (d/create-database uri)
-
-or
-    bin/shell
-    uri = "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic";
-    Peer.createDatabase(uri);
-    conn = Peer.connect(uri);
-    db = conn.db();
-    Peer.q("[:find ?p :where [?p :parent/children]]", db);
-    tx = Util.list(Util.list(":db.fn/retractEntity", "17592186045496"));
-    txr = conn.transact(tx).get();
+    % conn = Peer.connect(uri);
+    % db = conn.db();
+    % Peer.q("[:find ?p :where [?p :parent/children]]", db);
+    % tx = Util.list(Util.list(":db.fn/retractEntity", "17592186045496"));
+    % txr = conn.transact(tx).get();
 
 console
     bin/console -p 8088 colorcloud "datomic:sql://?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic"
 
 
-## Datomic EntityMap
-
-Datomic query result is datomic entity, we touch the entity to get all entity entries. Server route interceptor converts datomic entity to json string to sent to client. When json-response coerces datomic entity to json string, it recursively resolve each attribute. This will cause infinit loop when the attribute is a circular reference. We need to filter out bi-directional reference attributes and only project none circular ref entity attributes when giving data back to json-response interceptor.
-
-
 ## Datomic schema
+
+We define database scheme inside dbschema ns. DB schema shall only need to be created once. The function to create schema is defined inside `(service/create-schema)` and called from `(server/run-dev)`. Disable the call to service/create-schema after schema is created.
+
+The hardwork is in dbconn ns.
+
+  (defn create-schema
+    "create schema with connection to db"
+    []
+    (do
+      ; turn all defparts macro statement into schema transaction
+      (submit-transact (dschema/build-parts d/tempid))
+      ; turn all defschema macro statement into schema transaction
+      (submit-transact (dschema/build-schema d/tempid))))
+
+
 
 The data model in datomic is represented by entity. Everything is entity.
 A table is an entity, each column is an entity, and each tuple row is an entity.
@@ -185,51 +251,6 @@ the value stored in db is keyword with fully qualified name.
 We use datomic-schema to define our database schema.
 
 
-## Datomic Pro Version
+## Datomic EntityMap
 
-we are using mysqld as storage server. Mysql 5.6 is installed at /usr/local/mysql/
-
-    sudo /usr/local/mysql/bin/mysqld_safe
-    control-z
-
-    mysql -uroot -proot < /Volumes/Build/datomic-pro-0.9.4324/bin/sql/mysql-db.sql
-    mysql -uroot -proot datomic < /Volumes/Build/datomic-pro-0.9.4324/bin/sql/mysql-user.sql
-    mysql -uroot -proot datomic < /Volumes/Build/datomic-pro-0.9.4324/bin/sql/mysql-table.sql
-
-Add the following into config/sql-transactor-template.properties
-    sql-url=jdbc:mysql://localhost:3306/datomic
-    sql-user=datomic
-    sql-password=datomic
-    sql-driver-class=com.msyql.jdbc.Driver
-
-copy mysql-connector-java-5.1.6.jar from ~/.m2 maven repo to transactor lib folder. Add lein deps to project.clj and update the url for lein datomic.
-
-    [org.clojure/java.jdbc "0.0.6"]
-    [mysql/mysql-connector-java "5.1.6"]
-    [com.datomic/datomic-pro "0.9.4324"]
-
-
-    bin/maven-install
-    bin/transactor config/sql-transactor-template.properties
-
-    System started datomic:sql://<DB-NAME>?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic, you may need to change the user and password parameters to work with your jdbc driver
-
-
-## Usage
-
-Because Peer lib will try to establish connection to database upon start, we need to create database before hand using repl.
-
-First, start datomic
-
-    lein datomic start &
-    lein repl     ;; to delete and re-create database if needed
-      (require '[datomic.api :as d])
-      (def uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
-      (d/create-database uri)         ;; see above command
-
-then lein run-dev
-
-To test server API endpoints, use curl.
-
-    curl --cookie-jar /tmp/cookie1 --location localhost:8080/msgs
-
+Datomic query result is datomic entity, we touch the entity to get all entity entries. Server route interceptor converts datomic entity to json string to sent to client. When json-response coerces datomic entity to json string, it recursively resolve each attribute. This will cause infinit loop when the attribute is a circular reference. We need to filter out bi-directional reference attributes and only project none circular ref entity attributes when giving data back to json-response interceptor.

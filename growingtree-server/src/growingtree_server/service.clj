@@ -313,11 +313,14 @@
               ;;
               ;;::bootstrap/allowed-origins ["scheme://host:port"]
 
-              ;; Root for resource interceptor that is available by default.
-              ::bootstrap/resource-path "/public"
+              ; resource path for webapp assets, resource/public ln to 
+              ; public -> ../../growingtree-app/out/public
+              ; ::bootstrap/resource-path "/public"
+              ::bootstrap/resource-path "/appom"
 
               ;; Either :jetty or :tomcat (see comments in project.clj
               ;; to enable Tomcat)
-              ::bootstrap/host "elephant-dev.locationlabs.com"
+              ; ::bootstrap/host "elephant-dev.locationlabs.com"
+              ::bootstrap/host "localhost"
               ::bootstrap/type :jetty
-              ::bootstrap/port 8080})
+              ::bootstrap/port 9090})

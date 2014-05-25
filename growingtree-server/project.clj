@@ -27,22 +27,24 @@
                  [org.clojure/java.jdbc "0.0.6"]
                  [mysql/mysql-connector-java "5.1.6"]
                  [com.datomic/datomic-pro "0.9.4755"]
-
                  [datomic-schema "1.0.2"]  ; macro for db schema
+
                  [clj-redis "0.0.12"]
                  [org.clojure/data.json "0.2.2"]    ; json package]
                  [clj-time "0.5.1"]       ; clj-time wraps Joda time
                 ]
   :plugins [[lein-pprint "1.1.1"]
-            [lein-datomic "0.2.0"]]
+            [lein-datomic "0.2.0"]] ; do not use lein-datomic plugin, sucks!
   ;; These repositories will be searched for :dependencies and
   ;; :plugins and will also be available to deploy to.
   :repositories [["my.datomic.com" {:url "https://my.datomic.com/repo"
-                                   :creds :gpg}]]
-
+                                    :creds :gpg}]]
+  
+  ; build profile setting, lein with-profile :dev run-dev
   :profiles {
     :dev {
       :source-paths ["dev"]
+      ; lein datomic sucks ! do not use it. directly launch bin/transactor
       :datomic {
         :config "config/sql-transactor-template.properties"
         :db-uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic"
