@@ -9,7 +9,7 @@
 ; ul list of things, things is {:type {:type :title :thing-node}}
 (defn nav-list [comm thing-listing]
   (let [type (:type thing-listing)]
-    (.log js/console "nav-list type " (pr-str type) " title " (:title thing-listing))
+    ;(.log js/console "nav-list type " (pr-str type) " title " (:title thing-listing))
     [:li.protected {:key type  ; 
                     :on-click #(put! comm [:tab-selected (vector type)])
                     :class (str type (when (:selected thing-listing) " active"))}
@@ -30,29 +30,31 @@
     om/IRender
     (render [this]
       (html/html
-       (let [comm (get-in opts [:comms :controls])
+       (let [comm (get-in opts [:comms :controls])  ; comm chan is control
              settings (:settings data)]
-         [:nav.nav {:class (when (get-in settings [:forms :search :focused]) "search-focus")}
-          [:form.search
-           {:action "/search"
-            :method "get"
-            :on-submit (constantly false)}
-           [:input.query {:name "query"
-                          :type "text"
-                          :on-focus  #(put! comm [:search-form-focused])
-                          :on-blur   #(put! comm [:search-form-blurred])
-                          :on-key-up #(put! comm [:search-form-updated (.. % -target -value)])}]
-           [:input.submit {:value "Search"
+          [:nav.nav {:class (when (get-in settings [:forms :search :focused]) "search-focus")}
+            [:form.search
+              {:action "/search"
+               :method "get"
+               :on-submit (constantly false)}
+            [:input.query {:name "query"
+                           :type "text"
+                           :on-focus  #(put! comm [:search-form-focused])
+                           :on-blur   #(put! comm [:search-form-blurred])
+                           :on-key-up #(put! comm [:search-form-updated (.. % -target -value)])}]
+            [:input.submit {:value "Search"
                            :type "submit"}]]
           
           [:ul.nav-ul
-           ; (map (partial tab comm) (sort-by :order (vals (:channels data))))
-           (map (partial nav-list comm) (sort-by :order (vals (:things data))))
-           [:li {:key "new-tab"
-                 :on-click #(put! comm [:create-channel-menu-opened])}
-            [:a#create_channel
-             {:href "#"
-              :on-click (comp (constantly false)
-                              #(put! comm [:create-channel-menu-opened]))}
-             [:strong " + "]]]]
+            ; (map (partial tab comm) (sort-by :order (vals (:channels data))))
+            (map (partial nav-list comm) (sort-by :order (vals (:things data))))
+            [:li {:key "new-tab"
+                  ; :on-click #(put! comm [:create-thing [:family]])
+                 }
+              [:a#create-thing
+                {:href "#"
+                 :on-click #(put! comm [:create-thing [:family]])
+                }
+                [:strong " + "]  ; text is defined in #create:after
+            ]]]
           ])))))

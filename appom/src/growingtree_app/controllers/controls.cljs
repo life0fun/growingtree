@@ -6,7 +6,7 @@
 (enable-console-print!)
 
 
-; this fn get args from events in control chan, and update it into app state.
+; this module update global state with event data from control chan.
 ; XXX App state updated triggers IRender on app component, cascade to sidebar and main.
 
 ; dispatch based on message type. 
@@ -15,8 +15,30 @@
 
 (defmethod control-event :default
   [target message args state]
-  (mprint "Unknown controls: " (pr-str message))
+  (.log js/console "Unknown control-event, no state update " (pr-str message))
   state)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+; global state update for control event for navbar.
+; when select a different tab, update nav-path with the new tab name.
+(defmethod control-event :tab-selected
+  [target message args state] ; args is nav-path [:parent]
+  (let [last-nav-type (first (last (get-in state [:nav-path])))
+        cur-nav-type (first args)]
+    (.log js/console "tab-select control event " (pr-str args))
+    (-> state
+      (update-in [:nav-path] conj args)
+      (assoc-in [:things last-nav-type :selected] false)
+      (assoc-in [:things cur-nav-type :selected] true))))
+
+(defmethod control-event :create-thing
+  [target message args state] ; args is create thing type
+  (let [last-nav-type (first (last (get-in state [:nav-path])))
+        cur-nav-type (first args)]
+    (.log js/console "create-thing control event " (pr-str args))
+    (-> state
+      (update-in [:nav-path] conj args))))
+  
 
 (defmethod control-event :api-key-updated
   [target message api-key state]
@@ -29,16 +51,6 @@
 (defmethod control-event :user-menu-toggled
   [target message args state]
   (update-in state [:settings :menus :user-menu :open] not))
-
-(defmethod control-event :tab-selected
-  [target message args state] ; args is a tuple of nav path [:parent]
-  (let [last-nav-type (first (last (get-in state [:nav-path])))
-        cur-nav-type (first args)]
-    (.log js/console "control event " (pr-str args))
-    (-> state
-        (update-in [:nav-path] conj args)
-        (assoc-in [:things last-nav-type :selected] false)
-        (assoc-in [:things cur-nav-type :selected] true))))
 
 (defmethod control-event :search-form-focused
   [target message args state]

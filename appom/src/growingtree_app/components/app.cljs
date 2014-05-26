@@ -13,7 +13,7 @@
 
 (def keymap (atom nil))
 
-; called from om/root, app is root cursor app state and om component.
+; core om/root create app and start msg loop. pass in app state root cursor and om component.
 ; inside render phase, app state cursor ref can be accessed without @ de-ref.
 (defn app [app owner opts]
   (reify

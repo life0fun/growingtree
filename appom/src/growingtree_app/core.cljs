@@ -61,23 +61,24 @@
     (go (while true
           (alt!
             (:controls comms) 
-              ([v]   ; [:tab-selected [:parents]], first is msg, second is args, here is nav-path
-                (print "Controls Verbose: " (pr-str v))
+              ([v]   ; [:tab-selected [:parents]], first is msg, last is args vector. nav-path tuple
+                (print "controls chan event: " (pr-str v))
                 (when utils/logging-enabled?
                   (mprint "Controls Verbose: " (pr-str v)))
+                ; each event, first global state update. then action taken.
                 (let [previous-state @state]
                   (update-history! history :controls v)
-                  ; update state with selected state id. will cause re-render.
-                  (swap! state (partial controls-con/control-event target (first v) (second v)))
-                  (controls-pcon/post-control-event! target (first v) (second v) previous-state @state)))
+                  ; update state with selected state id. will cause re-render of app
+                  (swap! state (partial controls-con/control-event target (first v) (last v)))
+                  (controls-pcon/post-control-event! target (first v) (last v) previous-state @state)))
             (:api comms) 
               ([v]
                 (when utils/logging-enabled?
                     (mprint "API Verbose: " (pr-str v)))
                  (let [previous-state @state]
                    (update-history! history :api v)
-                   (swap! state (partial api-con/api-event target (first v) (second v)))
-                   (api-pcon/post-api-event! target (first v) (second v) previous-state @state)))
+                   (swap! state (partial api-con/api-event target (first v) (last v)))
+                   (api-pcon/post-api-event! target (first v) (last v) previous-state @state)))
             (async/timeout 30000) 
               (mprint (pr-str @history)))))
     ))

@@ -16,12 +16,11 @@ For growingtree app to use the service, add config :api-server in its config/con
     :api-server {:host "localhost" :port 8080 :log-fn nil}
     :use-api-server? true
 
-  lein repl
-    => (dev)
-    => (watch)
-    => (start)
-    => (require 'growingtree-server.service :reload)
-    => (restart)
+    lein repl
+      => (watch)
+      => (start)
+      => (require 'growingtree-server.service :reload)
+      => (restart)
 
 ## Web app service
 

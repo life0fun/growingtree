@@ -35,6 +35,7 @@
    :logging-enabled? (= (.getParameterValue parsed-uri "logging-enabled") "true")
    :restore-state?   (= (.getParameterValue parsed-uri "restore-state") "true")})
 
+; logging is enabled by query string logging-enabled=true
 (def logging-enabled?
   (:logging-enabled? initial-query-map))
 

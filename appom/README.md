@@ -4,6 +4,18 @@ This directory contains re-implementation of growingtree app with OM.
 
 For details of OM, please refer to my `omdoster` repo.
 
+## Build
+
+We put assets(images, js, scss) into `assets` folder.
+For each component, UI and logic wrapped into a ns inside `components` folder.
+`controllers` contains event handlers for each channel.
+
+To build,
+  
+    compass compile
+    lein cljsbuild dev once
+    open localhost:9090/dev.html
+
 
 ## OM Application Architecture
 
