@@ -48,12 +48,10 @@
           [:ul.nav-ul
             ; (map (partial tab comm) (sort-by :order (vals (:channels data))))
             (map (partial nav-list comm) (sort-by :order (vals (:things data))))
-            [:li {:key "new-tab"
-                  ; :on-click #(put! comm [:create-thing [:family]])
-                 }
+            [:li {:key "new-tab"}
               [:a#create-thing
                 {:href "#"
-                 :on-click #(put! comm [:create-thing [:family]])
+                 :on-click #(put! comm [:add-thing (vector :add-thing :parent)])
                 }
                 [:strong " + "]  ; text is defined in #create:after
             ]]]

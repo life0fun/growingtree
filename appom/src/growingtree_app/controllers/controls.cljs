@@ -13,10 +13,12 @@
 (defmulti control-event
   (fn [target message args state] message))
 
+; the default handling of evts from control chan is conj nav-path with args
 (defmethod control-event :default
   [target message args state]
-  (.log js/console "Unknown control-event, no state update " (pr-str message))
-  state)
+  (.log js/console "default control-event is conj nav-path " (pr-str message))
+  (-> state
+    (update-in [:nav-path] conj args)))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; global state update for control event for navbar.
@@ -30,16 +32,7 @@
       (update-in [:nav-path] conj args)
       (assoc-in [:things last-nav-type :selected] false)
       (assoc-in [:things cur-nav-type :selected] true))))
-
-(defmethod control-event :create-thing
-  [target message args state] ; args is create thing type
-  (let [last-nav-type (first (last (get-in state [:nav-path])))
-        cur-nav-type (first args)]
-    (.log js/console "create-thing control event " (pr-str args))
-    (-> state
-      (update-in [:nav-path] conj args))))
   
-
 (defmethod control-event :api-key-updated
   [target message api-key state]
   (assoc-in state [:users (:current-user-email state) :api-key] api-key))

@@ -46,7 +46,7 @@
     (swap! history conj [channel record])))
 
 
-; create app component on app div with app state.
+; create app component on DOM target app div with app state.
 (defn main [target state]
   (let [comms   (:comms @state)
         history (or history (atom []))]
@@ -57,7 +57,8 @@
     (om/root app/app state {:target target   ; target is app dom dom element, <div id='app'/>
                             :opts {:comms comms}})
     
-    ; end-less event loop
+    ; chan msg vec, [message-type args], e.g., [:tab-selected [:parents]]
+    ; mostly, conj state nav-path with msg args, trigger re-render app and main_area.
     (go (while true
           (alt!
             (:controls comms) 

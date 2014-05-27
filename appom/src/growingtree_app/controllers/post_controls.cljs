@@ -25,25 +25,25 @@
 (defmulti post-control-event!
   (fn [target message args previous-state current-state] message))
 
+; nothing to do for default control event.
 (defmethod post-control-event! :default
   [target message args previous-state current-state]
-  (.log js/console "No post-control for: " message))
+  (.log js/console "default post-control for: " (pr-str message)))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; post control event for navbar, last nav-path tuple.
 ; called from core to process control event, nav-path for now [:course 1 :lecture] 
 (defmethod post-control-event! :tab-selected
   [target message nav-path previous-state current-state]
-  (print "post-control-event! tab-selected " nav-path)
+  (print "post-control-event! tab-selected nav-path " nav-path)
   (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (first nav-path))}))
   (when-let [new-path (get-in current-state [:nav-path])]
     (js/setTimeout #(imp-ui/scroll-to-latest-message! target (last (last new-path))) 35)))
 
 (defmethod post-control-event! :create-thing
   [target message nav-path previous-state current-state]
-  (print "post-control-event! create-thing " nav-path)
+  (print "post-control-event! create-thing nav-path" nav-path)
   (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (first nav-path))})))
-    
 
 (defmethod post-control-event! :current-user-mentioned
   [target message args previous-state current-state]
