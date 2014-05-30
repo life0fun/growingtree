@@ -51,7 +51,7 @@
             [:li {:key "new-tab"}
               [:a#create-thing
                 {:href "#"
-                 :on-click #(put! comm [:add-thing (vector :add-thing :parent)])
+                 :on-click #(put! comm [:add-thing (vector :add-thing :course)])
                 }
                 [:strong " + "]  ; text is defined in #create:after
             ]]]

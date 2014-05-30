@@ -102,3 +102,17 @@ When slide btn clicked, add .slide class, transform translateX to right shift.
    The middle div contains upper span of user name and lower span of content. both float:left to align left.
 
 
+
+## Dommy selector
+
+1. sel will is query selector all, while sel1 ret the first matching. (aget by-class 0)
+
+2. selector can be either string or keyword.
+    
+    (sel1 :#person-title)
+    (sel1 :.person-title)
+
+3. For descendant class selector, use string class selector.
+
+    (sel1 ".form-horizontal .person-title")
+    (sel1 ".form-horizontal #person-title")

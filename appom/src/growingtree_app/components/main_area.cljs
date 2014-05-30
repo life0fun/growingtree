@@ -2,6 +2,7 @@
   (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
             [clojure.string :as string]
             [dommy.core :as dommy]
+            [growingtree-app.components.newthing-form :as newthing-form]
             [growingtree-app.datetime :as dt]
             [growingtree-app.plugins :as plugins]
             [growingtree-app.utils :as utils]
@@ -10,12 +11,45 @@
             [sablono.core :as html :refer-macros [html]])
   (:use-macros [dommy.macros :only [sel sel1]]))
 
+
 (declare thing-content)
 (declare thing-entry)
 (declare things-list)
-(declare add-thing-form)
+(declare main-content)
 
 (def delimiter-re #" ")
+
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; main-area get selected chan app state MapCursor to filter content for selected chan.
+(defn main-area [{:keys [nav-path things channel search-filter]} owner opts]
+  (reify
+    om/IDisplayName
+    (display-name [_] "MainArea")
+    om/IRender
+    (render [this]
+      (html/html
+        (let [comm (get-in opts [:comms :controls])]
+          (.log js/console "rendering main-area " (pr-str nav-path) " ")
+          [:article.main-area
+            [:header.header
+              [:a.nav-toggle.button.left {:href "#"
+                                          :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
+              [:a.sidebar-toggle.button.right {:href "#"
+                                               :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
+              [:a.logo
+                {:href "#/"
+                 :on-click (constantly false)}
+                [:img
+                  {:src "images/logo.png",
+                   :alt "growingtree-app"
+                   :title "growingtree-app"}]]]
+            [:div.container
+              [:div#content
+                (main-content nav-path things search-filter opts)
+              ;(chatbox comm opts)
+              ]]
+        ])))))
 
 ; main content is based on nav-path. last nav-path vector contains filter for thing listing.
 ; multi fn dispatch value is nav-path filter vector final target.
@@ -27,8 +61,9 @@
 (defmethod main-content :add-thing
   [nav-path things search-filter opts]
   (.log js/console "main content add-thing form " (pr-str nav-path))
-  (let [comm (get-in opts [:comms :controls])]
-    (add-thing-form :parents comm)))
+  (let [comm (get-in opts [:comms :controls])
+        thing-type (last (last nav-path))]
+    (newthing-form/add-form thing-type comm)))
 
 ; all the create new thing case
 (defmethod main-content :create-thing
@@ -104,88 +139,8 @@
     (interpose " " content)))
 
 
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-; main-area get selected chan app state MapCursor to filter content for selected chan.
-(defn main-area [{:keys [nav-path things channel search-filter]} owner opts]
-  (reify
-    om/IDisplayName
-    (display-name [_] "MainArea")
-    om/IRender
-    (render [this]
-      (html/html
-        (let [comm (get-in opts [:comms :controls])]
-          (.log js/console "rendering main-area " (pr-str nav-path) " ")
-          [:article.main-area
-            [:header.header
-              [:a.nav-toggle.button.left {:href "#"
-                                          :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
-              [:a.sidebar-toggle.button.right {:href "#"
-                                               :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
-              [:a.logo
-                {:href "#/"
-                 :on-click (constantly false)}
-                [:img
-                  {:src "images/logo.png",
-                   :alt "growingtree-app"
-                   :title "growingtree-app"}]]]
-            [:div.container
-              [:div#content
-                (main-content nav-path things search-filter opts)
-              ;(chatbox comm opts)
-              ]]
-        ])))))
- 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-; add thing form
-(defn add-thing-form
-  [thing-type comm]
-  (let [on-click-hdl
-        (fn [e]
-          (let [title-el (sel1 :#person-title)
-                title (dommy/value title-el)
-                data {:title title}]
-            (.log js/console "input title " data)
-            (put! comm [:create-thing [:create-thing data]])))]
-  (list
-    [:div.create-form
-      [:form.form-horizontal 
-        ; {:method "post" :html "{:multipart=>true}"}
-        [:legend "Parent Details"]
-        [:div.control-group
-          [:label.control-label {:for "person-name"} "Name"]
-          [:input {:id "person-title" :class "person-title" :type "text" :placeholder "user name"}]]
-        [:div.control-group
-          [:label.control-label {:for "person-lname"} "Last Name"]
-          [:input {:id "person-lname" :type "text" :placeholder "user last name"}]]
-        [:div.control-group
-          [:label.control-label {:for "person-type"} "Type"]
-          [:select {:id "person-type"}
-            [:option {:value "M"} "Dad"]
-            [:option {:value "F"} "Mom"]
-            [:option {:value "T"} "Teacher"]]]
-        [:div.control-group
-          [:label.control-label {:for "person-email"} "Email"]
-          [:input {:id "person-email" :type "text" :placeholder "user email"}]]
-        [:div.control-group
-          [:label.control-label {:for "person-phone"} "Phone"]
-          [:input {:id "person-phone" :type "text" :placeholder "user phone"}]]
-        [:div.control-group
-          [:label.control-label {:for "person-address"} "Address"]
-          [:input {:id "person-address" :type "text" :placeholder "user address"}]]
-        [:div.control-group
-          [:label.control-label {:for "person-url"} "Social Network"]
-          [:input {:id "person-url" :type "text" :placeholder "social network url"}]]
-        [:div.usertext-buttons.control-group
-          [:button.btn.btn-primary 
-            {:id "submit" :type "button"   ; if type :submit, will trigger re-load
-             ; :on-click #(put! comm [:create-thing (vector :create-thing :parents)])
-             :on-click on-click-hdl
-            } 
-            "OK"]
-          [:button.btn {:id "cancel" :type "button"} "Cancel"]]
-      ]])))
-
 ; chatbox, deprecated.
 (defn chatbox [comm opts]
   [:div.chatbox [:textarea.chat-input
