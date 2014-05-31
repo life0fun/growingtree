@@ -4,8 +4,9 @@
             [growingtree-app.utils :as utils :refer [mprint]])
   (:require-macros [cljs.core.async.macros :as am :refer [go go-loop alt!]]))
 
-(defn create-thing [api-ch channel]
-  (put! api-ch [:channel-activity-received (mock-data/create-thing channel :assignment true)]))
+
+(defn random-message [api-ch channel]
+  (put! api-ch [:channel-activity-received (mock-data/random-thing channel true)]))
 
 (defn send-user-message! [api-key message]
   (mprint "Send a message to the server"))

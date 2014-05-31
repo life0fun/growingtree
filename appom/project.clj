@@ -17,12 +17,11 @@
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [om "0.5.1"]
                  [prismatic/dommy "0.1.2"]
-                 [domina "1.0.1"]
                  [sablono "0.2.6"]
                  [secretary "1.0.0"]
+
+                 [cljs-ajax "0.2.4"]  ; cljs ajax client
                  [ch.qos.logback/logback-classic "1.0.7" :exclusions [org.slf4j/slf4j-api]]
-                 [com.cemerick/piggieback "0.1.0"]
-                 [clj-time "0.5.1"]  ; clj-time wraps Joda time
                  ]
 
   :source-paths ["src" "yaks/om/src" "yaks/sablono/src" "target/generated/clj"]

@@ -35,66 +35,78 @@
         [:form.form-horizontal 
           ; {:method "post" :html "{:multipart=>true}"}
           [:legend "Parent Details"]
+          
           [:div.control-group
             [:label.control-label {:for "person-name"} "Name"]
             [:input {:id "person-title" :class "person-title" :type "text" :placeholder "user name"}]]
           [:div.control-group
             [:label.control-label {:for "person-lname"} "Last Name"]
-            [:input {:id "person-lname" :type "text" :placeholder "user last name"}]]
+            [:input {:id "person-lname" :class "person-lname" :type "text" :placeholder "user last name"}]]
           [:div.control-group
             [:label.control-label {:for "person-type"} "Type"]
-            [:select {:id "person-type"}
+            [:select {:id "person-type" :class "person-type"}
               [:option {:value "M"} "Dad"]
               [:option {:value "F"} "Mom"]
               [:option {:value "T"} "Teacher"]]]
           [:div.control-group
             [:label.control-label {:for "person-email"} "Email"]
-            [:input {:id "person-email" :type "text" :placeholder "user email"}]]
+            [:input {:id "person-email" :class "person-email" :type "text" :placeholder "user email"}]]
           [:div.control-group
             [:label.control-label {:for "person-phone"} "Phone"]
-            [:input {:id "person-phone" :type "text" :placeholder "user phone"}]]
+            [:input {:id "person-phone" :class "person-phone" :type "text" :placeholder "user phone"}]]
           [:div.control-group
             [:label.control-label {:for "person-address"} "Address"]
-            [:input {:id "person-address" :type "text" :placeholder "user address"}]]
+            [:input {:id "person-address" :class "person-address" :type "text" :placeholder "user address"}]]
           [:div.control-group
             [:label.control-label {:for "person-url"} "Social Network"]
-            [:input {:id "person-url" :type "text" :placeholder "social network url"}]]
+            [:input {:id "person-url" :class "person-url" :type "text" :placeholder "social network url"}]]
+          
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 
               {:id "submit" :type "button"   ; if type :submit, will trigger re-load
                ; :on-click #(put! comm [:create-thing (vector :create-thing :parents)])
-               :on-click submit-fn
-              } 
+               :on-click submit-fn}
               "OK"]
             [:button.btn {:id "cancel" :type "button"} "Cancel"]]
         ]])))
 
 
-; 
+; add course 
 (defmethod add-form :course
   [thing-type comm]
   (let [submit-fn 
           (fn [e]
-            (let [title-el (sel1 :#course-title)
-                  title-el (sel1 ".form-horizontal .course-title")
-                  title (dommy/value title-el)
-                  data {:title title}]
-              (.log js/console "course title " data)
-              (put! comm [:create-thing [:create-thing data]])))]
+            (let [input-fields {:title ".course-title"
+                                :content ".course-content"
+                                :type ".course-type"
+                                :author ".course-author"
+                                :url ".course-url"
+                                :email ".course-email"
+                                :wiki ".course-wiki"
+                               }
+                  data (reduce (fn [tot [k clz]]
+                                   (assoc tot k (dommy/value (sel1 clz))))
+                                {}
+                                input-fields)
+                  ]
+              (.log js/console "course form " (pr-str data))
+              ; first is msg type, last is nav-path filter segment.
+              (put! comm [:create-thing [:course data]])))]
     (list
       [:div.create-form
         [:form.form-horizontal 
           ; {:method "post" :html "{:multipart=>true}"}
           [:legend "Course Details"]
+          
           [:div.control-group
             [:label.control-label {:for "course-title"} "Title"]
             [:input {:id "course-title" :class "course-title" :type "text" :placeholder "the title of course ..."}]]
           [:div.control-group
             [:label.control-label {:for "course-author"} "Author"]
-            [:input {:id "course-author" :type "text" :placeholder "the author ..."}]]
+            [:input {:id "course-author" :class "course-author" :type "text" :placeholder "the author ..."}]]
           [:div.control-group
             [:label.control-label {:for "course-type"} "Type"]
-            [:select {:id "course-type"}
+            [:select {:id "course-type" :class "course-type"}
               [:option {:value "math"} "Math"]
               [:option {:value "science"} "Science"]
               [:option {:value "reading"} "Reading"]
@@ -103,22 +115,21 @@
             ]]
           [:div.control-group
             [:label.control-label {:for "course-content"} "content"]
-            [:input {:id "course-content" :type "text" :placeholder "brief content of the this course"}]]
+            [:input {:id "course-content" :class "course-content" :type "text" :placeholder "brief content of the this course"}]]
           [:div.control-group
             [:label.control-label {:for "course-url"} "url"]
-            [:input {:id "course-url" :type "text" :placeholder "growingtrees.com/courses"}]]
+            [:input {:id "course-url" :class "course-url" :type "text" :placeholder "growingtrees.com/courses"}]]
           [:div.control-group
             [:label.control-label {:for "course-email"} "group email"]
-            [:input {:id "course-email" :type "text" :placeholder "course@group.growingtrees.com"}]]
+            [:input {:id "course-email" :class "course-email" :type "text" :placeholder "course@group.growingtrees.com"}]]
           [:div.control-group
             [:label.control-label {:for "course-wiki"} "Wiki Page"]
-            [:input {:id "course-wiki" :type "text" :placeholder "wiki of the course"}]]
+            [:input {:id "course-wiki" :class "course-wiki" :type "text" :placeholder "wiki of the course"}]]
+          
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 
               {:id "submit" :type "button"   ; if type :submit, will trigger re-load
-               ; :on-click #(put! comm [:create-thing (vector :create-thing :parents)])
-               :on-click submit-fn
-              } 
+               :on-click submit-fn} 
               "OK"]
             [:button.btn {:id "cancel" :type "button"} "Cancel"]]
         ]])))

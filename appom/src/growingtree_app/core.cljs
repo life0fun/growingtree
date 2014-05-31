@@ -62,7 +62,7 @@
     (go (while true
           (alt!
             (:controls comms) 
-              ([v]   ; [:tab-selected [:parents]], first is msg, last is args vector. nav-path tuple
+              ([v]   ; [:tab-selected [:parents]], first is msg, then args vector for nav-path.
                 (print "controls chan event: " (pr-str v))
                 (when utils/logging-enabled?
                   (mprint "Controls Verbose: " (pr-str v)))
@@ -110,4 +110,4 @@
 
 (comment
   ;; Uncomment to have random messages send
-  (js/setInterval #(api/create-thing (get-in @app-state [:comms :api]) (rand-nth (keys (:channels @app-state)))) 2500))
+  (js/setInterval #(api/random-thing (get-in @app-state [:comms :api]) (rand-nth (keys (:channels @app-state)))) 2500))

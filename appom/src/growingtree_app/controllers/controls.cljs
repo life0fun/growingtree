@@ -32,7 +32,14 @@
       (update-in [:nav-path] conj args)
       (assoc-in [:things last-nav-type :selected] false)
       (assoc-in [:things cur-nav-type :selected] true))))
-  
+
+; msg for creating thing [:create-thing [:course {}]]
+(defmethod control-event :create-thing
+  [target message args state] ; args is [:course {:title :content}]
+  (-> state
+    (update-in [:nav-path] conj args)))
+
+
 (defmethod control-event :api-key-updated
   [target message api-key state]
   (assoc-in state [:users (:current-user-email state) :api-key] api-key))

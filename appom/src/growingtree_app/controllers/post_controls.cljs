@@ -3,6 +3,7 @@
             [clojure.string :as string]
             [dommy.core :as dommy]
             [growingtree-app.api.mock :as api]
+            [growingtree-app.api.cljsajax :as cljsajax]
             [growingtree-app.commands :as commands]
             [growingtree-app.routes :as routes]
             [growingtree-app.ui :as imp-ui]
@@ -40,10 +41,17 @@
   (when-let [new-path (get-in current-state [:nav-path])]
     (js/setTimeout #(imp-ui/scroll-to-latest-message! target (last (last new-path))) 35)))
 
+; create-thing, [:create-thing [:course {:title ... :content ...}]]
 (defmethod post-control-event! :create-thing
-  [target message nav-path previous-state current-state]
-  (print "post-control-event! create-thing nav-path" nav-path)
-  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (first nav-path))})))
+  [target message form-data previous-state current-state]
+  (print "post-control-event! create-thing " form-data)
+  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (first form-data))}))
+  (cljsajax/cljs-ajax :add-thing 
+                      (:nav-path current-state) 
+                      (get-in current-state [:comms :api])
+                      form-data)
+  )
+
 
 (defmethod post-control-event! :current-user-mentioned
   [target message args previous-state current-state]
