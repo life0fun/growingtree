@@ -26,7 +26,7 @@
                  ;[com.datomic/datomic-free "0.8.4215"]
                  [org.clojure/java.jdbc "0.0.6"]
                  [mysql/mysql-connector-java "5.1.6"]
-                 [com.datomic/datomic-pro "0.9.4755"]
+                 [com.datomic/datomic-pro "0.9.4755" :exclusions [org.slf4j/slf4j-nop]]
                  [datomic-schema "1.0.2"]  ; macro for db schema
 
                  [clj-redis "0.0.12"]

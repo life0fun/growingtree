@@ -232,23 +232,23 @@
         result {:status 200 :data things}
         jsonresp (bootstrap/json-response result)
        ]
-    (println (str "service peer get-things " type thing-type path things))
+    (println (str "server peer get-things " type thing-type path things))
     jsonresp))
-
 
 ;------------------------------------------------------------------------------------
 ; destruct edn-params as request params and post body data is a clj map. frame does json transcoding.
   ; :request-method :post,
   ; :query-string nil,
   ; :content-type "application/edn",
-  ; :edn-params
-  ; {:action :create-assignment,
+  ; :path-params {:thing ":course"}
+  ; :path-info "/api/assignments",
+  ; :uri "/api/assignments",
+  ; :edn-params {
+  ;  :action :create-assignment,
   ;  :hwid 17592186045483,
   ;  :toid "jerry",
   ;  :hint "use fraction",
   ;  :user "rich"},
-  ; :path-info "/api/assignments",
-  ; :uri "/api/assignments",
 ;------------------------------------------------------------------------------------
 
 ;;==================================================================================
@@ -258,13 +258,14 @@
 (defn add-thing
   "add a thing upon post request, request contains http post data"
   [{postbody :edn-params :as request}]
+  (log/info " debug add-thing " request)
   (let [;resp (bootstrap/json-print {:result msg-data})
         type (get-in request [:path-params :thing])  ; /api/:thing
         added-things (peer/add-thing (keyword type) (:details postbody))
         result {:status 200 :data added-things}
         jsonresp (bootstrap/json-response result)
        ]
-    (log/info "peer adding thing done " result added-things)
+    (log/info "peer adding thing done " type " req " request " res " result added-things)
     jsonresp))
 
 
