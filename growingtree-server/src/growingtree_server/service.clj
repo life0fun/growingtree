@@ -240,33 +240,30 @@
   ; :request-method :post,
   ; :query-string nil,
   ; :content-type "application/edn",
-  ; :path-params {:thing ":course"}
+  ; :path-params {:thing "course"}  path segment
   ; :path-info "/api/assignments",
   ; :uri "/api/assignments",
-  ; :edn-params {
-  ;  :action :create-assignment,
-  ;  :hwid 17592186045483,
-  ;  :toid "jerry",
-  ;  :hint "use fraction",
-  ;  :user "rich"},
+  ; :edn-params {:details {:title ... :content ... :author 123 :type "math"} }
 ;------------------------------------------------------------------------------------
 
 ;;==================================================================================
 ; POST form details to add a particular thing
 ; postbody is body when xhr-request on api service side
+; :edn-params {:details {:title "aa", :content "", :type "math",
 ;;==================================================================================
 (defn add-thing
   "add a thing upon post request, request contains http post data"
   [{postbody :edn-params :as request}]
-  (log/info " debug add-thing " request)
+  (log/info "add-thing " postbody)
   (let [;resp (bootstrap/json-print {:result msg-data})
         type (get-in request [:path-params :thing])  ; /api/:thing
         added-things (peer/add-thing (keyword type) (:details postbody))
-        result {:status 200 :data added-things}
-        jsonresp (bootstrap/json-response result)
+        result {:status 200 :data added-things}  ; data is [{:course/author ...} {}]
+        ; jsonresp (bootstrap/json-response result)
+        resp (bootstrap/edn-response result)
        ]
-    (log/info "peer adding thing done " type " req " request " res " result added-things)
-    jsonresp))
+    (log/info "peer adding thing done " type " res " result " " resp)
+    resp))
 
 
 ;;==================================================================================

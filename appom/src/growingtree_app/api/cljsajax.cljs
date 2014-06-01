@@ -36,23 +36,23 @@
 
 ;;==================================================================================
 ; server always deliver list of things, parse to cljs.core.PersistentVector.
+; response {"status" 200, "data" [{"db/id" ... "course/author" ...}]
 ;;==================================================================================
 (defn handler
   "cljs-ajax success handler, send back things-vec to api-ch"
   [command nav-path api-ch]
   (fn [response]
-    ; parse response body into json and convert json to cljs PersistentVector
-    (when-let [body (:body response)] ; only when we have valid body
-      ;(.log js/console (str "app service receive response : " body))
-      (let [bodyjson (JSON/parse body)
-            ; parse js json object to cljs.core.PersisitentVector data structre.
-            result (js->clj bodyjson :keywordize-keys true)
+    ; server uses edn-response. no need js-clj, but no hurt. 
+    (when-let [ ;result (js->clj response :keywordize-keys true)
+                result response
+              ]
+      (let [;bodyjson body ;(.parse js/JSON body)
             status (:status result)
             things-vec (:data result)  ; alway ret a list of things
             dbid (:db/id (first things-vec))
            ]
         ;(.log js/console (str "xhr response tuples " dbid " type " thing-type msg-topic msg-type things-vec))
-        (.log js/console (str "xhr handler : " command " " nav-path " " response))
+        (.log js/console (str "xhr handler : " command " thing-vec " things-vec))
         (put! api-ch [:api-data {:nav-path nav-path :things-vec things-vec}])
       ))))
 
@@ -72,16 +72,15 @@
 (defn cljs-ajax
   "service a get or post request using cljs-ajax GET POST call"
   [command nav-path api-ch data]
-  (let [thing (last nav-path)
-        url (str "/api/" thing)
+  (let [
         request {:handler (handler command nav-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)
-                 :format :json
-                 :params data
+                 :format :edn    ; always use edn for clj programs internally.
+                 :params {:details data}
                  :headers {}
                 }
        ]
-      (.log js/console (str "cljs-ajax >>> " url data))
+      (.log js/console (str "cljs-ajax >>> " data))
       (case command
         ;; sse subscribe and publish
         :subscribe (GET "/msgs" request)
@@ -89,6 +88,6 @@
         
         :signup-login (POST "/login" request)
 
-        :request-things (GET url request)
-        :add-thing (POST url request)
+        :request-things (GET (str "/api/" (name (last nav-path))) request)
+        :add-thing (POST (str "/add/" (name (first nav-path))) request)
         "default")))

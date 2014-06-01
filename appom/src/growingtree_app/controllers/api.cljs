@@ -14,6 +14,15 @@
 (defmulti api-event
   (fn [target message args state] message))
 
+(defmethod api-event :api-data
+  [target message api-data state]
+  (let [nav-path (:nav-path api-data)
+        thing (first nav-path)
+        things-vec (:things-vec api-data)]
+    (print "api-event " thing " things-vec " things-vec)
+    (-> state
+      (assoc thing things-vec))))
+
 (defmethod api-event :channel-activity-received
   [target message activity state]
   (let [message-limit (get-in state [:settings :message-limit])]

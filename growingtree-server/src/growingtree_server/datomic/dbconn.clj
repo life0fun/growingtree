@@ -130,8 +130,8 @@
 ;(defonce uri "datomic:free://localhost:4334/colorcloud")
 (defonce uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
 ;; connect to database and the db
-; (defonce conn (d/connect uri))
-; (defonce db (d/db conn))
+(defonce conn (d/connect uri))
+(defonce db (d/db conn))
 
 
 ; the macro to stringify a form
@@ -231,8 +231,8 @@
         ;ft tx-data
        ]
     (prn "dbconn submit trans ft " tx-data ft)
-    ft)
-  )
+    ft
+    ))
 
 
 ; list all transaction of db
@@ -415,7 +415,7 @@
               {}
               attr-types)
           ]
-    ;(prn "schema attrs " schema-map)
+    ; (prn "schema attrs " schema-map)
     schema-map)))
 
 

@@ -167,11 +167,12 @@
                    (assoc :course/author author-id)  ; replace input :course/author
                    (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
                    (assoc :db/id (d/tempid :db.part/user)))
-        trans (submit-transact [entity])  ; transaction is a list of entity
+        entity (assoc entity :db/id 123)
+        ; trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
     (prn "create course entity " author-id entity)
-    (prn "submit course trans " trans)
+    ; (prn "submit course trans " trans)
     [entity]))
 
 

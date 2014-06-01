@@ -57,12 +57,12 @@
     (om/root app/app state {:target target   ; target is app dom dom element, <div id='app'/>
                             :opts {:comms comms}})
     
-    ; chan msg vec, [message-type args], e.g., [:tab-selected [:parents]]
-    ; mostly, conj state nav-path with msg args, trigger re-render app and main_area.
+    ; chan msg vec, [message-type nav-path], [:tab-selected [:parents]]
+    ; mostly, conj state nav-path with nav-path, trigger re-render app and main_area.
     (go (while true
           (alt!
             (:controls comms) 
-              ([v]   ; [:tab-selected [:parents]], first is msg, then args vector for nav-path.
+              ([v]   ; [:tab-selected [:parents]], first is msg, rest is nav-path.
                 (print "controls chan event: " (pr-str v))
                 (when utils/logging-enabled?
                   (mprint "Controls Verbose: " (pr-str v)))
@@ -72,14 +72,18 @@
                   ; update state with selected state id. will cause re-render of app
                   (swap! state (partial controls-con/control-event target (first v) (last v)))
                   (controls-pcon/post-control-event! target (first v) (last v) previous-state @state)))
+            ; cljs-ajax [:api-data {:nav-path nav-path :things-vec things-vec}]
             (:api comms) 
               ([v]
                 (when utils/logging-enabled?
                     (mprint "API Verbose: " (pr-str v)))
-                 (let [previous-state @state]
-                   (update-history! history :api v)
-                   (swap! state (partial api-con/api-event target (first v) (last v)))
-                   (api-pcon/post-api-event! target (first v) (last v) previous-state @state)))
+                (print "api event " v) ; thing-vec
+                (let [previous-state @state
+                      things-vec (:things-vec (last v))]
+                  (print "things-vec " things-vec)
+                  (update-history! history :api v)
+                  (swap! state (partial api-con/api-event target (first v) (last v)))
+                  (api-pcon/post-api-event! target (first v) (last v) previous-state @state)))
             (async/timeout 30000) 
               (mprint (pr-str @history)))))
     ))

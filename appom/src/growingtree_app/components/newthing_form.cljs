@@ -76,18 +76,20 @@
   [thing-type comm]
   (let [submit-fn 
           (fn [e]
-            (let [input-fields {:title ".course-title"
-                                :content ".course-content"
-                                :type ".course-type"
-                                :author ".course-author"
-                                :url ".course-url"
-                                :email ".course-email"
-                                :wiki ".course-wiki"
+            (let [input-fields {:course/title ".course-title"
+                                :course/content ".course-content"
+                                :course/type ".course-type"
+                                :course/author ".course-author"
+                                :curse/url ".course-url"
+                                :course/email ".course-email"
+                                :course/wiki ".course-wiki"
                                }
                   data (reduce (fn [tot [k clz]]
                                    (assoc tot k (dommy/value (sel1 clz))))
                                 {}
                                 input-fields)
+                  ; attach current user name as author
+                  data (assoc data :author "rich-dad")
                   ]
               (.log js/console "course form " (pr-str data))
               ; first is msg type, last is nav-path filter segment.

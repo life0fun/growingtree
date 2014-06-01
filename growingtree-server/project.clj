@@ -22,7 +22,7 @@
                  [org.slf4j/jcl-over-slf4j "1.7.2"]
                  [org.slf4j/log4j-over-slf4j "1.7.2"]
 
-                 ; datamoc !
+                 ; datamoc !  Datomic brings in a different version of slf4j-nop. exclusions [] !
                  ;[com.datomic/datomic-free "0.8.4215"]
                  [org.clojure/java.jdbc "0.0.6"]
                  [mysql/mysql-connector-java "5.1.6"]
