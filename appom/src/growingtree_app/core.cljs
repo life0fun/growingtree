@@ -76,7 +76,7 @@
             (:api comms) 
               ([v]
                 (when utils/logging-enabled?
-                    (mprint "API Verbose: " (pr-str v)))
+                  (mprint "API Verbose: " (pr-str v)))
                 (print "api event " v) ; thing-vec
                 (let [previous-state @state
                       things-vec (:things-vec (last v))]

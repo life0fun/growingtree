@@ -19,9 +19,9 @@
 
 (def user-emails (keys users))
 
-(def nav-types [:parents :children 
-                :courses :lectures 
-                :questions :assignments])
+(def nav-types [:parent :child
+                :course :lecture
+                :question :assignment])
 
 ; a message contains {:author, :content, :channel-id}
 (defn random-thing [channel-id type & [at-now?]]
@@ -99,6 +99,7 @@
               :playlist []}}))
 
 
+; {:parent thing-listing, :course thing-listing}
 (defn thing-listing [idx type]
   {:type type
    :title (name type)
@@ -114,6 +115,7 @@
 ; identity makes rand chan as val of :id key, channels = {:id (random-chan 1 (random-title))}
 (defn initial-state [comms]
   (let [channels (into {} (map (comp (juxt :id identity) random-channel) (range 2 100)))
+        ; each nav-type contains a thing-listing, consist of a listing of things within the type.
         thing-listing (map-indexed thing-listing nav-types)
         ; things is map {:thing-type {:type :title :thing-nodes}}
         things (into {} (map (juxt :type identity) thing-listing))
@@ -132,7 +134,7 @@
                 :inspector {:path [:users]}}
 
      :things (as-> things ts
-                   (update-in ts [:parents] assoc :selected true))
+                   (update-in ts [:parent] assoc :selected true))
      
      ; channels is nested map keyed by id
      :selected-channel "1"

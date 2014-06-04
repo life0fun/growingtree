@@ -283,7 +283,6 @@
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "create parent entity " entity)
     (prn "create parent trans " trans)
     [entity]))
 

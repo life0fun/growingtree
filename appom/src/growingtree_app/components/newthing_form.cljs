@@ -24,12 +24,23 @@
   [thing-type comm]
   (let [submit-fn 
           (fn [e]
-            (let [title-el (sel1 :#person-title)
-                  title-el (sel1 ".form-horizontal .person-title")
-                  title (dommy/value title-el)
-                  data {:title title}]
-              (.log js/console "parent name " data)
-              (put! comm [:create-thing [:create-thing data]])))]
+            (let [input-fields {:person/title ".person-title"
+                                :person/lname ".person-lname"
+                                :person/type ".person-type"
+                                :person/email ".person-email"
+                                :person/phone ".person-phone"
+                                :person/address ".person-address"
+                                :person/url ".person-url"
+                               }
+                  data (reduce (fn [tot [k clz]]
+                                   (assoc tot k (dommy/value (sel1 clz))))
+                                {}
+                                input-fields)
+                  ; attach current user name as author
+                  ]
+              (.log js/console "person form " (pr-str data))
+              ; first is msg type, nav-path [:type :filter segment]
+              (put! comm [:create-thing [:parent data]])))]       
     (list
       [:div.create-form
         [:form.form-horizontal 
@@ -71,7 +82,7 @@
         ]])))
 
 
-; add course 
+; add course collect data field from form.
 (defmethod add-form :course
   [thing-type comm]
   (let [submit-fn 

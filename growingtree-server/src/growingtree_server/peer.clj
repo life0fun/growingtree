@@ -74,6 +74,7 @@
 (defmethod get-things
   :parent
   [type qpath details]
+  (prn "peer get-things " type qpath details)
   (let [parents (dda/find-parent qpath)]
     (prn "peer dda find parent " qpath parents)
     parents))

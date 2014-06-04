@@ -6,22 +6,22 @@
             [sablono.core :as html :refer-macros [html]]))
 
 
-; ul list of things, things is {:type {:type :title :thing-node}}
-(defn nav-list [comm thing-listing]
+; ul list of things for each nav-type, :course {:type :title :thing-node}
+(defn thing-nav [comm thing-listing]
   (let [type (:type thing-listing)]
-    ;(.log js/console "nav-list type " (pr-str type) " title " (:title thing-listing))
+    ;(.log js/console "thing-nav type " (pr-str type) " title " (:title thing-listing))
     [:li.protected {:key type  ; 
                     :on-click #(put! comm [:tab-selected (vector type)])
                     :class (str type (when (:selected thing-listing) " active"))}
       [:a.show_channel
         ; {:on-click (comp (constantly false) #(put! comm [:tab-selected (vector type)]))}
         {:on-click #(put! comm [:tab-selected (vector type)])}
-        (:title thing-listing)
+        (:title thing-listing)  ; nav type title, course, parent, lecture, etc.
         (when (:loading thing-listing)
           [:i.icon-spinner.icon-spin])]]))
 
 
-; data as MapCursor to app state by select-keys app [:nav-list :things :channels :settings]
+; data as MapCursor to app state by select-keys app [:things :channels :settings]
 (defn navbar [data owner opts]
   (reify
     om/IDisplayName
@@ -47,11 +47,11 @@
           
           [:ul.nav-ul
             ; (map (partial tab comm) (sort-by :order (vals (:channels data))))
-            (map (partial nav-list comm) (sort-by :order (vals (:things data))))
+            (map (partial thing-nav comm) (sort-by :order (vals (:things data))))
             [:li {:key "new-tab"}
               [:a#create-thing
                 {:href "#"
-                 :on-click #(put! comm [:add-thing (vector :add-thing :course)])
+                 :on-click #(put! comm [:add-thing (vector :add-thing :parent)]) ; chg to :course
                 }
                 [:strong " + "]  ; text is defined in #create:after
             ]]]
