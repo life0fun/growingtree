@@ -69,7 +69,7 @@
 (defmethod main-content :create-thing
   [nav-path things search-filter opts]
   (.log js/console "main content submit create-thing " (pr-str nav-path))
-  (things-list :parents things search-filter opts))
+  (things-list :parent things search-filter opts))
 
 ; all filtered things navigation or details things
 (defmethod main-content :default

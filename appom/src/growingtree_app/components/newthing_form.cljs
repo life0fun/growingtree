@@ -75,7 +75,6 @@
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 
               {:id "submit" :type "button"   ; if type :submit, will trigger re-load
-               ; :on-click #(put! comm [:create-thing (vector :create-thing :parents)])
                :on-click submit-fn}
               "OK"]
             [:button.btn {:id "cancel" :type "button"} "Cancel"]]

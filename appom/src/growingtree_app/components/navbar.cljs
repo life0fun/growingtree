@@ -11,11 +11,9 @@
   (let [type (:type thing-listing)]
     ;(.log js/console "thing-nav type " (pr-str type) " title " (:title thing-listing))
     [:li.protected {:key type  ; 
-                    :on-click #(put! comm [:tab-selected (vector type)])
+                    :on-click #(put! comm [:tab-selected (vector :all 0 type)]) ; [:all 0 :thing-tyep]
                     :class (str type (when (:selected thing-listing) " active"))}
       [:a.show_channel
-        ; {:on-click (comp (constantly false) #(put! comm [:tab-selected (vector type)]))}
-        {:on-click #(put! comm [:tab-selected (vector type)])}
         (:title thing-listing)  ; nav type title, course, parent, lecture, etc.
         (when (:loading thing-listing)
           [:i.icon-spinner.icon-spin])]]))

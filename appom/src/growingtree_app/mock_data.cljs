@@ -120,7 +120,7 @@
         ; things is map {:thing-type {:type :title :thing-nodes}}
         things (into {} (map (juxt :type identity) thing-listing))
        ]
-    {:nav-path [[:parents]]     ; current nav path
+    {:nav-path [[:all 0 :parent]]     ; current nav path
 
      :audio {:volume 100
              :muted true}

@@ -196,27 +196,6 @@
 
 
 ;;==================================================================================
-; GET request handler to get all things without post any filters
-; this fn is deprecated as nav path for all things is [:all 0 :parent]
-; XXX deprecated !
-;;==================================================================================
-(defn get-all-things
-  "get things by type, ret from peer a list of thing in a new line sep string"
-  [req]
-  ; path segment in req contains request params, /api/:thing, /api/lecture
-  (println "get-all-things " req)
-  (let [type (get-in req [:path-params :thing])
-        things (peer/get-things (keyword type) [] {})  ;qpath is nil for all things
-        result {:status 200 :data things}
-        jsonresp (bootstrap/json-response result)] ; conver to keyword for query
-    (newline)
-    (println "service get peer get-all-things " (count things) type things)
-    jsonresp))
-    ; (-> (ring-response/response things)
-    ;     (ring-response/content-type "application/edn"))))
-
-
-;;==================================================================================
 ; POST filter from nav path to get things within parent.
 ; postbody {:msg-type :set-thing-data, :msg-topic [:data :group 1 :group-members],
 ; :thing-type :group-members, :path [:group 1 :group-members],
@@ -226,7 +205,8 @@
   "get things by type, ret from peer a list of thing in a new line sep string"
   [{postbody :edn-params :as request}] ; post data under :edn-params key :as request
   ; path segment in req contains request params, /api/:thing, /api/:course
-  (let [type (get-in request [:path-params :thing])
+  (println "get-things " postbody)
+  (let [type (get-in request [:path-params :thing])  ; type is path param /api/:thing
         path (:path postbody)   ; effect msg body, [:group 1 :group-members],
         thing-type (:thing-type postbody)
         things (peer/get-things thing-type path (:details postbody))
@@ -286,7 +266,7 @@
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
      ["/about" {:get about-page}]
      ["/login" {:post get-signup-login}]
-     ["/api/:thing" {:get get-all-things :post get-things}]
+     ["/api/:thing" {:post get-things}]
      ["/add/:thing" {:post add-thing}]
     ]]])
 

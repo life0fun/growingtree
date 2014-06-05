@@ -57,18 +57,18 @@
     (om/root app/app state {:target target   ; target is app dom dom element, <div id='app'/>
                             :opts {:comms comms}})
     
-    ; chan msg vec, [message-type nav-path], [:tab-selected [:parents]]
+    ; chan msg vec, [message-type nav-path], [:tab-selected [:parent]]
     ; mostly, conj state nav-path with nav-path, trigger re-render app and main_area.
     (go (while true
           (alt!
             (:controls comms) 
-              ([v]   ; [:tab-selected [:parents]], first is msg, rest is nav-path.
+              ([v]   ; [:tab-selected [:parent]], first is msg, rest is nav-path.
                 (print "controls chan event: " (pr-str v))
-                (when utils/logging-enabled?
-                  (mprint "Controls Verbose: " (pr-str v)))
+                ; (when utils/logging-enabled?
+                ;   (mprint "Controls Verbose: " (pr-str v)))
                 ; each event, first global state update. then action taken.
                 (let [previous-state @state]
-                  (update-history! history :controls v)
+                  ; (update-history! history :controls v)
                   ; update state with selected state id. will cause re-render of app
                   (swap! state (partial controls-con/control-event target (first v) (last v)))
                   (controls-pcon/post-control-event! target (first v) (last v) previous-state @state)))

@@ -76,11 +76,12 @@
         request {:handler (handler command nav-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)
                  :format :edn    ; always use edn for clj programs internally.
-                 :params {:details data}
+                 :params {:thing-type (last nav-path) :path nav-path :qpath nav-path :details data}
                  :headers {}
                 }
        ]
-      (.log js/console (str "cljs-ajax >>> " data))
+      ; :request-things nav-path [:all 0 :parent] data [:all 0 :parent]
+      (.log js/console (str "cljs-ajax >>> " command " nav-path " nav-path " data " data))
       (case command
         ;; sse subscribe and publish
         :subscribe (GET "/msgs" request)
@@ -88,6 +89,9 @@
         
         :signup-login (POST "/login" request)
 
-        :request-things (GET (str "/api/" (name (last nav-path))) request)
+        ; nav-path [:all 0 :parent]
+        :request-things (POST (str "/api/" (name (last nav-path))) request)
+
+        ; nav-path [:course {:title ... :name ...}]
         :add-thing (POST (str "/add/" (name (first nav-path))) request)
         "default")))
