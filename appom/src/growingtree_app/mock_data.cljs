@@ -120,8 +120,8 @@
         ; things is map {:thing-type {:type :title :thing-nodes}}
         things (into {} (map (juxt :type identity) thing-listing))
        ]
-    {:nav-path [[:all 0 :parent]]     ; current nav path
-
+    {:nav-path [[:all 0 :parent]] 
+     
      :audio {:volume 100
              :muted true}
      :windows {:window-inspector {:open false}}
@@ -135,6 +135,9 @@
 
      :things (as-> things ts
                    (update-in ts [:parent] assoc :selected true))
+
+     ; nav-path as key, things-vec value
+     :nav-path-things {}
      
      ; channels is nested map keyed by id
      :selected-channel "1"

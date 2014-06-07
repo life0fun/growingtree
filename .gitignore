@@ -3,6 +3,8 @@ target/
 logs/
 .lein-repl-history
 pom.xml
+.*
+*.swp
 *jar
 /lib/
 /classes/

@@ -25,6 +25,7 @@
       ; get app state cursors for related keys, and pass map state cursor when building sub-components.
       (let [nav-path                (get-in app [:nav-path])
             things                  (get-in app [:things])
+            ;nav-path-things         (get-in app [:nav-path-things])
             selected-channel        (get-in app [:channels (:selected-channel app)])
             current-user            (get-in app [:users (:current-user-email app)])
             controls-ch             (get-in app [:comms :controls])

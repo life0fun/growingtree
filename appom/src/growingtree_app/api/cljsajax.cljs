@@ -36,7 +36,7 @@
 
 ;;==================================================================================
 ; server always deliver list of things, parse to cljs.core.PersistentVector.
-; response {"status" 200, "data" [{"db/id" ... "course/author" ...}]
+; nav-path [:all 0 :parent] response {"status" 200, "data" [{"db/id" ... "course/author" ...}]
 ;;==================================================================================
 (defn handler
   "cljs-ajax success handler, send back things-vec to api-ch"
@@ -52,8 +52,8 @@
             dbid (:db/id (first things-vec))
            ]
         ;(.log js/console (str "xhr response tuples " dbid " type " thing-type msg-topic msg-type things-vec))
-        (.log js/console (str "xhr handler : " command " thing-vec " things-vec))
-        (put! api-ch [:api-data {:nav-path nav-path :things-vec things-vec}])
+        (.log js/console (str "xhr thing-vec " nav-path " thing-vec " things-vec))
+        (put! api-ch [:api-data {:nav-path nav-path :things-vec (vec things-vec)}])
       ))))
 
 (defn error-handler

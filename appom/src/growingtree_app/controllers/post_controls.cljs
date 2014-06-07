@@ -33,7 +33,8 @@
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; post control event for navbar, last nav-path tuple.
-; called from core to process control event, nav-path for now [:course 1 :lecture] 
+; called from core to process control event, nav-path for now [:course 1 :lecture]
+; send xhr request to get data.
 (defmethod post-control-event! :tab-selected
   [target message nav-path previous-state current-state]
   (print "post-control-event! tab-selected nav-path " nav-path)  ; [:all 0 :parent]

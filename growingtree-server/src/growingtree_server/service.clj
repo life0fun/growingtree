@@ -211,9 +211,9 @@
         thing-type (:thing-type postbody)
         things (peer/get-things thing-type path (:details postbody))
         result {:status 200 :data things}
-        jsonresp (bootstrap/json-response result)
+        jsonresp (bootstrap/edn-response result)
        ]
-    (println (str "server peer get-things " type thing-type path things))
+    (println (str "peer get-things " type thing-type path things))
     jsonresp))
 
 ;------------------------------------------------------------------------------------

@@ -64,23 +64,21 @@
             (:controls comms) 
               ([v]   ; [:tab-selected [:parent]], first is msg, rest is nav-path.
                 (print "controls chan event: " (pr-str v))
-                ; (when utils/logging-enabled?
-                ;   (mprint "Controls Verbose: " (pr-str v)))
+                (when utils/logging-enabled?
+                  (mprint "Controls Verbose: " (pr-str v)))
                 ; each event, first global state update. then action taken.
                 (let [previous-state @state]
                   ; (update-history! history :controls v)
                   ; update state with selected state id. will cause re-render of app
                   (swap! state (partial controls-con/control-event target (first v) (last v)))
                   (controls-pcon/post-control-event! target (first v) (last v) previous-state @state)))
-            ; cljs-ajax [:api-data {:nav-path nav-path :things-vec things-vec}]
             (:api comms) 
               ([v]
                 (when utils/logging-enabled?
                   (mprint "API Verbose: " (pr-str v)))
-                (print "api event " v) ; thing-vec
+                ; [:api-data {:nav-path [:all 0 :parent], :things-vec ({:person/url #{rich.com} ...)
                 (let [previous-state @state
                       things-vec (:things-vec (last v))]
-                  (print "things-vec " things-vec)
                   (update-history! history :api v)
                   (swap! state (partial api-con/api-event target (first v) (last v)))
                   (api-pcon/post-api-event! target (first v) (last v) previous-state @state)))
