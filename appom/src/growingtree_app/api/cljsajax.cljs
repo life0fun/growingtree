@@ -72,11 +72,13 @@
 (defn cljs-ajax
   "service a get or post request using cljs-ajax GET POST call"
   [command nav-path api-ch data]
-  (let [
+  (let [main-path (:path nav-path)
+        qpath (:qpath nav-path)
+        thing-type (last main-path)
         request {:handler (handler command nav-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)
                  :format :edn    ; always use edn for clj programs internally.
-                 :params {:thing-type (last nav-path) :path nav-path :qpath nav-path :details data}
+                 :params {:thing-type thing-type :path main-path :qpath qpath :details data}
                  :headers {}
                 }
        ]
@@ -90,8 +92,8 @@
         :signup-login (POST "/login" request)
 
         ; nav-path [:all 0 :parent]
-        :request-things (POST (str "/api/" (name (last nav-path))) request)
+        :request-things (POST (str "/api/" (name thing-type)) request)
 
         ; nav-path [:course {:title ... :name ...}]
-        :add-thing (POST (str "/add/" (name (first nav-path))) request)
+        :add-thing (POST (str "/add/" (name thing-type)) request)
         "default")))

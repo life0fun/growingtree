@@ -22,7 +22,8 @@
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; main-area get selected chan app state MapCursor to filter content for selected chan.
-(defn main-area [{:keys [nav-path things channel search-filter]} owner opts]
+; nav-path is a map of :path, :qpath...path vector for each view in main panel.
+(defn main-area [{:keys [nav-path nav-path-things channel search-filter]} owner opts]
   (reify
     om/IDisplayName
     (display-name [_] "MainArea")
@@ -30,23 +31,18 @@
     (render [this]
       (html/html
         (let [comm (get-in opts [:comms :controls])]
-          (.log js/console "rendering main-area " (pr-str nav-path) " ")
+          (.log js/console "rendering main-area " (pr-str nav-path) " " (pr-str nav-path-things))
           [:article.main-area
             [:header.header
-              [:a.nav-toggle.button.left {:href "#"
-                                          :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
-              [:a.sidebar-toggle.button.right {:href "#"
-                                               :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
-              [:a.logo
-                {:href "#/"
-                 :on-click (constantly false)}
-                [:img
-                  {:src "images/logo.png",
-                   :alt "growingtree-app"
-                   :title "growingtree-app"}]]]
+              [:a.nav-toggle.button.left 
+                {:href "#" :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
+              [:a.sidebar-toggle.button.right 
+                {:href "#" :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
+              [:a.logo {:href "#/" :on-click (constantly false)}
+                [:img {:src "images/logo.png" :title "growingtree-app"}]]]
             [:div.container
               [:div#content
-                (main-content nav-path things search-filter opts)
+                (main-content nav-path nav-path-things search-filter opts)
               ;(chatbox comm opts)
               ]]
         ])))))
@@ -55,14 +51,14 @@
 ; multi fn dispatch value is nav-path filter vector final target.
 (defmulti main-content 
   (fn [nav-path things search-filter opts]
-    (first (last nav-path))))
+    (first (:path nav-path))))
 
 ; all the create new thing case
 (defmethod main-content :add-thing
   [nav-path things search-filter opts]
   (.log js/console "main content add-thing form " (pr-str nav-path))
   (let [comm (get-in opts [:comms :controls])
-        thing-type (last (last nav-path))]
+        thing-type (last (:path nav-path))]
     (newthing-form/add-form thing-type comm)))
 
 ; all the create new thing case
@@ -75,19 +71,20 @@
 (defmethod main-content :default
   [nav-path things search-filter opts]
   (.log js/console "main content default thing listing " (pr-str nav-path))
-  (let [nav-path-type (last (last nav-path))]
-    (things-list nav-path-type things search-filter opts)))
+  (let [thing-type (last (:path nav-path))]
+    (things-list thing-type things search-filter opts)))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; defaut main content is a list of things under nav ul
-(defn things-list [nav-thing-type things search-filter opts]
-  (let [thing-nodes   (get-in things [nav-thing-type :thing-nodes])
+(defn things-list [thing-type things search-filter opts]
+  (let [;thing-nodes   (get-in things [thing-type :thing-nodes])
+        things-vec   things
         re-filter     (when search-filter (js/RegExp. search-filter "ig"))
         ; if search filter exist, filter thing's :content
         filtered-things   
           (if re-filter
-              (filter #(.match (:content %) re-filter) thing-nodes)
-              thing-nodes)
+              (filter #(.match (:content %) re-filter) things-vec)
+              things-vec)
         ; wrap each thing node into a thing-entry.
         thing-listing 
           (map #(let [author (get-in opts [:users (:author %)])]
@@ -99,15 +96,16 @@
                filtered-things)
        ]
     ; wrap thing listing inside paginated div
-    (list
-      [:div.paginated-activities
-        thing-listing
-      ])))
+    (list [:div.paginated-activities
+            thing-listing ])
+    ))
 
 ; each thing entry is a thing div of float left right and content in middle.
+; each thing entry {:person/lname "rich", :db/id 17592186045419, :person/title "rich-dad" :person/type :parent ...}
 (defn thing-entry [current-user-email users settings author thing]
+  (.log js/console "thing-entry " (pr-str thing) (utils/thing-ident thing))
   (list
-    [:div.thing {:id (str "thing-" (:id thing))
+    [:div.thing {:id (str "thing-" (:db/id thing))
                 :class (when (= current-user-email (:email author)) "current_user")
                 :key (:created_at thing)}
       [:span.posted_at (str (dt/time-ago (:created_at thing)) " ago")]

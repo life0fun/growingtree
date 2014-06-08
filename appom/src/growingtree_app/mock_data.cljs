@@ -120,7 +120,9 @@
         ; things is map {:thing-type {:type :title :thing-nodes}}
         things (into {} (map (juxt :type identity) thing-listing))
        ]
-    {:nav-path [[:all 0 :parent]] 
+
+    ;nav-path segment is a map contains query filters for each view in main panel.
+    {:nav-path [{:path [:all 0 :parent]}] 
      
      :audio {:volume 100
              :muted true}

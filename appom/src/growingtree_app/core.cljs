@@ -67,23 +67,27 @@
                 (when utils/logging-enabled?
                   (mprint "Controls Verbose: " (pr-str v)))
                 ; each event, first global state update. then action taken.
-                (let [previous-state @state]
+                (let [previous-state @state
+                      msg-type (first v)
+                      msg-data (last v)]
                   ; (update-history! history :controls v)
                   ; update state with selected state id. will cause re-render of app
-                  (swap! state (partial controls-con/control-event target (first v) (last v)))
-                  (controls-pcon/post-control-event! target (first v) (last v) previous-state @state)))
+                  (swap! state (partial controls-con/control-event target msg-type msg-data))
+                  (controls-pcon/post-control-event! target msg-type msg-data previous-state @state)))
             (:api comms) 
               ([v]
                 (when utils/logging-enabled?
                   (mprint "API Verbose: " (pr-str v)))
-                ; [:api-data {:nav-path [:all 0 :parent], :things-vec ({:person/url #{rich.com} ...)
+                ; [:api-data {:nav-path [{:path {:all 0 :parent}}], :things-vec ({:person/url #{rich.com} ...)
                 (let [previous-state @state
-                      things-vec (:things-vec (last v))]
+                      msg-type (first v)
+                      msg-data (last v)
+                      things-vec (:things-vec msg-data)]
                   (update-history! history :api v)
-                  (swap! state (partial api-con/api-event target (first v) (last v)))
-                  (api-pcon/post-api-event! target (first v) (last v) previous-state @state)))
+                  (swap! state (partial api-con/api-event target msg-type msg-data))
+                  (api-pcon/post-api-event! target msg-type msg-data previous-state @state)))
             (async/timeout 30000) 
-              (mprint (pr-str @history)))))
+            (mprint (pr-str @history)))))
     ))
 
 ; setup main component with app state

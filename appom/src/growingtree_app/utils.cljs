@@ -79,3 +79,73 @@
                                         ; Fire request
     (.send request url method data-string headers)
     request))
+
+
+;- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; thing entity attrs
+; ret the keyword for thing attr
+(defn thing-attr-keyword
+  [thing-type attr-name]
+  (keyword (str (name thing-type) "/" attr-name)))
+
+; get the namespace of thing
+(defn thing-ident
+  "get thing type of the entity, the namespace, or ident of entity. remove :db/id"
+  [entity]
+  (let [e (dissoc entity :db/id)  ; remove :db/id
+        ident (keyword (namespace (ffirst e)))]
+    ident))
+
+
+; update enum, only update when enum key present.
+; thing-val = {:course/title "aa", :course/author "bb", :course/type "math" }
+(defn update-enum
+  "update in status enum value from string to keyword"
+  [thing-val thing-type keyname enum]
+  (let [schema-key (keyword (str (name thing-type) "/" keyname))]
+    (if (contains? thing-val schema-key)
+      (let [enum-key (str (name thing-type) "." keyname)
+            enum-fn (fn [v & args] (keyword (str enum-key "/" v)))
+            new-val (if enum
+                      (-> thing-val
+                          (update-in [schema-key] enum-fn))
+                      (-> thing-val
+                          (update-in [schema-key] keyword)))
+            ]
+        new-val)  ; return updated new val if value map contains schema key
+      thing-val)))
+
+
+; convert time stamp field to unix epoch
+; start time format 2013-02-08 09:30
+(defn update-time
+  "update in time value from string to keyword"
+  [thing-map thing-type keyname]
+  (let [schema-key (keyword (str (name thing-type) "/" keyname))]
+    (if (contains? thing-map schema-key)
+      (let [update-fn (fn [v & args] (.unix (js/moment v)))
+            new-map (-> thing-map
+                        (update-in [schema-key] update-fn))
+            ]
+        new-map)  ; return updated new val if value map contains schema key
+      thing-map)))
+
+
+; calc the relation between two moment timestamps.
+; we use moment.from(), the args are moment instance
+(defn moment-from
+  [txtime nowtime]
+    (str " " (.from txtime nowtime)))
+
+
+; get thing value from thing map by name of the attr, regardless of its namespace.
+; e.g., get title from any of namespace, :course/title, :lecture/title, etc
+(defn thing-val-by-name
+  "get thing val by name, within any namespace"
+  [thing-map attr-name]
+  ; map entry after filter rets [key val] vector
+  (-> (filter (fn [entry]
+                (= (name (key entry)) attr-name))
+              thing-map)
+      (first)))  ; filter ret a list
+

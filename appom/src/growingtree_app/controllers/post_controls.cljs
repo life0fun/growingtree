@@ -33,12 +33,12 @@
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; post control event for navbar, last nav-path tuple.
-; called from core to process control event, nav-path for now [:course 1 :lecture]
+; called from core to process control event, nav-path {:path [:all 0 :parent]}
 ; send xhr request to get data.
 (defmethod post-control-event! :tab-selected
   [target message nav-path previous-state current-state]
-  (print "post-control-event! tab-selected nav-path " nav-path)  ; [:all 0 :parent]
-  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (first nav-path))}))
+  (print "post-control-event! tab-selected nav-path " nav-path)  ; {:path [:all 0 :parent]}
+  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (last (:path nav-path)))}))
   (cljsajax/cljs-ajax :request-things
                       nav-path
                       (get-in current-state [:comms :api])
