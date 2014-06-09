@@ -1,0 +1,524 @@
+/* ---------------------------------------------------------
+      H A C K   D A Y   S A F E L Y   B R A N D I N G 
+   ---------------------------------------------------------
+*/
+/* 
+      V a r i a b l e s
+   ---------------------------------------------------------
+ */
+/* 
+      T y p o g r a p h y
+   ---------------------------------------------------------
+*/
+/* line 31, ../../assets/stylesheets/growingtree-app-hackday.scss */
+p {
+  font-size: 1.3em;
+}
+
+/* line 35, ../../assets/stylesheets/growingtree-app-hackday.scss */
+body {
+  /*font-family: Arial, sans-serif; */
+  color: gray;
+  background: white;
+  font-weight: 300;
+  /*@extend %normalize-font-size;*/
+}
+
+/* line 47, ../../assets/stylesheets/growingtree-app-hackday.scss */
+label,
+input,
+textarea,
+select,
+option {
+  /*@extend %normalize-font-size;*/
+  /*@extend %default-font-size;*/
+}
+
+/* line 54, ../../assets/stylesheets/growingtree-app-hackday.scss */
+h1, h2, h3, h4 {
+  font-weight: normal;
+}
+
+/* line 58, ../../assets/stylesheets/growingtree-app-hackday.scss */
+h1 {
+  font-size: 3.75em;
+}
+
+/* line 60, ../../assets/stylesheets/growingtree-app-hackday.scss */
+h2 {
+  font-size: 3em;
+}
+
+/* line 61, ../../assets/stylesheets/growingtree-app-hackday.scss */
+h3 {
+  font-size: 2.5em;
+}
+
+/* line 62, ../../assets/stylesheets/growingtree-app-hackday.scss */
+h4 {
+  font-size: 1em;
+}
+
+/* line 69, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.app-name {
+  color: #7ac142;
+}
+
+/* line 76, ../../assets/stylesheets/growingtree-app-hackday.scss */
+a:link, a:visited, a:hover, a:active {
+  color: #00b5cb;
+}
+/* line 81, ../../assets/stylesheets/growingtree-app-hackday.scss */
+a:hover, a:active {
+  color: #404040;
+  text-decoration: underline;
+}
+
+/* line 89, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.clearfix:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+/* 
+      B u t t o n s
+   ---------------------------------------------------------
+*/
+/* line 100, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.btn {
+  padding: 0.5em 1em;
+  font-size: 1.5em;
+  line-height: auto;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  word-spacing: 0.25em;
+  color: white;
+  text-shadow: none;
+  background: #7ac142;
+  border: 0;
+  -webkit-border-radius: 0.75em;
+  -moz-border-radius: 0.75em;
+  -ms-border-radius: 0.75em;
+  -o-border-radius: 0.75em;
+  border-radius: 0.75em;
+  -webkit-box-shadow: 0;
+  -moz-box-shadow: 0;
+  box-shadow: 0;
+}
+/* line 120, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.btn:hover, .btn:active, .btn.active, .btn.disabled, .btn[disabled] {
+  color: white;
+  background-color: gray;
+  *background-color: gray;
+}
+/* line 126, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.btn:first-child {
+  *margin-left: 0;
+}
+/* line 131, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.btn:focus {
+  outline: thin dotted #333;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+/* line 138, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.btn.disabled, .btn[disabled] {
+  cursor: default;
+  background-color: #e6e6e6;
+  background-image: none;
+  opacity: 0.65;
+  filter: alpha(opacity=65);
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
+/* line 155, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.btn-primary.active,
+.btn-warning.active,
+.btn-danger.active,
+.btn-success.active,
+.btn-info.active,
+.btn-inverse.active {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* line 160, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.btn-primary {
+  color: white;
+  text-shadow: none;
+  background: #7ac142;
+  border: 0;
+}
+/* line 171, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.btn-primary:hover, .btn-primary:active, .btn-primary.active, .btn-primary.disabled, .btn-primary[disabled] {
+  color: white;
+  background-color: gray;
+  *background-color: gray;
+}
+
+/* 
+      I c o n s
+   ---------------------------------------------------------
+*/
+/* line 183, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.icon,
+.graphic {
+  display: inline-block;
+  text-indent: -99999px;
+}
+
+/* line 188, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.icon-search {
+  width: 14px;
+  height: 15px;
+  background: url(icon_search.png) 0 0 no-repeat;
+}
+
+/* 
+      G r a p h i c s
+   ---------------------------------------------------------
+*/
+/* line 198, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#app-logo {
+  background: url(logo_app.png) 0 0 no-repeat;
+  width: 150px;
+  height: 101px;
+  display: inline-block;
+}
+
+/* line 205, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#app-name {
+  float: none;
+  display: inline-block;
+  vertical-align: middle;
+  padding: 0;
+  margin: 0;
+  vertical-align: top;
+  position: relative;
+  top: 1.25em;
+  left: 0.5em;
+  font-size: 3.5em;
+  font-weight: 100;
+}
+
+/* 
+      F o r m s
+   ---------------------------------------------------------
+*/
+/* line 225, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#login-form,
+#signup-form {
+  border-top: 10px solid #7ac142;
+  padding: 1.25em 3.125em 3.125em;
+  -webkit-box-shadow: #cfd4d8 0 0.2em 1em;
+  -moz-box-shadow: #cfd4d8 0 0.2em 1em;
+  box-shadow: #cfd4d8 0 0.2em 1em;
+  background: white;
+  position: relative;
+  z-index: 200;
+}
+/* line 234, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#login-form input[type="text"],
+#login-form input[type="password"],
+#signup-form input[type="text"],
+#signup-form input[type="password"] {
+  width: 95.75%;
+}
+
+/* line 241, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#login-form button {
+  margin-bottom: 1em;
+}
+
+/* line 246, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#signup-form {
+  margin-top: 3em;
+}
+/* line 252, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#signup-form fieldset.fieldset-accountType {
+  margin-bottom: 2em;
+}
+/* line 256, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#signup-form fieldset.fieldset-radio {
+  margin-bottom: 0.25em;
+  display: inline-block;
+  margin-right: 3em;
+}
+/* line 263, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#signup-form p {
+  margin-bottom: 0.25em;
+}
+
+/* line 268, ../../assets/stylesheets/growingtree-app-hackday.scss */
+fieldset {
+  margin-bottom: 1.2em;
+}
+/* line 271, ../../assets/stylesheets/growingtree-app-hackday.scss */
+fieldset.fieldset-password {
+  margin-bottom: 0;
+}
+/* line 275, ../../assets/stylesheets/growingtree-app-hackday.scss */
+fieldset.fieldset-rememberMe {
+  margin: 0.25em 0 1.6em;
+}
+/* line 284, ../../assets/stylesheets/growingtree-app-hackday.scss */
+fieldset.fieldset-checkbox input[type="checkbox"],
+fieldset.fieldset-checkbox input[type="radio"],
+fieldset.fieldset-checkbox label, fieldset.fieldset-radio input[type="checkbox"],
+fieldset.fieldset-radio input[type="radio"],
+fieldset.fieldset-radio label {
+  display: inline-block;
+  vertical-align: middle;
+}
+/* line 290, ../../assets/stylesheets/growingtree-app-hackday.scss */
+fieldset.fieldset-checkbox input[type="checkbox"],
+fieldset.fieldset-checkbox input[type="radio"], fieldset.fieldset-radio input[type="checkbox"],
+fieldset.fieldset-radio input[type="radio"] {
+  margin-top: 0;
+}
+/* line 294, ../../assets/stylesheets/growingtree-app-hackday.scss */
+fieldset.fieldset-checkbox label, fieldset.fieldset-radio label {
+  margin-bottom: 0;
+  padding-left: 0.65em;
+}
+/* line 300, ../../assets/stylesheets/growingtree-app-hackday.scss */
+fieldset legend {
+  display: none;
+}
+
+/* 
+      N a v i g a t i o n
+   ---------------------------------------------------------
+*/
+/* line 311, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.navbar-static-top {
+  /* 
+   nav new thing form, link and input
+   css must be comform to bootstrap .navbar .nav  .active .a
+  */
+}
+/* line 313, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.navbar-static-top .container {
+  width: auto;
+}
+/* line 317, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.navbar-static-top .navbar-inner {
+  border: 0;
+  padding: 2em;
+  background: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+/* line 331, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.navbar-static-top .nav-newthing-dropdown a {
+  display: block;
+  color: #00b5cb;
+  background: none;
+}
+/* line 337, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.navbar-static-top .nav-newthing-form {
+  margin: 10px 10px 5px 10px;
+}
+/* line 341, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.navbar-static-top .nav-newthing-form label {
+  vertical-align: baseline;
+  margin: 10px 5px 5px 10px;
+  display: inline;
+  font-size: 16px;
+  color: #005580;
+}
+/* line 349, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.navbar-static-top .nav-newthing-form .form-button {
+  margin: 10px 5px 5px 10px;
+  display: inline;
+  font-size: 16px;
+}
+
+/* line 357, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#site-nav {
+  padding: 0.35em 1em;
+  -webkit-border-radius: 0.5em;
+  -moz-border-radius: 0.5em;
+  -ms-border-radius: 0.5em;
+  -o-border-radius: 0.5em;
+  border-radius: 0.5em;
+  margin-bottom: 0;
+}
+/* line 362, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#site-nav ul {
+  float: right;
+  margin: 0;
+}
+/* line 367, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#site-nav li {
+  float: none;
+  display: inline-block;
+  line-height: inherit;
+}
+/* line 373, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#site-nav a {
+  padding: 0 0.75em;
+  text-shadow: none;
+  font-size: 1.15em;
+}
+
+/* line 380, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#nav-sidebar {
+  margin-bottom: 3em;
+}
+
+/*nav {
+   border: 1px solid #eee;
+   background: #fdfdfd;
+   padding: 1.5em;
+   @include border-radius(1em);
+
+   .nav-header {
+      border-bottom: 1px solid $safely-gray;
+      padding: 0.25em 0 0.25em 1em;
+      @include text-shadow(none);
+      font-size: 1.4em;
+      letter-spacing: 0.2em;
+      // background-color: lighten($safely-blue-light, 10%);
+      @include border-top-radius(0.75em);
+
+   }
+}
+*/
+/* line 403, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.nav-list {
+  margin-bottom: 2em;
+  border-top: 0;
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
+/* line 411, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.nav-list > li > a {
+  padding: 0;
+  margin-right: 0;
+  margin-left: 0;
+  font-size: 1.3em;
+  color: #00b5cb;
+}
+/* line 419, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.nav-list > li > a:hover {
+  background: none;
+  text-decoration: underline;
+  color: gray;
+}
+
+/* line 426, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.nav-list > li {
+  line-height: inherit;
+  margin-bottom: 1em;
+}
+/* line 430, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.nav-list > li:last-child {
+  margin-bottom: 0;
+}
+
+/* 
+      S i d e b a r   ::   A v a t a r
+   ---------------------------------------------------------
+*/
+/* line 439, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.avatar-container {
+  padding: 0;
+  overflow: hidden;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  font-size: 1.5em;
+  line-height: 1.5em;
+  font-weight: 300;
+}
+
+/* line 450, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.section {
+  background-color: white;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
+  -o-border-radius: 0;
+  border-radius: 0;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
+/* 
+      S e a r c h
+   ---------------------------------------------------------
+*/
+/* line 461, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#search {
+  display: block;
+  margin: 0 0 2em 0;
+  background: #f2f2f2;
+  padding: 1em;
+  padding: 1.5em 1em;
+  margin-left: -1.5em;
+  margin-right: -1.5em;
+  margin-top: -1.5em;
+  border-bottom: 1px solid #eee;
+  -moz-border-radius-topleft: 0.5em;
+  -webkit-border-top-left-radius: 0.5em;
+  border-top-left-radius: 0.5em;
+  -moz-border-radius-topright: 0.5em;
+  -webkit-border-top-right-radius: 0.5em;
+  border-top-right-radius: 0.5em;
+}
+/* line 474, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#search form {
+  float: none;
+}
+/* line 478, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#search input[type="text"] {
+  margin: 0 0.5em 0 0;
+  width: 72%;
+  vertical-align: bottom;
+}
+/* line 484, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#search .btn {
+  padding: 0.4em 0.5em;
+  font-size: 1.2em;
+  -webkit-border-radius: 0.75em;
+  -moz-border-radius: 0.75em;
+  -ms-border-radius: 0.75em;
+  -o-border-radius: 0.75em;
+  border-radius: 0.75em;
+  text-indent: -99999px;
+  vertical-align: bottom;
+  width: 2.5em;
+}
+/* line 492, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#search .btn .icon {
+  display: inline-block;
+}
+/* line 498, ../../assets/stylesheets/growingtree-app-hackday.scss */
+#search .btn-text {
+  text-indent: -999999px;
+  display: none;
+}
+
+/* line 507, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.container.login {
+  position: relative;
+}
+
+/* line 511, ../../assets/stylesheets/growingtree-app-hackday.scss */
+.bg-tree {
+  background: url(graphic_tree_100_600.png) 0 0 no-repeat;
+  width: 600px;
+  height: 402px;
+  position: absolute;
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=20);
+  opacity: 0.2;
+  z-index: 100;
+  top: 4.5%;
+  left: -10%;
+}
