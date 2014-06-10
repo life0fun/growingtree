@@ -3,6 +3,7 @@
             [clojure.string :as string]
             [dommy.core :as dommy]
             [growingtree-app.components.newthing-form :as newthing-form]
+            [growingtree-app.components.entity-view :as entity-view]
             [growingtree-app.datetime :as dt]
             [growingtree-app.plugins :as plugins]
             [growingtree-app.utils :as utils]
@@ -102,28 +103,33 @@
 
 ; each thing entry is a thing div of float left right and content in middle.
 ; each thing entry {:person/lname "rich", :db/id 17592186045419, :person/title "rich-dad" :person/type :parent ...}
-(defn thing-entry [current-user-email users settings author thing]
-  (.log js/console "thing-entry " (pr-str thing) (utils/thing-ident thing))
-  (list
-    [:div.thing {:id (str "thing-" (:db/id thing))
-                :class (when (= current-user-email (:email author)) "current_user")
-                :key (:created_at thing)}
-      [:span.posted_at (str (dt/time-ago (:created_at thing)) " ago")]
-      (utils/gravatar-for (:email author))
-      [:div.readable
-        [:span.user (or (:full-name author) (:email author))]
-        [:span.content (thing-content current-user-email users settings author thing)]
-      ]
-      (map (fn [media]
-             [:div.media-entry media])
-          (remove string? (-> (string/split (:content thing) delimiter-re)
-                               plugins/image-embed
-                               plugins/youtube-embed
-                               plugins/vimeo-embed)))
-    ]))
+; (defn thing-entry [current-user-email users settings author thing-data]
+;   (.log js/console "thing-entry " (pr-str thing-data) (pr-str (utils/thing-ident thing)))
+;   (list
+;     [:div.thing {:id (str "thing-" (:db/id thing))
+;                  :class (when (= current-user-email (:email author)) "current_user")
+;                  :key (:created_at thing)}
+;       [:span.posted_at (str (dt/time-ago (:created_at thing)) " ago")]
+;       (utils/gravatar-for (:email author))
+;       [:div.readable
+;         [:span.user (or (:full-name author) (:email author))]
+;         [:span.content (thing-content current-user-email users settings author thing)]
+;       ]
+;       (map (fn [media]
+;              [:div.media-entry media])
+;           (remove string? (-> (string/split (:content thing) delimiter-re)
+;                                plugins/image-embed
+;                                plugins/youtube-embed
+;                                plugins/vimeo-embed)))
+;     ]))
 
+(defn thing-entry 
+  [current-user-email users settings author thing-data]
+  (.log js/console "thing-entry " (pr-str thing-data) (pr-str (utils/thing-ident thing-data)))
+  (let [thing-type (utils/thing-ident thing-data)]
+    (entity-view/thing-entry thing-type thing-data)))
 
-; thing-entry div has float:left, float:right, and mid is thing-content.
+; thing div, thing-content is in mid, and float:left, float:right.
 (defn thing-content [current-user-email users settings author activity]
   (let [content (-> (string/split (:content activity) delimiter-re)
                     plugins/pastie
