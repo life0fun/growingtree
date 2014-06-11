@@ -825,14 +825,23 @@ button.button {
     border-radius: 2px;
 }
 
+.thumbnail {                                                                                                                                                                      
+    float: left;
+    font-size: 0;
+    margin: 0 5px;
+    margin-bottom: 2px;
+    overflow: hidden;
+    width: 70px;
+} 
+
 /*Arrows*/
 .link, .comment, .message {
     .arrow {
-        // width: 28px; height: 28px;
-        // cursor: pointer;
-        // display: block;
-        // margin: 1px auto 0px;
-        // outline: none;
+        width: 28px; height: 28px;
+        cursor: pointer;
+        display: block;
+        margin: 1px auto 0px;
+        outline: none;
 
         margin: 2px 0px 0px 0px;
         width: 100%;
@@ -847,34 +856,34 @@ button.button {
         outline: none;
 
         //Unvoted
-        // &.up {
-        //     @include sprite($static + 'upvote.png');
-        // }
-        // &.down {
-        //     @include sprite($static + 'downvote.png');
-        // }
+        &.up {
+             @include sprite($static + 'upvote.png');
+        }
+        &.down {
+            @include sprite($static + 'downvote.png');
+        }
         //Voted
-        // &.upmod {
-        //     @include sprite($static + 'upvote-active.png');
-        // }
-        // &.downmod {
-        //     @include sprite($static + 'downvote-active.png');
-        // }
+        &.upmod {
+            @include sprite($static + 'upvote-active.png');
+        }
+        &.downmod {
+            @include sprite($static + 'downvote-active.png');
+        }
 
         //Unvoted
-        &.up {
+        /*&.up {
             @include sprite($static + 'aupgray.gif');
         }
         &.down {
             @include sprite($static + 'adowngray.gif');
-        }
+        }*/
         //Voted
-        &.upmod {
+        /*&.upmod {
             @include sprite($static + 'aupgray.gif');
         }
         &.downmod {
             @include sprite($static + 'adowngray.gif');
-        }
+        }*/
     }
 }
 
@@ -896,29 +905,13 @@ button.button {
 .link:nth-child(odd) {
     background: rgba(206, 227, 248, .5);
 }
-/* Voting stuff */
-.link > .rank {
-    float:left; 
-    margin-top: 15px;
-    color: black;
-    font-weight: bold;
-    font-size: 16px;
-    width: 2.2ex;
-    height: 18px;
-    display: block;
-    text-align: right;
+.link a { 
+    text-decoration: none;
+    color: #517191;
+    color: #369;
 }
-.link > .midcol {
-    float: left;
-    margin-left: 7px;
-    margin-right: 4px;
-    overflow: hidden;
-    font-weight: bold;
-    // font-size: small;
-    // width: 25px;
-    // margin: 0 10px 1px 0px;
-    padding-bottom: 5px; 
-    position: relative;
+.link .entry { 
+    margin: 0px 50px 3px 0px; 
 }
 
 .link > .entry .score,
@@ -941,8 +934,37 @@ button.button {
     color: #7272D1;
 }
 
+.link .flat-list {
+  display: block;
+  padding: 1px 0;
+}
+
+/* Voting stuff */
+.link > .rank {
+    float:left; 
+    margin-top: 15px;
+    color: black;
+    font-weight: bold;
+    font-size: 16px;
+    width: 2.2ex;
+    height: 18px;
+    display: block;
+    text-align: right;
+}
 /* experimental */
 .link .modcol { float: left; }
+.link > .midcol {
+    float: left;
+    margin-left: 7px;
+    margin-right: 4px;
+    overflow: hidden;
+    font-weight: bold;
+    // font-size: small;
+    // width: 25px;
+    // margin: 0 10px 1px 0px;
+    padding-bottom: 5px; 
+    position: relative;
+}
 
 .comment { 
     position: relative; 
@@ -952,11 +974,9 @@ button.button {
 }
 .comment > .entry.unvoted > .tagline .score.unvoted,
 .comment > .entry.likes > .tagline .score.likes,
-.comment > .entry.dislikes > .tagline .score.dislikes
-{
+.comment > .entry.dislikes > .tagline .score.dislikes{
     display:inline;
 }
-
 
 /** Vote up **/
 .link > .midcol.likes > .score {
@@ -975,17 +995,13 @@ button.button {
 //     max-height: 50px; 
 // }
 
-.thumbnail {                                                                                                                                                                      
-    float: left;
-    font-size: 0;
-    margin: 0 5px;
-    margin-bottom: 2px;
-    overflow: hidden;
-    width: 70px;
-} 
 
 /* Entry*/
-
+.entry {
+  overflow: hidden;
+  margin-left: 3px;
+  opacity: 1;
+}
 /* buttons on main link style */
 .entry .buttons li {
     display: inline-block;
@@ -1020,17 +1036,6 @@ button.button {
     margin-right: .5em;
 }                                                                                                                                                                                 
    
-
-.link .entry { 
-    margin: 0px 50px 3px 0px; 
-}
-
-.link a { 
-    text-decoration: none;
-    color: #517191;
-    color: #369;
-}
-
 
 /* Comment count */
 .commentcount {

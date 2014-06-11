@@ -39,8 +39,8 @@
                 {:href "#" :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
               [:a.sidebar-toggle.button.right 
                 {:href "#" :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
-              [:a.logo {:href "#/" :on-click (constantly false)}
-                [:img {:src "images/logo.png" :title "growingtree-app"}]]]
+              [:a.logo {:href "#" :on-click (constantly false)}
+                [:img {:src "logo_app.png" :height "35" :title "growingtree-app"}]]]
             [:div.container
               [:div#content
                 (main-content nav-path nav-path-things search-filter opts)

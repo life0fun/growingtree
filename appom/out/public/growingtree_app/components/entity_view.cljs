@@ -163,7 +163,7 @@
 ;;=============================================================================
 ;;=============================================================================
 (defmulti thing-entry
-  (fn [thing-type thing-data]
+  (fn [thing-type entity]
     thing-type))
 
 
@@ -171,44 +171,52 @@
 ; make child div unique with template child form id that includes thing-id
 (defmethod thing-entry
   :default
-  [thing-type thing-data]
-  (let [thing-id (:db/id thing-data)
+  [thing-type entity]
+  (let [thing-id (:db/id entity)
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value thing-data)  ; strip out :course prefix in keys
+        value-map (merge (thing-value entity)  ; strip out :course prefix in keys
                          (actionkeys-class thing-id actionkeys))
         ]
     (.log js/console (str "thing-entry :default " value-map))))
 
 
+(defmethod thing-entry
+  :person
+  [thing-type entity]
+  (let [thing-id(:db/id entity)
+        thing-type (:person/type entity)]
+    (thing-entry thing-type entity)))
+
+
 ; thing-entry view for parent.
 (defmethod thing-entry
   :parent
-  [thing-type thing-data]
-  (let [thing-id (:db/id thing-data)
+  [thing-type entity]
+  (let [thing-id (:db/id entity)
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge thing-data
+        value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys))
        ]
-    (list   ; 
-      [:div.thing {:id (str (:db/id value-map))}
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
         [:span.rank "1"]   ; index offset in the list of filtered things
-        [:div.unvoted
-          [:div.arrow.up {:arial-label "upvote"}]
-          [:span.score (:upvote value-map)]
-          [:div.arrow.down {:arial-label "downvote"}]]
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
       
         [:a.thumbnail {:href "#"}
-          [img.avatar {:width "70" :height "52" :src (thing-type thing-thumbnail)}]]
+          [:img {:width "70" :height "52" :src (thing-type thing-thumbnail)}]]
       
-        [:div.entry
+        [:div.entry.unvoted
           [:p.title [:a.title {:href "#"} (:title value-map)]]
           [:p.subtitle [:span.tagline (str "phone: " (:phone value-map))]]
           [:p.subtitle [:span.tagline (str "email: " (:email value-map))]]
           [:p.tagline "Joined since " [:time "Aug 2013"]]
 
-          [:ul.flast-list.buttons
+          [:ul.flat-list.buttons
             [:li.share
               [:div {:class (:child-class value-map)}
                 [:span.toggle [:a.option.active {:href "#"} "children"]]]]
@@ -246,7 +254,6 @@
           [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}]
           [:div.clearleft]
       ]])))
-
 
 
 ;;===========================================================================
