@@ -27,6 +27,19 @@
 (def parsed-uri
   (goog.Uri. (-> (.-location js/window) (.-href))))
 
+
+(defn many?
+  "Returns true if (seq x) will succeed, false otherwise."
+  [x]
+  (.log js/console "many? " x)
+  (or (instance? cljs.core.PersistentHashSet x)
+      (instance? cljs.core.PersistentHashMap x)
+      ; (instance? cljs.core.ISeqable x)
+      ; (instance? Iterable x)
+      ; (-> x .getClass .isArray)
+      ; (instance? java.util.Map x)
+      ))
+
 (def initial-query-map
   {:kandan-channels  (string/split (or (.getParameterValue parsed-uri "kandan-channels") "1") #",")
    :kandan-api-key   (.getParameterValue parsed-uri "kandan-api-key")

@@ -44,7 +44,7 @@
             [:li {:key "new-tab"}
               [:a#create-thing
                 {:href "#"
-                 :on-click #(put! comm [:add-thing {:path [:add-thing :parent]}]) ; chg to :course
+                 :on-click #(put! comm [:newthing-form {:path [:newthing-form :parent]}]) ; chg to :course
                 }
                 [:strong " + "]  ; text is defined in #create:after
             ]]]

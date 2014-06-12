@@ -66,7 +66,7 @@
                 (print "controls chan event: " (pr-str v))
                 (when utils/logging-enabled?
                   (mprint "Controls Verbose: " (pr-str v)))
-                ; each event, first global state update. then action taken.
+                ; each event [msg-type msg-data]
                 (let [previous-state @state
                       msg-type (first v)
                       msg-data (last v)]

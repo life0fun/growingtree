@@ -48,16 +48,17 @@
               ]]
         ])))))
 
-; main content is based on nav-path. last nav-path vector contains filter for thing listing.
-; multi fn dispatch value is nav-path filter vector final target.
+; display main content after nav-path updated. latest ele in nav-path vector.
+; nav-path ele is map {:path [...] qpath []}
 (defmulti main-content 
   (fn [nav-path things search-filter opts]
     (first (:path nav-path))))
 
-; all the create new thing case
-(defmethod main-content :add-thing
+; request to display newthing form for adding things.
+(defmethod main-content 
+  :newthing-form
   [nav-path things search-filter opts]
-  (.log js/console "main content add-thing form " (pr-str nav-path))
+  (.log js/console "main content newthing-form form " (pr-str nav-path))
   (let [comm (get-in opts [:comms :controls])
         thing-type (last (:path nav-path))]
     (newthing-form/add-form thing-type comm)))

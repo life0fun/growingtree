@@ -153,7 +153,10 @@
         thing-data (dissoc entity :db/id)
         attrs (keys thing-data)
         value-map (reduce (fn [tot [k v]]
-                              (assoc tot (keyword (name k)) v))
+                              (assoc tot (keyword (name k)) 
+                                          (if (utils/many? v)
+                                            (string/join ", " v)
+                                            v)))
                    {}
                    thing-data)
        ]
@@ -208,7 +211,7 @@
           [:div.arrow.down {:role "button" :arial-label "downvote"}]]
       
         [:a.thumbnail {:href "#"}
-          [:img {:width "70" :height "52" :src (thing-type thing-thumbnail)}]]
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
       
         [:div.entry.unvoted
           [:p.title [:a.title {:href "#"} (:title value-map)]]

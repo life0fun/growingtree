@@ -146,14 +146,18 @@
     actionkeys))
 
 
-; use (namespace :person/url) to split
+; use name of :person/url as key to strip out (namespace :person/url).
 (defn thing-value
+  "ret thing value map from datomic entity by striping out attr's namespace"
   [entity]
   (let [id (:db/id entity)
         thing-data (dissoc entity :db/id)
         attrs (keys thing-data)
         value-map (reduce (fn [tot [k v]]
-                              (assoc tot (keyword (name k)) v))
+                              (assoc tot (keyword (name k)) 
+                                          (if (utils/many? v)
+                                            (string/join ", " v)
+                                            v)))
                    {}
                    thing-data)
        ]
@@ -198,6 +202,8 @@
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys))
+        add-child {:path [:add-thing :child] :data {:parent thing-id}}
+        add-assignment {:path [:add-thing :assignment] :data {:author thing-id}}
        ]
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
@@ -208,7 +214,7 @@
           [:div.arrow.down {:role "button" :arial-label "downvote"}]]
       
         [:a.thumbnail {:href "#"}
-          [:img {:width "70" :height "52" :src (thing-type thing-thumbnail)}]]
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
       
         [:div.entry.unvoted
           [:p.title [:a.title {:href "#"} (:title value-map)]]
@@ -223,7 +229,8 @@
 
             [:li.share
               [:div {:class (:add-child-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "add child"]]]]
+                [:span.toggle [:a.option.active
+                  {:href "#" :on-click #(put! comm [:add-thing add-child])} "add child"]]]]
 
             [:li.share
               [:div {:class (:assignment-class value-map)}
