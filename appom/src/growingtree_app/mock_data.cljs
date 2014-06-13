@@ -122,7 +122,9 @@
        ]
 
     ;nav-path segment is a map contains query filters for each view in main panel.
-    {:nav-path [{:path [:all 0 :parent]}] 
+    {:nav-path [{:path [:all 0 :parent] :qpath [] :data {}}]
+     ; nav-path as key, things-vec value
+     :nav-path-things {}
      
      :audio {:volume 100
              :muted true}
@@ -138,9 +140,6 @@
      :things (as-> things ts
                    (update-in ts [:parent] assoc :selected true))
 
-     ; nav-path as key, things-vec value
-     :nav-path-things {}
-     
      ; channels is nested map keyed by id
      :selected-channel "1"
      :channels (as-> channels ch

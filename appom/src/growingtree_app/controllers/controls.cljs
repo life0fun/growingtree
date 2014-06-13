@@ -17,7 +17,7 @@
 (defmethod control-event 
   :default
   [target msg-type msg-data state]
-  (.log js/console "default control-event is conj nav-path " (pr-str msg-type " " msg-data))
+  (.log js/console "default control-event is conj nav-path " (pr-str msg-type msg-data))
   (-> state
     (update-in [:nav-path] conj msg-data)))
 

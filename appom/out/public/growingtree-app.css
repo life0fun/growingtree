@@ -589,13 +589,13 @@ h6 {
   }
 }
 /* line 458, ../../assets/stylesheets/growingtree-app.scss */
-.nav ul.nav-ul li #create-thing {
+.nav ul.nav-ul li #newthing-form {
   text-align: center;
 }
 
 @media (max-width: 767px) {
   /* line 462, ../../assets/stylesheets/growingtree-app.scss */
-  .nav ul.nav-ul li #create-thing:after {
+  .nav ul.nav-ul li #newthing-form:after {
     content: " Create ...";
   }
 }

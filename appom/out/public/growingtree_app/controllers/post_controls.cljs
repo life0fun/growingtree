@@ -47,10 +47,10 @@
   ; (when-let [new-path (get-in current-state [:nav-path])]
   ;   (js/setTimeout #(imp-ui/scroll-to-latest-message! target (last (last new-path))) 35)))
 
-; msg is :create-thing, nav-path [:course {:title ... :content ...}]]
-(defmethod post-control-event! :create-thing
+; msg is :add-thing, nav-path [:course {:title ... :content ...}]]
+(defmethod post-control-event! :add-thing
   [target message nav-path previous-state current-state]
-  (print "post-control-event! create-thing " nav-path)
+  (print "post-control-event! add-thing " nav-path)
   (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (first nav-path))}))
   (cljsajax/cljs-ajax :add-thing 
                       nav-path 

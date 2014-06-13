@@ -455,11 +455,11 @@ h6{font-size:11.9px}
     bottom:10px
   }
 }
-.nav ul.nav-ul li #create-thing {
+.nav ul.nav-ul li #newthing-form {
   text-align:center
 }
 @media (max-width: 767px) {
-  .nav ul.nav-ul li #create-thing:after{
+  .nav ul.nav-ul li #newthing-form:after{
     content:" Create ..."
   }
 }

@@ -31,7 +31,6 @@
 (defn many?
   "Returns true if (seq x) will succeed, false otherwise."
   [x]
-  (.log js/console "many? " x)
   (or (instance? cljs.core.PersistentHashSet x)
       (instance? cljs.core.PersistentHashMap x)
       ; (instance? cljs.core.ISeqable x)

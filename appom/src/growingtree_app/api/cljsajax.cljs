@@ -40,7 +40,7 @@
 ;;==================================================================================
 (defn handler
   "cljs-ajax success handler, send back things-vec to api-ch"
-  [command nav-path api-ch]
+  [command main-path api-ch]
   (fn [response]
     ; server uses edn-response. no need js-clj, but no hurt. 
     (when-let [ ;result (js->clj response :keywordize-keys true)
@@ -52,8 +52,8 @@
             dbid (:db/id (first things-vec))
            ]
         ;(.log js/console (str "xhr response tuples " dbid " type " thing-type msg-topic msg-type things-vec))
-        (.log js/console (str "xhr thing-vec " nav-path " thing-vec " things-vec))
-        (put! api-ch [:api-data {:nav-path nav-path :things-vec (vec things-vec)}])
+        (.log js/console (str "xhr thing-vec " main-path " thing-vec " things-vec))
+        (put! api-ch [:api-data {:path main-path :things-vec (vec things-vec)}])
       ))))
 
 (defn error-handler
@@ -75,7 +75,7 @@
   (let [main-path (:path nav-path)
         qpath (:qpath nav-path)
         thing-type (last main-path)
-        request {:handler (handler command nav-path api-ch)
+        request {:handler (handler command main-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)
                  :format :edn    ; always use edn for clj programs internally.
                  :params {:thing-type thing-type :path main-path :qpath qpath :details data}

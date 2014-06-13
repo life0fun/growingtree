@@ -32,7 +32,7 @@
     (render [this]
       (html/html
         (let [comm (get-in opts [:comms :controls])]
-          (.log js/console "rendering main-area " (pr-str nav-path) " " (pr-str nav-path-things))
+          (.log js/console "rendering main-area " (pr-str nav-path))
           [:article.main-area
             [:header.header
               [:a.nav-toggle.button.left 
@@ -48,52 +48,56 @@
               ]]
         ])))))
 
-; main content is based on nav-path. last nav-path vector contains filter for thing listing.
-; multi fn dispatch value is nav-path filter vector final target.
+; display main content after nav-path updated. latest ele in nav-path vector.
+; nav-path ele is map {:path [...] :qpath [] :data {}}
+; nav-path shall contains keys into global state to render all comps in main area.
 (defmulti main-content 
-  (fn [nav-path things search-filter opts]
+  (fn [nav-path nav-path-things search-filter opts]
     (first (:path nav-path))))
 
-; all the create new thing case
-(defmethod main-content :add-thing
-  [nav-path things search-filter opts]
-  (.log js/console "main content add-thing form " (pr-str nav-path))
+; request to display newthing form for adding things.
+(defmethod main-content 
+  :newthing-form
+  [nav-path nav-path-things search-filter opts]
+  (.log js/console "main content newthing-form form " (pr-str nav-path))
   (let [comm (get-in opts [:comms :controls])
         thing-type (last (:path nav-path))]
     (newthing-form/add-form thing-type comm)))
 
-; all the create new thing case
-(defmethod main-content :create-thing
-  [nav-path things search-filter opts]
-  (.log js/console "main content submit create-thing " (pr-str nav-path))
-  (things-list :parent things search-filter opts))
+; all the add new thing case
+(defmethod main-content 
+  :add-thing
+  [nav-path nav-path-things search-filter opts]
+  (.log js/console "main content submit add-thing " (pr-str nav-path))
+  (things-list :parent search-filter opts))
 
 ; all filtered things navigation or details things
-(defmethod main-content :default
-  [nav-path things search-filter opts]
+(defmethod main-content 
+  :default
+  [nav-path nav-path-things search-filter opts]
   (.log js/console "main content default thing listing " (pr-str nav-path))
   (let [thing-type (last (:path nav-path))]
-    (things-list thing-type things search-filter opts)))
+    (things-list thing-type nav-path nav-path-things search-filter opts)))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; defaut main content is a list of things under nav ul
-(defn things-list [thing-type things search-filter opts]
+; opts is init state map, (:settings opts)
+(defn things-list 
+  [thing-type nav-path nav-path-things search-filter opts]
+  (.log js/console "thing-list " (pr-str nav-path) (pr-str ((:path nav-path) nav-path-things)))
   (let [;thing-nodes   (get-in things [thing-type :thing-nodes])
-        things-vec   things
+        comm (get-in opts [:comms :controls])
+        things-vec (get nav-path-things (:path nav-path))
         re-filter     (when search-filter (js/RegExp. search-filter "ig"))
         ; if search filter exist, filter thing's :content
         filtered-things   
           (if re-filter
               (filter #(.match (:content %) re-filter) things-vec)
               things-vec)
-        ; wrap each thing node into a thing-entry.
+        ;wrap each thing node into a thing-entry.
         thing-listing 
           (map #(let [author (get-in opts [:users (:author %)])]
-                  (thing-entry (:current-user-email opts)
-                               (:users opts)
-                               (:settings opts)
-                               author
-                               %))
+                  (thing-entry opts %))
                filtered-things)
        ]
     ; wrap thing listing inside paginated div
@@ -101,33 +105,11 @@
             thing-listing ])
     ))
 
-; each thing entry is a thing div of float left right and content in middle.
-; each thing entry {:person/lname "rich", :db/id 17592186045419, :person/title "rich-dad" :person/type :parent ...}
-; (defn thing-entry [current-user-email users settings author thing-data]
-;   (.log js/console "thing-entry " (pr-str thing-data) (pr-str (utils/thing-ident thing)))
-;   (list
-;     [:div.thing {:id (str "thing-" (:db/id thing))
-;                  :class (when (= current-user-email (:email author)) "current_user")
-;                  :key (:created_at thing)}
-;       [:span.posted_at (str (dt/time-ago (:created_at thing)) " ago")]
-;       (utils/gravatar-for (:email author))
-;       [:div.readable
-;         [:span.user (or (:full-name author) (:email author))]
-;         [:span.content (thing-content current-user-email users settings author thing)]
-;       ]
-;       (map (fn [media]
-;              [:div.media-entry media])
-;           (remove string? (-> (string/split (:content thing) delimiter-re)
-;                                plugins/image-embed
-;                                plugins/youtube-embed
-;                                plugins/vimeo-embed)))
-;     ]))
 
-(defn thing-entry 
-  [current-user-email users settings author thing-data]
-  (.log js/console "thing-entry " (pr-str thing-data) (pr-str (utils/thing-ident thing-data)))
+(defn thing-entry
+  [opts thing-data]
   (let [thing-type (utils/thing-ident thing-data)]
-    (entity-view/thing-entry thing-type thing-data)))
+    (entity-view/thing-entry thing-type thing-data opts)))
 
 ; thing div, thing-content is in mid, and float:left, float:right.
 (defn thing-content [current-user-email users settings author activity]
@@ -141,7 +123,6 @@
                     plugins/rgb-embed
                     plugins/hex-embed)]
     (interpose " " content)))
-
 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

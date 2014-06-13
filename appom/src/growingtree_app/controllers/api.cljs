@@ -20,11 +20,10 @@
 ; store into global state map with nav-path as map key and things-vec as value.
 (defmethod api-event :api-data
   [target message api-data state]
-  (let [nav-path (:nav-path api-data)
-        things-vec (:things-vec api-data)]
-    (print "api-event " nav-path " things-vec " things-vec)
+  (let [things-vec (:things-vec api-data)]
+    (print "api-event assoc-in state api-data " api-data)
     (-> state
-      (assoc-in [:nav-path-things nav-path] things-vec))))
+      (assoc-in [:nav-path-things (:path api-data)] things-vec))))
 
 (defmethod api-event :channel-activity-received
   [target message activity state]

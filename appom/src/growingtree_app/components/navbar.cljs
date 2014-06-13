@@ -42,7 +42,7 @@
           [:ul.nav-ul
             (map (partial thing-nav comm) (sort-by :order (vals (:things data))))
             [:li {:key "new-tab"}
-              [:a#create-thing
+              [:a#newthing-form
                 {:href "#"
                  :on-click #(put! comm [:newthing-form {:path [:newthing-form :parent]}]) ; chg to :course
                 }
