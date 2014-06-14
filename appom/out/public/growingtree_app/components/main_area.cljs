@@ -13,7 +13,6 @@
   (:use-macros [dommy.macros :only [sel sel1]]))
 
 
-(declare thing-content)
 (declare thing-entry)
 (declare things-list)
 (declare main-content)
@@ -24,7 +23,9 @@
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; main-area get selected chan app state MapCursor to filter content for selected chan.
 ; nav-path is a map of :path, :qpath...path vector for each view in main panel.
-(defn main-area [{:keys [nav-path nav-path-things channel search-filter]} owner opts]
+; nav-path-things are cursor to global state.
+(defn main-area 
+  [{:keys [app nav-path nav-path-things channel search-filter]} owner opts]
   (reify
     om/IDisplayName
     (display-name [_] "MainArea")
@@ -43,7 +44,7 @@
                 [:img {:src "logo_app.png" :height "35" :title "growingtree-app"}]]]
             [:div.container
               [:div#content
-                (main-content nav-path nav-path-things search-filter opts)
+                (main-content app nav-path nav-path-things search-filter opts)
               ;(chatbox comm opts)
               ]]
         ])))))
@@ -52,77 +53,74 @@
 ; nav-path ele is map {:path [...] :qpath [] :data {}}
 ; nav-path shall contains keys into global state to render all comps in main area.
 (defmulti main-content 
-  (fn [nav-path nav-path-things search-filter opts]
+  (fn [app nav-path nav-path-things search-filter opts]
     (first (:path nav-path))))
 
-; request to display newthing form for adding things.
+
+; request to display newthing form to add thing.
+; {:path [:newthing-form :child], :data {:parent 17592186045419}} 
+; if we have :data, need to show thing in header, :db/id 17592186045419.
 (defmethod main-content 
   :newthing-form
-  [nav-path nav-path-things search-filter opts]
-  (.log js/console "main content newthing-form form " (pr-str nav-path))
+  [app nav-path nav-path-things search-filter opts]
   (let [comm (get-in opts [:comms :controls])
-        thing-type (last (:path nav-path))]
-    (newthing-form/add-form thing-type comm)))
+        thing-type (last (:path nav-path))
+        header (get-in app [:header])
+       ]
+    [:div
+      (thing-entry app opts header)
+      [:hr {:size 4}]
+      (newthing-form/add-form thing-type comm)
+    ]))
 
 ; all the add new thing case
 (defmethod main-content 
   :add-thing
-  [nav-path nav-path-things search-filter opts]
+  [app nav-path nav-path-things search-filter opts]
   (.log js/console "main content submit add-thing " (pr-str nav-path))
   (things-list :parent search-filter opts))
 
 ; all filtered things navigation or details things
 (defmethod main-content 
   :default
-  [nav-path nav-path-things search-filter opts]
+  [app nav-path nav-path-things search-filter opts]
   (.log js/console "main content default thing listing " (pr-str nav-path))
   (let [thing-type (last (:path nav-path))]
-    (things-list thing-type nav-path nav-path-things search-filter opts)))
+    (things-list app thing-type nav-path nav-path-things search-filter opts)))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; defaut main content is a list of things under nav ul
 ; opts is init state map, (:settings opts)
+; nav-path-things is cursor in global state, can not see it outside render.
 (defn things-list 
-  [thing-type nav-path nav-path-things search-filter opts]
+  [app thing-type nav-path nav-path-things search-filter opts]
   (.log js/console "thing-list " (pr-str nav-path) (pr-str ((:path nav-path) nav-path-things)))
   (let [;thing-nodes   (get-in things [thing-type :thing-nodes])
         comm (get-in opts [:comms :controls])
+        ; things-vec is a cursor to global state nav-path-things
         things-vec (get nav-path-things (:path nav-path))
         re-filter     (when search-filter (js/RegExp. search-filter "ig"))
         ; if search filter exist, filter thing's :content
-        filtered-things   
+        filtered-things
           (if re-filter
               (filter #(.match (:content %) re-filter) things-vec)
               things-vec)
         ;wrap each thing node into a thing-entry.
-        thing-listing 
+        things 
           (map #(let [author (get-in opts [:users (:author %)])]
-                  (thing-entry opts %))
+                  (thing-entry app opts %))
                filtered-things)
        ]
     ; wrap thing listing inside paginated div
     (list [:div.paginated-activities
-            thing-listing ])
+            things ])
     ))
 
-
+; get view for each thing entry
 (defn thing-entry
-  [opts thing-data]
+  [app opts thing-data]
   (let [thing-type (utils/thing-ident thing-data)]
-    (entity-view/thing-entry thing-type thing-data opts)))
-
-; thing div, thing-content is in mid, and float:left, float:right.
-(defn thing-content [current-user-email users settings author activity]
-  (let [content (-> (string/split (:content activity) delimiter-re)
-                    plugins/pastie
-                    (plugins/mentions current-user-email users settings author)
-                    (plugins/slash-me current-user-email users)
-                    plugins/slash-play
-                    ; plugins/emoticons
-                    plugins/links
-                    plugins/rgb-embed
-                    plugins/hex-embed)]
-    (interpose " " content)))
+    (entity-view/thing-entry app thing-type thing-data opts)))
 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

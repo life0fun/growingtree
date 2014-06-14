@@ -125,7 +125,11 @@
     {:nav-path [{:path [:all 0 :parent] :qpath [] :data {}}]
      ; nav-path as key, things-vec value
      :nav-path-things {}
-     
+    
+     ; store entity to display in header and body
+     :header {}
+     :body {}
+
      :audio {:volume 100
              :muted true}
      :windows {:window-inspector {:open false}}

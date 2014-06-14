@@ -84,7 +84,8 @@
                                               :selected-channel (:selected-channel app)
                                               :channels (:channels app)}})
             ; pass selected-chan app state MapCursor to main-area component to show content form selected chan.
-            (om/build main-area/main-area {:nav-path nav-path
+            (om/build main-area/main-area {:app app
+                                           :nav-path nav-path
                                            :nav-path-things nav-path-things
                                            :channel selected-channel
                                            :search-filter (get-in app [:settings :forms :search :value])} 

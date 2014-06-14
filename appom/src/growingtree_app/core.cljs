@@ -63,13 +63,16 @@
           (alt!
             (:controls comms) 
               ([v]   ; [:tab-selected [:parent]], first is msg, rest is nav-path.
-                (print "controls chan event: " (pr-str v))
                 (when utils/logging-enabled?
                   (mprint "Controls Verbose: " (pr-str v)))
                 ; each event [msg-type msg-data]
                 (let [previous-state @state
                       msg-type (first v)
-                      msg-data (last v)]
+                      msg-data (last v)
+                      ; dbid (if (:data msg-data) (:db/id @(:data msg-data)) "11")
+                      ; dbid (if (:data msg-data) "ww" "11")
+                      ]
+                  (.log js/console "controls chan event: " (pr-str msg-type) msg-data)
                   ; (update-history! history :controls v)
                   ; update state with selected state id. will cause re-render of app
                   (swap! state (partial controls-con/control-event target msg-type msg-data))

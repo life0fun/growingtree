@@ -167,7 +167,7 @@
 ;;=============================================================================
 ;;=============================================================================
 (defmulti thing-entry
-  (fn [thing-type entity opts]
+  (fn [app thing-type entity opts]
     thing-type))
 
 
@@ -175,7 +175,7 @@
 ; make child div unique with template child form id that includes thing-id
 (defmethod thing-entry
   :default
-  [thing-type entity opts]
+  [app thing-type entity opts]
   (let [thing-id (:db/id entity)
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
@@ -187,16 +187,16 @@
 
 (defmethod thing-entry
   :person
-  [thing-type entity opts]
+  [app thing-type entity opts]
   (let [thing-id(:db/id entity)
         thing-type (:person/type entity)]
-    (thing-entry thing-type entity opts)))
+    (thing-entry app thing-type entity opts)))
 
 
-; thing-entry view for parent.
+; thing-entry view for parent. entity is cursor into state nav-path-things
 (defmethod thing-entry
   :parent
-  [thing-type entity opts]
+  [app thing-type entity opts]
   (let [comm (get-in opts [:comms :controls])
         thing-id (:db/id entity)
         ; all sublink class selector with thing-id is defined in actionkeys-class
@@ -233,7 +233,11 @@
             [:li.share
               [:div {:class (:add-child-class value-map)}
                 [:span.toggle [:a.option.active
-                  {:href "#" :on-click #(put! comm [:newthing-form add-child])} "add child"]]]]
+                  {:href "#" 
+                   :on-click (fn [_] 
+                      (om/update! app [:header] entity)
+                      (put! comm [:newthing-form add-child]))}
+                   "add child"]]]]
 
             [:li.share
               [:div {:class (:assignment-class value-map)}
