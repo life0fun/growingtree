@@ -18,11 +18,11 @@
 (defmethod add-form 
   :default
   [thing-type comm]
-  (.log js/console "add-form " thing-type " defaults "))
+  (.log js/console "add-form " (pr-str thing-type) " defaults "))
 
 ; encapsulate view and submit fn together.
 (defmethod add-form 
-  :parent
+  :add-parent
   [thing-type comm]
   (let [submit-fn 
           (fn [e]
@@ -84,7 +84,7 @@
 
 ; add child form
 (defmethod add-form 
-  :child
+  :add-child
   [thing-type comm]
   (let [submit-fn 
           (fn [e]

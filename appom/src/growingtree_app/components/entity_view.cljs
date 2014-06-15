@@ -26,7 +26,7 @@
 (def thing-nav-actionkey
   {
     :parent {:title ""
-             :child "" :add-child " hide"
+             :child "" :add-child ""
              :group "" :add-group " hide"
              :assignment "" :timeline ""
              :upvote "" :like "" :follow ""
@@ -133,7 +133,7 @@
   "ret the class selector for thing nav sublink transkey"
   [thing-id link-key hide]
   (let [k (keyword (str (name link-key) "-class"))
-        clz (str (name link-key) "-" thing-id hide)]
+        clz (str (name link-key) "-" thing-id " " hide)]
     (hash-map k clz)))
 
 ; thing nav link class selector includes thing-id, called in thing-node-html.
@@ -167,15 +167,14 @@
 ;;=============================================================================
 ;;=============================================================================
 (defmulti thing-entry
-  (fn [app thing-type entity opts]
+  (fn [app thing-type entity override]
     thing-type))
-
 
 ; slice thing list block view template.
 ; make child div unique with template child form id that includes thing-id
 (defmethod thing-entry
   :default
-  [app thing-type entity opts]
+  [app thing-type entity override]
   (let [thing-id (:db/id entity)
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
@@ -187,24 +186,26 @@
 
 (defmethod thing-entry
   :person
-  [app thing-type entity opts]
+  [app thing-type entity override]
   (let [thing-id(:db/id entity)
         thing-type (:person/type entity)]
-    (thing-entry app thing-type entity opts)))
+    (thing-entry app thing-type entity override)))
 
 
 ; thing-entry view for parent. entity is cursor into state nav-path-things
 (defmethod thing-entry
   :parent
-  [app thing-type entity opts]
-  (let [comm (get-in opts [:comms :controls])
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
         value-map (merge (thing-value entity)
-                         (actionkeys-class thing-id actionkeys))
-        add-child {:path [:newthing-form :child] 
-                   :data {:parent thing-id}}
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        add-child {:path [:newthing-form [:parent :add-child]]
+                   :data {:pid thing-id}}
         add-assignment {:path [:add-thing :assignment] 
                         :data {:author thing-id}}
        ]
@@ -234,7 +235,8 @@
               [:div {:class (:add-child-class value-map)}
                 [:span.toggle [:a.option.active
                   {:href "#" 
-                   :on-click (fn [_] 
+                   :on-click (fn [_]
+                      ; persist header into global state
                       (om/update! app [:header] entity)
                       (put! comm [:newthing-form add-child]))}
                    "add child"]]]]

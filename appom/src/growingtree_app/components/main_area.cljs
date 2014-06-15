@@ -57,18 +57,29 @@
     (first (:path nav-path))))
 
 
+; all filtered things navigation or details things
+(defmethod main-content 
+  :default
+  [app nav-path nav-path-things search-filter opts]
+  (.log js/console "main content default thing listing " (pr-str nav-path))
+  (let [thing-type (last (:path nav-path))]
+    (things-list app thing-type nav-path nav-path-things search-filter opts)))
+
 ; request to display newthing form to add thing.
-; {:path [:newthing-form :child], :data {:parent 17592186045419}} 
+; {:path [:newthing-form [:parent :add-child]], :data {:pid 17592186045419}} 
 ; if we have :data, need to show thing in header, :db/id 17592186045419.
 (defmethod main-content 
   :newthing-form
-  [app nav-path nav-path-things search-filter opts]
-  (let [comm (get-in opts [:comms :controls])
-        thing-type (last (:path nav-path))
+  [app nav-path nav-path-things search-filter]
+  (let [comm (get-in app [:comms :controls])
+        thing-type (get-in nav-path [:path 1 1])
         header (get-in app [:header])
+        pid (get-in nav-path [:data :pid])
+        override (entity-view/actionkey-class pid thing-type "hide")
        ]
+    (.log js/console "newthing-form override " (pr-str override))
     [:div
-      (thing-entry app opts header)
+      (thing-entry app header override)
       [:hr {:size 4}]
       (newthing-form/add-form thing-type comm)
     ]))
@@ -80,13 +91,7 @@
   (.log js/console "main content submit add-thing " (pr-str nav-path))
   (things-list :parent search-filter opts))
 
-; all filtered things navigation or details things
-(defmethod main-content 
-  :default
-  [app nav-path nav-path-things search-filter opts]
-  (.log js/console "main content default thing listing " (pr-str nav-path))
-  (let [thing-type (last (:path nav-path))]
-    (things-list app thing-type nav-path nav-path-things search-filter opts)))
+
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; defaut main content is a list of things under nav ul
@@ -108,7 +113,7 @@
         ;wrap each thing node into a thing-entry.
         things 
           (map #(let [author (get-in opts [:users (:author %)])]
-                  (thing-entry app opts %))
+                  (thing-entry app % {}))
                filtered-things)
        ]
     ; wrap thing listing inside paginated div
@@ -118,9 +123,9 @@
 
 ; get view for each thing entry
 (defn thing-entry
-  [app opts thing-data]
+  [app thing-data override]
   (let [thing-type (utils/thing-ident thing-data)]
-    (entity-view/thing-entry app thing-type thing-data opts)))
+    (entity-view/thing-entry app thing-type thing-data override)))
 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
