@@ -122,12 +122,12 @@
        ]
 
     ;nav-path segment is a map contains query filters for each view in main panel.
-    {:nav-path [{:path [:all 0 :parent] :qpath [] :data {}}]
+    {:nav-path [{:title [] :body [:all 0 :parent] :data {}}]
      ; nav-path as key, things-vec value
      :nav-path-things {}
     
      ; store entity to display in header and body
-     :header {}
+     :title {}
      :body {}
 
      :audio {:volume 100

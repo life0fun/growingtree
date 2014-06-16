@@ -24,7 +24,7 @@
     (render [this]
       ; get app state cursors for related keys, and pass map state cursor when building sub-components.
       (let [nav-path                (last (get-in app [:nav-path])) ; last path segment {:path [:all 0 :parent]}
-            thing-type              (last (:path nav-path))
+            thing-type              (last (:body nav-path))
             nav-path-things         (get-in app [:nav-path-things])
 
             selected-channel        (get-in app [:channels (:selected-channel app)])

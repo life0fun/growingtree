@@ -204,8 +204,10 @@
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
-        add-child {:path [:newthing-form [:parent :add-child]]
-                   :data {:pid thing-id}}
+        add-child {:title :title  ; key is :title cursor in app state.
+                   :body [:newthing-form [:parent :add-child]]
+                   :data {:pid thing-id}
+                  }
         add-assignment {:path [:add-thing :assignment] 
                         :data {:author thing-id}}
        ]
@@ -236,8 +238,8 @@
                 [:span.toggle [:a.option.active
                   {:href "#" 
                    :on-click (fn [_]
-                      ; persist header into global state
-                      (om/update! app [:header] entity)
+                      ; persist title into global state
+                      (om/update! app [:title] entity)
                       (put! comm [:newthing-form add-child]))}
                    "add child"]]]]
 

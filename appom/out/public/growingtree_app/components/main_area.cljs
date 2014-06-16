@@ -22,7 +22,7 @@
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; main-area get selected chan app state MapCursor to filter content for selected chan.
-; nav-path is a map of :path, :qpath...path vector for each view in main panel.
+; nav-path mapping data path of :title, :body, a path vector for each view in main panel.
 ; nav-path-things are cursor to global state.
 (defn main-area 
   [{:keys [app nav-path nav-path-things channel search-filter]} owner opts]
@@ -50,11 +50,11 @@
         ])))))
 
 ; display main content after nav-path updated. latest ele in nav-path vector.
-; nav-path ele is map {:path [...] :qpath [] :data {}}
+; nav-path ele is map {:title [...] :body [] :data {}}
 ; nav-path shall contains keys into global state to render all comps in main area.
 (defmulti main-content 
   (fn [app nav-path nav-path-things search-filter opts]
-    (first (:path nav-path))))
+    (first (:body nav-path))))
 
 
 ; all filtered things navigation or details things
@@ -62,24 +62,24 @@
   :default
   [app nav-path nav-path-things search-filter opts]
   (.log js/console "main content default thing listing " (pr-str nav-path))
-  (let [thing-type (last (:path nav-path))]
+  (let [thing-type (last (:body nav-path))]
     (things-list app thing-type nav-path nav-path-things search-filter opts)))
 
 ; request to display newthing form to add thing.
 ; {:path [:newthing-form [:parent :add-child]], :data {:pid 17592186045419}} 
-; if we have :data, need to show thing in header, :db/id 17592186045419.
+; if we have :data, need to show title thing, :db/id 17592186045419.
 (defmethod main-content 
   :newthing-form
   [app nav-path nav-path-things search-filter]
   (let [comm (get-in app [:comms :controls])
-        thing-type (get-in nav-path [:path 1 1])
-        header (get-in app [:header])
+        thing-type (get-in nav-path [:body 1 1])
+        title (get-in app [:title])
         pid (get-in nav-path [:data :pid])
-        override (entity-view/actionkey-class pid thing-type "hide")
+        override (if pid (entity-view/actionkey-class pid thing-type "hide") {})
        ]
     (.log js/console "newthing-form override " (pr-str override))
     [:div
-      (thing-entry app header override)
+      (thing-entry app title override)
       [:hr {:size 4}]
       (newthing-form/add-form thing-type comm)
     ]))
@@ -92,18 +92,16 @@
   (things-list :parent search-filter opts))
 
 
-
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; defaut main content is a list of things under nav ul
 ; opts is init state map, (:settings opts)
 ; nav-path-things is cursor in global state, can not see it outside render.
 (defn things-list 
   [app thing-type nav-path nav-path-things search-filter opts]
-  (.log js/console "thing-list " (pr-str nav-path) (pr-str ((:path nav-path) nav-path-things)))
   (let [;thing-nodes   (get-in things [thing-type :thing-nodes])
         comm (get-in opts [:comms :controls])
         ; things-vec is a cursor to global state nav-path-things
-        things-vec (get nav-path-things (:path nav-path))
+        things-vec (get nav-path-things (:body nav-path))
         re-filter     (when search-filter (js/RegExp. search-filter "ig"))
         ; if search filter exist, filter thing's :content
         filtered-things

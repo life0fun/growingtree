@@ -48,12 +48,13 @@
               ]
       (let [;bodyjson body ;(.parse js/JSON body)
             status (:status result)
+            data-path :body
             things-vec (:data result)  ; alway ret a list of things
             dbid (:db/id (first things-vec))
            ]
         ;(.log js/console (str "xhr response tuples " dbid " type " thing-type msg-topic msg-type things-vec))
         (.log js/console (str "xhr thing-vec " main-path " thing-vec " things-vec))
-        (put! api-ch [:api-data {:path main-path :things-vec (vec things-vec)}])
+        (put! api-ch [:api-data {data-path main-path :things-vec (vec things-vec)}])
       ))))
 
 (defn error-handler
@@ -72,13 +73,13 @@
 (defn cljs-ajax
   "service a get or post request using cljs-ajax GET POST call"
   [command nav-path api-ch data]
-  (let [main-path (:path nav-path)
-        qpath (:qpath nav-path)
+  (let [main-path (:body nav-path)
+        title (:title nav-path)
         thing-type (last main-path)
         request {:handler (handler command main-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)
                  :format :edn    ; always use edn for clj programs internally.
-                 :params {:thing-type thing-type :path main-path :qpath qpath :details data}
+                 :params {:thing-type thing-type :path main-path :qpath title :details data}
                  :headers {}
                 }
        ]

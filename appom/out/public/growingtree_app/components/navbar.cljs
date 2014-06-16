@@ -12,7 +12,7 @@
   (let [type (:type thing-listing)]
     ;(.log js/console "thing-nav type " (pr-str type) " title " (:title thing-listing))
     [:li.protected {:key type  ; 
-                    :on-click #(put! comm [:tab-selected {:path [:all 0 type]}]) ; [:all 0 :thing-type]
+                    :on-click #(put! comm [:tab-selected {:body [:all 0 type]}]) ; [:all 0 :thing-type]
                     :class (str type (when (:selected thing-listing) " active"))}
       [:a.show_channel
         (:title thing-listing)  ; nav type title, course, parent, lecture, etc.
@@ -45,7 +45,9 @@
               [:a#newthing-form
                 {:href "#"
                  :on-click
-                  (let [newthing-data {:path [:child :add-parent] :data {}}]
+                  (let [newthing-data {:body [:child :add-parent] :data {}}
+                        newthing-data {:body [:newthing-form [:add-course]] :data {:pid nil}}
+                       ]
                     #(put! comm [:newthing-form newthing-data]))
                 }
                 [:strong " + "]  ; text is defined in #create:after

@@ -148,7 +148,8 @@
 
 
 ; add course collect data field from form.
-(defmethod add-form :course
+(defmethod add-form 
+  :add-course
   [thing-type comm]
   (let [submit-fn 
           (fn [e]

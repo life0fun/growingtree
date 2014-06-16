@@ -16,14 +16,14 @@
 (defmulti api-event
   (fn [target message args state] message))
 
-; api-data map {:nav-path {:path [:all 0 :parent]}, :things-vec ({:person/url #{rich.com} ...}]
+; api-data map {:nav-path {:body [:all 0 :parent]}, :things-vec ({:person/url #{rich.com} ...}]
 ; store into global state map with nav-path as map key and things-vec as value.
 (defmethod api-event :api-data
   [target message api-data state]
   (let [things-vec (:things-vec api-data)]
     (print "api-event assoc-in state api-data " api-data)
     (-> state
-      (assoc-in [:nav-path-things (:path api-data)] things-vec))))
+      (assoc-in [:nav-path-things (:body api-data)] things-vec))))
 
 (defmethod api-event :channel-activity-received
   [target message activity state]

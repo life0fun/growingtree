@@ -38,7 +38,7 @@
 (defmethod post-control-event! :tab-selected
   [target message nav-path previous-state current-state]
   (print "post-control-event! tab-selected nav-path " nav-path)  ; {:path [:all 0 :parent]}
-  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (last (:path nav-path)))}))
+  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (last (:body nav-path)))}))
   (cljsajax/cljs-ajax :request-things
                       nav-path
                       (get-in current-state [:comms :api])
