@@ -65,24 +65,26 @@
   (let [thing-type (last (:body nav-path))]
     (things-list app thing-type nav-path nav-path-things search-filter opts)))
 
+
 ; request to display newthing form to add thing.
-; {:path [:newthing-form [:parent :add-child]], :data {:pid 17592186045419}} 
+; {:body [:newthing-form [:parent :add-child]], :data {:pid 17592186045419}} 
 ; if we have :data, need to show title thing, :db/id 17592186045419.
 (defmethod main-content 
   :newthing-form
   [app nav-path nav-path-things search-filter]
   (let [comm (get-in app [:comms :controls])
-        thing-type (get-in nav-path [:body 1 1])
+        thing-type (get-in nav-path [:body 1 1]) ; newthing type is last last
         title (get-in app [:title])
         pid (get-in nav-path [:data :pid])
         override (if pid (entity-view/actionkey-class pid thing-type "hide") {})
        ]
-    (.log js/console "newthing-form override " (pr-str override))
+    (.log js/console "newthing-form " pid (pr-str thing-type override))
     [:div
-      (thing-entry app title override)
-      [:hr {:size 4}]
+      (when pid (thing-entry app title override))
+      (when pid [:hr {:size 4}])
       (newthing-form/add-form thing-type comm)
     ]))
+
 
 ; all the add new thing case
 (defmethod main-content 

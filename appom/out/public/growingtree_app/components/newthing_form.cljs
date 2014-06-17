@@ -161,12 +161,12 @@
                                 :course/email ".course-email"
                                 :course/wiki ".course-wiki"
                                }
-                  data (reduce (fn [tot [k clz]]
-                                   (assoc tot k (dommy/value (sel1 clz))))
-                                {}
-                                input-fields)
-                  ; attach current user name as author
-                  data (assoc data :author "rich-dad")
+                  data (-> (reduce (fn [tot [k clz]]
+                                     (assoc tot k (dommy/value (sel1 clz))))
+                                   {}
+                                   input-fields)
+                            (assoc :author "rich-data")
+                            (utils/update-enum :course "type" false))
                   ]
               (.log js/console "course form " (pr-str data))
               ; first is msg type, last is nav-path filter segment.

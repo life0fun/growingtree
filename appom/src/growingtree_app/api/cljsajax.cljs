@@ -95,6 +95,6 @@
         ; nav-path [:all 0 :parent]
         :request-things (POST (str "/api/" (name thing-type)) request)
 
-        ; nav-path [:course {:title ... :name ...}]
-        :add-thing (POST (str "/add/" (name thing-type)) request)
+        ; nav-path {:body [:course {:title ... :name ...}]}
+        :add-thing (POST (str "/add/" (name (first nav-path))) request)
         "default")))

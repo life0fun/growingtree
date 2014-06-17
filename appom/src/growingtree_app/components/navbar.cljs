@@ -46,7 +46,7 @@
                 {:href "#"
                  :on-click
                   (let [newthing-data {:body [:child :add-parent] :data {}}
-                        newthing-data {:body [:newthing-form [:add-course]] :data {:pid nil}}
+                        newthing-data {:body [:newthing-form [:course :add-course]] :data {:pid nil}}
                        ]
                     #(put! comm [:newthing-form newthing-data]))
                 }

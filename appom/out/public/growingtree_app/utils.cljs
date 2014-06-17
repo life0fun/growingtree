@@ -109,8 +109,9 @@
     ident))
 
 
-; update enum, only update when enum key present.
-; thing-val = {:course/title "aa", :course/author "bb", :course/type "math" }
+; for enum attr, update thing-val map from string val to keyword.
+; thing-val = {:course/title "aa", :course/type "math" }
+; (update-enum {:type "math"} :course "type" false) => {:type :math}
 (defn update-enum
   "update in status enum value from string to keyword"
   [thing-val thing-type keyname enum]
