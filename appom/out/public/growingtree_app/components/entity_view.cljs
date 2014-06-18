@@ -274,6 +274,83 @@
       ]])))
 
 
+; thing-entry view for course
+(defmethod thing-entry
+  :course
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        add-lecture {:title :title  ; key is :title cursor in app state.
+                     :body [:newthing-form [:parent :add-child]]
+                     :data {:pid thing-id}
+                    }
+        add-assignment {:path [:add-thing :assignment] 
+                        :data {:author thing-id}}
+       ]
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
+        [:span.rank "1"]   ; index offset in the list of filtered things
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      
+        [:a.thumbnail {:href "#"}
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+      
+        [:div.entry.unvoted
+          [:p.title [:a.title {:href "#"} (:title value-map)]]
+          [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
+          [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
+          [:p.tagline "Offered by " (:author value-map)]
+
+          [:ul.flat-list.buttons
+            [:li.share
+              [:div {:class (:lecture-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "lectures"]]]]
+
+            [:li.share
+              [:div {:class (:add-lecture-class value-map)}
+                [:span.toggle [:a.option.active
+                  {:href "#" 
+                   :on-click (fn [_]
+                      ; persist title into title slot in global state
+                      (om/update! app [:title] entity)
+                      (put! comm [:newthing-form add-lecture]))}
+                   "add lecture"]]]]
+
+            [:li.share
+              [:div {:class (:assignment-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "assignments"]]]]
+
+            [:li.share
+              [:div {:class (:enrollment-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "enrollments"]]]]
+
+            [:li.share
+              [:div {:class (:enroll-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "enroll"]]]]
+
+            [:li.share
+              [:div {:class (:comment-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+
+            [:li.share
+              [:div {:class (:similar-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "similar courses"]]]]
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}]
+          [:div.clearleft]
+      ]])))
+
 ;;===========================================================================
 ; show add comments input box, trigger by thing data emitter [:setup :x 1 :comments]
 ; form id is the thing-id this comment's origin and thingroot

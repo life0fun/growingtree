@@ -157,7 +157,7 @@
                                 :course/content ".course-content"
                                 :course/type ".course-type"
                                 :course/author ".course-author"
-                                :curse/url ".course-url"
+                                :course/url ".course-url"
                                 :course/email ".course-email"
                                 :course/wiki ".course-wiki"
                                }
@@ -165,7 +165,7 @@
                                      (assoc tot k (dommy/value (sel1 clz))))
                                    {}
                                    input-fields)
-                            (assoc :author "rich-data")
+                            (assoc :author "rich-dad")
                             (utils/update-enum :course "type" false))
                   ]
               (.log js/console "course form " (pr-str data))
