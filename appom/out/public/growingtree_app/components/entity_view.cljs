@@ -281,6 +281,7 @@
   (let [
         comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :course/author))
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
         value-map (merge (thing-value entity)
@@ -293,6 +294,8 @@
         add-assignment {:path [:add-thing :assignment] 
                         :data {:author thing-id}}
        ]
+    (.log js/console "course thing value " (pr-str value-map))
+    (.log js/console "author " (pr-str authors))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
         [:span.rank "1"]   ; index offset in the list of filtered things
@@ -308,7 +311,7 @@
           [:p.title [:a.title {:href "#"} (:title value-map)]]
           [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
           [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
-          [:p.tagline "Offered by " (:author value-map)]
+          [:p.tagline "Offered by " authors]
 
           [:ul.flat-list.buttons
             [:li.share

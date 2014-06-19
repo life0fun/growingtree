@@ -146,6 +146,7 @@
   (let [projkeys (keys course-schema)  ; must select-keys from datum entity attributes
         courses (->> (util/get-qpath-entities qpath get-course-by)
                      (map #(select-keys % projkeys) )
+                     (map #(util/get-author-name :course/author %))
                      (map #(util/add-upvote-attr %) )
                      (map #(util/add-numcomments-attr %) )
                      (map #(util/add-navpath % qpath) )  ; :qpath ["all" 0 "course" 17592186045425],
@@ -167,11 +168,10 @@
                    (assoc :course/author author-id)  ; replace input :course/author
                    (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
                    (assoc :db/id (d/tempid :db.part/user)))
-        entity (assoc entity :db/id 123)
-        ; trans (submit-transact [entity])  ; transaction is a list of entity
+        trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "create course entity " author-id entity)
+    (prn "create course entity " (:author details) author-id entity)
     ; (prn "submit course trans " trans)
     [entity]))
 

@@ -13,7 +13,7 @@ For each component, UI and logic wrapped into a ns inside `components` folder.
 To build,
   
     compass compile
-    lein cljsbuild dev once
+    lein cljsbuild once dev
     open localhost:9090/dev.html
 
 

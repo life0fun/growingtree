@@ -13,7 +13,8 @@
             [clj-time.format :refer [parse unparse formatter]]
             [clj-time.coerce :refer [to-long from-long to-date from-date]])
   (:require [growingtree-server.datomic.dbschema :as dbschema]
-            [growingtree-server.datomic.dbconn :as dbconn :refer :all]))
+            [growingtree-server.datomic.dbconn :as dbconn :refer :all]
+            [io.pedestal.service.log :as log]))
 
 
 ; for enum value, :parent/status, the value is keyword :parent.status/active
@@ -211,6 +212,17 @@
        ]
     nthing))
 
+
+; ============================================================================
+; add title to 
+; :course/author #{{:db/id 17592186045419}}
+; ============================================================================
+(defn get-author-name
+  [attr entity]
+  (let [author-ids (attr entity)
+        author-titles (map #(dbconn/get-entity (:db/id %)) author-ids)
+       ]
+    (assoc entity attr (set author-titles))))
 
 ; ============================================================================
 ; get no of likes for certain entity, and add it as upvote attr to the entity

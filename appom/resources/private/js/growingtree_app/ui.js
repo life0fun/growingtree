@@ -25,18 +25,18 @@ goog.require('dommy.core');
 goog.require('cljs.core.async');
 goog.require('growingtree_app.datetime');
 goog.require('dommy.core');
-growingtree_app.ui.scroll_to_latest_message_BANG_ = (function scroll_to_latest_message_BANG_(target,channel_id){var channel = dommy.template.__GT_node_like.call(null,target).querySelector(dommy.core.selector.call(null,[cljs.core.str("#channels-"),cljs.core.str(channel_id)].join('')));var activities = (function (){var and__3431__auto__ = channel;if(cljs.core.truth_(and__3431__auto__))
-{return dommy.utils.__GT_Array.call(null,dommy.template.__GT_node_like.call(null,channel).getElementsByClassName("activity"));
+growingtree_app.ui.scroll_to_latest_message_BANG_ = (function scroll_to_latest_message_BANG_(target,thing_type){var thing_type__$1 = dommy.template.__GT_node_like.call(null,target).querySelector(dommy.core.selector.call(null,[cljs.core.str("#channels-"),cljs.core.str(cljs.core.name.call(null,thing_type))].join('')));var activities = (function (){var and__3431__auto__ = thing_type__$1;if(cljs.core.truth_(and__3431__auto__))
+{return dommy.utils.__GT_Array.call(null,dommy.template.__GT_node_like.call(null,thing_type__$1).getElementsByClassName("activity"));
 } else
 {return and__3431__auto__;
 }
-})();var latest = cljs.core.last.call(null,activities);if(cljs.core.truth_((function (){var and__3431__auto__ = channel;if(cljs.core.truth_(and__3431__auto__))
+})();var latest = cljs.core.last.call(null,activities);if(cljs.core.truth_((function (){var and__3431__auto__ = thing_type__$1;if(cljs.core.truth_(and__3431__auto__))
 {return latest;
 } else
 {return and__3431__auto__;
 }
 })()))
-{return channel.scrollTop = latest.offsetTop;
+{return thing_type__$1.scrollTop = latest.offsetTop;
 } else
 {return null;
 }
