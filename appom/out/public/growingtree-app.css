@@ -1,5 +1,5 @@
 /* mixins */
-/*@import "bootstrap.css";*/
+@import url(bootstrap.css);
 /* box-sizing width to avoid padding blow off width */
 /* line 26, ../../assets/stylesheets/growingtree-app.scss */
 * {

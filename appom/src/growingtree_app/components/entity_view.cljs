@@ -295,7 +295,6 @@
                         :data {:author thing-id}}
        ]
     (.log js/console "course thing value " (pr-str value-map))
-    (.log js/console "author " (pr-str authors))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
         [:span.rank "1"]   ; index offset in the list of filtered things
@@ -329,19 +328,21 @@
                    "add lecture"]]]]
 
             [:li.share
-              [:div {:class (:assignment-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "assignments"]]]]
-
-            [:li.share
               [:div {:class (:enrollment-class value-map)}
                 [:span.toggle [:a.option.active {:href "#"} "enrollments"]]]]
 
             [:li.share
               [:div {:class (:enroll-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "enroll"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword (str "#enrollment-form-" thing-id)))]
+                        (dommy/toggle-class! f "hide")))
+                  } "enroll"]
+              ]]]
 
             [:li.share
-              [:div {:class (:comment-class value-map)}
+              [:div {:class (:comments-class value-map)}
                 [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
 
             [:li.share
@@ -350,7 +351,28 @@
           ]
 
           ; hidden divs for in-line forms
-          [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}]
+          [:div.child-form {:id (str "child-form-" thing-id)}
+            [:div.hide {:id (str "enrollment-form-" thing-id)}
+              [:form.enrollment-form {:style #js {:float "left;"}}
+                [:input {:id (str "enroll-name-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "attendee"}]
+                [:input {:id (str "enroll-remark-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "remarks"}]
+                [:input {:type "submit" :value "enroll" :class "btn btn-primary assign-button"
+                         :on-click (fn [_]
+                            (let [f (sel1 (keyword (str "#enrollment-form-" thing-id)))
+                                  data (reduce (fn [tot [k fieldid]]
+                                          (assoc tot k (dommy/value (sel1 fieldid))))
+                                          {}
+                                          {:enrollment/name (str "#enroll-name-" thing-id)
+                                           :enrollment/remark (str "#enroll-remark-" thing-id)})
+                                  ]
+                              (dommy/toggle-class! f "hide")
+                              (put! comm [:submit data])))
+                        }]
+              ]
+            ]
+          ]
           [:div.clearleft]
       ]])))
 

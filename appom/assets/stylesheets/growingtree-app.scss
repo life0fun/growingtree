@@ -9,7 +9,7 @@
 /* mixins */
 
 @import "compass/css3";
-/*@import "bootstrap.css";*/
+@import "bootstrap.css";
 
 @mixin vertical_gradient($from, $to) {
     @include background(linear-gradient(top, $from, $to));
