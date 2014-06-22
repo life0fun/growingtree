@@ -4,8 +4,8 @@
             [dommy.core :as dommy]
             [growingtree-app.api.mock :as api]
             [growingtree-app.components.app :as app]
-            [growingtree-app.controllers.controls :as controls-con]
-            [growingtree-app.controllers.post-controls :as controls-pcon]
+            [growingtree-app.controllers.controls :as controls]
+            [growingtree-app.controllers.post-controls :as controls-post]
             [growingtree-app.controllers.api :as api-con]
             [growingtree-app.controllers.post-api :as api-pcon]
             [growingtree-app.datetime :as dt]
@@ -48,7 +48,7 @@
 
 ; create app component on DOM target app div with app state.
 (defn main [target state]
-  (let [comms   (:comms @state)
+  (let [comms (:comms @state)
         history (or history (atom []))]
     ; we need route ui click event to control chan, and process control chan inside main comp.
     (routes/define-routes! state (.getElementById js/document "history-container"))
@@ -72,11 +72,12 @@
                       ; dbid (if (:data msg-data) (:db/id @(:data msg-data)) "11")
                       ; dbid (if (:data msg-data) "ww" "11")
                       ]
-                  (.log js/console "controls chan event: " (pr-str msg-type) msg-data)
+                  (.log js/console "controls chan event: " (pr-str msg-type msg-data))
                   ; (update-history! history :controls v)
                   ; update state with selected state id. will cause re-render of app
-                  (swap! state (partial controls-con/control-event target msg-type msg-data))
-                  (controls-pcon/post-control-event! target msg-type msg-data previous-state @state)))
+                  (swap! state (partial controls/control-event target msg-type msg-data))
+                  (controls-post/post-control-event! target msg-type msg-data previous-state @state)
+                  ))
             (:api comms) 
               ([v]
                 (when utils/logging-enabled?

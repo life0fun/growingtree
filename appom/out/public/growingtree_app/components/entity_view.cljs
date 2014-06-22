@@ -40,7 +40,7 @@
            }
 
     :course {:title "" :author ""
-             :lecture "" :add-lecture " hide"
+             :lecture "" :add-lecture " "
              :enrollment "" :enroll ""
              :comments ""
              :upvote "" :like "" :share ""
@@ -238,7 +238,7 @@
                 [:span.toggle [:a.option.active
                   {:href "#" 
                    :on-click (fn [_]
-                      ; persist title into global state
+                      ; persist entity into global state title
                       (om/update! app [:title] entity)
                       (put! comm [:newthing-form add-child]))}
                    "add child"]]]]
@@ -288,11 +288,15 @@
                          (actionkeys-class thing-id actionkeys)
                          override)
         add-lecture {:title :title  ; key is :title cursor in app state.
-                     :body [:newthing-form [:parent :add-child]]
+                     :body [:newthing-form [:course :add-lecture]]
                      :data {:pid thing-id}
                     }
         add-assignment {:path [:add-thing :assignment] 
                         :data {:author thing-id}}
+        enroll-data {
+                     :body [:add-thing [:course :enroll]]
+                     :data {:pid thing-id}
+                    }
        ]
     (.log js/console "course thing value " (pr-str value-map))
     (list
@@ -322,7 +326,7 @@
                 [:span.toggle [:a.option.active
                   {:href "#" 
                    :on-click (fn [_]
-                      ; persist title into title slot in global state
+                      ; persist entity into title slot in global state
                       (om/update! app [:title] entity)
                       (put! comm [:newthing-form add-lecture]))}
                    "add lecture"]]]]
@@ -366,9 +370,12 @@
                                           {}
                                           {:enrollment/name (str "#enroll-name-" thing-id)
                                            :enrollment/remark (str "#enroll-remark-" thing-id)})
+                                  enroll-data (merge enroll-data data)
                                   ]
                               (dommy/toggle-class! f "hide")
-                              (put! comm [:submit data])))
+                              (.log js/console "enroll data " (pr-str enroll-data))
+                              (put! comm [:add-thing enroll-data])
+                              ))
                         }]
               ]
             ]

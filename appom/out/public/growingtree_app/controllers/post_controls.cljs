@@ -27,7 +27,8 @@
   (fn [target message args previous-state current-state] message))
 
 ; nothing to do for default control event.
-(defmethod post-control-event! :default
+(defmethod post-control-event! 
+  :default
   [target message args previous-state current-state]
   (.log js/console "default post-control for: " (pr-str message)))
 
@@ -35,7 +36,8 @@
 ; post control event for navbar, last nav-path tuple.
 ; called from core to process control event, nav-path {:path [:all 0 :parent]}
 ; send xhr request to get data.
-(defmethod post-control-event! :tab-selected
+(defmethod post-control-event! 
+  :tab-selected
   [target message nav-path previous-state current-state]
   (print "post-control-event! tab-selected nav-path " nav-path)  ; {:path [:all 0 :parent]}
   (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (last (:body nav-path)))}))
@@ -48,7 +50,8 @@
   ;   (js/setTimeout #(imp-ui/scroll-to-latest-message! target (last (last new-path))) 35)))
 
 ; msg is :add-thing, nav-path [:course {:title ... :content ...}]]
-(defmethod post-control-event! :add-thing
+(defmethod post-control-event! 
+  :add-thing
   [target message nav-path previous-state current-state]
   (print "post-control-event! add-thing " nav-path)
   (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (first nav-path))}))
@@ -58,11 +61,13 @@
                       (last nav-path))  ; last of [:course {:title ... :content ...}]
   )
 
-(defmethod post-control-event! :current-user-mentioned
+(defmethod post-control-event! 
+  :current-user-mentioned
   [target message args previous-state current-state]
   (mprint "notify current user they were mentioned"))
 
-(defmethod post-control-event! :playlist-entry-played
+(defmethod post-control-event! 
+  :playlist-entry-played
   [target message [order channel-id] previous-state current-state]
   (let [controls-ch (get-in current-state [:comms :controls])
         playlist (get-in current-state [:channels channel-id :player :playlist])

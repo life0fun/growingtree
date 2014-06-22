@@ -24,7 +24,7 @@
                  [ch.qos.logback/logback-classic "1.0.7" :exclusions [org.slf4j/slf4j-api]]
                  ]
 
-  :source-paths ["src" "yaks/om/src" "yaks/sablono/src" "target/generated/clj"]
+  :source-paths ["src" "yaks/om/src" "yaks/sablono/src" "target/generated/clj" "assets"]
 
   :cljsbuild {:test-commands {"unit-tests" ["runners/phantomjs.js" :runner
                                             "window.literal_js_executed=true"
@@ -33,7 +33,7 @@
                                             "test-cljs/vendor/console-polyfill.js"
                                             "resources/private/js/unit-test.js"]} 
               :builds [{:id "dev"
-                        :source-paths ["src"]
+                        :source-paths ["src" "assets"]
                         :compiler {:output-to "out/public/growingtree.dev.js"
                                    :output-dir "out/public"
                                    :optimizations :none
