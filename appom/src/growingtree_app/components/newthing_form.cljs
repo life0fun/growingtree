@@ -7,7 +7,8 @@
             [growingtree-app.utils :as utils]
             [om.core :as om]
             [om.dom :as dom]
-            [sablono.core :as html :refer-macros [html]])
+            [sablono.core :as html :refer-macros [html]]
+            [cljs-time.core :as cljs-time])
   (:use-macros [dommy.macros :only [sel sel1]]))
 
 ; all newthing forms, by thing-type
@@ -224,8 +225,8 @@
                                 :lecture/content ".lecture-content"
                                 :lecture/type ".lecture-type"
                                 :lecture/author ".lecture-author"
-                                :lecture/start ".lecture-start"
-                                :lecture/end ".lecture-end"
+                                :lecture/start "#lecture-start"
+                                :lecture/end "#lecture-end"
                                 :lecture/url ".lecture-url"
                                 :lecture/wiki ".lecture-wiki"
                                }
@@ -234,11 +235,13 @@
                                    {}
                                    input-fields)
                             (assoc :author "rich-dad")
-                            (utils/update-enum :lecture "type" false))
+                            (utils/update-enum :lecture "type" false)
+                            (utils/update-time :lecture "start")
+                            (utils/set-time :lecture "end"))
                   ]
               (.log js/console "add-lecture form " (pr-str data))
               ; first is msg type, last is nav-path filter segment.
-              (put! comm [:add-thing [:lecture data]])
+              ; (put! comm [:add-thing [:lecture data]])
               ))]
     (list
       [:div.create-form
@@ -270,16 +273,17 @@
             [:label.control-label {:for "lecture-start"} "start time"]
             [:div#lecture-start-picker.input-append
               [:input#lecture-start.input-xlarge {:type "datetime" :placeholder "start time" :data-format "hh:mm:ss MM/dd/yyyy"}]
-              [:span.add-on [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]]]
+              [:span.add-on [:a {:href "javascript:NewCal('lecture-start','mmddyyyy', 'true');"}
+                              [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
+                              [:img {:src "cal.gif" :width "16" :height "16"}]]]]
           ]
 
           [:div.control-group
             [:label.control-label {:for "lecture-end"} "end time"]
             [:div#lecture-end-picker.input-append
               [:input#lecture-end.input-xlarge {:type "datetime" :placeholder "end time" :data-format "hh:mm:ss MM/dd/yyyy"}]
-              [:span.add-on [:a {:href "javascript:NewCal('lecture-end','ddmmyyyy');"}
+              [:span.add-on [:a {:href "javascript:NewCal('lecture-end','mmddyyyy', 'true');"}
                               [:img {:src "cal.gif" :width "16" :height "16"}]]]]
-                              ; [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]]]]
           ]
 
           [:div.control-group

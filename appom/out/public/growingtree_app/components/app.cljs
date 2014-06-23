@@ -54,7 +54,7 @@
                               "ctrl+1"     change-inspector-path!
                               "ctrl+s"     persist-local-state!
                               "ctrl+r"     restore-local-state!
-                              "slash"      focus-search!
+                              ;"slash"      focus-search!
                               "esc"        blur-current-field!})]
         (.log js/console "app state change, re-render all " (pr-str nav-path))
         (html/html

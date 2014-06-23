@@ -1,6 +1,10 @@
 goog.addDependency("base.js", ['goog'], []);
 goog.addDependency("../cljs/core.js", ['cljs.core'], ['goog.string', 'goog.array', 'goog.object', 'goog.string.StringBuffer']);
 goog.addDependency("../clojure/string.js", ['clojure.string'], ['cljs.core', 'goog.string', 'goog.string.StringBuffer']);
+goog.addDependency("../clojure/set.js", ['clojure.set'], ['cljs.core']);
+goog.addDependency("../cljs_time/core.js", ['cljs_time.core'], ['cljs.core', 'goog.i18n.TimeZone', 'goog.date.UtcDateTime']);
+goog.addDependency("../cljs_time/format.js", ['cljs_time.format'], ['cljs.core', 'goog.string', 'goog.string.format', 'clojure.string', 'clojure.set', 'goog.date', 'cljs_time.core']);
+goog.addDependency("../cljs_time/coerce.js", ['cljs_time.coerce'], ['cljs.core', 'cljs_time.format', 'goog.date']);
 goog.addDependency("../cljs/core/async/impl/protocols.js", ['cljs.core.async.impl.protocols'], ['cljs.core']);
 goog.addDependency("../cljs/core/async/impl/ioc_helpers.js", ['cljs.core.async.impl.ioc_helpers'], ['cljs.core', 'cljs.core.async.impl.protocols']);
 goog.addDependency("../cljs/core/async/impl/buffers.js", ['cljs.core.async.impl.buffers'], ['cljs.core', 'cljs.core.async.impl.protocols']);
@@ -12,11 +16,10 @@ goog.addDependency("../dommy/attrs.js", ['dommy.attrs'], ['cljs.core', 'clojure.
 goog.addDependency("../dommy/template.js", ['dommy.template'], ['dommy.attrs', 'cljs.core', 'clojure.string']);
 goog.addDependency("../dommy/utils.js", ['dommy.utils'], ['cljs.core']);
 goog.addDependency("../dommy/core.js", ['dommy.core'], ['dommy.attrs', 'cljs.core', 'dommy.template', 'dommy.utils', 'clojure.string']);
-goog.addDependency("../growingtree_app/utils.js", ['growingtree_app.utils'], ['goog.i18n.NumberFormat.Format', 'cljs.core', 'goog.crypt', 'goog.net.EventType', 'clojure.string', 'goog.crypt.Md5', 'goog.net.XhrIo', 'cljs.core.async', 'goog.events', 'goog.Uri', 'goog.async.Deferred', 'dommy.core']);
+goog.addDependency("../growingtree_app/utils.js", ['growingtree_app.utils'], ['cljs_time.coerce', 'goog.i18n.NumberFormat.Format', 'cljs.core', 'goog.crypt', 'goog.net.EventType', 'cljs_time.format', 'clojure.string', 'goog.crypt.Md5', 'goog.net.XhrIo', 'cljs.core.async', 'goog.events', 'goog.Uri', 'goog.async.Deferred', 'dommy.core', 'cljs_time.core']);
 goog.addDependency("../growingtree_app/mock_data.js", ['growingtree_app.mock_data'], ['cljs.core', 'growingtree_app.utils']);
 goog.addDependency("../growingtree_app/api/mock.js", ['growingtree_app.api.mock'], ['cljs.core', 'growingtree_app.mock_data', 'growingtree_app.utils', 'cljs.core.async']);
 goog.addDependency("../clojure/walk.js", ['clojure.walk'], ['cljs.core']);
-goog.addDependency("../clojure/set.js", ['clojure.set'], ['cljs.core']);
 goog.addDependency("../sablono/util.js", ['sablono.util'], ['cljs.core', 'clojure.string', 'clojure.set', 'goog.Uri']);
 goog.addDependency("../sablono/interpreter.js", ['sablono.interpreter'], ['cljs.core', 'clojure.string', 'sablono.util']);
 goog.addDependency("../sablono/core.js", ['sablono.core'], ['cljs.core', 'goog.dom', 'clojure.walk', 'clojure.string', 'sablono.interpreter', 'sablono.util']);
@@ -30,7 +33,7 @@ goog.addDependency("../cljs/reader.js", ['cljs.reader'], ['cljs.core', 'goog.str
 goog.addDependency("../growingtree_app/components/entity_view.js", ['growingtree_app.components.entity_view'], ['goog.i18n.NumberFormat.Format', 'sablono.core', 'cljs.core', 'goog.crypt', 'goog.net.EventType', 'om.core', 'clojure.string', 'goog.crypt.Md5', 'growingtree_app.utils', 'cljs.reader', 'cljs.core.async', 'goog.events', 'goog.Uri', 'dommy.core']);
 goog.addDependency("../growingtree_app/plugins.js", ['growingtree_app.plugins'], ['cljs.core', 'clojure.string']);
 goog.addDependency("../growingtree_app/datetime.js", ['growingtree_app.datetime'], ['cljs.core', 'goog.i18n.DateTimeFormat.Format']);
-goog.addDependency("../growingtree_app/components/newthing_form.js", ['growingtree_app.components.newthing_form'], ['sablono.core', 'cljs.core', 'om.core', 'growingtree_app.plugins', 'clojure.string', 'growingtree_app.utils', 'om.dom', 'cljs.core.async', 'growingtree_app.datetime', 'dommy.core']);
+goog.addDependency("../growingtree_app/components/newthing_form.js", ['growingtree_app.components.newthing_form'], ['sablono.core', 'cljs.core', 'om.core', 'growingtree_app.plugins', 'clojure.string', 'growingtree_app.utils', 'om.dom', 'cljs.core.async', 'growingtree_app.datetime', 'dommy.core', 'cljs_time.core']);
 goog.addDependency("../growingtree_app/components/main_area.js", ['growingtree_app.components.main_area'], ['sablono.core', 'cljs.core', 'growingtree_app.components.entity_view', 'om.core', 'growingtree_app.plugins', 'growingtree_app.components.newthing_form', 'clojure.string', 'growingtree_app.utils', 'om.dom', 'cljs.core.async', 'growingtree_app.datetime', 'dommy.core']);
 goog.addDependency("../growingtree_app/components/sidebar.js", ['growingtree_app.components.sidebar'], ['sablono.core', 'cljs.core', 'goog.string', 'om.core', 'clojure.string', 'growingtree_app.utils', 'cljs.core.async']);
 goog.addDependency("../ankha/core.js", ['ankha.core'], ['cljs.core', 'goog.object', 'om.core', 'clojure.string', 'om.dom']);

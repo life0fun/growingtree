@@ -21,6 +21,7 @@
                  [secretary "1.0.0"]
 
                  [cljs-ajax "0.2.4"]  ; cljs ajax client
+		 [com.andrewmcveigh/cljs-time "0.1.4"]  ; cljs-time mimic clj-time joda
                  [ch.qos.logback/logback-classic "1.0.7" :exclusions [org.slf4j/slf4j-api]]
                  ]
 

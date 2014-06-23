@@ -7,7 +7,10 @@
             [goog.Uri]
             [goog.net.EventType :as gevt]
             [goog.i18n.NumberFormat.Format :as formats]
-            [dommy.core :as dommy])
+            [dommy.core :as dommy]
+            [cljs-time.core :as cljs-time]
+            [cljs-time.coerce :as cljs-time-coerce]
+            [cljs-time.format :as cljs-time-format])
   (:require-macros [cljs.core.async.macros :as am :refer [go alt!]])
   (:import [goog.net XhrIo]
            [goog.async Deferred])
@@ -150,6 +153,21 @@
   [txtime nowtime]
     (str " " (.from txtime nowtime)))
 
+(defn set-time
+  "update in time value from string to keyword"
+  [thing-map thing-type keyname]
+  (.log js/console "set-time " (cljs-time-coerce/to-epoch (cljs-time-format/parse (cljs-time-format/formatter "MM-dd-yyyy hh:mm:ss") (get thing-map :lecture/end))))
+  (let [schema-key (keyword (str (name thing-type) "/" keyname))]
+    (if (contains? thing-map schema-key)
+      (let [
+            epoch-fn (fn [t] 
+              (cljs-time-coerce/to-epoch (cljs-time-format/parse (cljs-time-format/formatter "MM-dd-yyyy hh:mm:ss") t)))
+            update-fn (fn [t & args] (epoch-fn t))
+            new-map (-> thing-map
+                        (update-in [schema-key] update-fn))
+            ]
+        new-map)  ; return updated new val if value map contains schema key
+      thing-map)))
 
 ; get thing value from thing map by name of the attr, regardless of its namespace.
 ; e.g., get title from any of namespace, :course/title, :lecture/title, etc
