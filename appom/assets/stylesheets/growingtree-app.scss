@@ -442,9 +442,9 @@ h6{font-size:11.9px}
   .nav ul.nav-ul li:after{background:url(./images/tabs/tab-inactive-right.png) left bottom no-repeat;left:100%}
   .nav ul.nav-ul li:before,.nav ul.nav-ul li:after{content:"";width:30px;position:absolute;bottom:0}
   .nav ul.nav-ul li,.nav ul.nav-ul li:before,.nav ul.nav-ul li:after{height:30px;display:inline-block}
-  .nav ul.nav-ul li.active,.nav ul.nav-ul .main-area .slide-right li.nav-toggle,.main-area .slide-right .nav ul.nav-ul li.nav-toggle,.nav ul.nav-ul .main-area .slide-left li.sidebar-toggle,.main-area .slide-left .nav ul.nav-ul li.sidebar-toggle,.nav ul.nav-ul .sidebar .user-header.open-menu a.user-menu-toggle li.button,.sidebar .user-header.open-menu a.user-menu-toggle .nav ul.nav-ul li.button{background-image:url(./images/tabs/tab-active-middle.png)}
+  /*.nav ul.nav-ul li.active,.nav ul.nav-ul .main-area .slide-right li.nav-toggle,.main-area .slide-right .nav ul.nav-ul li.nav-toggle,.nav ul.nav-ul .main-area .slide-left li.sidebar-toggle,.main-area .slide-left .nav ul.nav-ul li.sidebar-toggle,.nav ul.nav-ul .sidebar .user-header.open-menu a.user-menu-toggle li.button,.sidebar .user-header.open-menu a.user-menu-toggle .nav ul.nav-ul li.button{background-image:url(./images/tabs/tab-active-middle.png)}
   .nav ul.nav-ul li.active:before,.nav ul.nav-ul .main-area .slide-right li.nav-toggle:before,.main-area .slide-right .nav ul.nav-ul li.nav-toggle:before,.nav ul.nav-ul .main-area .slide-left li.sidebar-toggle:before,.main-area .slide-left .nav ul.nav-ul li.sidebar-toggle:before,.nav ul.nav-ul .sidebar .user-header.open-menu a.user-menu-toggle li.button:before,.sidebar .user-header.open-menu a.user-menu-toggle .nav ul.nav-ul li.button:before{background-image:url(./images/tabs/tab-active-left.png)}
-  .nav ul.nav-ul li.active:after,.nav ul.nav-ul .main-area .slide-right li.nav-toggle:after,.main-area .slide-right .nav ul.nav-ul li.nav-toggle:after,.nav ul.nav-ul .main-area .slide-left li.sidebar-toggle:after,.main-area .slide-left .nav ul.nav-ul li.sidebar-toggle:after,.nav ul.nav-ul .sidebar .user-header.open-menu a.user-menu-toggle li.button:after,.sidebar .user-header.open-menu a.user-menu-toggle .nav ul.nav-ul li.button:after{background-image:url(./images/tabs/tab-active-right.png)}
+  .nav ul.nav-ul li.active:after,.nav ul.nav-ul .main-area .slide-right li.nav-toggle:after,.main-area .slide-right .nav ul.nav-ul li.nav-toggle:after,.nav ul.nav-ul .main-area .slide-left li.sidebar-toggle:after,.main-area .slide-left .nav ul.nav-ul li.sidebar-toggle:after,.nav ul.nav-ul .sidebar .user-header.open-menu a.user-menu-toggle li.button:after,.sidebar .user-header.open-menu a.user-menu-toggle .nav ul.nav-ul li.button:after{background-image:url(./images/tabs/tab-active-right.png)}*/
   .nav ul.nav-ul li .close_channel{width:auto;position:relative;right:-5px;z-index:100}
 }
 
@@ -584,8 +584,8 @@ h6{font-size:11.9px}
 .thing,.pagination{border-bottom:1px solid #dee6e8;padding:10px}
 
 
-.flat-list ul, ol {
-  margin: 0 0 0 0;
+.flat-list {
+  margin: 10px 0 0 0;
 }
 
 /** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
