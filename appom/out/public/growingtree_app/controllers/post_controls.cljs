@@ -53,12 +53,12 @@
 (defmethod post-control-event! 
   :add-thing
   [target message nav-path previous-state current-state]
-  (print "post-control-event! add-thing " nav-path)
+  (print "post-control-event! add-thing from nav-path :" nav-path)
   (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (first nav-path))}))
   (cljsajax/cljs-ajax :add-thing 
                       nav-path 
                       (get-in current-state [:comms :api])
-                      (last nav-path))  ; last of [:course {:title ... :content ...}]
+                      (last nav-path))  ; input data is last of [:course {:title ... :content ...}]
   )
 
 (defmethod post-control-event! 

@@ -10,7 +10,7 @@
 ; on-click append nav-path segment map.
 (defn thing-nav [comm thing-listing]
   (let [type (:type thing-listing)]
-    ;(.log js/console "thing-nav type " (pr-str type) " title " (:title thing-listing))
+    (.log js/console "li tab thing-nav type " (pr-str type) " title " (:title thing-listing))
     [:li.protected {:key type  ; 
                     :on-click #(put! comm [:tab-selected {:body [:all 0 type]}]) ; [:all 0 :thing-type]
                     :class (str type (when (:selected thing-listing) " active"))}

@@ -13,18 +13,21 @@
 
 ; all newthing forms, by thing-type
 
+; last-nav-path the cursor to last segment of global nav-path. passed in main_area, 
+; {:body [:newthing-form [:parent :add-child]], :data {:pid 17592186045419} }
 (defmulti add-form 
-  (fn [thing-type comm] thing-type))
+  (fn [thing-type comm last-nav-path] 
+    thing-type))
 
 (defmethod add-form 
   :default
-  [thing-type comm]
+  [thing-type comm last-nav-path]
   (.log js/console "add-form " (pr-str thing-type) " defaults "))
 
 ; encapsulate view and submit fn together.
 (defmethod add-form 
   :add-parent
-  [thing-type comm]
+  [thing-type comm last-nav-path]
   (let [submit-fn 
           (fn [e]
             (let [input-fields {:person/title ".person-title"
@@ -86,7 +89,7 @@
 ; add child form
 (defmethod add-form 
   :add-child
-  [thing-type comm]
+  [thing-type comm last-nav-path]
   (let [submit-fn 
           (fn [e]
             (let [input-fields {:person/title ".person-title"
@@ -151,7 +154,7 @@
 ; add course collect data field from form.
 (defmethod add-form 
   :add-course
-  [thing-type comm]
+  [thing-type comm last-nav-path]
   (let [submit-fn 
           (fn [e]
             (let [input-fields {:course/title ".course-title"
@@ -218,8 +221,9 @@
 ; add lecture form
 (defmethod add-form 
   :add-lecture
-  [thing-type comm]
-  (let [submit-fn 
+  [thing-type comm last-nav-path]
+  (let [course-id (get-in nav-path [:data :pid])
+        submit-fn 
           (fn [e]
             (let [input-fields {:lecture/title ".lecture-title"
                                 :lecture/content ".lecture-content"
@@ -235,13 +239,14 @@
                                    {}
                                    input-fields)
                             (assoc :author "rich-dad")
+                            (assoc :lecture/course (get-in @last-nav-path [:data :pid]))
                             (utils/update-enum :lecture "type" false)
                             (utils/update-time :lecture "start")
                             (utils/set-time :lecture "end"))
                   ]
               (.log js/console "add-lecture form " (pr-str data))
               ; first is msg type, last is nav-path filter segment.
-              ; (put! comm [:add-thing [:lecture data]])
+              (put! comm [:add-thing [:lecture data]])
               ))]
     (list
       [:div.create-form

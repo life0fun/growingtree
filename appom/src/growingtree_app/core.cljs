@@ -75,7 +75,10 @@
                   (.log js/console "controls chan event: " (pr-str msg-type msg-data))
                   ; (update-history! history :controls v)
                   ; update state with selected state id. will cause re-render of app
+
+                  ; first, control event just append msg-data to nav-path.
                   (swap! state (partial controls/control-event target msg-type msg-data))
+                  ; second, for :add-thing or :get, post-controller take nav-path and ajax to back-end.
                   (controls-post/post-control-event! target msg-type msg-data previous-state @state)
                   ))
             (:api comms) 

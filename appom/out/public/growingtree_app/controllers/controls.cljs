@@ -36,11 +36,13 @@
       (assoc-in [:things last-nav-type :selected] false)
       (assoc-in [:things cur-nav-type :selected] true))))
 
-; msg for creating thing [:add-thing [:course {}]]
-(defmethod control-event :add-thing
-  [target msg-type msg-data state] ; msg-data is [:course {:title :content}]
+; add-thing msg-data = [:add-thing [:course {}]], append to :nav-path
+; :add-thing, post control chan to cljs ajax to back-end.
+(defmethod control-event 
+  :add-thing
+  [target msg-type msg-data state] ; msg-data = [:course {:title :content}]
   (-> state
-    (update-in [:nav-path] conj msg-data)))
+    (update-in [:nav-path] conj msg-data))) ; nav-path [...[:lecture {:content ... :author ...}]]
 
 (defmethod control-event :api-key-updated
   [target msg-type api-key state]

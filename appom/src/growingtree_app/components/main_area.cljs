@@ -67,7 +67,7 @@
 
 
 ; request to display newthing form to add thing.
-; {:body [:newthing-form [:parent :add-child]], :data {:pid 17592186045419}} 
+; {:body [:newthing-form [:parent :add-child]], :data {:pid 17592186045419} }
 ; if we have :data, need to show title thing, :db/id 17592186045419.
 (defmethod main-content 
   :newthing-form
@@ -82,7 +82,7 @@
     [:div
       (when pid (thing-entry app title override))
       (when pid [:hr {:size 4}])
-      (newthing-form/add-form thing-type comm)
+      (newthing-form/add-form thing-type comm nav-path)
     ]))
 
 

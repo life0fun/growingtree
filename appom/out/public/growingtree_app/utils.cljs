@@ -156,7 +156,6 @@
 (defn set-time
   "update in time value from string to keyword"
   [thing-map thing-type keyname]
-  (.log js/console "set-time " (cljs-time-coerce/to-epoch (cljs-time-format/parse (cljs-time-format/formatter "MM-dd-yyyy hh:mm:ss") (get thing-map :lecture/end))))
   (let [schema-key (keyword (str (name thing-type) "/" keyname))]
     (if (contains? thing-map schema-key)
       (let [
