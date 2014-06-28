@@ -222,7 +222,7 @@
 (defmethod add-form 
   :add-lecture
   [thing-type comm last-nav-path]
-  (let [course-id (get-in nav-path [:data :pid])
+  (let [course-id (get-in last-nav-path [:data :pid])
         submit-fn 
           (fn [e]
             (let [input-fields {:lecture/title ".lecture-title"

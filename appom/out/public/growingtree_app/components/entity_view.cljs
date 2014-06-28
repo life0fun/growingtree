@@ -184,6 +184,8 @@
     (.log js/console (str "thing-entry :default " value-map))))
 
 
+;
+; :person will recursive call thing-entry to display :parent or :child.
 (defmethod thing-entry
   :person
   [app thing-type entity override]
@@ -380,6 +382,81 @@
               ]
             ]
           ]
+          [:div.clearleft]
+      ]])))
+
+
+; thing-entry view for lecture
+(defmethod thing-entry
+  :lecture
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :lecture/author))
+        start (get entity :lecture/start)
+        end (get entity :lecture/end)
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        add-question {:title :title  ; key is :title cursor in app state. XXXX how was it consumed ?
+                      :body [:newthing-form [:lecture :add-question]]
+                      :data {:pid thing-id}
+                    }
+        add-assignment {:path [:add-thing :assignment] 
+                        :data {:author thing-id}}
+       ]
+    (.log js/console "lecture thing value " (pr-str value-map))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
+        [:span.rank "1"]   ; index offset in the list of filtered things
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      
+        [:a.thumbnail {:href "#"}
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+      
+        [:div.entry.unvoted
+          [:p.title [:a.title {:href "#"} (:title value-map)]]
+          [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
+          [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
+          [:p.tagline "Offered by " authors]
+          [:p.tagline "start " start " == " end]
+
+          [:ul.flat-list.buttons
+            [:li.share
+              [:div {:class (:course-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "course"]]]]
+
+            [:li.share
+              [:div {:class (:question-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "questions"]]]]
+
+            [:li.share
+              [:div {:class (:add-question-class value-map)}
+                [:span.toggle [:a.option.active
+                  {:href "#" 
+                   :on-click (fn [_]
+                      ; persist entity into title slot in global state
+                      (om/update! app [:title] entity)
+                      (put! comm [:newthing-form add-question]))}
+                   "add question"]]]]
+
+            [:li.share
+              [:div {:class (:enrollment-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "enrollments"]]]]
+
+            [:li.share
+              [:div {:class (:comments-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (str "child-form-" thing-id)}]
           [:div.clearleft]
       ]])))
 
