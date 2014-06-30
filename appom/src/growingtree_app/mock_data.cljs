@@ -121,15 +121,15 @@
         things (into {} (map (juxt :type identity) thing-listing))
        ]
 
-    ;nav-path segment is a map contains query filters for each view in main panel.
-    {:nav-path [{:title [] :body [:all 0 :parent] :data {}}]
+    ;nav-path segment is a map contains query filters for things in body.
+    {; store entity to display in header and body
+     :title {}   ; store entity to show in 
+     :body {}
+     :nav-path [{:title [] :body [:all 0 :parent] :data {}}]
+     
      ; nav-path as key, things-vec value
      :nav-path-things {}
     
-     ; store entity to display in header and body
-     :title {}
-     :body {}
-
      :audio {:volume 100
              :muted true}
      :windows {:window-inspector {:open false}}

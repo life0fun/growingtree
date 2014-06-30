@@ -69,15 +69,15 @@
 
 
 ;;==================================================================================
-; composite request :params = {:thing-type :path :qpath :details}, 
+; nav-path [{:title ... :body [:qpath [:course 1 :lecture]] :data {}}]
 ; server side service parse request {:params {...}} as :edn-params.
-; for get, nav-path is [:course 1 :lecture]
+; for get, main-path is [:course 1 :lecture]
 ; for add, nav-path is [:lecture {:lecture/content ... :lecture/start ...}]
 ;;==================================================================================
 (defn cljs-ajax
   "service a get or post request using cljs-ajax GET POST call"
   [command nav-path api-ch data]
-  (let [main-path (:body nav-path)
+  (let [main-path (:body nav-path)  ; [:course 1 :lecture]
         title (:title nav-path)
         thing-type (last main-path)  ; this is for nav-path filtered
         request {:handler (handler command main-path api-ch)

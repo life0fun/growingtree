@@ -14,6 +14,7 @@
   (fn [target msg-type msg-data state] msg-type))
 
 ; the default handling of evts from control chan is conj nav-path with msg-data
+; msg-data is {:title ... :body [:qpath [:course thing-id :lecture]] :data {}}
 (defmethod control-event 
   :default
   [target msg-type msg-data state]
@@ -23,18 +24,29 @@
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; global state update for control event for navbar.
-; when select a different tab, update nav-path with the new tab name.
-; tab-select control event  msg-data {:path [:all 0 :parent]}
 (defmethod control-event 
   :tab-selected
-  [target msg-type msg-data state] ; msg-data is {:path [:all 0 :parent]}
+  [target msg-type msg-data state]
   (let [last-nav-type (first (last (:path (get-in state [:nav-path]))))
-        cur-nav-type (first (:path msg-data))]
-    (.log js/console "tab-select control event " (pr-str msg-data))
+        cur-nav-type (get-in msg-data [:body 1 2])]
+    (.log js/console "tab-select event control " cur-nav-type (pr-str msg-data))
     (-> state
       (update-in [:nav-path] conj msg-data)
       (assoc-in [:things last-nav-type :selected] false)
       (assoc-in [:things cur-nav-type :selected] true))))
+
+
+(defmethod control-event 
+  :filter-things
+  [target msg-type msg-data state]
+  (let [last-nav-type (first (last (:path (get-in state [:nav-path]))))
+        cur-nav-type (get-in msg-data [:body 1 2])]
+    (.log js/console "filter-things event control " cur-nav-type (pr-str msg-data))
+    (-> state
+      (update-in [:nav-path] conj msg-data)
+      (assoc-in [:things last-nav-type :selected] false)
+      (assoc-in [:things cur-nav-type :selected] true))))
+
 
 ; add-thing msg-data = [:add-thing [:course {}]], append to :nav-path
 ; :add-thing, post control chan to cljs ajax to back-end.

@@ -57,44 +57,44 @@
     (om/root app/app state {:target target   ; target is app dom dom element, <div id='app'/>
                             :opts {:comms comms}})
     
-    ; chan msg vec, [message-type nav-path], [:tab-selected [:parent]]
-    ; mostly, conj state nav-path with nav-path, trigger re-render app and main_area.
+    ; chan msg vec, [msg-type msg-data], [:tab-selected {:title entity :body nav-path :data {:pid}}]
+    ; refer to global state :nav-path for msg-data format. conj msg-data to state nav-path prop.
     (go (while true
-          (alt!
-            (:controls comms) 
-              ([v]   ; [:tab-selected [:parent]], first is msg, rest is nav-path.
-                (when utils/logging-enabled?
-                  (mprint "Controls Verbose: " (pr-str v)))
-                ; each event [msg-type msg-data]
-                (let [previous-state @state
-                      msg-type (first v)
-                      msg-data (last v)
-                      ; dbid (if (:data msg-data) (:db/id @(:data msg-data)) "11")
-                      ; dbid (if (:data msg-data) "ww" "11")
-                      ]
-                  (.log js/console "controls chan event: " (pr-str msg-type msg-data))
-                  ; (update-history! history :controls v)
-                  ; update state with selected state id. will cause re-render of app
+      (alt!
+        (:controls comms) 
+          ([v]   ; [:tab-selected [:parent]], first is msg, rest is nav-path.
+            (when utils/logging-enabled?
+              (mprint "Controls Verbose: " (pr-str v)))
+            ; each event [msg-type msg-data]
+            (let [previous-state @state
+                  msg-type (first v)
+                  msg-data (last v)
+                  ; dbid (if (:data msg-data) (:db/id @(:data msg-data)) "11")
+                  ; dbid (if (:data msg-data) "ww" "11")
+                  ]
+              (.log js/console "controls chan event: " (pr-str msg-type msg-data))
+              ; (update-history! history :controls v)
+              ; update state with selected state id. will cause re-render of app
 
-                  ; first, control event just append msg-data to nav-path.
-                  (swap! state (partial controls/control-event target msg-type msg-data))
-                  ; second, for :add-thing or :get, post-controller take nav-path and ajax to back-end.
-                  (controls-post/post-control-event! target msg-type msg-data previous-state @state)
-                  ))
-            (:api comms) 
-              ([v]
-                (when utils/logging-enabled?
-                  (mprint "API Verbose: " (pr-str v)))
-                ; [:api-data {:nav-path [{:path {:all 0 :parent}}], :things-vec ({:person/url #{rich.com} ...)
-                (let [previous-state @state
-                      msg-type (first v)
-                      msg-data (last v)
-                      things-vec (:things-vec msg-data)]
-                  (update-history! history :api v)
-                  (swap! state (partial api-con/api-event target msg-type msg-data))
-                  (api-pcon/post-api-event! target msg-type msg-data previous-state @state)))
-            (async/timeout 30000) 
-            (mprint (pr-str @history)))))
+              ; first, control event just append msg-data to nav-path.
+              (swap! state (partial controls/control-event target msg-type msg-data))
+              ; second, for :add-thing or :get, post-controller take nav-path and ajax to back-end.
+              (controls-post/post-control-event! target msg-type msg-data previous-state @state)
+              ))
+        (:api comms) 
+          ([v]
+            (when utils/logging-enabled?
+              (mprint "API Verbose: " (pr-str v)))
+            ; [:api-data {:nav-path [{:path {:all 0 :parent}}], :things-vec ({:person/url #{rich.com} ...)
+            (let [previous-state @state
+                  msg-type (first v)
+                  msg-data (last v)
+                  things-vec (:things-vec msg-data)]
+              (update-history! history :api v)
+              (swap! state (partial api-con/api-event target msg-type msg-data))
+              (api-pcon/post-api-event! target msg-type msg-data previous-state @state)))
+        (async/timeout 30000) 
+        (mprint (pr-str @history)))))
     ))
 
 ; setup main component with app state

@@ -205,7 +205,7 @@
   "get things by type, ret from peer a list of thing in a new line sep string"
   [{postbody :edn-params :as request}] ; post data under :edn-params key :as request
   ; path segment in req contains request params, /api/:thing, /api/:course
-  (println "get-things " postbody)
+  (log/info "get-things " postbody)
   (let [type (get-in request [:path-params :thing])  ; type is path param /api/:thing
         path (:path postbody)   ; effect msg body, [:group 1 :group-members],
         thing-type (:thing-type postbody)
@@ -213,7 +213,7 @@
         result {:status 200 :data things}
         jsonresp (bootstrap/edn-response result)
        ]
-    (println (str "peer get-things " type thing-type path things))
+    (log/info "service get-things from peer " type thing-type path things)
     jsonresp))
 
 ;------------------------------------------------------------------------------------
@@ -228,9 +228,10 @@
 ;------------------------------------------------------------------------------------
 
 ;;==================================================================================
-; POST form details to add a particular thing
-; postbody is body when xhr-request on api service side
-; :edn-params {:details {:title "aa", :content "", :type "math",
+; POST add-thing, request's :edn-params = postbody, :path-params /add/:thing
+; :edn-params {:thing-type :path :qpaht :details {:title "aa", :content "", :type "math",
+; postbody = {:thing-type nil, :path nil, :qpath nil, :details {:lecture/content "c",..}
+; For add-thing, type is taken from /add/:thing => lecture.
 ;;==================================================================================
 (defn add-thing
   "add a thing upon post request, request contains http post data"

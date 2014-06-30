@@ -7,7 +7,8 @@
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format]
             [clj-time.local])
-  (:require [growingtree-server.datomic.dda :as dda])  ; datomic data accessor
+  (:require [io.pedestal.service.log :as log]
+            [growingtree-server.datomic.dda :as dda])  ; datomic data accessor
   )
 
 
@@ -50,7 +51,7 @@
 ;;===========================================================================
 (defn get-user
   [details]
-  (prn "peer get-user details " details)
+  (log/info "peer get-user details " details)
   (dda/find-user details))
 
 
@@ -68,15 +69,15 @@
 (defmethod get-things
   :default
   [type qpath details]
-  (prn "get-things default " type " qpath " qpath " details " details))
+  (log/info "get-things default " type " qpath " qpath " details " details))
 
 
 (defmethod get-things
   :parent
   [type qpath details]
-  (prn "peer get-things " type qpath details)
+  (log/info "peer get-things " type qpath details)
   (let [parents (dda/find-parent qpath)]
-    (prn "peer dda find parent " qpath parents)
+    (log/info "peer dda find parent " qpath parents)
     parents))
 
 
@@ -84,7 +85,7 @@
   :child
   [type qpath details]
   (let [children (dda/find-child qpath)]
-    (prn "peer dda find children " qpath children)
+    (log/info "peer dda find children " qpath children)
     children))
 
 
@@ -92,7 +93,7 @@
   :course
   [type qpath details]
   (let [courses (dda/find-course qpath)]
-    (prn "peer get courses " qpath courses)
+    (log/info "peer get courses " qpath courses)
     courses))
 
 
@@ -100,7 +101,7 @@
   :lecture
   [type qpath details]
   (let [lectures (dda/find-lecture qpath)]
-    (prn "peer get lectures " qpath lectures)
+    (log/info "peer get lectures " qpath lectures)
     lectures))
 
 
@@ -108,7 +109,7 @@
   :question
   [type qpath details]
   (let [questions (dda/find-question qpath)]
-    (prn "peer get questions " qpath questions)
+    (log/info "peer get questions " qpath questions)
     questions))
 
 
@@ -116,7 +117,7 @@
   :assignment
   [type qpath details]
   (let [assignments (dda/find-assignment qpath)]
-    (prn "peer get assignments " qpath assignments)
+    (log/info "peer get assignments " qpath assignments)
     assignments))
 
 
@@ -124,14 +125,14 @@
   :answer
   [type qpath details]
   (let [answers (dda/find-answer qpath)]
-    (prn "peer get answers " qpath answers)
+    (log/info "peer get answers " qpath answers)
     answers))
 
 (defmethod get-things
   :comments
   [type qpath details]
   (let [comments (dda/find-comments qpath)]
-    (prn "peer get comments " qpath comments)
+    (log/info "peer get comments " qpath comments)
     comments))
 
 
@@ -139,7 +140,7 @@
   :enrollment
   [type qpath details]
   (let [enrollments (dda/find-enrollment qpath)]
-    (prn "peer get enrollments " qpath enrollments)
+    (log/info "peer get enrollments " qpath enrollments)
     enrollments))
 
 
@@ -147,7 +148,7 @@
   :group
   [type qpath details]
   (let [groups (dda/find-group qpath)]
-    (prn "peer get groups " qpath groups)
+    (log/info "peer get groups " qpath groups)
     groups))
 
 
@@ -155,7 +156,7 @@
   :group-members
   [type qpath details]
   (let [members (dda/find-group-members qpath)]
-    (prn "peer get group members " qpath members)
+    (log/info "peer get group members " qpath members)
     members))
 
 
@@ -163,7 +164,7 @@
   :like
   [type qpath details]
   (let [likes (dda/find-like qpath)]
-    (prn "peer get likes " qpath likes)
+    (log/info "peer get likes " qpath likes)
     likes))
 
 
@@ -174,7 +175,7 @@
   :timeline
   [type qpath details]
   (let [timeline (dda/find-timeline qpath details)]
-    (prn "peer get timeline " qpath details)
+    (log/info "peer get timeline " qpath details)
     timeline))
 
 
@@ -182,7 +183,7 @@
   :search
   [type qpath details]
   (let [search (dda/search qpath details)]
-    (prn "peer fulltext search " qpath search)
+    (log/info "peer fulltext search " qpath search)
     search))
 
 
@@ -193,9 +194,8 @@
   [type qpath details]
   (let [thing-id (second (reverse qpath))
         entity (dda/find-entity-by-id thing-id qpath)]
-    (prn "peer get title --> " qpath entity)
+    (log/info "peer get title --> " qpath entity)
     [entity]))
-
 
 
 ; get thing details by field, get author
@@ -208,7 +208,7 @@
         ref-ids (dda/find-entity-attr thing-id "author")
         entities (map #(dda/find-entity-by-id % [:person % :person]) ref-ids)
        ]
-    (prn "peer get author --> " qpath entities)
+    (log/info "peer get author --> " qpath entities)
     entities))
 
 ;;======================================================
@@ -223,7 +223,7 @@
 (defmethod add-thing
   :default
   [type details]
-  (prn "XXX add-thing default " type details))
+  (log/info "XXX add-thing default " type details))
 
 
 ; add family
@@ -233,7 +233,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-parent details)
        ]
-    ;(prn "peer add parent " type " details " details " result " result)
+    ;(log/info "peer add parent " type " details " details " result " result)
     result))
 
 
@@ -243,7 +243,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-child details)
        ]
-    ;(prn "peer add child " type " details " details " result " result)
+    ;(log/info "peer add child " type " details " details " result " result)
     result))
 
 (defmethod add-thing
@@ -252,7 +252,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-family details)
        ]
-    ;(prn "peer add family " type " details " details " result " result)
+    ;(log/info "peer add family " type " details " details " result " result)
     result))
 
 
@@ -263,7 +263,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-course details)
        ]
-    ;(prn "peer add thing " type " author " author " details " details " result " result)
+    ;(log/info "peer add thing " type " author " author " details " details " result " result)
     result))
 
 
@@ -274,7 +274,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-lecture details)
        ]
-    ;(prn "peer add thing " type " author " author " details " details " result " result)
+    ;(log/info "peer add thing " type " author " author " details " details " result " result)
     result))
 
 
@@ -285,7 +285,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-question details)
        ]
-    ;(prn "peer add thing " type " details " details " result ")
+    ;(log/info "peer add thing " type " details " details " result ")
     details))
 
 ; add assignment triggered by :assignto, and key is :assign, to diff from assignment form.
@@ -296,7 +296,7 @@
         result (dda/create-assignment details)
         ]
     (newline)
-    ;(prn "peer add thing " type " details " details " result " result)
+    ;(log/info "peer add thing " type " details " details " result " result)
     result))
 
 
@@ -308,19 +308,19 @@
         result (dda/create-answer details)
         ]
     (newline)
-    ;(prn "peer add thing " type " details " details " result " result)
+    ;(log/info "peer add thing " type " details " details " result " result)
     result))
 
 
 (defmethod add-thing
   :grade
   [type details]
-  (prn "peer add thing grade " type " details " details)
+  (log/info "peer add thing grade " type " details " details)
   (let [author (:author details)
         result (dda/create-grade details)
         ]
     (newline)
-    ;(prn "peer add thing " type " details " details " result " result)
+    ;(log/info "peer add thing " type " details " details " result " result)
     result))
 
 
@@ -331,7 +331,7 @@
         result (dda/create-comments details)
         ]
     (newline)
-    ;(prn "peer add thing " type " result " result " details " details )
+    ;(log/info "peer add thing " type " result " result " details " details )
     result))
 
 
@@ -342,7 +342,7 @@
         result (dda/create-group details)
         ]
     (newline)
-    ;(prn "peer add thing " type " result " result " details " details )
+    ;(log/info "peer add thing " type " result " result " details " details )
     result))
 
 ; join group use create-group, just details map has :db/id value
@@ -353,7 +353,7 @@
         result (dda/join-group details)
        ]
     (newline)
-    ;(prn "peer add thing " type " result " result " details " details )
+    ;(log/info "peer add thing " type " result " result " details " details )
     result))
 
 
@@ -365,7 +365,7 @@
         result (dda/create-like details)
         ]
     (newline)
-    ;(prn "peer add thing " type " details " details " result " result)
+    ;(log/info "peer add thing " type " details " details " result " result)
     result))
 
 
@@ -377,6 +377,6 @@
         result (dda/create-enrollment details)
         ]
     (newline)
-    ;(prn "peer add thing " type " result " result " details " details )
+    ;(log/info "peer add thing " type " result " result " details " details )
     result))
 

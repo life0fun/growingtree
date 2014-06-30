@@ -7,7 +7,8 @@
             [clojure.set :as set]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
-            [clojure.data.json :as json])
+            [clojure.data.json :as json]
+            [io.pedestal.service.log :as log])
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format :refer [parse unparse formatter]]
             [clj-time.coerce :refer [to-long from-long]])
@@ -193,7 +194,7 @@
                   )
         ]
     (doseq [e lectures]
-      (prn "lecture --> " e))
+      (log/info"lecture --> " e))
     lectures))
 
 
@@ -216,8 +217,8 @@
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "create lecture entity " author-id course-id entity)
-    (prn "submit lecture trans " trans)
+    (log/info "create lecture entity " author-id course-id entity)
+    (log/info "submit create lecture trans " trans)
     [entity]))
 
 

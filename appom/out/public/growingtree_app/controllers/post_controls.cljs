@@ -49,6 +49,25 @@
   ; (when-let [new-path (get-in current-state [:nav-path])]
   ;   (js/setTimeout #(imp-ui/scroll-to-latest-message! target (last (last new-path))) 35)))
 
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+; comm chan post control event, called from core to process control event in comm chan. 
+; nav-path {:title :title, :body [:qpath [:course 1 :lecture]], :data {:pid 1}}
+nav-path {:path [:all 0 :parent]}
+; send xhr request to get data.
+(defmethod post-control-event! 
+  :filter-things
+  [target message nav-path previous-state current-state]
+  (print "post-control-event! filter-things nav-path " nav-path)  ; {:path [:all 0 :parent]}
+  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (get-in nav-path [:body 1 2]))}))
+  (cljsajax/cljs-ajax :request-things
+                      nav-path
+                      (get-in current-state [:comms :api])
+                      nav-path)   ; [:all 0 :parent], or [:qpath [:course 1 :lecture]]
+    )
+  ; (when-let [new-path (get-in current-state [:nav-path])]
+  ;   (js/setTimeout #(imp-ui/scroll-to-latest-message! target (last (last new-path))) 35)))
+
+
 ; msg is :add-thing, nav-path [:course {:title ... :content ...}]]
 (defmethod post-control-event! 
   :add-thing

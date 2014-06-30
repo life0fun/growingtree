@@ -207,7 +207,7 @@
                          (actionkeys-class thing-id actionkeys)
                          override)
         add-child {:title :title  ; key is :title cursor in app state.
-                   :body [:newthing-form [:parent :add-child]]
+                   :body [:newthing-form [:parent :add-child]]  ; :body is nav-path
                    :data {:pid thing-id}
                   }
         add-assignment {:path [:add-thing :assignment] 
@@ -289,7 +289,7 @@
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
-        add-lecture {:title :title  ; key is :title cursor in app state.
+        add-lecture {:title :title  ; the key used to get the value from state.
                      :body [:newthing-form [:course :add-lecture]]
                      :data {:pid thing-id}
                     }
@@ -321,7 +321,17 @@
           [:ul.flat-list.buttons
             [:li.share
               [:div {:class (:lecture-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "lectures"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (fn [_]
+                      ; persist entity into global state title
+                      (om/update! app [:title] entity)
+                      ; send msg to control chan, msg-data = {:title entity :body nav-path :data}
+                      (put! comm [:filter-things ; <- msg-type
+                        {:title :title  ; key name in state props to display in title. 
+                         :body [:qpath [:course thing-id :lecture]]
+                         :data {:pid thing-id}}]))}
+                  "lectures"]]]]
 
             [:li.share
               [:div {:class (:add-lecture-class value-map)}
