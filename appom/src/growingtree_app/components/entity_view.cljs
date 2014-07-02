@@ -330,7 +330,7 @@
                       ; :title used to form request params in ajax 
                       (put! comm [:filter-things ; <- msg-type
                         {:title :title  ; key name in state props to display in title, 
-                         :body [:qpath [:course thing-id :lecture]]
+                         :body [:filter-things [:course thing-id :lecture]] ; first is for main-area content dispatch.
                          :data {:pid thing-id}}]))}
                   "lectures"]]]]
 

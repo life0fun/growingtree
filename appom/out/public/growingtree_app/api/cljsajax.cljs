@@ -69,7 +69,7 @@
 
 
 ;;==================================================================================
-; nav-path [{:title ... :body [:qpath [:course 1 :lecture]] :data {}}]
+; nav-path [{:title ... :body [:qpath [:filter-things [:course 1 :lecture]] :data {}}]
 ; server side service parse request {:params {...}} as :edn-params.
 ; for get, main-path is [:course 1 :lecture]
 ; for add, nav-path is [:lecture {:lecture/content ... :lecture/start ...}]
@@ -77,16 +77,15 @@
 (defn cljs-ajax
   "service a get or post request using cljs-ajax GET POST call"
   [command nav-path api-ch data]
-  (let [main-path (:body nav-path)  ; [:course 1 :lecture]
-        title (:title nav-path)
+  (let [main-path (get nav-path :body)  ; [:filter-things [:course 1 :lecture]]
         thing-type (last main-path)  ; this is for nav-path filtered
         request {:handler (handler command main-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)
                  :format :edn    ; always use edn for clj programs internally.
                  :params {:thing-type thing-type 
                           :path main-path 
-                          :qpath title 
-                          :details data}
+                          :qpath (get nav-path :title)
+                          :details data}  ; data is nav-path for filter-things.
                  :headers {}
                 }
        ]

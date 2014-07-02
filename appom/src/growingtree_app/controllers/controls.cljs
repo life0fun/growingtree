@@ -9,7 +9,8 @@
 ; this module update global state with event data from control chan.
 ; XXX App state updated triggers IRender on app component, cascade to sidebar and main.
 
-; dispatch based on msg-type type. 
+; dispatch based on msg-type type.
+; msg-data is nav-path {:title :title, :body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
 (defmulti control-event
   (fn [target msg-type msg-data state] msg-type))
 
@@ -28,7 +29,7 @@
   :tab-selected
   [target msg-type msg-data state]
   (let [last-nav-type (first (last (:path (get-in state [:nav-path]))))
-        cur-nav-type (get-in msg-data [:body 1 2])]
+        cur-nav-type (get-in msg-data [:body 2])] ;
     (.log js/console "tab-select event control " cur-nav-type (pr-str msg-data))
     (-> state
       (update-in [:nav-path] conj msg-data)
@@ -39,8 +40,8 @@
 (defmethod control-event 
   :filter-things
   [target msg-type msg-data state]
-  (let [last-nav-type (first (last (:path (get-in state [:nav-path]))))
-        cur-nav-type (get-in msg-data [:body 1 2])]
+  (let [last-nav-type (last (:body (get-in state [:nav-path])))
+        cur-nav-type (get-in msg-data [:body 1 2])]  ; :body [:filter-things [:course 1 :lecture]]
     (.log js/console "filter-things event control " cur-nav-type (pr-str msg-data))
     (-> state
       (update-in [:nav-path] conj msg-data)

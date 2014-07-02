@@ -50,8 +50,9 @@
         ])))))
 
 ; display main content after nav-path updated. latest ele in nav-path vector.
-; nav-path ele is map {:title [...] :body [] :data {}}
-; nav-path shall contains keys into global state to render all comps in main area.
+; nav-path {:title [...] :body [:newthing-form [:course :add-lecture]] :data {}}
+; {:title :title, :body [:course 1 :lecture], :data {:pid 17592186045421}} 
+; first of nav-path [:newthing-form [...]], [:filter-things []]
 (defmulti main-content 
   (fn [app nav-path nav-path-things search-filter opts]
     (first (:body nav-path))))
@@ -65,6 +66,26 @@
   (let [thing-type (last (:body nav-path))]
     (things-list app thing-type nav-path nav-path-things search-filter opts)))
 
+
+; request to display filtered-thing.
+; :filter-things {:title :title, :body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
+; {:body [:newthing-form [:parent :add-child]], :data {:pid 17592186045419} }
+; if we have :data, need to show title thing, :db/id 17592186045419.
+(defmethod main-content 
+  ::filter-things
+  [app nav-path nav-path-things search-filter]
+  (let [comm (get-in app [:comms :controls])
+        thing-type (get-in nav-path [:body 1 2]) ; newthing type is last last
+        title (get-in app [:title])
+        pid (get-in nav-path [:data :pid])
+        override (if pid (entity-view/actionkey-class pid thing-type "hide") {})
+       ]
+    (.log js/console "filter-things " pid (pr-str thing-type override))
+    [:div
+      (when pid (thing-entry app title override))
+      (when pid [:hr {:size 4}])
+      ;(newthing-form/add-form thing-type comm nav-path)
+    ]))
 
 ; request to display newthing form to add thing.
 ; {:body [:newthing-form [:parent :add-child]], :data {:pid 17592186045419} }

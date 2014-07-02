@@ -52,7 +52,7 @@
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; comm chan post control event, called from core to process control event in comm chan. 
 ; nav-path {:title :title, :body [:qpath [:course 1 :lecture]], :data {:pid 1}}
-nav-path {:path [:all 0 :parent]}
+; nav-path {:path [:all 0 :parent]}
 ; send xhr request to get data.
 (defmethod post-control-event! 
   :filter-things
@@ -62,7 +62,7 @@ nav-path {:path [:all 0 :parent]}
   (cljsajax/cljs-ajax :request-things
                       nav-path
                       (get-in current-state [:comms :api])
-                      nav-path)   ; [:all 0 :parent], or [:qpath [:course 1 :lecture]]
+                      nav-path)   ; data is nav-path. [:all 0 :parent], or [:qpath [:course 1 :lecture]]
     )
   ; (when-let [new-path (get-in current-state [:nav-path])]
   ;   (js/setTimeout #(imp-ui/scroll-to-latest-message! target (last (last new-path))) 35)))

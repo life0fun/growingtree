@@ -52,7 +52,6 @@
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; comm chan post control event, called from core to process control event in comm chan. 
 ; nav-path {:title :title, :body [:qpath [:course 1 :lecture]], :data {:pid 1}}
-nav-path {:path [:all 0 :parent]}
 ; send xhr request to get data.
 (defmethod post-control-event! 
   :filter-things

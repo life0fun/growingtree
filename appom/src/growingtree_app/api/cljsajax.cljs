@@ -77,7 +77,7 @@
 (defn cljs-ajax
   "service a get or post request using cljs-ajax GET POST call"
   [command nav-path api-ch data]
-  (let [main-path (get-in nav-path [:body 1])  ; [:filter-things [:course 1 :lecture]]
+  (let [main-path (get nav-path :body)  ; [:filter-things [:course 1 :lecture]]
         thing-type (last main-path)  ; this is for nav-path filtered
         request {:handler (handler command main-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)
@@ -85,7 +85,7 @@
                  :params {:thing-type thing-type 
                           :path main-path 
                           :qpath (get nav-path :title)
-                          :details data}
+                          :details data}  ; data is nav-path for filter-things.
                  :headers {}
                 }
        ]
