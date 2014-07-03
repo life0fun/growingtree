@@ -24,7 +24,7 @@
   (.log js/console "channel route handle open-to-channel " channel-id)
   (listen-once-for-app! app
                         #(get-in % [:channels channel-id])
-                        #(put! controls-ch [:tab-selected channel-id])))
+                        #(put! controls-ch [:all-things channel-id])))
 
 ; thing nodes of thing-type
 (defn thing-nodes!
@@ -32,7 +32,7 @@
   (.log js/console "thing type thing-nodes " thing-type)
   (listen-once-for-app! app
                         #(get-in % [:things thing-type])
-                        #(put! controls-ch [:tab-selected (vector thing-type)])))
+                        #(put! controls-ch [:all-things (vector thing-type)])))
 
 
 ; secretary client side named route dispatch ui click event to control chan. 

@@ -37,10 +37,10 @@
 ; called from core to process control event, nav-path {:path [:all 0 :parent]}
 ; send xhr request to get data.
 (defmethod post-control-event! 
-  :tab-selected
+  :all-things
   [target message nav-path previous-state current-state]
-  (print "post-control-event! tab-selected nav-path " nav-path)  ; {:path [:all 0 :parent]}
-  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (last (:body nav-path)))}))
+  (print "post-control-event! all-things nav-path " nav-path)  ; {:path [:all 0 :parent]}
+  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (get-in nav-path [:body 1 2]))}))
   (cljsajax/cljs-ajax :request-things
                       nav-path
                       (get-in current-state [:comms :api])

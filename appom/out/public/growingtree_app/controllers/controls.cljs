@@ -26,10 +26,10 @@
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; global state update for control event for navbar.
 (defmethod control-event 
-  :tab-selected
+  :all-things
   [target msg-type msg-data state]
   (let [last-nav-type (first (last (:path (get-in state [:nav-path]))))
-        cur-nav-type (get-in msg-data [:body 2])] ;
+        cur-nav-type (get-in msg-data [:body 1 2])] ;
     (.log js/console "tab-select event control " cur-nav-type (pr-str msg-data))
     (-> state
       (update-in [:nav-path] conj msg-data)

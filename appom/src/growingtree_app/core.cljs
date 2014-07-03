@@ -57,12 +57,12 @@
     (om/root app/app state {:target target   ; target is app dom dom element, <div id='app'/>
                             :opts {:comms comms}})
     
-    ; chan msg vec, [msg-type msg-data], [:tab-selected {:title entity :body nav-path :data {:pid}}]
+    ; chan msg vec, [msg-type msg-data], [:all-things {:title entity :body [:all-things [nav-path]] :data {:pid}}]
     ; refer to global state :nav-path for msg-data format. conj msg-data to state nav-path prop.
     (go (while true
       (alt!
         (:controls comms) 
-          ([v]   ; [:tab-selected [:parent]], first is msg, rest is nav-path.
+          ([v]   ; [:all-things [:parent]], first is msg, rest is nav-path.
             (when utils/logging-enabled?
               (mprint "Controls Verbose: " (pr-str v)))
             ; each event [msg-type msg-data]
