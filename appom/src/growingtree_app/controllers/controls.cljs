@@ -42,7 +42,7 @@
   [target msg-type msg-data state]
   (let [last-nav-type (last (:body (get-in state [:nav-path])))
         cur-nav-type (get-in msg-data [:body 1 2])]  ; :body [:filter-things [:course 1 :lecture]]
-    (.log js/console "filter-things event control " cur-nav-type (pr-str msg-data))
+    (.log js/console "filter-things event control " (pr-str cur-nav-type msg-data))
     (-> state
       (update-in [:nav-path] conj msg-data)
       (assoc-in [:things last-nav-type :selected] false)

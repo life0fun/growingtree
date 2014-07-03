@@ -33,7 +33,7 @@
     (render [this]
       (html/html
         (let [comm (get-in opts [:comms :controls])]
-          (.log js/console "rendering main-area " (pr-str nav-path))
+          (.log js/console "rendering main-area : nav-path " (pr-str nav-path))
           [:article.main-area
             [:header.header
               [:a.nav-toggle.button.left 
@@ -73,18 +73,18 @@
 ; if we have :data, need to show title thing, :db/id 17592186045419.
 (defmethod main-content 
   :filter-things
-  [app nav-path nav-path-things search-filter]
+  [app nav-path nav-path-things search-filter opts]
   (let [comm (get-in app [:comms :controls])
         thing-type (get-in nav-path [:body 1 2]) ; newthing type is last last
         title (get-in app [:title])
         pid (get-in nav-path [:data :pid])
         override (if pid (entity-view/actionkey-class pid thing-type "hide") {})
        ]
-    (.log js/console "filter-things " pid (pr-str thing-type override))
+    (.log js/console "main-content filter-things: pid " pid (pr-str thing-type override))
     [:div
       (when pid (thing-entry app title override))
       (when pid [:hr {:size 4}])
-      ;(newthing-form/add-form thing-type comm nav-path)
+      (things-list app thing-type nav-path nav-path-things search-filter opts)
     ]))
 
 ; request to display newthing form to add thing.
@@ -112,7 +112,7 @@
   :add-thing
   [app nav-path nav-path-things search-filter opts]
   (.log js/console "main content submit add-thing " (pr-str nav-path))
-  (things-list :parent search-filter opts))
+  (things-list app :parent search-filter opts))
 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
