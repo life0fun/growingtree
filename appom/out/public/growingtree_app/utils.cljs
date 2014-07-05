@@ -160,7 +160,7 @@
     (if (contains? thing-map schema-key)
       (let [
             epoch-fn (fn [t] 
-              (cljs-time-coerce/to-epoch (cljs-time-format/parse (cljs-time-format/formatter "MM-dd-yyyy hh:mm:ss") t)))
+              (cljs-time-coerce/to-epoch (cljs-time-format/parse (cljs-time-format/formatter "M-d-yyyy hh:mm:ss") t)))
             update-fn (fn [t & args] (epoch-fn t))
             new-map (-> thing-map
                         (update-in [schema-key] update-fn))

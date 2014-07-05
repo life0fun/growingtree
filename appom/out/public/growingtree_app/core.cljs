@@ -58,6 +58,7 @@
                             :opts {:comms comms}})
     
     ; chan msg vec, [msg-type msg-data], [:all-things {:title entity :body [:all-things [nav-path]] :data {:pid}}]
+    ; :add-thing [:lecture {:lecture/type :math, :lecture/course 1, }]
     ; refer to global state :nav-path for msg-data format. conj msg-data to state nav-path prop.
     (go (while true
       (alt!

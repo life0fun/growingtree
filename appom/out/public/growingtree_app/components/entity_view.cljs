@@ -164,6 +164,38 @@
     (assoc value-map :id id)))
 
 
+; on-click handler for click of flat list subthing link
+(defn filter-things-onclick
+  [app entity title-type filtered-type]
+  (let [comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)]
+    (fn [_]
+      (om/update! app [:title] entity) ; persist entity into state :title slot
+      (put! comm [:filter-things
+        {:title :title
+         :body [:filter-things [title-type thing-id filtered-type]]
+         :data {:pid thing-id}
+        }])
+    )))
+
+; inline input form submit handle, collect inputs data from fields and 
+; merge with base data as form data for submission.
+(defn submit-form-fn
+  [app add-thing-type form-name base-data fields]
+  (let [comm (get-in app [:comms :controls])]
+    (fn [_]
+      (let [$form (sel1 (keyword form-name))
+            data (reduce (fn [tot [attr fieldid]] ; 
+                    (assoc tot attr (dommy/value (sel1 fieldid))))
+                    {}
+                    fields)
+            form-data (merge base-data data)
+           ]
+        (dommy/toggle-class! $form "hide")
+        (.log js/console (pr-str form-name " data " form-data))
+        (put! comm [:add-thing [add-thing-type form-data]])
+      ))))
+
 ;;=============================================================================
 ;;=============================================================================
 (defmulti thing-entry
@@ -295,10 +327,13 @@
                     }
         add-assignment {:path [:add-thing :assignment] 
                         :data {:author thing-id}}
-        enroll-data {
-                     :body [:add-thing [:course :enroll]]
-                     :data {:pid thing-id}
-                    }
+
+        enroll-form-name (str "#enrollment-form-" thing-id)
+        enroll-form-fields {:enrollment/name (str "#enroll-name-" thing-id)
+                            :enrollment/remark (str "#enroll-remark-" thing-id)}
+        enroll-form-data {:enrollment/course thing-id
+                          :enrollment/title (str "enroll into " (get entity :course/title))
+                         } ; peer add-thing :enrollment
        ]
     (.log js/console "course thing value " (pr-str value-map))
     (list
@@ -323,16 +358,8 @@
               [:div {:class (:lecture-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
-                   :on-click (fn [_]
-                      ; persist entity into global state title
-                      (om/update! app [:title] entity)
-                      ; send msg to control chan, msg-data = {:title entity :body nav-path :data}
-                      ; :title used to form request params in ajax 
-                      (put! comm [:filter-things ; <- msg-type
-                        {:title :title  ; key name in state props to display in title, 
-                         :body [:filter-things [:course thing-id :lecture]] ; first is for main-area content dispatch.
-                         :data {:pid thing-id}}]))}
-                  "lectures"]]]]
+                   :on-click (filter-things-onclick app entity :course :lecture)
+                  } "lectures"]]]]
 
             [:li.share
               [:div {:class (:add-lecture-class value-map)}
@@ -376,20 +403,10 @@
                 [:input {:id (str "enroll-remark-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "remarks"}]
                 [:input {:type "submit" :value "enroll" :class "btn btn-primary assign-button"
-                         :on-click (fn [_]
-                            (let [f (sel1 (keyword (str "#enrollment-form-" thing-id)))
-                                  data (reduce (fn [tot [k fieldid]]
-                                          (assoc tot k (dommy/value (sel1 fieldid))))
-                                          {}
-                                          {:enrollment/name (str "#enroll-name-" thing-id)
-                                           :enrollment/remark (str "#enroll-remark-" thing-id)})
-                                  enroll-data (merge enroll-data data)
-                                  ]
-                              (dommy/toggle-class! f "hide")
-                              (.log js/console "enroll data " (pr-str enroll-data))
-                              (put! comm [:add-thing enroll-data])
-                              ))
-                        }]
+                         :on-click 
+                            (submit-form-fn app :enrollment 
+                                            enroll-form-name enroll-form-data enroll-form-fields)
+                         }]
               ]
             ]
           ]
@@ -397,7 +414,7 @@
       ]])))
 
 
-; thing-entry view for lecture
+; thing-entry view for lecture, datum entity contains thing data value
 (defmethod thing-entry
   :lecture
   [app thing-type entity override]
@@ -441,7 +458,10 @@
           [:ul.flat-list.buttons
             [:li.share
               [:div {:class (:course-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "course"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :lecture :course)
+                  } "course"]]]]
 
             [:li.share
               [:div {:class (:question-class value-map)}

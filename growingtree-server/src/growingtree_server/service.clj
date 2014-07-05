@@ -229,7 +229,7 @@
 
 ;;==================================================================================
 ; POST add-thing, request's :edn-params = postbody, :path-params /add/:thing
-; :edn-params {:thing-type :path :qpaht :details {:title "aa", :content "", :type "math",
+; :edn-params {:thing-type :path :qpath :details {:title "aa", :content "", :type "math",
 ; postbody = {:thing-type nil, :path nil, :qpath nil, :details {:lecture/content "c",..}
 ; For add-thing, type is taken from /add/:thing => lecture.
 ;;==================================================================================
