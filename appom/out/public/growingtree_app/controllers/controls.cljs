@@ -55,7 +55,7 @@
   :add-thing
   [target msg-type msg-data state] ; msg-data = [:course {:title :content}]
   (-> state
-    (update-in [:nav-path] conj msg-data))) ; nav-path [...[:lecture {:content ... :author ...}]]
+    (update-in [:nav-path] conj msg-data))) ; nav-path [.[:lecture {:content ... :author ...}]]
 
 (defmethod control-event :api-key-updated
   [target msg-type api-key state]

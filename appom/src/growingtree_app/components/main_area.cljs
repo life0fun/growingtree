@@ -22,7 +22,8 @@
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; main-area get selected chan app state MapCursor to filter content for selected chan.
-; nav-path mapping data path of :title, :body, a path vector for each view in main panel.
+; nav-path {:title :title, :body [:filter-things [:course 1 :lecture]]
+; nav-path [:question {:question/url ...}]
 ; nav-path-things are cursor to global state.
 (defn main-area 
   [{:keys [app nav-path nav-path-things channel search-filter]} owner opts]
@@ -51,14 +52,26 @@
 
 ; display main content after nav-path updated. latest ele in nav-path vector.
 ; nav-path {:title [...] :body [:newthing-form [:course :add-lecture]] :data {}}
-; {:title :title, :body [:course 1 :lecture], :data {:pid 17592186045421}} 
-; first of nav-path [:newthing-form [...]], [:filter-things []]
+; nav-path {:add-thing :lecture :details {}}
 (defmulti main-content 
   (fn [app nav-path nav-path-things search-filter opts]
-    (first (:body nav-path))))
+    (cond
+      (:body nav-path) (first (:body nav-path))
+      (:add-thing nav-path) :refresh
+      :else :default)))
 
 
 ; all filtered things navigation or details things
+(defmethod main-content 
+  :refresh
+  [app nav-path nav-path-things search-filter opts]
+  (.log js/console "main content refresh " (pr-str nav-path))
+  (let [thing-type (get nav-path :add-thing)]
+    [:div.empty]
+    ))
+
+; all filtered things navigation or details things
+; {:body [:all-things [:all 0 :course]
 (defmethod main-content 
   :default
   [app nav-path nav-path-things search-filter opts]
@@ -76,11 +89,14 @@
   [app nav-path nav-path-things search-filter opts]
   (let [comm (get-in app [:comms :controls])
         thing-type (get-in nav-path [:body 1 2]) ; newthing type is last last
+        add-thing (keyword (str "add-" (name thing-type)))
         title (get-in app [:title])
         pid (get-in nav-path [:data :pid])
-        override (if pid (entity-view/actionkey-class pid thing-type "hide") {})
+        override (cond-> {}
+                  pid (merge (entity-view/actionkey-class pid thing-type "hide"))
+                  pid (merge (entity-view/actionkey-class pid add-thing " ")))
        ]
-    (.log js/console "main-content filter-things: pid " pid (pr-str thing-type override))
+    (.log js/console "main-content filter-things " (pr-str pid thing-type override))
     [:div
       (when pid (thing-entry app title override))
       (when pid [:hr {:size 4}])
@@ -106,13 +122,12 @@
       (newthing-form/add-form thing-type comm nav-path)
     ]))
 
-
-; all the add new thing case
-(defmethod main-content 
-  :add-thing
-  [app nav-path nav-path-things search-filter opts]
-  (.log js/console "main content submit add-thing " (pr-str nav-path))
-  (things-list app :parent search-filter opts))
+; ; all the add new thing case
+; (defmethod main-content 
+;   :add-thing
+;   [app nav-path nav-path-things search-filter opts]
+;   (.log js/console "main content submit add-thing " (pr-str nav-path))
+;   (things-list app :parent search-filter opts))
 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

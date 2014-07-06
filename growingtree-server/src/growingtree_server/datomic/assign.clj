@@ -7,7 +7,8 @@
             [clojure.set :as set]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint :refer [pprint]]
-            [clojure.data.json :as json])
+            [clojure.data.json :as json]
+            [io.pedestal.service.log :as log])
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format :refer [parse unparse formatter]]
             [clj-time.coerce :refer [to-long from-long]])
@@ -174,9 +175,9 @@
                       (map #(util/add-navpath % qpath) )
                  )
         ]
-    (prn projkeys question)
+    (log/info "find-question " projkeys question)
     (doseq [e question]
-      (prn "question --> " e))
+      (log/info "question --> " e))
     question
     ))
 
@@ -195,8 +196,8 @@
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "create question author " author-id " entity " entity)
-    (prn "create question trans " trans)
+    (log/info "create question author " author-id " entity " entity)
+    (log/info "create question trans " trans)
     entity))
 
 

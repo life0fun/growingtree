@@ -46,7 +46,7 @@
                   ]
               (.log js/console "add-parent form " (pr-str data))
               ; first is msg type, nav-path [:type :filter segment]
-              (put! comm [:add-thing [:parent data]])))]       
+              (put! comm [:add-thing {:add-thing :parent :details data}])))]       
     (list
       [:div.create-form
         [:form.form-horizontal 
@@ -108,7 +108,7 @@
                   ]
               (.log js/console "add-child form " (pr-str data))
               ; first is msg type, nav-path [:type :filter segment]
-              (put! comm [:add-thing [:child data]])))]       
+              (put! comm [:add-thing {:add-thing :child :details data}])))]       
     (list
       [:div.create-form
         [:form.form-horizontal 
@@ -174,7 +174,7 @@
                   ]
               (.log js/console "add-course form " (pr-str data))
               ; first is msg type, last is nav-path filter segment.
-              (put! comm [:add-thing [:course data]])))]
+              (put! comm [:add-thing {:add-thing :course :details data}])))]
     (list
       [:div.create-form
         [:form.form-horizontal 
@@ -246,7 +246,7 @@
                   ]
               (.log js/console "add-lecture form " (pr-str data))
               ; first is msg type, last is nav-path filter segment.
-              (put! comm [:add-thing [:lecture data]])
+              (put! comm [:add-thing {:add-thing :lecture :details data}])
               ))]
     (list
       [:div.create-form
@@ -271,7 +271,7 @@
             ]]
           [:div.control-group
             [:label.control-label {:for "lecture-content"} "content"]
-            [:input {:id "lecture-content" :class "lecture-content" :type "text" :placeholder "brief content of the this lecture"}]]
+            [:input {:id "lecture-content" :class "lecture-content" :type "text" :placeholder "brief content of the lecture"}]]
 
           ; http://jsfiddle.net/foo4u/HJHq8/light/
           [:div.control-group
@@ -297,6 +297,78 @@
           [:div.control-group
             [:label.control-label {:for "lecture-wiki"} "Wiki Page"]
             [:input {:id "lecture-wiki" :class "lecture-wiki" :type "text" :placeholder "wiki of the lecture"}]]
+          
+          [:div.usertext-buttons.control-group
+            [:button.btn.btn-primary 
+              {:id "submit" :type "button"   ; if type :submit, will trigger re-load
+               :on-click submit-fn} 
+              "OK"]
+            [:button.btn {:id "cancel" :type "button"} "Cancel"]]
+        ]])))
+
+
+; add question form
+(defmethod add-form 
+  :add-question
+  [thing-type comm last-nav-path]
+  (let [course-id (get-in last-nav-path [:data :pid])
+        submit-fn 
+          (fn [e]
+            (let [input-fields {:question/title ".question-title"
+                                :question/content ".question-content"
+                                :question/type ".question-type"
+                                :question/author ".question-author"
+                                :question/difficulty "#question-difficulty"
+                                :question/url ".question-url"
+                                :question/tag ".question-tag"
+                               }
+                  data (-> (reduce (fn [tot [k clz]]
+                                     (assoc tot k (dommy/value (sel1 clz))))
+                                   {}
+                                   input-fields)
+                            (assoc :author "rich-dad")
+                            (assoc :question/origin (get-in @last-nav-path [:data :pid]))
+                            (utils/update-enum :question "type" false) ; always false
+                            )
+                  ]
+              (.log js/console "add-question form " (pr-str data))
+              ; first is msg type, last is nav-path filter segment.
+              (put! comm [:add-thing {:add-thing :question :details data}])
+              ))]
+    (list
+      [:div.create-form
+        [:form.form-horizontal 
+          ; {:method "post" :html "{:multipart=>true}"}
+          [:legend "Question Details"]
+          
+          [:div.control-group
+            [:label.control-label {:for "question-title"} "Title"]
+            [:input {:id "question-title" :class "question-title" :type "text" :placeholder "the title of question ..."}]]
+          [:div.control-group
+            [:label.control-label {:for "question-author"} "Author"]
+            [:input {:id "question-author" :class "question-author" :type "text" :placeholder "the author ..."}]]
+          [:div.control-group
+            [:label.control-label {:for "question-type"} "Type"]
+            [:select {:id "question-type" :class "question-type"}
+              [:option {:value "math"} "Math"]
+              [:option {:value "science"} "Science"]
+              [:option {:value "reading"} "Reading"]
+              [:option {:value "art"} "Art"]
+              [:option {:value "sports"} "Sports"]
+            ]]
+          [:div.control-group
+            [:label.control-label {:for "question-content"} "content"]
+            [:input {:id "question-content" :class "question-content" :type "text" :placeholder "brief content of the question"}]]
+
+          [:div.control-group
+            [:label.control-label {:for "question-difficulty"} "difficulty"]
+            [:input {:id "question-difficulty" :class "question-difficulty" :type "text" :placeholder "difficulty level"}]]
+          [:div.control-group
+            [:label.control-label {:for "question-url"} "url"]
+            [:input {:id "question-url" :class "question-url" :type "text" :placeholder "growingtrees.com/question"}]]
+          [:div.control-group
+            [:label.control-label {:for "question-tag"} "Tag"]
+            [:input {:id "question-tag" :class "question-tag" :type "text" :placeholder "tags"}]]
           
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 

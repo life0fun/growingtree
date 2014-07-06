@@ -40,7 +40,7 @@
            }
 
     :course {:title "" :author ""
-             :lecture "" :add-lecture " "
+             :lecture "" :add-lecture " hide"
              :enrollment "" :enroll ""
              :comments ""
              :upvote "" :like "" :share ""
@@ -193,7 +193,7 @@
            ]
         (dommy/toggle-class! $form "hide")
         (.log js/console (pr-str form-name " data " form-data))
-        (put! comm [:add-thing [add-thing-type form-data]])
+        (put! comm [:add-thing {:add-thing add-thing-type :details form-data}])
       ))))
 
 ;;=============================================================================
@@ -332,7 +332,7 @@
         enroll-form-fields {:enrollment/name (str "#enroll-name-" thing-id)
                             :enrollment/remark (str "#enroll-remark-" thing-id)}
         enroll-form-data {:enrollment/course thing-id
-                          :enrollment/title (str "enroll into " (get entity :course/title))
+                          :enrollment/content (str "enroll into " (get entity :course/title))
                          } ; peer add-thing :enrollment
        ]
     (.log js/console "course thing value " (pr-str value-map))
@@ -465,7 +465,11 @@
 
             [:li.share
               [:div {:class (:question-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "questions"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :lecture :question)
+                  } 
+                  "questions"]]]]
 
             [:li.share
               [:div {:class (:add-question-class value-map)}

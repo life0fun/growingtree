@@ -69,16 +69,15 @@
 
 
 ;;==================================================================================
-; nav-path [{:body [:filter-things [:course 1 :lecture]] :title ... :data {}}]
+; nav-path {:body [:filter-things/:all-things [:course 1 :lecture]] :title ... :data {}}]
 ; server side service parse request {:params {...}} as :edn-params.
-; for get, main-path is [:course 1 :lecture]
-; for add, nav-path is {:body [:add-thing [:course :enroll]], :data {:pid 1}, :enrollment/name "ab", :enrollment/remark "cd"}
+; for add, nav-path is {:add-thing :lecture :details {:lecture/name "ab", :lecture/remark "cd"}
 ;;==================================================================================
 (defn cljs-ajax
   "service a get or post request using cljs-ajax GET POST call"
   [command nav-path api-ch data]
   (let [main-path (get-in nav-path [:body 1])  ; {:body [:filter-things [:course 1 :lecture]]}
-        thing-type (or (last main-path) (first nav-path)) ; for filter-things, or [:add-thing [:enrollment {}]]
+        thing-type (or (last main-path) (get nav-path :add-thing)) ; filter-things, or {:add-thing :enrollment :details {}}
         request {:handler (handler command main-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)
                  :format :edn    ; always use edn for clj programs internally.
@@ -102,5 +101,5 @@
         :request-things (POST (str "/api/" (name thing-type)) request)
 
         ; nav-path [:course {:title ... :name ...}], we did not use data
-        :add-thing (POST (str "/add/" (name (first nav-path))) request)
+        :add-thing (POST (str "/add/" (name thing-type)) request)
         "default")))

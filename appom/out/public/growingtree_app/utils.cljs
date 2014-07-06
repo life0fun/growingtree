@@ -115,6 +115,7 @@
 ; for enum attr, update thing-val map from string val to keyword.
 ; thing-val = {:course/title "aa", :course/type "math" }
 ; (update-enum {:type "math"} :course "type" false) => {:type :math}
+; enum flag always false, using keyword as fn.
 (defn update-enum
   "update in status enum value from string to keyword"
   [thing-val thing-type keyname enum]
@@ -122,11 +123,14 @@
     (if (contains? thing-val schema-key)
       (let [enum-key (str (name thing-type) "." keyname)
             enum-fn (fn [v & args] (keyword (str enum-key "/" v)))
-            new-val (if enum
-                      (-> thing-val
-                          (update-in [schema-key] enum-fn))
-                      (-> thing-val
-                          (update-in [schema-key] keyword)))
+            ; new-val (if enum
+            ;           (-> thing-val
+            ;               (update-in [schema-key] enum-fn))
+            ;           (-> thing-val
+            ;               (update-in [schema-key] keyword)))
+            new-val (cond-> thing-val
+                      enum (update-in [schema-key] enum-fn)
+                      :else (update-in [schema-key] keyword))
             ]
         new-val)  ; return updated new val if value map contains schema key
       thing-val)))

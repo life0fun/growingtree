@@ -67,17 +67,17 @@
   ;   (js/setTimeout #(imp-ui/scroll-to-latest-message! target (last (last new-path))) 35)))
 
 
-; msg is :add-thing, nav-path [:lecture {:lecture/course 1 :lecture/title ...}]
+; msg is :add-thing, nav-path {:add-thing :lecture :details {:lecture/course 1 :lecture/title ...}}
 (defmethod post-control-event! 
   :add-thing
   [target message nav-path previous-state current-state]
   (print "post-control-event! add-thing nav-path :" nav-path) ; [:lecture {:lecture/course ...}]
   (utils/set-window-href! (routes/v1-thing-nodes 
-    {:thing-type (name (first nav-path))}))
+    {:thing-type (name (get nav-path :add-thing))}))
   (cljsajax/cljs-ajax :add-thing
-                      nav-path 
+                      nav-path
                       (get-in current-state [:comms :api])
-                      (last nav-path))  ; input data is last of [:course {:title ... :content ...}]
+                      (get nav-path :details))  ; input data is {:add-thing :course :details {:title ... :content ...}}
   )
 
 (defmethod post-control-event! 

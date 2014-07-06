@@ -154,7 +154,7 @@
                 )
        ]
     (doseq [e courses]
-      (prn "course --> " e))
+      (log/info "course --> " e))
     (newline)
     courses))
 
@@ -172,7 +172,7 @@
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
     (newline)
-    (prn "create course entity " (:author details) author-id entity)
+    (log/info "create course entity " (:author details) author-id entity)
     ; (prn "submit course trans " trans)
     [entity]))
 
@@ -273,7 +273,7 @@
 (defn create-enrollment
   "create a enrollment with details "
   [details]
-  (prn "create-enrollment " details  "schema " (keys enrollment-schema))
+  (log/info "create-enrollment " details  "schema " (keys enrollment-schema))
   (let [course-id (:enrollment/course details)
         lecture-id (:enrollment/lecture details)
         enrollment (if course-id
@@ -305,7 +305,7 @@
         trans (submit-transact enrolls)  ; transaction is a list of entity
       ]
     (newline)
-    (prn "create enrollment " enrolls)
-    (prn "submit enrollment trans " trans)
+    (log/info "create enrollment " enrolls)
+    (log/info "submit enrollment trans " trans)
     enrolls))
 
