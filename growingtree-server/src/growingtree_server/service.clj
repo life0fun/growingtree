@@ -213,7 +213,7 @@
         result {:status 200 :data things}
         jsonresp (bootstrap/edn-response result)
        ]
-    (log/info "service get-things from peer " type thing-type path things)
+    (log/info "service peer/get-things " type thing-type path result)
     jsonresp))
 
 ;------------------------------------------------------------------------------------

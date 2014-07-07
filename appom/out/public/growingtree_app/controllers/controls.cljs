@@ -30,7 +30,7 @@
   [target msg-type msg-data state]
   (let [last-nav-type (first (last (:path (get-in state [:nav-path]))))
         cur-nav-type (get-in msg-data [:body 1 2])] ;
-    (.log js/console "tab-select event control " cur-nav-type (pr-str msg-data))
+    (.log js/console "all-things event " (pr-str cur-nav-type msg-data))
     (-> state
       (update-in [:nav-path] conj msg-data)
       (assoc-in [:things last-nav-type :selected] false)
@@ -54,6 +54,7 @@
 (defmethod control-event 
   :add-thing
   [target msg-type msg-data state] ; msg-data = [:course {:title :content}]
+  (.log js/console "add-thing event " (pr-str msg-data))
   (-> state
     (update-in [:nav-path] conj msg-data))) ; nav-path [.[:lecture {:content ... :author ...}]]
 

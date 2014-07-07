@@ -62,12 +62,14 @@
 
 
 ; all filtered things navigation or details things
+; {:body [:all-things [:all 0 :question]]} data {:body [:all-things [:all 0 :question]]}
 (defmethod main-content 
   :refresh
   [app nav-path nav-path-things search-filter opts]
   (.log js/console "main content refresh " (pr-str nav-path))
-  (let [thing-type (get nav-path :add-thing)]
-    [:div.empty]
+  (let [thing-type (get nav-path :add-thing)
+        nav-path {:body [:all-things [:all 0 thing-type]]}]
+    (things-list app thing-type nav-path nav-path-things search-filter opts)
     ))
 
 ; all filtered things navigation or details things

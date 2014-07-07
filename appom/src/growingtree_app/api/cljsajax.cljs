@@ -75,7 +75,7 @@
 ;;==================================================================================
 (defn cljs-ajax
   "service a get or post request using cljs-ajax GET POST call"
-  [command nav-path api-ch data]
+  [command nav-path api-ch param-details]
   (let [main-path (get-in nav-path [:body 1])  ; {:body [:filter-things [:course 1 :lecture]]}
         thing-type (or (last main-path) (get nav-path :add-thing)) ; filter-things, or {:add-thing :enrollment :details {}}
         request {:handler (handler command main-path api-ch)
@@ -84,12 +84,12 @@
                  :params {:thing-type thing-type 
                           :path main-path 
                           :qpath (get nav-path :title)
-                          :details data}  ; data is nav-path for filter-things.
+                          :details param-details}  ; param-details is nav-path for filter-things.
                  :headers {}
                 }
        ]
-      ; :request-things nav-path [:all 0 :parent] data [:all 0 :parent]
-      (.log js/console (str "cljs-ajax >>> " command " nav-path " nav-path " data " data))
+      ; :request-things nav-path [:all 0 :parent] param-details [:all 0 :parent]
+      (.log js/console (str "cljs-ajax >>> " command " nav-path " nav-path " param-details " param-details))
       (case command
         ;; sse subscribe and publish
         :subscribe (GET "/msgs" request)
@@ -100,6 +100,6 @@
         ; nav-path [:all 0 :parent]
         :request-things (POST (str "/api/" (name thing-type)) request)
 
-        ; nav-path [:course {:title ... :name ...}], we did not use data
+        ; nav-path [:course {:title ... :name ...}], we did not use param-details
         :add-thing (POST (str "/add/" (name thing-type)) request)
         "default")))

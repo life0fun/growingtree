@@ -167,9 +167,10 @@
 (defn find-question
   "find all question by query path "
   [qpath]
-  (let [projkeys (keys (dissoc question-schema :question/lecture :question/author))
+  (let [projkeys (keys (dissoc question-schema :question/lecture))
         question (->> (util/get-qpath-entities qpath get-question-by)
                       (map #(select-keys % projkeys) )
+                      (map #(util/get-author-name :question/author %))
                       (map #(util/add-upvote-attr %) )
                       (map #(util/add-numcomments-attr %) )
                       (map #(util/add-navpath % qpath) )
@@ -235,8 +236,10 @@
 (defn create-assignment
   "new assignment form the submitted form data"
   [details]
-  (prn "create-assignment " details)
-  (let [author-id (:db/id (dbconn/find-by :person/title (:author details)))
+  (log/info "create-assignment " details)
+  (log/info "assignment author " (:db/id (dbconn/find-by :person/title (:assignment/author details))))
+  (log/info "assignment person " (:db/id (dbconn/find-by :person/title (:assignment/person details))))
+  (let [author-id (:db/id (dbconn/find-by :person/title (:assignment/author details)))
         ; this find all children whose parent is author-id,
         person (util/tagsInputs (:assignment/person details))
         person-id (->> (map #(family/get-person-by-title %) person)
@@ -260,8 +263,8 @@
         trans (submit-transact assigns)  ; transaction is a list of assigns
       ]
     (newline)
-    (prn author-id "create assignment to " person " " all-person " assigns " assigns)
-    (prn "create assignment trans " trans)
+    (log/info author-id "create assignment to " person " " all-person " assigns " assigns)
+    (log/info "create assignment trans " trans)
     assigns))
 
 

@@ -242,8 +242,6 @@
                    :body [:newthing-form [:parent :add-child]]  ; :body is nav-path
                    :data {:pid thing-id}
                   }
-        add-assignment {:path [:add-thing :assignment] 
-                        :data {:author thing-id}}
        ]
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
@@ -265,7 +263,11 @@
           [:ul.flat-list.buttons
             [:li.share
               [:div {:class (:child-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "children"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :parent :child)
+                  } 
+                  "children"]]]]
 
             [:li.share
               [:div {:class (:add-child-class value-map)}
@@ -307,6 +309,74 @@
           [:div.clearleft]
       ]])))
 
+
+(defmethod thing-entry
+  :child
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+       ]
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
+        [:span.rank "1"]   ; index offset in the list of filtered things
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      
+        [:a.thumbnail {:href "#"}
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+      
+        [:div.entry.unvoted
+          [:p.title [:a.title {:href "#"} (:title value-map)]]
+          [:p.subtitle [:span.tagline (str "phone: " (:phone value-map))]]
+          [:p.subtitle [:span.tagline (str "email: " (:email value-map))]]
+          [:p.tagline "Joined since " [:time "Aug 2013"]]
+
+          [:ul.flat-list.buttons
+            [:li.share
+              [:div {:class (:parent-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :child :parent)
+                  } 
+                  "parent"]]]]
+
+            [:li.share
+              [:div {:class (:assignment-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "assignments"]]]]
+
+            [:li.share
+              [:div {:class (:like-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "likes"]]]]
+
+            [:li.share
+              [:div {:class (:follow-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "followers"]]]]
+
+            [:li.share
+              [:div {:class (:group-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "groups"]]]]
+
+            [:li.share
+              [:div {:class (:add-group-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "join group"]]]]
+
+            [:li.share
+              [:div {:class (:timeline-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "timeline"]]]]
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}]
+          [:div.clearleft]
+      ]])))
 
 ; thing-entry view for course
 (defmethod thing-entry
@@ -492,6 +562,110 @@
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}]
+          [:div.clearleft]
+      ]])))
+
+
+(defmethod thing-entry
+  :question
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :question/author))
+        difficulty (get entity :question/difficulty)
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        assignto-form-name (str "#assignto-form-" thing-id)
+        assignto-form-fields {:assignment/person (str "#assignto-person-" thing-id)
+                              :assignment/hint (str "#assignto-hint-" thing-id)
+                              :assignment/priority (str "#assignto-priority-" thing-id)
+                              :assignment/end (str "#assignto-end-" thing-id)
+                             }
+        assignto-form-data {:assigment/origin thing-id
+                            :assignment/author "rich-dad"   ; XXX hard code
+                            :assigment/title (str "assignment based on " (get entity :question/title))
+                           } ; peer add-thing :assigment
+       ]
+    (.log js/console "question thing value " (pr-str value-map))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
+        [:span.rank "1"]   ; index offset in the list of filtered things
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      
+        [:a.thumbnail {:href "#"}
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+      
+        [:div.entry.unvoted
+          [:p.title [:a.title {:href "#"} (:title value-map)]]
+          [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
+          [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
+          [:p.tagline "Authored by " authors]
+          [:p.tagline "difficulty " difficulty]
+
+          [:ul.flat-list.buttons
+            [:li.share
+              [:div {:class (:lecture-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :question :lecture)
+                  } "lecture"]]]]
+
+            [:li.share
+              [:div {:class (:assignment-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :question :assignment)
+                  } "assignments"]]]]
+
+            [:li.share
+              [:div {:class (:similar-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :question :similar)
+                  } "similar questions"]]]]
+
+            [:li.share
+              [:div {:class (:assignto-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword (str "#assignto-form-" thing-id)))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "assign to"]]]]
+
+            [:li.share
+              [:div {:class (:comments-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (str "child-form-" thing-id)}
+            [:div.hide {:id (str "assignto-form-" thing-id)}
+              [:form.enrollment-form {:style #js {:float "left;"}}
+                [:input {:id (str "assignto-person-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "assign to person"}]
+                [:input {:id (str "assignto-end-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "due time"}]
+                [:input {:id (str "assignto-priority-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "priority"}]
+                [:input {:id (str "assignto-hint-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "hint"}]
+                [:input {:type "submit" :value "assign to" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :assignment 
+                                            assignto-form-name assignto-form-data assignto-form-fields)
+                         }]
+              ]
+            ]
+          ]
           [:div.clearleft]
       ]])))
 

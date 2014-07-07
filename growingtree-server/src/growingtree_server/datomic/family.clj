@@ -6,7 +6,8 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
-            [clojure.data.json :as json])
+            [clojure.data.json :as json]
+            [io.pedestal.service.log :as log])
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format :refer [parse unparse formatter]]
             [clj-time.coerce :refer [to-long from-long]])
@@ -309,6 +310,7 @@
 (defn create-child
   "create child from the submitted new thing form details from parent add-child"
   [details]
+  (log/info "create-child " details )
   (let [child (-> details
                 (select-keys (keys person-schema))
                 (assoc :person/type :child)
@@ -318,8 +320,8 @@
         trans (submit-transact [child family])  ; transaction is a list of maps to update db values
       ]
     (newline)
-    (prn "create child " child  " family " family)
-    (prn "create child trans " trans)
+    (log/info "create child " child  " family " family)
+    (log/info "create child trans " trans)
     [child]))
 
 
@@ -336,7 +338,7 @@
         entity (-> {:family/parent pid :family/child cid}
                    (assoc :db/id family-id))
        ]
-    (prn "upsert family " entity)
+    (log/info "upsert family " entity)
     entity))
 
 

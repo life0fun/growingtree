@@ -24,6 +24,7 @@
   [thing-type comm last-nav-path]
   (.log js/console "add-form " (pr-str thing-type) " defaults "))
 
+
 ; encapsulate view and submit fn together.
 (defmethod add-form 
   :add-parent
@@ -86,11 +87,13 @@
             [:button.btn {:id "cancel" :type "button"} "Cancel"]]
         ]])))
 
-; add child form
+; add child form can only be launched from parent list
+; :newthing-form {:title :title, :body [:newthing-form [:parent :add-child]], :data {:pid 1}} 
 (defmethod add-form 
   :add-child
   [thing-type comm last-nav-path]
-  (let [submit-fn 
+  (let [parent-id (get-in last-nav-path [:data :pid])
+        submit-fn 
           (fn [e]
             (let [input-fields {:person/title ".person-title"
                                 :person/lname ".person-lname"
@@ -102,7 +105,7 @@
                                }
                   data (reduce (fn [tot [k clz]]
                                    (assoc tot k (dommy/value (sel1 clz))))
-                                {}
+                                {:family/parent parent-id}
                                 input-fields)
                   ; attach current user name as author
                   ]
@@ -238,7 +241,7 @@
                                      (assoc tot k (dommy/value (sel1 clz))))
                                    {}
                                    input-fields)
-                            (assoc :author "rich-dad")
+                            (assoc :author "rich-dad")  ; XXX hard code author here
                             (assoc :lecture/course (get-in @last-nav-path [:data :pid]))
                             (utils/update-enum :lecture "type" false)
                             (utils/update-time :lecture "start")
