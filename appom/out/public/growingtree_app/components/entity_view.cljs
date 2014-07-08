@@ -189,7 +189,8 @@
                     (assoc tot attr (dommy/value (sel1 fieldid))))
                     {}
                     fields)
-            form-data (merge base-data data)
+            form-data (-> (merge base-data data)
+                        (utils/set-time :assignment "end"))
            ]
         (dommy/toggle-class! $form "hide")
         (.log js/console (pr-str form-name " data " form-data))
@@ -588,6 +589,7 @@
         assignto-form-data {:assigment/origin thing-id
                             :assignment/author "rich-dad"   ; XXX hard code
                             :assigment/title (str "assignment based on " (get entity :question/title))
+                            :assignment/start (utils/to-epoch)
                            } ; peer add-thing :assigment
        ]
     (.log js/console "question thing value " (pr-str value-map))

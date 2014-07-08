@@ -157,6 +157,12 @@
   [txtime nowtime]
     (str " " (.from txtime nowtime)))
 
+; get epoch of now
+(defn to-epoch
+  []
+  (quot (cljs-time-coerce/to-epoch (cljs-time/now)) 1))
+
+
 (defn set-time
   "update in time value from string to keyword"
   [thing-map thing-type keyname]
