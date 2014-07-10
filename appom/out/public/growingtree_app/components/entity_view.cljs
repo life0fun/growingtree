@@ -581,6 +581,7 @@
                          (actionkeys-class thing-id actionkeys)
                          override)
         assignto-form-name (str "#assignto-form-" thing-id)
+        assignto-end-field (str "assignto-end-" thing-id)
         assignto-form-fields {:assignment/person (str "#assignto-person-" thing-id)
                               :assignment/hint (str "#assignto-hint-" thing-id)
                               :assignment/priority (str "#assignto-priority-" thing-id)
@@ -588,8 +589,11 @@
                              }
         assignto-form-data {:assigment/origin thing-id
                             :assignment/author "rich-dad"   ; XXX hard code
-                            :assigment/title (str "assignment based on " (get entity :question/title))
+                            :assignment/title (str "assignment based on " (get entity :question/title))
                             :assignment/start (utils/to-epoch)
+                            :assignment/status :active
+                            :assignment/origin thing-id
+                            :assignment/type (get entity :question/type)
                            } ; peer add-thing :assigment
        ]
     (.log js/console "question thing value " (pr-str value-map))
@@ -654,8 +658,11 @@
               [:form.enrollment-form {:style #js {:float "left;"}}
                 [:input {:id (str "assignto-person-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "assign to person"}]
-                [:input {:id (str "assignto-end-" thing-id) :type "text"
+                [:input {:id (str "assignto-end-" thing-id) :type "datetime" :data-format "hh:mm:ss MM/dd/yyyy"
                          :style #js {:display "block"} :placeholder "due time"}]
+                [:span.add-on [:a {:href (str "javascript:NewCal('" assignto-end-field "','mmddyyyy', 'true');")}
+                        [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
+                        [:img {:src "cal.gif" :width "16" :height "16"}]]]
                 [:input {:id (str "assignto-priority-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "priority"}]
                 [:input {:id (str "assignto-hint-" thing-id) :type "text"
@@ -663,7 +670,9 @@
                 [:input {:type "submit" :value "assign to" :class "btn btn-primary assign-button"
                          :on-click 
                             (submit-form-fn app :assignment 
-                                            assignto-form-name assignto-form-data assignto-form-fields)
+                                            assignto-form-name 
+                                            assignto-form-data 
+                                            assignto-form-fields)
                          }]
               ]
             ]

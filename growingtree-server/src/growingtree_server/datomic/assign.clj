@@ -231,21 +231,20 @@
     assignments))
 
 
-; tagsInput sep is , weto assign to group, the :assignment/person is a list of name, separated by comma.
+; tagsInput sep is , when assign to group, the :assignment/person is a list of name, separated by comma.
 ; "fun math,rich-baby", we need split and strip it.
+; when assign to group, use mapcat to collect group ref many persons into a list.
 (defn create-assignment
   "new assignment form the submitted form data"
   [details]
   (log/info "create-assignment " details)
-  (log/info "assignment author " (:db/id (dbconn/find-by :person/title (:assignment/author details))))
-  (log/info "assignment person " (:db/id (dbconn/find-by :person/title (:assignment/person details))))
   (let [author-id (:db/id (dbconn/find-by :person/title (:assignment/author details)))
         ; this find all children whose parent is author-id,
         person (util/tagsInputs (:assignment/person details))
         person-id (->> (map #(family/get-person-by-title %) person)
                        (map :db/id )
                        (filter identity))
-        ; use mapcat as group person is ref many.
+        ; when assign to group, use mapcat to collect group ref many persons into a list.
         group-person (->> (mapcat #(family/get-group-members %) person)
                           (map :db/id )
                           (filter identity))
@@ -266,6 +265,12 @@
     (log/info author-id "create assignment to " person " " all-person " assigns " assigns)
     (log/info "create assignment trans " trans)
     assigns))
+
+{:line 267, "create assignment trans " (
+  {:assignment/end 1405036078, :assignment/origin 17592186045425, :assignment/priority 1, 
+    :assignment/person 17592186045427, :assignment/type :math, :assignment/status :active, 
+    :assignment/start 1404974880, :assignment/hint "count", :assignment/author 17592186045419, 
+    :assignment/title "assignment based on x = 3 + 5", :db/id #db/id[:db.part/user -1000004]})}
 
 
 ;;================================================================================
