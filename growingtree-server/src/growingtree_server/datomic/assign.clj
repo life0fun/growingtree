@@ -266,13 +266,6 @@
     (log/info "create assignment trans " trans)
     assigns))
 
-{:line 267, "create assignment trans " (
-  {:assignment/end 1405036078, :assignment/origin 17592186045425, :assignment/priority 1, 
-    :assignment/person 17592186045427, :assignment/type :math, :assignment/status :active, 
-    :assignment/start 1404974880, :assignment/hint "count", :assignment/author 17592186045419, 
-    :assignment/title "assignment based on x = 3 + 5", :db/id #db/id[:db.part/user -1000004]})}
-
-
 ;;================================================================================
 ;; answer
 ;;================================================================================

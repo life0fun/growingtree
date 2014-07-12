@@ -680,6 +680,106 @@
           [:div.clearleft]
       ]])))
 
+
+(defmethod thing-entry
+  :assignment
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :assignment/author))
+        priority (get entity :assignment/priority)
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        answer-form-name (str "#answer-form-" thing-id)
+        answer-form-fields {:answer/title (str "#answer-title-" thing-id)
+                            :answer/content (str "#answer-content-" thing-id)
+                           }
+        answer-form-data {:answer/origin thing-id
+                          :answer/author "rich-son"   ; XXX hard code
+                          :answer/start (utils/to-epoch)
+                         } ; peer add-thing :answer
+       ]
+    (.log js/console "assignment thing value " (pr-str value-map))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
+        [:span.rank "1"]   ; index offset in the list of filtered things
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      
+        [:a.thumbnail {:href "#"}
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+      
+        [:div.entry.unvoted
+          [:p.title [:a.title {:href "#"} (:title value-map)]]
+          [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
+          [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
+          [:p.tagline "Authored by " authors]
+          [:p.tagline "priority" priority]
+
+          [:ul.flat-list.buttons
+            [:li.share
+              [:div {:class (:lecture-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :assignment :question)
+                  } "lecture"]]]]
+
+            [:li.share
+              [:div {:class (:assignment-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :assignment :answer)
+                  } "assignments"]]]]
+
+            [:li.share
+              [:div {:class (:similar-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :assignment :similar)
+                  } "related assignments"]]]]
+
+            [:li.share
+              [:div {:class (:answer-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword (str "#answer-form-" thing-id)))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "answer"]]]]
+
+            [:li.share
+              [:div {:class (:comments-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (str "child-form-" thing-id)}
+            [:div.hide {:id (str "answer-form-" thing-id)}
+              [:form.answer-form {:style #js {:float "left;"}}
+                [:input {:id (str "answer-title-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "answer"}]
+                [:input {:id (str "answer-content-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "explain"}]
+                [:input {:type "submit" :value "submit" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :answer 
+                                            answer-form-name 
+                                            answer-form-data 
+                                            answer-form-fields)
+                         }]
+              ]
+            ]
+          ]
+          [:div.clearleft]
+      ]])))
+
 ;;===========================================================================
 ; show add comments input box, trigger by thing data emitter [:setup :x 1 :comments]
 ; form id is the thing-id this comment's origin and thingroot
