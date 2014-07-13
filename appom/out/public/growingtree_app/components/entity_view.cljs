@@ -311,7 +311,7 @@
           [:div.clearleft]
       ]])))
 
-
+; thing-entry view for child, datum entity contains thing data value
 (defmethod thing-entry
   :child
   [app thing-type entity override]
@@ -567,7 +567,7 @@
           [:div.clearleft]
       ]])))
 
-
+; thing entry view for question
 (defmethod thing-entry
   :question
   [app thing-type entity override]
@@ -681,7 +681,7 @@
           [:div.clearleft]
       ]])))
 
-
+; thing entry view for assignment
 (defmethod thing-entry
   :assignment
   [app thing-type entity override]
@@ -779,6 +779,107 @@
                                             answer-form-name 
                                             answer-form-data 
                                             answer-form-fields)
+                         }]
+              ]
+            ]
+          ]
+          [:div.clearleft]
+      ]])))
+
+; thing-entry view for answer, datum entity contains thing data value
+(defmethod thing-entry
+  :answer
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :answer/author))
+        
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        title (get-in value-map [:title])
+        content (get value-map :content)
+        origin-content (get-in value-map [:origin :assignment/content])
+        score (get value-map :score)
+        url (get-in value-map [:origin :assignment/url])
+        start (-> (get value-map :start) (utils/time-to-string))
+
+        grade-form-name (str "#grade-form-" thing-id)
+        grade-form-fields {:grade/score (str "#grade-score-" thing-id)
+                           :grade/content (str "#grade-content-" thing-id)
+                          }
+        grade-form-data {:grade/origin thing-id
+                          :grade/author "rich-dad"   ; XXX hard code
+                          :grade/start (utils/to-epoch)
+                         } ; peer add-thing :grade
+       ]
+    (.log js/console "answer thing value " (pr-str value-map))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
+        [:span.rank "1"]   ; index offset in the list of filtered things
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      
+        [:a.thumbnail {:href "#"}
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+      
+        [:div.entry.unvoted
+          [:p.title [:a.title {:href "#"} title]]
+          [:p.subtitle [:span.tagline (str "content: " content)]]
+          [:p.subtitle [:span.tagline (str "assignment : " origin-content)]]
+          [:p.tagline "submitted at :" start]
+
+          [:p.title (str "Score : " score)]
+
+          [:ul.flat-list.buttons
+            [:li.share
+              [:div {:class (:lecture-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :answer :assignment)
+                  } "assignment"]]]]
+
+            [:li.share
+              [:div {:class (:answer-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword (str "#grade-form-" thing-id)))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "grade"]]]]
+
+            [:li.share
+              [:div {:class (:similar-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :answer :similar)
+                  } "similar answers"]]]]
+
+            [:li.share
+              [:div {:class (:comments-class value-map)}
+                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (str "child-form-" thing-id)}
+            [:div.hide {:id (str "grade-form-" thing-id)}
+              [:form.grade-form {:style #js {:float "left;"}}
+                [:input {:id (str "grade-score-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "grade"}]
+                [:input {:id (str "grade-content-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "comments"}]
+                [:input {:type "submit" :value "submit" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :grade 
+                                            grade-form-name 
+                                            grade-form-data 
+                                            grade-form-fields)
                          }]
               ]
             ]

@@ -22,6 +22,10 @@ For growingtree app to use the service, add config :api-server in its config/con
       => (require 'growingtree-server.service :reload)
       => (restart)
 
+To restart datomic,
+
+    mysql.server stop && mysql.server start && bin/transactor config/sql-transactor-template.properties
+
 ## Web app service
 
 Server service is a record that defines the routes and handlers.

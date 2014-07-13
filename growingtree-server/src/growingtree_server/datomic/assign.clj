@@ -273,7 +273,8 @@
 (defn create-answer
   "submit an answer to an assignment"
   [details]
-  (let [author-id (:db/id (dbconn/find-by :person/title (:author details)))
+  (log/info "create-answer " details)
+  (let [author-id (:db/id (dbconn/find-by :person/title (:answer/author details)))
         ; this find all children whose parent is author-di
         entity (-> details
                 (select-keys (keys answer-schema))
@@ -282,27 +283,26 @@
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
-    (newline)
-    (prn author-id " create answer entity " entity)
-    (prn "create answer trans " trans)
+    (log/info author-id " create answer entity " entity " trans " trans)
     entity))
 
 
-; find all answer
+; qpath [:assignment 17592186045430 :answer]
 (defn find-answer
-  "find all answer by query path "
+  "find all answer by query path like [:assignment 17592186045430 :answer]"
   [qpath]
-  (prn "find-answer " qpath " result " (util/get-qpath-entities qpath get-answer-by))
   (let [projkeys (keys answer-schema)
         answers (->> (util/get-qpath-entities qpath get-answer-by)
-                      (map #(select-keys % projkeys) )
-                      (map #(util/add-upvote-attr %) )
-                      (map #(util/add-numcomments-attr %) )
-                      (map #(util/add-navpath % qpath) )
+                     (map #(select-keys % projkeys) )
+                     (map #(util/get-author-name :answer/author %))
+                     (map #(util/get-ref-entity :answer/origin %))
+                     (map #(util/add-upvote-attr %) )
+                     (map #(util/add-numcomments-attr %) )
+                     (map #(util/add-navpath % qpath) )
                     )
         ]
     (doseq [e answers]
-      (prn "answer --> " e))
+      (log/info "answer --> " e))
     answers))
 
 
@@ -310,7 +310,8 @@
 (defn create-grade
   "submit an grade to an assignment"
   [details]
-  (let [author-id (:db/id (dbconn/find-by :person/title (:author details)))
+  (log/info "create-grade " details)
+  (let [author-id (:db/id (dbconn/find-by :person/title (:grade/author details)))
         answer-id (:grade/origin details)
         score (:grade/score details)
         comments (:grade/comments details)
@@ -328,7 +329,5 @@
                        (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [grade-e comments-e])  ; transaction is a list of entity
       ]
-    (newline)
-    (prn " create grade entity " grade-e " comments " comments-e)
-    (prn "create grade trans for both answer and comments " trans)
+    (log/info " create grade entity " grade-e " comments " comments-e " trans " trans)
     grade-e))

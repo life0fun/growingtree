@@ -91,6 +91,7 @@
 
 ; ============================================================================
 ; coerce inserted details key value map to datomic entity attribute values.
+; convert epoch to datetime #inst. string to long.
 ; XXX need to make sure value is already long, before doing read-string
 ; ============================================================================
 (defn to-datomic-attr-vals
