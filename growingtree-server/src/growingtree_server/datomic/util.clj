@@ -8,6 +8,7 @@
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.data.json :as json]
+            [io.pedestal.service.log :as log]
             [datomic.api :as d])
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format :refer [parse unparse formatter]]
@@ -115,17 +116,16 @@
 ; ============================================================================
 ; get entities by qpath, formulate query rules from qpath
 ; qpath is [:all 0 :child] or [:parent 1 :child] or [:parent 1 :parent]
+; when rule-name is :all, arg-val, which is eid, does not matter.
 ; for entity origin ref type to itself, e.g, comments can be made to comments,
-; XXX Note we touch each entity to eagerly realize all attributes of entity.
+; XXX Note we get-entity touch each entity to eagerly realize all attributes of entity.
 ; ============================================================================
 ; rule-set is list of [rule-head=(rule-name rule-arg*) rule-body=[where clause]]
 (defn get-entities-by-rule
   "get entities by arg-val and rule-name, rule-set, for each tuple, touch to realize
    all attrs called directly for comments comments case"
-  [rule-name rule-set arg-val]
-  (let [;thing-id (second qpath)
-        ;rule-name (first qpath)
-        rule (list rule-name '?e '?val)  ; rule-head specify which rule-body to pick
+  [rule-name rule-set arg-val]  ; when rule-name is :all, arg-val no effect.
+  (let [rule (list rule-name '?e '?val)  ; rule-head specify which rule-body to pick
         q (conj '[:find ?e :in $ % ?val :where ] rule)
         eids (d/q q (get-db) rule-set arg-val)  ; normally, arg-val is thing-id
         ; touch entity to realize/materialize all attributes.
@@ -134,33 +134,32 @@
     entities))
 
 
-; this is the query processing, transform to query plan with some specialities.
+; called from each find-thing, qpath = [:all 0 :assignment], [:question 1 :assignment]
 ; Leaf thing, assignment, answer, only have :origin ref back to things they pointed to.
 ; for leaf thing origin query, e.g, question of assignment, or assignment of answer,
 (defn get-qpath-entities
   "ret a list of entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
-  (let [qpath (take-last 3 qpath)  ; [:course 1 :comments 2 :comments]
-        ;[:question 1 :assignment] [:course 1 :comments 2 :comments]
-        [thing-type eid attr] qpath  ; qpath is thing thing-id attr
+  (log/info "qpath " qpath)
+  (let [[thing-type eid nxt-thing-type] (take-last 3 qpath)  ; [:course 1 :comments 2 :comments]
         e (get-entity eid)   ; we have thing-id, get thing entity
-        attr-val (leaf-thing-origin e thing-type attr)
+        nxt-thing-val (leaf-thing-origin e thing-type nxt-thing-type)
        ]
     (cond
       ; for comments of comments, query directly. (:comments 1 :comments)
-      (and (= thing-type :comments) (= attr :comments))
+      (and (= thing-type :comments) (= nxt-thing-type :comments))
         (get-entities-by-rule thing-type rule-set eid)
 
       ; head thing [:course 1 :course], however, comments can ref to comments.
-      (= thing-type attr) [e]
+      (= thing-type nxt-thing-type) [e]
 
       ; for leaf things, they have :origin outbound ref to thing they attached to.
-      ; to find attr of leaf thing, it's either attr by name, or its :origin ref.
-      (and (seq attr-val)  ;nil pun seq
-           (= attr (dbconn/entity-keyword (first attr-val)))) ; [:answer 1 :assignment]
-        (map (comp get-entity :db/id) attr-val)
+      ; to find nxt-thing-type of leaf thing, it's either nxt-thing-type by name, or its :origin ref.
+      (and (seq nxt-thing-val)  ;nil pun seq
+           (= nxt-thing-type (dbconn/entity-keyword (first nxt-thing-val)))) ; [:answer 1 :assignment]
+        (map (comp get-entity :db/id) nxt-thing-val)
 
-      ; entity does not have attr, attr is inbound to entity from target [:course 1 :lectures]
+      ; entity does not have nxt-thing-type, nxt-thing-type is inbound to entity from target [:course 1 :lectures]
       :else
         (get-entities-by-rule thing-type rule-set eid))))
 
@@ -170,22 +169,30 @@
 (defn leaf-thing-origin
   "ret a vector of entities of thing's attr, or the entity refred by origin
    origin :ref can be :one or :many, need to set? check"
-  [e thing-type attr]
-  (let [e-attr (keyword (str (name thing-type) "/" (name attr)))
-        e-attr-val (e-attr e)
-        e-origin (keyword (str (name thing-type) "/" (name :origin)))
-        e-origin-val (e-origin e)
-        origin-val-type (set? e-origin)
+  [e thing-type nxt-thing-type]
+  (let [nxt-thing-val (->> (keyword (str (name thing-type) "/" (name nxt-thing-type)))
+                           (get e))
+        origin-thing-val (->> (keyword (str (name thing-type) "/" (name :origin)))
+                              (get e))
        ]
-    (prn "leaf-thing-origin" thing-type e-attr e-attr-val " origin " e-origin-val)
-    (if e-attr-val
-      (vector e-attr-val)  ; ret a list of matching entities
+    (log/info "leaf-thing-origin" thing-type nxt-thing-val " origin " origin-thing-val)
+    (if nxt-thing-val
+      (vector nxt-thing-val)  ; ret a list of matching entities
       ; origin :ref can be :one or :many, always ret a list.
-      (if (and e-origin-val (not (set? e-origin-val)))
-        (vector e-origin-val)
-        e-origin-val)
+      (if (and origin-thing-val (not (set? origin-thing-val)))
+        (vector origin-thing-val)
+        origin-thing-val)
       )))
 
+; get the entitry for ref-ed attribute, like
+(defn get-ref-entity
+  [ref-attr entity]
+  (log/info "get-ref-entity " ref-attr entity)
+  (let [
+        ref-id (get-in entity [ref-attr :db/id])
+        ref-e (dbconn/get-entity ref-id)]
+    (log/info "get-ref-entity " ref-id ref-e)
+    (assoc entity ref-attr ref-e)))
 
 ; ============================================================================
 ; (json-response result) convert entity to json string, including outbound refs.
@@ -214,14 +221,16 @@
 
 
 ; ============================================================================
-; add title to 
+; get author name, if author-name is not set, convert to set.
 ; :course/author #{{:db/id 17592186045419}}
 ; ============================================================================
 (defn get-author-name
   [attr entity]
-  (let [author-ids (attr entity)
+  (let [author-ids (as-> (attr entity) aid 
+                         (when-not (set? aid) (conj #{} aid)))
         author-titles (map #(dbconn/get-entity (:db/id %)) author-ids)
        ]
+    (log/info "get author name " author-ids author-titles)
     (assoc entity attr (set author-titles))))
 
 ; ============================================================================
@@ -241,7 +250,7 @@
         upvotes (upvotes thing-id)
         thing-type (entity-keyword entity)
         upvote-attr (keyword (str (name thing-type) "/" "upvote"))]
-    (prn "add upvote attr " thing-id " count " upvotes " entity " upvote-attr)
+    (log/info "add upvote attr " thing-id " count " upvotes " entity " upvote-attr)
     ;(assoc-in entity [upvote-attr] (if (zero? upvotes) (rand-int 100) upvotes))
     (assoc-in entity [upvote-attr] upvotes)
     ))

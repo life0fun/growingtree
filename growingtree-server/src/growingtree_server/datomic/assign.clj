@@ -214,22 +214,23 @@
 ;;================================================================================
 ;; assignment
 ;;================================================================================
-; find all assignment
+; find all assignment,  qpath [:all 0 :assignment]
 (defn find-assignment
   "find all assignment by query path "
   [qpath]
   (let [projkeys (keys assignment-schema)
         assignments (->> (util/get-qpath-entities qpath get-assignment-by)
                       (map #(select-keys % projkeys) )
+                      (map #(util/get-author-name :assignment/author %))
+                      (map #(util/get-ref-entity :assignment/origin %))
                       (map #(util/add-upvote-attr %) )
                       (map #(util/add-numcomments-attr %) )
                       (map #(util/add-navpath % qpath) )
                     )
         ]
     (doseq [e assignments]
-      (prn "assignment --> " e))
+      (log/info "assignment --> " e))
     assignments))
-
 
 ; tagsInput sep is , when assign to group, the :assignment/person is a list of name, separated by comma.
 ; "fun math,rich-baby", we need split and strip it.

@@ -9,7 +9,6 @@
             [goog.Uri]
             [goog.net.EventType :as gevt]
             [goog.i18n.NumberFormat.Format :as formats]
-
             [growingtree-app.utils :as utils :refer [mprint]]
             
             [om.core :as om]
@@ -198,6 +197,8 @@
       ))))
 
 ;;=============================================================================
+; thing author is always a set #{{:person ...} {:person ...}}
+; authors = (map #(get % :person/title) (get entity :course/author))
 ;;=============================================================================
 (defmulti thing-entry
   (fn [app thing-type entity override]
@@ -688,12 +689,17 @@
         comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
         authors (map #(get % :person/title) (get entity :assignment/author))
-        priority (get entity :assignment/priority)
+        
+        
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
+        content (get-in value-map [:origin :question/content])
+        url (get-in value-map [:origin :question/url])
+        hint (get value-map :hint)
+        end (-> (get value-map :end) (utils/time-to-string))
         answer-form-name (str "#answer-form-" thing-id)
         answer-form-fields {:answer/title (str "#answer-title-" thing-id)
                             :answer/content (str "#answer-content-" thing-id)
@@ -717,10 +723,10 @@
       
         [:div.entry.unvoted
           [:p.title [:a.title {:href "#"} (:title value-map)]]
-          [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
-          [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
-          [:p.tagline "Authored by " authors]
-          [:p.tagline "priority" priority]
+          [:p.subtitle [:span.tagline (str "content: " content)]]
+          [:p.subtitle [:span.tagline (str "url: " url)]]
+          [:p.tagline "hint :" hint]
+          [:p.tagline "due  :" end]
 
           [:ul.flat-list.buttons
             [:li.share
