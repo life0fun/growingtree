@@ -163,7 +163,8 @@
     (assoc value-map :id id)))
 
 
-; on-click handler for click of flat list subthing link
+; when click flat list subthing link, put title type thing in title, and filtered in body.
+; title-type :answer, filtered-type :comments, title thing id is parent id in data.pid
 (defn filter-things-onclick
   [app entity title-type filtered-type]
   (let [comm (get-in app [:comms :controls])
@@ -809,7 +810,7 @@
 
         grade-form-name (str "#grade-form-" thing-id)
         grade-form-fields {:grade/score (str "#grade-score-" thing-id)
-                           :grade/content (str "#grade-content-" thing-id)
+                           :grade/comments (str "#grade-comments-" thing-id)
                           }
         grade-form-data {:grade/origin thing-id
                           :grade/author "rich-dad"   ; XXX hard code
@@ -863,7 +864,11 @@
 
             [:li.share
               [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :answer :comments)
+                  } 
+                  "comments"]]]]
           ]
 
           ; hidden divs for in-line forms
@@ -872,7 +877,7 @@
               [:form.grade-form {:style #js {:float "left;"}}
                 [:input {:id (str "grade-score-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "grade"}]
-                [:input {:id (str "grade-content-" thing-id) :type "text"
+                [:input {:id (str "grade-comments-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "comments"}]
                 [:input {:type "submit" :value "submit" :class "btn btn-primary assign-button"
                          :on-click 

@@ -178,7 +178,8 @@
   ))
 
 
-; comment tree models conversation, engaging all participants, most important part!
+; comment tree, thingroot is the root of thing this comments.
+; origin is the direct parent this comment.
 (defschema comments
   (part app)
   (fields

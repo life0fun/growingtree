@@ -6,7 +6,8 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
-            [clojure.data.json :as json])
+            [clojure.data.json :as json]
+            [io.pedestal.service.log :as log])
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format :refer [parse unparse formatter]]
             [clj-time.coerce :refer [to-long from-long]])
@@ -157,6 +158,8 @@
         qpath (take-last 3 navpath)
         comments (->> (util/get-qpath-entities qpath get-comments-by)
                       (map #(select-keys % projkeys) )
+                      (map #(util/get-author-name :comments/author %))
+                      (map #(util/get-ref-entity :comments/origin %))
                       (map #(util/add-upvote-attr %) )
                       (map #(util/ref->dbid % :comments/thingroot))
                       (map #(util/get-entity-attr-tx %))
@@ -193,9 +196,8 @@
                       (take 3)  ; how many levels of recursive comments tree
                       (apply concat))
        ]
-    (newline)
     (doseq [e comments]
-      (prn "comments --> " e ))
+      (log/info "comments --> " e ))
     comments))
 
 
@@ -210,10 +212,8 @@
                    (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
                    (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
-      ]
-    (newline)
-    (prn "create comments entity " author-id entity)
-    (prn "submit comments trans " trans)
+       ]
+    (log/info "create comments entity " author-id entity " trans " trans)
     [entity]))
 
 
@@ -232,7 +232,7 @@
               )
        ]
     (doseq [e likes]
-      (prn "like --> " e))
+      (log/info "like --> " e))
     likes))
 
 
@@ -247,9 +247,7 @@
                    (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
                    (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
-      ]
-    (newline)
-    (prn "create like entity " author-id entity)
-    (prn "submit like trans " trans)
+       ]
+    (log/info "create like entity " author-id entity " trans " trans)
     [entity]))
 

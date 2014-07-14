@@ -290,7 +290,7 @@
   (let [eid (:db/id entity)
         [txid eid v op] (first (dbconn/entity-attr-tx eid :comments/title)) ; latest on top
         txtm (:db/txInstant (get-entity txid))]
-    (prn "get-entity-attr-tx " eid " " txtm)
+    (log/info "get-entity-attr-tx " eid " transaction time" txtm)
     (assoc-in entity [:comments/txtime] txtm)))
 
 
