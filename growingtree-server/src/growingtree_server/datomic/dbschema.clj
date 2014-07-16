@@ -178,7 +178,7 @@
   ))
 
 
-; comment tree, thingroot is the root of thing this comments.
+; comment tree, thingroot is the root of thing this comments tree.
 ; origin is the direct parent this comment.
 (defschema comments
   (part app)

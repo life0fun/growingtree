@@ -892,6 +892,9 @@
           [:div.clearleft]
       ]])))
 
+
+; thingroot is the id of thing this comments tree made to. 
+; origin is the parent comment node of this comment.
 (defmethod thing-entry
   :comments
   [app thing-type entity override]
@@ -905,18 +908,17 @@
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
-        title (get-in value-map [:title])
-        origin-content (get-in value-map [:origin])
-        tm (-> (get value-map :txtime) (utils/time-to-string))
+        thingroot (get value-map :thingroot)
+        title (get value-map :title)
+        tm (-> (get value-map :txtime) (/ 1000) (utils/time-to-string))
 
-        grade-form-name (str "#grade-form-" thing-id)
-        grade-form-fields {:grade/score (str "#grade-score-" thing-id)
-                           :grade/comments (str "#grade-comments-" thing-id)
+        reply-form-name (str "#reply-form-" thing-id)
+        reply-form-fields {:comments/title (str "#reply-title-" thing-id)
                           }
-        grade-form-data {:grade/origin thing-id
-                          :grade/author "rich-dad"   ; XXX hard code
-                          :grade/start (utils/to-epoch)
-                         } ; peer add-thing :grade
+        reply-form-data {:reply/origin thing-id
+                         :reply/thingroot thingroot
+                          :reply/author "rich-dad"   ; XXX hard code
+                         } ; peer add-thing :reply
        ]
     (.log js/console "comments thing value " (pr-str value-map))
     (list
@@ -932,37 +934,9 @@
       
         [:div.entry.unvoted
           [:p.title [:a.title {:href "#"} title]]
-          [:p.subtitle [:span.tagline (str "content: " content)]]
-          [:p.subtitle [:span.tagline (str "assignment : " origin-content)]]
-          [:p.tagline "submitted at :" start]
-
-          [:p.title (str "Score : " score)]
+          [:p.tagline "submitted at : " tm]
 
           [:ul.flat-list.buttons
-            [:li.share
-              [:div {:class (:lecture-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :comments :assignment)
-                  } "assignment"]]]]
-
-            [:li.share
-              [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword (str "#grade-form-" thing-id)))]
-                        (dommy/toggle-class! f "hide")))
-                  }
-                  "grade"]]]]
-
-            [:li.share
-              [:div {:class (:similar-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :comments :similar)
-                  } "similar answers"]]]]
-
             [:li.share
               [:div {:class (:comments-class value-map)}
                 [:span.toggle [:a.option.active 
@@ -970,22 +944,37 @@
                    :on-click (filter-things-onclick app entity :comments :comments)
                   } 
                   "comments"]]]]
+
+            [:li.share
+              [:div {:class (:lecture-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :comments :comments)
+                  } "tips"]]]]
+
+            [:li.share
+              [:div {:class (:comments-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword (str "#reply-form-" thing-id)))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "reply"]]]]
           ]
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}
-            [:div.hide {:id (str "grade-form-" thing-id)}
-              [:form.grade-form {:style #js {:float "left;"}}
-                [:input {:id (str "grade-score-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "grade"}]
-                [:input {:id (str "grade-comments-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "comments"}]
+            [:div.hide {:id (str "reply-form-" thing-id)}
+              [:form.reply-form {:style #js {:float "left;"}}
+                [:textarea {:id (str "reply-title-" thing-id) :type "text" :placeholder "comments"
+                            :style #js {:display "block" :width "90%" :height "100px"} }]
                 [:input {:type "submit" :value "submit" :class "btn btn-primary assign-button"
                          :on-click 
-                            (submit-form-fn app :grade 
-                                            grade-form-name 
-                                            grade-form-data 
-                                            grade-form-fields)
+                            (submit-form-fn app :reply 
+                                            reply-form-name 
+                                            reply-form-data 
+                                            reply-form-fields)
                          }]
               ]
             ]

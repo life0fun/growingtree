@@ -892,6 +892,97 @@
           [:div.clearleft]
       ]])))
 
+
+; thingroot is the id of thing this comments tree made to. 
+; origin is the parent comment node of this comment.
+(defmethod thing-entry
+  :comments
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :comments/author))
+        
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        thingroot (get value-map :thingroot)
+        title (get value-map :title)
+        tm (-> (get value-map :txtime) (/ 1000) (utils/time-to-string))
+
+        reply-form-name (str "#reply-form-" thing-id)
+        reply-form-fields {:comments/title (str "#reply-title-" thing-id)
+                          }
+        reply-form-data {:reply/origin thing-id
+                         :reply/thingroot thingroot
+                          :reply/author "rich-dad"   ; XXX hard code
+                         } ; peer add-thing :reply
+       ]
+    (.log js/console "comments thing value " (pr-str value-map))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
+        [:span.rank "1"]   ; index offset in the list of filtered things
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      
+        [:a.thumbnail {:href "#"}
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+      
+        [:div.entry.unvoted
+          [:p.title [:a.title {:href "#"} title]]
+          [:p.tagline "submitted at : " tm]
+
+          [:ul.flat-list.buttons
+            [:li.share
+              [:div {:class (:comments-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :comments :comments)
+                  } 
+                  "comments"]]]]
+
+            [:li.share
+              [:div {:class (:lecture-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :comments :comments)
+                  } "tips"]]]]
+
+            [:li.share
+              [:div {:class (:comments-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword (str "#reply-form-" thing-id)))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "reply"]]]]
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (str "child-form-" thing-id)}
+            [:div.hide {:id (str "reply-form-" thing-id)}
+              [:form.reply-form {:style #js {:float "left;"}}
+                [:textarea {:id (str "reply-title-" thing-id) :type "text" :placeholder "comments"
+                            :style #js {:display "block" :width "90%" :height "100px"} }]
+                [:input {:type "submit" :value "submit" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :reply 
+                                            reply-form-name 
+                                            reply-form-data 
+                                            reply-form-fields)
+                         }]
+              ]
+            ]
+          ]
+          [:div.clearleft]
+      ]])))
+
+
 ;;===========================================================================
 ; show add comments input box, trigger by thing data emitter [:setup :x 1 :comments]
 ; form id is the thing-id this comment's origin and thingroot
