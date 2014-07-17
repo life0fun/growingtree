@@ -895,6 +895,8 @@
 
 ; thingroot is the id of thing this comments tree made to. 
 ; origin is the parent comment node of this comment.
+; for nested comments tree, use the len of :navpath to determine indention.
+; indention is done by offsetX css class.
 (defmethod thing-entry
   :comments
   [app thing-type entity override]
@@ -911,18 +913,20 @@
         thingroot (get value-map :thingroot)
         title (get value-map :title)
         tm (-> (get value-map :txtime) (/ 1000) (utils/time-to-string))
+        ago (utils/moment-from (js/moment (get value-map :txtime)) (js/moment))
+        offset (/ (- (count (get value-map :navpath)) 2) 2)
 
         reply-form-name (str "#reply-form-" thing-id)
         reply-form-fields {:comments/title (str "#reply-title-" thing-id)
                           }
-        reply-form-data {:reply/origin thing-id
-                         :reply/thingroot thingroot
-                          :reply/author "rich-dad"   ; XXX hard code
+        reply-form-data {:comments/origin thing-id
+                         :comments/thingroot thingroot
+                          :comments/author "rich-son"   ; XXX hard code
                          } ; peer add-thing :reply
        ]
     (.log js/console "comments thing value " (pr-str value-map))
     (list
-      [:div.thing.link {:id (str (:db/id value-map))}
+      [:div.thing.link {:id (str (:db/id value-map)) :class (str "comment" offset)}
         [:span.rank "1"]   ; index offset in the list of filtered things
         [:div.midcol.unvoted
           [:div.arrow.up {:role "button" :arial-label "upvote"}]
@@ -934,7 +938,7 @@
       
         [:div.entry.unvoted
           [:p.title [:a.title {:href "#"} title]]
-          [:p.tagline "submitted at : " tm]
+          [:p.tagline "submitted " ago " ago at " tm]
 
           [:ul.flat-list.buttons
             [:li.share
@@ -971,7 +975,7 @@
                             :style #js {:display "block" :width "90%" :height "100px"} }]
                 [:input {:type "submit" :value "submit" :class "btn btn-primary assign-button"
                          :on-click 
-                            (submit-form-fn app :reply 
+                            (submit-form-fn app :comments 
                                             reply-form-name 
                                             reply-form-data 
                                             reply-form-fields)

@@ -205,7 +205,7 @@
 (defn create-comments
   "create a comments with details "
   [details]
-  (let [author-id (:db/id (find-by :person/title (:author details)))
+  (let [author-id (:db/id (find-by :person/title (:comments/author details)))
         entity (-> details
                    (select-keys (keys comments-schema))
                    (assoc :comments/author author-id)  ; append author-id to ref many person

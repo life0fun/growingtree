@@ -197,7 +197,7 @@ growingtree_app.utils.moment_from = (function moment_from(txtime,nowtime){return
 });
 growingtree_app.utils.to_epoch = (function to_epoch(){return cljs.core.quot.call(null,cljs_time.coerce.to_epoch.call(null,cljs_time.core.now.call(null)),1);
 });
-growingtree_app.utils.time_to_string = (function time_to_string(epoch){return cljs_time.format.unparse.call(null,cljs_time.format.formatter.call(null,"dow dth MMM yyyy at HH:mm:ss"),cljs_time.coerce.from_long.call(null,(1000 * epoch)));
+growingtree_app.utils.time_to_string = (function time_to_string(epoch){return cljs_time.format.unparse.call(null,cljs_time.format.formatter.call(null,"dow MMM dth yyyy at HH:mm:ss"),cljs_time.coerce.from_long.call(null,(1000 * epoch)));
 });
 /**
 * update in time value from string to keyword

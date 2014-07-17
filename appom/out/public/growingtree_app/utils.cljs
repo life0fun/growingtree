@@ -153,9 +153,8 @@
 
 ; calc the relation between two moment timestamps.
 ; we use moment.from(), the args are moment instance
-(defn moment-from
-  [txtime nowtime]
-    (str " " (.from txtime nowtime)))
+(defn moment-from [txtime nowtime]
+  (str " " (.from txtime nowtime)))
 
 ; get epoch of now
 (defn to-epoch []
@@ -165,7 +164,7 @@
 ; note that epoch is in seconds, need to multiple to millis.
 (defn time-to-string [epoch]
   (->> (cljs-time-coerce/from-long (* 1000 epoch))
-       (cljs-time-format/unparse (cljs-time-format/formatter "dow dth MMM yyyy at HH:mm:ss"))))
+       (cljs-time-format/unparse (cljs-time-format/formatter "dow MMM dth yyyy at HH:mm:ss"))))
        ; (cljs-time-format/unparse (:date-time cljs-time-format/formatters))))
       
 

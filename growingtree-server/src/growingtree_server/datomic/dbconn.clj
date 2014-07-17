@@ -231,8 +231,7 @@
         ft tx-data
        ]
     (prn "dbconn submit trans " tx-data ft)
-    ft
-    ))
+    ft))
 
 
 ; list all transaction of db
