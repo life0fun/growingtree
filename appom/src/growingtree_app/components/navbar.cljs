@@ -13,7 +13,7 @@
     (.log js/console "li tab thing-nav type " (pr-str type) " title " (:title thing-listing))
     [:li.protected {:key type  ; 
                     :on-click #(put! comm [:all-things {:body [:all-things [:all 0 type]]}]) ; [:all-things [:all 0 :thing-type]]
-                    :class (str type (when (:selected thing-listing) " active"))}
+                    :class (str (name type) (when (:selected thing-listing) " active"))}
       [:a.show_channel
         (:title thing-listing)  ; nav type title, course, parent, lecture, etc.
         (when (:loading thing-listing)
@@ -40,6 +40,7 @@
             [:input.submit {:value "Search" :type "submit"}]]
           
           [:ul.nav-ul
+            (.log js/console "nav-ul things " (pr-str (:things data)))
             (map (partial thing-nav comm) (sort-by :order (vals (:things data))))
             [:li {:key "new-tab"}
               [:a#newthing-form

@@ -27,24 +27,24 @@ cljs.core._add_method.call(null,growingtree_app.api.kandan.process_event_BANG_,n
 }));
 cljs.core._add_method.call(null,growingtree_app.api.kandan.process_event_BANG_,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"attachments","attachments",4569874210),new cljs.core.Keyword(null,"added","added",1106564210)], null),(function (entity_name,event_name,data){return "Placeholder";
 }));
-growingtree_app.api.kandan.handle_activity = (function handle_activity(data){var data__$1 = cljs.core.js__GT_clj.call(null,data,new cljs.core.Keyword(null,"keywordize-keys","keywordize-keys",4191781672));var event = new cljs.core.Keyword(null,"event","event",1110795788).cljs$core$IFn$_invoke$arity$1(data__$1);var vec__8993 = cljs.core.map.call(null,cljs.core.keyword,clojure.string.split.call(null,event,/#/));var entity_name = cljs.core.nth.call(null,vec__8993,0,null);var event_name = cljs.core.nth.call(null,vec__8993,1,null);return growingtree_app.api.kandan.process_event_BANG_.call(null,entity_name,event_name,data__$1);
+growingtree_app.api.kandan.handle_activity = (function handle_activity(data){var data__$1 = cljs.core.js__GT_clj.call(null,data,new cljs.core.Keyword(null,"keywordize-keys","keywordize-keys",4191781672));var event = new cljs.core.Keyword(null,"event","event",1110795788).cljs$core$IFn$_invoke$arity$1(data__$1);var vec__9187 = cljs.core.map.call(null,cljs.core.keyword,clojure.string.split.call(null,event,/#/));var entity_name = cljs.core.nth.call(null,vec__9187,0,null);var event_name = cljs.core.nth.call(null,vec__9187,1,null);return growingtree_app.api.kandan.process_event_BANG_.call(null,entity_name,event_name,data__$1);
 });
-growingtree_app.api.kandan.make_client = (function make_client(auth_token,end_point){var client = (new Faye.Client(end_point));var auth_extension = (function (){var obj8998 = {"outgoing":((function (client){
+growingtree_app.api.kandan.make_client = (function make_client(auth_token,end_point){var client = (new Faye.Client(end_point));var auth_extension = (function (){var obj9192 = {"outgoing":((function (client){
 return (function (message,cb){if(cljs.core._EQ_.call(null,message.channel,"/meta/subscribe"))
 {(message["ext"] = {"auth_token": auth_token});
 } else
 {}
 return cb.call(null,message);
 });})(client))
-};return obj8998;
-})();var G__8999 = client;G__8999.disable("websocket");
-G__8999.addExtension(auth_extension);
-G__8999.bind("transport:down",(function (){return growingtree_app.utils.mprint.call(null,"Connection to Kandan server is down");
+};return obj9192;
+})();var G__9193 = client;G__9193.disable("websocket");
+G__9193.addExtension(auth_extension);
+G__9193.bind("transport:down",(function (){return growingtree_app.utils.mprint.call(null,"Connection to Kandan server is down");
 }));
-G__8999.bind("transport:up",(function (){return growingtree_app.utils.mprint.call(null,"Connection to Kandan server is up");
+G__9193.bind("transport:up",(function (){return growingtree_app.utils.mprint.call(null,"Connection to Kandan server is up");
 }));
-G__8999.subscribe("/app/activities",growingtree_app.api.kandan.handle_activity);
-return G__8999;
+G__9193.subscribe("/app/activities",growingtree_app.api.kandan.handle_activity);
+return G__9193;
 });
 growingtree_app.api.kandan.normalize_activity = (function normalize_activity(activity){return new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"id","id",1013907597),new cljs.core.Keyword(null,"id","id",1013907597).cljs$core$IFn$_invoke$arity$1(activity),new cljs.core.Keyword(null,"channel-id","channel-id",3378014615),growingtree_app.utils.safe_sel.call(null,new cljs.core.Keyword(null,"channel_id","channel_id",3378062665).cljs$core$IFn$_invoke$arity$1(activity)),new cljs.core.Keyword(null,"created_at","created_at",2383584348),(new Date(new cljs.core.Keyword(null,"created_at","created_at",2383584348).cljs$core$IFn$_invoke$arity$1(activity))),new cljs.core.Keyword(null,"author","author",3902543101),cljs.core.get_in.call(null,activity,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"user","user",1017503549),new cljs.core.Keyword(null,"email","email",1110523662)], null)),new cljs.core.Keyword(null,"content","content",1965434859),new cljs.core.Keyword(null,"content","content",1965434859).cljs$core$IFn$_invoke$arity$1(activity)], null);
 });
@@ -54,7 +54,7 @@ client.errback((function (data){return cljs.core.async.put_BANG_.call(null,api_c
 }));
 return subscription;
 });
-growingtree_app.api.kandan.save = (function save(api_key,obj){return growingtree_app.api.kandan.callbacks.post_activity_BANG_.call(null,api_key,cljs.core.js__GT_clj.call(null,obj),(function (p1__9000_SHARP_){return growingtree_app.utils.mprint.call(null,"Save Activity Result: ",p1__9000_SHARP_);
+growingtree_app.api.kandan.save = (function save(api_key,obj){return growingtree_app.api.kandan.callbacks.post_activity_BANG_.call(null,api_key,cljs.core.js__GT_clj.call(null,obj),(function (p1__9194_SHARP_){return growingtree_app.utils.mprint.call(null,"Save Activity Result: ",p1__9194_SHARP_);
 }));
 });
 

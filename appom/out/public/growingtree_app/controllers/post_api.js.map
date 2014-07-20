@@ -9,7 +9,7 @@
  ["growingtree-app.controllers.post-api/notify-if-mentioned!",
   "activity", "state", "current-user", "cljs.core/get-in", "comm",
   "and__3431__auto__", "cljs.core/not=",
-  "growingtree-app.useful/ffilter", "piece", "vec__11759",
+  "growingtree-app.useful/ffilter", "piece", "vec__11981",
   "cljs.core/nth", "_", "pre", "username", "post", "cljs.core/re-find",
   "cljs.core/=", "clojure.string/split", "cljs.core.async/put!",
   "method-table__4301__auto__", "cljs.core/atom",

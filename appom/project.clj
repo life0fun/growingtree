@@ -40,8 +40,7 @@
                                    :optimizations :none
                                    :source-map true}}
                        {:id "test"
-                        :source-paths ["src"
-                                       "test-cljs"]
+                        :source-paths ["src" "test-cljs"]
                         :compiler {:pretty-print true
                                    :output-dir "resources/private/js/"
                                    :output-to "resources/private/js/unit-test.js"

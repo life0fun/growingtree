@@ -10,7 +10,7 @@
 ; XXX App state updated triggers IRender on app component, cascade to sidebar and main.
 
 ; dispatch based on msg-type type.
-; msg-data is nav-path {:title :title, :body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
+; msg-data is nav-path {:title :title, :body [:filter-things [:course 1 :lecture]], :data {:pid 1}}
 (defmulti control-event
   (fn [target msg-type msg-data state] msg-type))
 
@@ -25,12 +25,13 @@
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; global state update for control event for navbar.
+; nav-path = [{:title [], :body [:all 0 :parent], :data {}}] 
 (defmethod control-event 
   :all-things
   [target msg-type msg-data state]
-  (let [last-nav-type (first (last (:path (get-in state [:nav-path]))))
+  (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 2])
         cur-nav-type (get-in msg-data [:body 1 2])] ;
-    (.log js/console "all-things event " (pr-str cur-nav-type msg-data))
+    (.log js/console "all-things event " (pr-str cur-nav-type last-nav-type msg-data))
     (-> state
       (update-in [:nav-path] conj msg-data)
       (assoc-in [:things last-nav-type :selected] false)
