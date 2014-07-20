@@ -2,15 +2,20 @@
   (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
             [om.core :as om]
             [growingtree-app.routes :as routes]
+            [growingtree-app.mock-data :as mock-data]
             [growingtree-app.utils :as utils]
             [sablono.core :as html :refer-macros [html]]))
 
+;
+; navbar and navlist only contains top-level things.
+; nav-types defined in mock_data.cljs
+; does not include things like answer that must go under assignment filter.
+;
 
 ; ul list of things for each nav-type, :course {:type :title :thing-node}
-; on-click append nav-path segment map.
+; initial-state :things = {:course {:type ... :title ... :thing-nodes [{}]} :lecture {:type ...}} 
 (defn thing-nav [comm thing-listing]
   (let [type (:type thing-listing)]
-    (.log js/console "li tab thing-nav type " (pr-str type) " title " (:title thing-listing))
     [:li.protected {:key type  ; 
                     :on-click #(put! comm [:all-things {:body [:all-things [:all 0 type]]}]) ; [:all-things [:all 0 :thing-type]]
                     :class (str (name type) (when (:selected thing-listing) " active"))}
@@ -40,7 +45,7 @@
             [:input.submit {:value "Search" :type "submit"}]]
           
           [:ul.nav-ul
-            (.log js/console "nav-ul things " (pr-str (:things data)))
+            ; :things contains a map of things {:course {:title ... :thing-nodes [{} {}]} :lecture {} ...}
             (map (partial thing-nav comm) (sort-by :order (vals (:things data))))
             [:li {:key "new-tab"}
               [:a#newthing-form

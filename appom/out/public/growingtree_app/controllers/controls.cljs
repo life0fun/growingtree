@@ -1,13 +1,15 @@
 (ns growingtree-app.controllers.controls
   (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
             [cljs.reader :as reader]
+            [growingtree-app.mock-data :as mock-data]
             [growingtree-app.utils :as utils :refer [mprint]]))
 
 (enable-console-print!)
 
-
 ; this module update global state with event data from control chan.
 ; XXX App state updated triggers IRender on app component, cascade to sidebar and main.
+
+(declare update-navbar-selected)
 
 ; dispatch based on msg-type type.
 ; msg-data is nav-path {:title :title, :body [:filter-things [:course 1 :lecture]], :data {:pid 1}}
@@ -26,29 +28,30 @@
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; global state update for control event for navbar.
 ; nav-path = [{:title [], :body [:all 0 :parent], :data {}}] 
+; note that we noly update selected 
 (defmethod control-event 
   :all-things
   [target msg-type msg-data state]
-  (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 2])
-        cur-nav-type (get-in msg-data [:body 1 2])] ;
+  (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
+        cur-nav-type (get-in msg-data [:body 1 2])
+       ]
     (.log js/console "all-things event " (pr-str cur-nav-type last-nav-type msg-data))
-    (-> state
-      (update-in [:nav-path] conj msg-data)
-      (assoc-in [:things last-nav-type :selected] false)
-      (assoc-in [:things cur-nav-type :selected] true))))
-
+    (cond-> state
+      :else (update-navbar-selected last-nav-type cur-nav-type)
+      :else (update-in [:nav-path] conj msg-data)
+      )))
 
 (defmethod control-event 
   :filter-things
   [target msg-type msg-data state]
-  (let [last-nav-type (last (:body (get-in state [:nav-path])))
-        cur-nav-type (get-in msg-data [:body 1 2])]  ; :body [:filter-things [:course 1 :lecture]]
-    (.log js/console "filter-things event control " (pr-str cur-nav-type msg-data))
-    (-> state
-      (update-in [:nav-path] conj msg-data)
-      (assoc-in [:things last-nav-type :selected] false)
-      (assoc-in [:things cur-nav-type :selected] true))))
-
+  (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
+        cur-nav-type (get-in msg-data [:body 1 2])
+        ] ;
+    (.log js/console "filter-things event " (pr-str cur-nav-type last-nav-type msg-data))
+    (cond-> state
+      :else (update-navbar-selected last-nav-type cur-nav-type)
+      :else (update-in [:nav-path] conj msg-data)
+      )))
 
 ; add-thing msg-data = [:add-thing [:course {}]], append to :nav-path
 ; :add-thing, post control chan to cljs ajax to back-end.
@@ -244,3 +247,27 @@
           reader/read-string
           (assoc :comms (:comms state)))
       state)))
+
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; helper fn to update global state upon control msg
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+; update -navbar selected in state :things, {:parent {:title ...} :course {:title ...}
+(defn update-navbar-selected
+  [state last-nav-type cur-nav-type]
+  (let [last-nav-type (some #{last-nav-type} mock-data/nav-types)
+        cur-nav-type (some #{cur-nav-type}  mock-data/nav-types)
+       ]
+    (.log js/console "update-navbar-selected " (pr-str cur-nav-type last-nav-type))
+    (cond-> state
+      last-nav-type (assoc-in [:things last-nav-type :selected] false)
+      cur-nav-type (assoc-in [:things cur-nav-type :selected] true)
+      )))
+
+
+
+
+

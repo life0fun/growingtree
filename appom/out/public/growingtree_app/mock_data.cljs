@@ -127,8 +127,16 @@
      :body {}
      :nav-path [{:title [] :body [:all 0 :parent] :data {}}]
      
-     ; nav-path as key, things-vec value
+     ; store api-event data, updated from api/api-event
+     ; nav-path as key, [:assignment 1 :answer] 
+     ; things-vec value, [{:db/id 1, :answer/author #{{:person/url #{rich-son.com}..}]
      :nav-path-things {}
+
+     ; things is thigns category for navbar and sidebar.
+     ; [:parent :child :course :lecture :question :assignment]
+     :things (as-> things ts
+                   (update-in ts [:parent] assoc :selected true))
+
     
      :audio {:volume 100
              :muted true}
@@ -141,8 +149,6 @@
                           :right {:open false}}
                 :inspector {:path [:users]}}
 
-     :things (as-> things ts
-                   (update-in ts [:parent] assoc :selected true))
 
      ; channels is nested map keyed by id
      :selected-channel "1"

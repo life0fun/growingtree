@@ -27,7 +27,7 @@ goog.addDependency("../secretary/core.js", ['secretary.core'], ['cljs.core', 'cl
 goog.addDependency("../growingtree_app/routes.js", ['growingtree_app.routes'], ['cljs.core', 'secretary.core', 'goog.History', 'growingtree_app.utils', 'cljs.core.async', 'goog.events']);
 goog.addDependency("../om/dom.js", ['om.dom'], ['cljs.core']);
 goog.addDependency("../om/core.js", ['om.core'], ['cljs.core', 'om.dom', 'goog.ui.IdGenerator']);
-goog.addDependency("../growingtree_app/components/navbar.js", ['growingtree_app.components.navbar'], ['growingtree_app.routes', 'sablono.core', 'cljs.core', 'om.core', 'growingtree_app.utils', 'cljs.core.async']);
+goog.addDependency("../growingtree_app/components/navbar.js", ['growingtree_app.components.navbar'], ['growingtree_app.routes', 'sablono.core', 'cljs.core', 'growingtree_app.mock_data', 'om.core', 'growingtree_app.utils', 'cljs.core.async']);
 goog.addDependency("../growingtree_app/components/draggable_window.js", ['growingtree_app.components.draggable_window'], ['sablono.core', 'cljs.core', 'goog.events.EventType', 'om.core', 'clojure.string', 'growingtree_app.utils', 'cljs.core.async', 'goog.events']);
 goog.addDependency("../cljs/reader.js", ['cljs.reader'], ['cljs.core', 'goog.string']);
 goog.addDependency("../growingtree_app/components/entity_view.js", ['growingtree_app.components.entity_view'], ['goog.i18n.NumberFormat.Format', 'sablono.core', 'cljs.core', 'goog.crypt', 'goog.net.EventType', 'om.core', 'clojure.string', 'goog.crypt.Md5', 'growingtree_app.utils', 'cljs.reader', 'cljs.core.async', 'goog.events', 'goog.Uri', 'dommy.core']);
@@ -45,7 +45,7 @@ goog.addDependency("../growingtree_app/components/history_player.js", ['growingt
 goog.addDependency("../growingtree_app/controllers/api.js", ['growingtree_app.controllers.api'], ['cljs.core', 'cljs.core.async']);
 goog.addDependency("../growingtree_app/commands.js", ['growingtree_app.commands'], ['growingtree_app.api.mock', 'growingtree_app.components.app', 'cljs.core', 'growingtree_app.mock_data', 'growingtree_app.useful', 'om.core', 'clojure.string', 'growingtree_app.utils', 'om.dom', 'cljs.core.async', 'growingtree_app.datetime', 'dommy.core']);
 goog.addDependency("../growingtree_app/controllers/post_api.js", ['growingtree_app.controllers.post_api'], ['growingtree_app.commands', 'cljs.core', 'growingtree_app.ui', 'growingtree_app.useful', 'clojure.string', 'growingtree_app.utils', 'cljs.core.async']);
-goog.addDependency("../growingtree_app/controllers/controls.js", ['growingtree_app.controllers.controls'], ['cljs.core', 'growingtree_app.utils', 'cljs.reader', 'cljs.core.async']);
+goog.addDependency("../growingtree_app/controllers/controls.js", ['growingtree_app.controllers.controls'], ['cljs.core', 'growingtree_app.mock_data', 'growingtree_app.utils', 'cljs.reader', 'cljs.core.async']);
 goog.addDependency("../growingtree_app/api/kandan/callbacks.js", ['growingtree_app.api.kandan.callbacks'], ['cljs.core', 'growingtree_app.utils', 'goog.json']);
 goog.addDependency("../growingtree_app/api/kandan.js", ['growingtree_app.api.kandan'], ['cljs.core', 'growingtree_app.api.kandan.callbacks', 'growingtree_app.useful', 'clojure.string', 'growingtree_app.utils', 'cljs.core.async']);
 goog.addDependency("../ajax/core.js", ['ajax.core'], ['goog.json.Serializer', 'goog.net.XhrManager', 'goog.Uri.QueryData', 'cljs.core', 'goog.net.EventType', 'goog.structs', 'goog.net.ErrorCode', 'clojure.string', 'cljs.reader', 'goog.net.XhrIo', 'goog.events', 'goog.Uri']);
