@@ -550,7 +550,7 @@
     tx))
 
 
-; found all entity has the attr with value, and the transaction that set the attr value
+; found all transaction entities that set attr to attrval.
 ; along the query. ret a list of all entity value transaction records.
 (defn attr-val-tx
   [attr attrval]
@@ -564,7 +564,7 @@
                     (sort-by first)   ; sort by tx time
                     (reverse ))       ; reverse time
         ]
-    (prn txhist " entity " txhist)
+    (prn "attr-val-tx " attr attrval " txhist " txhist " entity " txhist)
     txhist))
 
 

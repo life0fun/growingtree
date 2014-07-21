@@ -7,11 +7,12 @@
             [clojure.set :as set]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
-            [clojure.data.json :as json])
+            [clojure.data.json :as json]
+            [io.pedestal.service.log :as log])
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format :refer [parse unparse formatter]]
             [clj-time.coerce :refer [to-long from-long]])
-  (:require [datomic.api :as d])
+  (:require [datomic.api :as api])
   (:require [growingtree-server.datomic.dbschema :as dbschema]
             [growingtree-server.datomic.dbconn :as dbconn :refer :all]
             [growingtree-server.datomic.util :as util]))
@@ -29,18 +30,18 @@
 
 ; The transaction *entity* is available as a 4th optional arg of any data pattern.
 ;   :where [?e ?attr ?v ?tx ?op]]
-; given a transction id, d/tx->t, tx to time, ret relative time when transaction happened.
-;   (d/tx->t txid)
+; given a transction id, api/tx->t, tx to time, ret relative time when transaction happened.
+;   (api/tx->t txid)
 ; for wall time,  :db/txInstant property of the transaction entity:
-;   (d/entity (d/db conn) txid) :db/txInstant)
+;   (api/entity (api/db conn) txid) :db/txInstant)
 ;
-; tx entity, relative time t = (d/tx->t tx), and wall time, (:db/txInstant (d/entity tx))
+; tx entity, relative time t = (api/tx->t tx), and wall time, (:db/txInstant (api/entity tx))
 
-; Time travel, d/as-of take a tx id, and show the snapshot of
-;   (def older-db (d/as-of db (dec txid)))
+; Time travel, api/as-of take a tx id, and show the snapshot of
+;   (def older-db (api/as-of db (dec txid)))
 ;
 
-; history query with (d/history db)
+; history query with (api/history db)
 
 
 ; A user's timeline means find all entities created by a user, or find entity attributes
@@ -83,40 +84,66 @@
   ])
 
 
-(defn attr-refto-user-tx
-  "find transaction entity of all entities that refto user"
-  [author-id author attr]
-  (prn "attr-refto-user-tx " author-id author attr)
-  (let [;txhist (entity-inbound-tx author-id attr)
-        txhist (->> (dbconn/attr-val-tx attr author-id)  ; find all trans entity set attr to val
+; ============================================================================
+; for timeline query, we got [?tx ?e ?v ?op]
+; resolve tx entity to date time and entity to its value
+; wrap origin entity into :timeline/origin key
+; ============================================================================
+(defn tx-timeline
+  [[txid eid v op :as txhist]]
+  (let [txtm (:db/txInstant (get-entity txid) )
+        entity (get-entity eid)
+        timeline {:db/id (:db/id entity)
+                  :timeline/type (name (entity-keyword entity))
+                  :timeline/txtime txtm
+                  :timeline/origin entity
+                  :timeline/value v
+                  :timeline/add op
+                 }
+       ]
+    (log/info "tx timeline entity " (entity-keyword entity)  timeline)
+    timeline))
+
+; go through every person-attrs, like :course/author, :answer/author, :follow/person,
+; find all transactions that update any person-attrs with value equal to author id
+; 17592186045419 "rich-dad" :follow/person
+(defn person-attr-tx
+  "find all transaction entities that refto user"
+  [author-id author author-attr]
+  ; (prn "person-attr-tx " author-id author attr)
+  (let [txhist (->> (dbconn/attr-val-tx author-attr author-id)  ; find all trans entity set attr to val
                     (map #(util/tx-timeline %))   ; format to :timeline/attr
                     (map #(assoc-in % [:timeline/author] author))
                 )
 
        ]
     (doseq [e txhist]
-      (prn attr " " author-id " txhist " e))
+      (log/info "perons-attr-tx " author-attr " " author-id " txhist " e))
     txhist))
 
 
-; find all entities that has author/person attributes with value to user id.
-; [:parent 17592186045419 :timeline]
+; ============================================================================
+; find all entities that has author/person attributes with value to the user.
+; :details {:body [:all-things [:all 0 :timeline]], :data {:author "rich-dad"}}
+; when clicking from thing-view [:parent 17592186045419 :timeline] or 
+; when click from navbar [:all 0 :timeline] with :author key in :data :details
+; XXX list all transactions for all users.
 (defn find-timeline
   "find timeline of a user"
   [qpath details]
-  (prn "find-timeline " qpath (seq qpath))
-  (let [author (:author details)
+  (log/info "find-timeline " qpath " details " details)
+  (let [author (get-in details [:data :author])
         author-id (:db/id (find-by :person/title author))
         user-id (if-not (= :all (first qpath)) (second qpath) author-id)
         user (:person/title (dbconn/get-entity user-id))
-        timelines (->> (mapcat #(attr-refto-user-tx user-id user %)
+        timelines (->> (mapcat #(person-attr-tx user-id user %)
                                person-attrs)
                        (map #(util/add-navpath % qpath) )
                        (sort-by :timeline/txtime)
                        (reverse ))
        ]
     (doseq [e timelines]
-      (prn "timeline --> " e))
+      (log/info "timeline --> " e))
     timelines))
 
 
@@ -126,7 +153,7 @@
   [eid attr]
   (let [txhist (entity-attr-tx eid attr)]
     (doseq [e txhist]
-      (prn "timeline --> " e))))
+      (log/info "timeline --> " e))))
 
 
 ;;===========================================================================

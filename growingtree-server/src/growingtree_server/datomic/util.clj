@@ -293,22 +293,3 @@
     (log/info "get-entity-attr-tx " eid " transaction time" txtm)
     (assoc-in entity [:comments/txtime] txtm)))
 
-
-; ============================================================================
-; for timeline query, we got [?tx ?e ?v ?op]
-; resolve tx entity to date time and entity to its value
-; ============================================================================
-(defn tx-timeline
-  [[txid eid v op :as txhist]]
-  (let [txtm (:db/txInstant (get-entity txid) )
-        entity (get-entity eid)
-        timeline {:db/id (:db/id entity)
-                  :timeline/type (name (entity-keyword entity))
-                  :timeline/txtime txtm
-                  :timeline/origin entity
-                  :timeline/value v
-                  :timeline/add op
-                 }
-       ]
-    (prn "tx timeline entity " (entity-keyword entity)  timeline)
-    timeline))

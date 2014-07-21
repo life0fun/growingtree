@@ -70,9 +70,7 @@
             (let [previous-state @state
                   msg-type (first v)
                   msg-data (last v)
-                  ; dbid (if (:data msg-data) (:db/id @(:data msg-data)) "11")
-                  ; dbid (if (:data msg-data) "ww" "11")
-                  ]
+                 ]
               (.log js/console "controls chan event: " (pr-str msg-type msg-data))
               ; (update-history! history :controls v)
               ; update state with selected state id. will cause re-render of app

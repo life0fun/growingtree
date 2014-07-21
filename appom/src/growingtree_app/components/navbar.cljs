@@ -15,9 +15,13 @@
 ; ul list of things for each nav-type, :course {:type :title :thing-node}
 ; initial-state :things = {:course {:type ... :title ... :thing-nodes [{}]} :lecture {:type ...}} 
 (defn thing-nav [comm thing-listing]
-  (let [type (:type thing-listing)]
+  (let [type (:type thing-listing)
+        nav-path {:body [:all-things [:all 0 type]]
+                 :data {:author "rich-dad"}
+                }
+       ]
     [:li.protected {:key type  ; 
-                    :on-click #(put! comm [:all-things {:body [:all-things [:all 0 type]]}]) ; [:all-things [:all 0 :thing-type]]
+                    :on-click #(put! comm [:all-things nav-path]) ; [:all-things [:all 0 :thing-type]]
                     :class (str (name type) (when (:selected thing-listing) " active"))}
       [:a.show_channel
         (:title thing-listing)  ; nav type title, course, parent, lecture, etc.

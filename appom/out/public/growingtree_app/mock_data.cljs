@@ -21,7 +21,8 @@
 
 (def nav-types [:parent :child
                 :course :lecture
-                :question :assignment])
+                :question :assignment
+                :timeline])
 
 ; a message contains {:author, :content, :channel-id}
 (defn random-thing [channel-id type & [at-now?]]

@@ -5,25 +5,25 @@ goog.require('growingtree_app.utils');
 goog.require('growingtree_app.utils');
 growingtree_app.mock_data.users = new cljs.core.PersistentArrayMap(null, 4, ["rich-dad@rich.com",new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"full-name","full-name",3585519227),"Rich dad",new cljs.core.Keyword(null,"email","email",1110523662),"rich-dad@rich.com",new cljs.core.Keyword(null,"username","username",748190792),"Rich dad"], null),"rich-mom@rich.com",new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"full-name","full-name",3585519227),"Rich mom",new cljs.core.Keyword(null,"email","email",1110523662),"rich-mom@rich.com",new cljs.core.Keyword(null,"username","username",748190792),"Rich mom"], null),"rich-daughter@rich.com",new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"full-name","full-name",3585519227),"Rich daughter",new cljs.core.Keyword(null,"email","email",1110523662),"rich-daughter@rich.com",new cljs.core.Keyword(null,"username","username",748190792),"Rich daughter"], null),"rich-son@rich.com",new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"full-name","full-name",3585519227),"Rich son",new cljs.core.Keyword(null,"email","email",1110523662),"rich-son@rich.com",new cljs.core.Keyword(null,"username","username",748190792),"Rich son"], null)], null);
 growingtree_app.mock_data.user_emails = cljs.core.keys.call(null,growingtree_app.mock_data.users);
-growingtree_app.mock_data.nav_types = new cljs.core.PersistentVector(null, 6, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"parent","parent",4313447452),new cljs.core.Keyword(null,"child","child",1108535438),new cljs.core.Keyword(null,"course","course",3954299789),new cljs.core.Keyword(null,"lecture","lecture",1066598640),new cljs.core.Keyword(null,"question","question",4143001432),new cljs.core.Keyword(null,"assignment","assignment",2040166975)], null);
+growingtree_app.mock_data.nav_types = new cljs.core.PersistentVector(null, 7, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"parent","parent",4313447452),new cljs.core.Keyword(null,"child","child",1108535438),new cljs.core.Keyword(null,"course","course",3954299789),new cljs.core.Keyword(null,"lecture","lecture",1066598640),new cljs.core.Keyword(null,"question","question",4143001432),new cljs.core.Keyword(null,"assignment","assignment",2040166975),new cljs.core.Keyword(null,"timeline","timeline",3232221107)], null);
 /**
 * @param {...*} var_args
 */
 growingtree_app.mock_data.random_thing = (function() { 
-var random_thing__delegate = function (channel_id,type,p__11735){var vec__11737 = p__11735;var at_now_QMARK_ = cljs.core.nth.call(null,vec__11737,0,null);var at = (cljs.core.truth_(at_now_QMARK_)?(new Date()):(function (){var x = (new Date());var x__$1 = x.getTime();var x__$2 = (x__$1 - cljs.core.rand_int.call(null,(((1000 * 60) * 24) * 60)));var x__$3 = (new Date(x__$2));return x__$3;
+var random_thing__delegate = function (channel_id,type,p__11730){var vec__11732 = p__11730;var at_now_QMARK_ = cljs.core.nth.call(null,vec__11732,0,null);var at = (cljs.core.truth_(at_now_QMARK_)?(new Date()):(function (){var x = (new Date());var x__$1 = x.getTime();var x__$2 = (x__$1 - cljs.core.rand_int.call(null,(((1000 * 60) * 24) * 60)));var x__$3 = (new Date(x__$2));return x__$3;
 })());return new cljs.core.PersistentArrayMap(null, 6, [new cljs.core.Keyword(null,"id","id",1013907597),at.value,new cljs.core.Keyword(null,"type","type",1017479852),type,new cljs.core.Keyword(null,"created_at","created_at",2383584348),at,new cljs.core.Keyword(null,"author","author",3902543101),cljs.core.rand_nth.call(null,growingtree_app.mock_data.user_emails),new cljs.core.Keyword(null,"content","content",1965434859),cljs.core.rand_nth.call(null,new cljs.core.PersistentVector(null, 18, 5, cljs.core.PersistentVector.EMPTY_NODE, ["deployed with ruby on...?","ha, dat stuff works","Random content","Heh, :+1:","Wow, :exclamation:","@sgrove Ok, let's do this!","/queue http://mp3.tom7.org/t7es/2008/t7es_msiegler.mp3","/queue http://mp3.tom7.org/t7es/2008/t7es_goog.mp3","/queue http://mp3.tom7.org/t7es/2008/t7es_petrolatum.mp3","/queue http://mp3.tom7.org/t7es/2009/t7es-sans-pellegrino.mp3","/queue http://mp3.tom7.org/t7es/2008/t7es_rt2i.mp3","/queue http://mp3.tom7.org/t7es/2007/tom7=rutgers.mp3","/queue https://dl.dropboxusercontent.com/u/412963/11%20Charlotte.mp3","/queue https://dl.dropboxusercontent.com/u/412963/Golf%20Clap.mp3","/queue https://dl.dropboxusercontent.com/u/412963/cheer.mp3","/queue https://dl.dropboxusercontent.com/u/412963/Why%20This%20Kolaveri%20Di%20Full%20Song%20Promo%20Video%20in%20HD%20-%20.mp3","@sacha Be careful with that","Hey @nb - I got you something nice... (not really)"], null)),new cljs.core.Keyword(null,"channel-id","channel-id",3378014615),channel_id], null);
 };
 var random_thing = function (channel_id,type,var_args){
-var p__11735 = null;if (arguments.length > 2) {
-  p__11735 = cljs.core.array_seq(Array.prototype.slice.call(arguments, 2),0);} 
-return random_thing__delegate.call(this,channel_id,type,p__11735);};
+var p__11730 = null;if (arguments.length > 2) {
+  p__11730 = cljs.core.array_seq(Array.prototype.slice.call(arguments, 2),0);} 
+return random_thing__delegate.call(this,channel_id,type,p__11730);};
 random_thing.cljs$lang$maxFixedArity = 2;
-random_thing.cljs$lang$applyTo = (function (arglist__11738){
-var channel_id = cljs.core.first(arglist__11738);
-arglist__11738 = cljs.core.next(arglist__11738);
-var type = cljs.core.first(arglist__11738);
-var p__11735 = cljs.core.rest(arglist__11738);
-return random_thing__delegate(channel_id,type,p__11735);
+random_thing.cljs$lang$applyTo = (function (arglist__11733){
+var channel_id = cljs.core.first(arglist__11733);
+arglist__11733 = cljs.core.next(arglist__11733);
+var type = cljs.core.first(arglist__11733);
+var p__11730 = cljs.core.rest(arglist__11733);
+return random_thing__delegate(channel_id,type,p__11730);
 });
 random_thing.cljs$core$IFn$_invoke$arity$variadic = random_thing__delegate;
 return random_thing;
@@ -36,7 +36,7 @@ growingtree_app.mock_data.media = new cljs.core.PersistentVector(null, 3, 5, clj
 * @param {...*} var_args
 */
 growingtree_app.mock_data.random_channel = (function() { 
-var random_channel__delegate = function (order,p__11739){var vec__11741 = p__11739;var title = cljs.core.nth.call(null,vec__11741,0,null);var title__$1 = (function (){var or__3443__auto__ = title;if(cljs.core.truth_(or__3443__auto__))
+var random_channel__delegate = function (order,p__11734){var vec__11736 = p__11734;var title = cljs.core.nth.call(null,vec__11736,0,null);var title__$1 = (function (){var or__3443__auto__ = title;if(cljs.core.truth_(or__3443__auto__))
 {return or__3443__auto__;
 } else
 {return growingtree_app.mock_data.random_title.call(null);
@@ -45,14 +45,14 @@ var random_channel__delegate = function (order,p__11739){var vec__11741 = p__117
 })))),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"source-url","source-url",4196274223),null], null),order,growingtree_app.utils.safe_sel.call(null,title__$1),false]);
 };
 var random_channel = function (order,var_args){
-var p__11739 = null;if (arguments.length > 1) {
-  p__11739 = cljs.core.array_seq(Array.prototype.slice.call(arguments, 1),0);} 
-return random_channel__delegate.call(this,order,p__11739);};
+var p__11734 = null;if (arguments.length > 1) {
+  p__11734 = cljs.core.array_seq(Array.prototype.slice.call(arguments, 1),0);} 
+return random_channel__delegate.call(this,order,p__11734);};
 random_channel.cljs$lang$maxFixedArity = 1;
-random_channel.cljs$lang$applyTo = (function (arglist__11742){
-var order = cljs.core.first(arglist__11742);
-var p__11739 = cljs.core.rest(arglist__11742);
-return random_channel__delegate(order,p__11739);
+random_channel.cljs$lang$applyTo = (function (arglist__11737){
+var order = cljs.core.first(arglist__11737);
+var p__11734 = cljs.core.rest(arglist__11737);
+return random_channel__delegate(order,p__11734);
 });
 random_channel.cljs$core$IFn$_invoke$arity$variadic = random_channel__delegate;
 return random_channel;

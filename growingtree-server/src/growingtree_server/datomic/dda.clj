@@ -7,7 +7,7 @@
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.data.json :as json])
-  (:require [clj-redis.client :as redis])    ; bring in redis namespace
+  (:require [clj-redis.client :as redis])
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format :refer [parse unparse formatter]]
             [clj-time.coerce :refer [to-long from-long]])
@@ -437,7 +437,6 @@
   "list an entity's attribute's timeline "
   [qpath details]
   (timeline/find-timeline qpath details))
-
 
 ;;==============================================================
 ; fulltext search

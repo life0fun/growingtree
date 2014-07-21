@@ -77,7 +77,7 @@
 (defmethod main-content 
   :default
   [app nav-path nav-path-things search-filter opts]
-  (.log js/console "main content default thing listing " (pr-str nav-path))
+  (.log js/console "main content default thing listing nav-path " (pr-str nav-path))
   (let [thing-type (get-in nav-path [:body 1 2])]
     (things-list app thing-type nav-path nav-path-things search-filter opts)))
 
@@ -142,7 +142,7 @@
         comm (get-in opts [:comms :controls])
         ; things-vec is a cursor to global state nav-path-things
         things-vec (get nav-path-things (get-in nav-path [:body 1]))
-        re-filter     (when search-filter (js/RegExp. search-filter "ig"))
+        re-filter  (when search-filter (js/RegExp. search-filter "ig"))
         ; if search filter exist, filter thing's :content
         filtered-things
           (if re-filter
@@ -155,6 +155,7 @@
                filtered-things)
        ]
     ; wrap thing listing inside paginated div
+    (.log js/console "things-list " (pr-str thing-type nav-path search-filter things-vec))
     (list [:div.paginated-activities
             things ])
     ))

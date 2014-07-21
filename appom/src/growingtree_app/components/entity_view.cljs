@@ -284,7 +284,11 @@
 
             [:li.share
               [:div {:class (:assignment-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "assignments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :child :assignment)
+                  } 
+                  "assignments"]]]]
 
             [:li.share
               [:div {:class (:like-class value-map)}
@@ -353,7 +357,11 @@
 
             [:li.share
               [:div {:class (:assignment-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "assignments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :child :assignment)
+                  }
+                  "assignments"]]]]
 
             [:li.share
               [:div {:class (:like-class value-map)}
@@ -982,6 +990,63 @@
                          }]
               ]
             ]
+          ]
+          [:div.clearleft]
+      ]])))
+
+
+; entity = {:type "lecture" :id 1 :origin {}}
+(defmethod thing-entry
+  :timeline
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :timeline/author))
+        
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        thing-type (keyword (:type value-map))  ; use real thing-type, not timeline
+        thingroot (get value-map :thingroot)
+        title (get-in value-map [:origin (keyword (str (:type value-map) "/title"))])
+        tm (-> (get value-map :txtime) (/ 1000) (utils/time-to-string))
+        ago (utils/moment-from (js/moment (get value-map :txtime)) (js/moment))
+        offset (/ (- (count (get value-map :navpath)) 2) 2)
+       ]
+    (.log js/console "timeline thing value " (pr-str (keyword (str thing-type "/title"))) (pr-str value-map))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map)) :class (str "timeline" offset)}
+        [:span.rank "1"]   ; index offset in the list of filtered things
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      
+        [:a.thumbnail {:href "#"}
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+      
+        [:div.entry.unvoted
+          [:p.title [:a.title {:href "#"} title]]
+          [:p.tagline "submitted " ago " ago at " tm]
+
+          [:ul.flat-list.buttons
+            [:li.share
+              [:div {:class (:timeline-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :timeline :timeline)
+                  } 
+                  "timeline"]]]]
+
+            [:li.share
+              [:div {:class (:lecture-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :timeline :timeline)
+                  } "tips"]]]]
           ]
           [:div.clearleft]
       ]])))
