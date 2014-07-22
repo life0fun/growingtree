@@ -141,7 +141,8 @@
   (let [;thing-nodes   (get-in things [thing-type :thing-nodes])
         comm (get-in opts [:comms :controls])
         ; things-vec is a cursor to global state nav-path-things
-        things-vec (get nav-path-things (get-in nav-path [:body 1]))
+        ; things-vec (get nav-path-things (get-in nav-path [:body 1]))
+        things-vec (get-in app [:body])
         re-filter  (when search-filter (js/RegExp. search-filter "ig"))
         ; if search filter exist, filter thing's :content
         filtered-things
@@ -155,6 +156,8 @@
                filtered-things)
        ]
     ; wrap thing listing inside paginated div
+    ; (.log js/console "things-list " (pr-str (get-in nav-path [:body 1]) nav-path-things))
+    (.log js/console "things body " (pr-str things-vec))
     (.log js/console "things-list " (pr-str thing-type nav-path search-filter things-vec))
     (list [:div.paginated-activities
             things ])

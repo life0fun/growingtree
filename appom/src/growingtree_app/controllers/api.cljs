@@ -24,9 +24,11 @@
   [target message api-data state]
   (let [things-vec (:things-vec api-data)
         pathseg (:body api-data)]
-    (print "api-event assoc-in state :nav-path-things api-data " api-data)
+    (print "api-event assoc-in state :nav-path-things api-data " pathseg api-data)
     (-> state
-      (assoc-in [:nav-path-things pathseg] things-vec))))
+      ; (assoc-in [:nav-path-things pathseg] things-vec)
+      (assoc-in [:body] things-vec)
+      )))
 
 (defmethod api-event :channel-activity-received
   [target message activity state]
