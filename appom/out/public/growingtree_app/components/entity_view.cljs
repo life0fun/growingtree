@@ -152,11 +152,12 @@
   (let [id (:db/id entity)
         thing-data (dissoc entity :db/id)
         attrs (keys thing-data)
-        value-map (reduce (fn [tot [k v]]
-                              (assoc tot (keyword (name k)) 
-                                          (if (utils/many? v)
-                                            (string/join ", " v)
-                                            v)))
+        value-map (reduce 
+                    (fn [tot [k v]]
+                      (assoc tot (keyword (name k)) 
+                                  (if (utils/many? v)
+                                    (string/join ", " v)
+                                    v)))
                    {}
                    thing-data)
        ]
@@ -170,9 +171,9 @@
   (let [comm (get-in app [:comms :controls])
         thing-id (:db/id entity)]
     (fn [_]
-      (om/update! app [:title] entity) ; persist entity into state :title slot
+      (om/update! app [:top] entity) ; persist entity into state :top section
       (put! comm [:filter-things
-        {:title :title
+        { ; for filter things, we need to put the :body into :center
          :body [:filter-things [title-type thing-id filtered-type]]
          :data {:pid thing-id}
         }])
@@ -396,12 +397,15 @@
   (let [
         comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
-        authors (map #(get % :person/title) (get entity :course/author))
+        
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
+
+        authors (map #(get % :person/title) (get entity :course/author))
+        type (name (get value-map :type))
         add-lecture {:title :title  ; the key used to get the value from state.
                      :body [:newthing-form [:course :add-lecture]]
                      :data {:pid thing-id}
@@ -432,6 +436,7 @@
           [:p.title [:a.title {:href "#"} (:title value-map)]]
           [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
           [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
+          [:p.tagline "type " type]
           [:p.tagline "Offered by " authors]
 
           [:ul.flat-list.buttons
@@ -468,7 +473,11 @@
 
             [:li.share
               [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :course :comments)
+                  } 
+                  "comments"]]]]
 
             [:li.share
               [:div {:class (:similar-class value-map)}
@@ -502,14 +511,17 @@
   (let [
         comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
-        authors (map #(get % :person/title) (get entity :lecture/author))
-        start (get entity :lecture/start)
-        end (get entity :lecture/end)
+
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
+        authors (map #(get % :person/title) (get entity :lecture/author))
+
+        start (-> (get value-map :start) (utils/time-to-string))
+        end (-> (get value-map :end) (utils/time-to-string))
+
         add-question {:title :title  ; key is :title cursor in app state. XXXX how was it consumed ?
                       :body [:newthing-form [:lecture :add-question]]
                       :data {:pid thing-id}
@@ -534,7 +546,7 @@
           [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
           [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
           [:p.tagline "Offered by " authors]
-          [:p.tagline "start " start " == " end]
+          [:p.tagline start "   - -  " end]
 
           [:ul.flat-list.buttons
             [:li.share
@@ -568,7 +580,11 @@
 
             [:li.share
               [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :lecture :comments)
+                  } 
+                  "comments"]]]]
           ]
 
           ; hidden divs for in-line forms
@@ -659,7 +675,11 @@
 
             [:li.share
               [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :question :comments)
+                  } 
+                  "comments"]]]]
           ]
 
           ; hidden divs for in-line forms
@@ -771,7 +791,11 @@
 
             [:li.share
               [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :assignment :comments)
+                  } 
+                  "comments"]]]]
           ]
 
           ; hidden divs for in-line forms

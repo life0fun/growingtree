@@ -17,8 +17,8 @@
 (defn thing-nav [comm thing-listing]
   (let [type (:type thing-listing)
         nav-path {:body [:all-things [:all 0 type]]
-                 :data {:author "rich-dad"}
-                }
+                  :data {:author "rich-dad"}
+                 }
        ]
     [:li.protected {:key type  ; 
                     :on-click #(put! comm [:all-things nav-path]) ; [:all-things [:all 0 :thing-type]]
@@ -39,7 +39,8 @@
     (render [this]
       (html/html
        (let [comm (get-in opts [:comms :controls])  ; comm chan is control
-             settings (:settings data)]
+             settings (:settings data)
+            ]
           [:nav.nav {:class (when (get-in settings [:forms :search :focused]) "search-focus")}
             [:form.search {:action "/search" :method "get" :on-submit (constantly false)}
             [:input.query {:name "query" :type "text"

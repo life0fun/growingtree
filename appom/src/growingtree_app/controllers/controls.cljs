@@ -46,7 +46,7 @@
   [target msg-type msg-data state]
   (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
         cur-nav-type (get-in msg-data [:body 1 2])
-        ] ;
+       ] 
     (.log js/console "filter-things event " (pr-str cur-nav-type last-nav-type msg-data))
     (cond-> state
       :else (update-navbar-selected last-nav-type cur-nav-type)
@@ -264,8 +264,8 @@
     (.log js/console "update-navbar-selected " (pr-str cur-nav-type last-nav-type))
     (cond-> state
       last-nav-type (assoc-in [:things last-nav-type :selected] false)
-      cur-nav-type (assoc-in [:things cur-nav-type :selected] true)
-      )))
+      cur-nav-type (assoc-in [:things cur-nav-type :selected] true))
+  ))
 
 
 

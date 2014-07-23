@@ -123,12 +123,18 @@
        ]
 
     ;nav-path segment is a map contains query filters for things in body.
-    {; store entity to display in header and body
+    {; store entity that to be displayed in variouse sections.
      :title {}   ; store entity to show in 
      :body {}
+     :top {}
+     :left {}
+     :right {}
+     :center {}
+     :bottom {}
      :nav-path [{:title [] :body [:all 0 :parent] :data {}}]
      
-     ; store api-event data, updated from api/api-event
+     ; XXXX do not use this, not reliable.
+     ; store api-eivent data, updated from api/api-event
      ; nav-path as key, [:assignment 1 :answer] 
      ; things-vec value, [{:db/id 1, :answer/author #{{:person/url #{rich-son.com}..}]
      :nav-path-things {}

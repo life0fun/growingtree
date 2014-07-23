@@ -19,6 +19,7 @@
 ; api-data {:body [:all 0 :parent]}, :things-vec ({:person/url #{rich.com} ...}]
 ; api-data {:body [:course 1 :lecture], :things-vec [{:lecture/type :math, :lecture/numcomments 0, :lectu
 ; store into global state map with nav-path as map key and things-vec as value.
+; api event come back, store in center section.
 (defmethod api-event
   :api-data
   [target message api-data state]
@@ -27,7 +28,7 @@
     (print "api-event assoc-in state :nav-path-things api-data " pathseg api-data)
     (-> state
       ; (assoc-in [:nav-path-things pathseg] things-vec)
-      (assoc-in [:body] things-vec)
+      (assoc-in [:center] things-vec)
       )))
 
 (defmethod api-event :channel-activity-received
