@@ -167,17 +167,21 @@
 ; when click flat list subthing link, put title type thing in title, and filtered in body.
 ; title-type :answer, filtered-type :comments, title thing id is parent id in data.pid
 (defn filter-things-onclick
-  [app entity title-type filtered-type]
-  (let [comm (get-in app [:comms :controls])
-        thing-id (:db/id entity)]
-    (fn [_]
-      (om/update! app [:top] entity) ; persist entity into state :top section
-      (put! comm [:filter-things
-        { ; for filter things, we need to put the :body into :center
-         :body [:filter-things [title-type thing-id filtered-type]]
-         :data {:pid thing-id}
-        }])
-    )))
+  ([app entity title-type filtered-type]
+    (filter-things-onclick app entity title-type filtered-type {}))
+
+  ([app entity title-type filtered-type options]
+    (let [comm (get-in app [:comms :controls])
+          thing-id (:db/id entity)]
+      (fn [_]
+        (om/update! app [:top] entity) ; persist entity into state :top section
+        (put! comm [:filter-things
+          { ; for filter things, we need to put the :body into :center
+           :body [:filter-things [title-type thing-id filtered-type]]
+           :data (merge {:pid thing-id} options)
+          }])
+      )))
+  )
 
 ; inline input form submit handle, collect inputs data from fields and 
 ; merge with base data as form data for submission.
@@ -242,6 +246,7 @@
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
+        title (:title value-map)
         add-child {:title :title  ; key is :title cursor in app state.
                    :body [:newthing-form [:parent :add-child]]  ; :body is nav-path
                    :data {:pid thing-id}
@@ -259,7 +264,7 @@
           [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} (:title value-map)]]
+          [:p.title [:a.title {:href "#"} title]]
           [:p.subtitle [:span.tagline (str "phone: " (:phone value-map))]]
           [:p.subtitle [:span.tagline (str "email: " (:email value-map))]]
           [:p.tagline "Joined since " [:time "Aug 2013"]]
@@ -279,7 +284,7 @@
                   {:href "#" 
                    :on-click (fn [_]
                       ; persist entity into global state title
-                      (om/update! app [:title] entity)
+                      (om/update! app [:top] entity)
                       (put! comm [:newthing-form add-child]))}
                    "add child"]]]]
 
@@ -287,7 +292,7 @@
               [:div {:class (:assignment-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
-                   :on-click (filter-things-onclick app entity :child :assignment)
+                   :on-click (filter-things-onclick app entity :parent :assignment)
                   } 
                   "assignments"]]]]
 
@@ -309,7 +314,13 @@
 
             [:li.share
               [:div {:class (:timeline-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "timeline"]]]]
+                [:span.toggle [:a.option.active 
+                  {
+                   :href "#"
+                   :on-click (filter-things-onclick app entity :parent :timeline
+                              {:author title})
+                  } 
+                  "timeline"]]]]
           ]
 
           ; hidden divs for in-line forms
@@ -329,6 +340,7 @@
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
+        title (get value-map :title)
        ]
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
@@ -342,7 +354,7 @@
           [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} (:title value-map)]]
+          [:p.title [:a.title {:href "#"} title]]
           [:p.subtitle [:span.tagline (str "phone: " (:phone value-map))]]
           [:p.subtitle [:span.tagline (str "email: " (:email value-map))]]
           [:p.tagline "Joined since " [:time "Aug 2013"]]
@@ -382,7 +394,13 @@
 
             [:li.share
               [:div {:class (:timeline-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "timeline"]]]]
+                [:span.toggle [:a.option.active
+                  {
+                   :href "#"
+                   :on-click (filter-things-onclick app entity :child :timeline
+                              {:author title})
+                  }  
+                  "timeline"]]]]
           ]
 
           ; hidden divs for in-line forms
@@ -405,6 +423,7 @@
                          override)
 
         authors (map #(get % :person/title) (get entity :course/author))
+        title (get value-map :title)
         type (name (get value-map :type))
         add-lecture {:title :title  ; the key used to get the value from state.
                      :body [:newthing-form [:course :add-lecture]]
@@ -417,7 +436,7 @@
         enroll-form-fields {:enrollment/name (str "#enroll-name-" thing-id)
                             :enrollment/remark (str "#enroll-remark-" thing-id)}
         enroll-form-data {:enrollment/course thing-id
-                          :enrollment/content (str "enroll into " (get entity :course/title))
+                          :enrollment/content (str "enroll into " title)
                          } ; peer add-thing :enrollment
        ]
     (.log js/console "course thing value " (pr-str value-map))
@@ -445,7 +464,8 @@
                 [:span.toggle [:a.option.active 
                   {:href "#"
                    :on-click (filter-things-onclick app entity :course :lecture)
-                  } "lectures"]]]]
+                  } 
+                  "lectures"]]]]
 
             [:li.share
               [:div {:class (:add-lecture-class value-map)}
@@ -454,8 +474,9 @@
                    :on-click (fn [_]
                       ; persist entity into title slot in global state
                       (om/update! app [:title] entity)
-                      (put! comm [:newthing-form add-lecture]))}
-                   "add lecture"]]]]
+                      (put! comm [:newthing-form add-lecture]))
+                  } 
+                  "add lecture"]]]]
 
             [:li.share
               [:div {:class (:enrollment-class value-map)}
@@ -468,7 +489,8 @@
                    :on-click (fn [_]
                       (let [f (sel1 (keyword (str "#enrollment-form-" thing-id)))]
                         (dommy/toggle-class! f "hide")))
-                  } "enroll"]
+                  } 
+                  "enroll"]
               ]]]
 
             [:li.share
@@ -496,7 +518,7 @@
                          :on-click 
                             (submit-form-fn app :enrollment 
                                             enroll-form-name enroll-form-data enroll-form-fields)
-                         }]
+                        }]
               ]
             ]
           ]
