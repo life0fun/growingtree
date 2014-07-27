@@ -112,7 +112,7 @@
   [author-id author author-attr]
   ; (prn "person-attr-tx " author-id author attr)
   (let [txhist (->> (dbconn/attr-val-tx author-attr author-id)  ; find all trans entity set attr to val
-                    (map #(util/tx-timeline %))   ; format to :timeline/attr
+                    (map #(tx-timeline %))   ; format to :timeline/attr
                     (map #(assoc-in % [:timeline/author] author))
                 )
 
