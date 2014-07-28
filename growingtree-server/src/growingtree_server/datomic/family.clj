@@ -427,14 +427,15 @@
 (defn join-group
   "join group from the submitted new thing form details from parent add-group"
   [details]
-  (let [person-ids (if (clojure.string/blank? (:group/person details))
-                       [(:db/id (find-by :person/title (:author details)))]
+  (log/info "join-group " details (util/tagsInputs (:group/person details)))
+  (let [person (:group/person details)
+        person-ids (if (= java.lang.Long (type person))
+                       (vector person)
                        (->> (map #(:db/id (find-by :person/title %))
-                                 (util/tagsInputs (:group/person details)))
+                                  (util/tagsInputs (:group/person details)))
                             (filter identity)))
-        group-id (if (:db/id details)
-                      (:db/id details)
-                      (find-by :group/title (:group/title details)))
+        group-id (or (:group/id details)
+                     (:db/id (find-by :group/title (:group/title details))))
         group (-> details
                 (select-keys (keys group-schema))
                 (assoc :group/person person-ids)  ; group person if ref many
@@ -442,8 +443,6 @@
 
         trans (submit-transact [group])  ; transaction is a list of maps to update db values
       ]
-    (newline)
-    (prn "join group " group)
-    (prn "join group trans " trans)
+    (log/info "join group " group " trans " trans)
     [group]))
 

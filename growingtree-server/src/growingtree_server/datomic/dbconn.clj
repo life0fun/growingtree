@@ -227,8 +227,8 @@
   "submit a transaction"
   [tx-data]
   (let [
-        ft (d/transact (get-conn) tx-data)  ; ret future task
-        ; ft tx-data
+        ; ft (d/transact (get-conn) tx-data)  ; ret future task
+        ft tx-data
        ]
     (prn "dbconn submit trans " tx-data ft)
     ft))

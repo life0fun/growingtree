@@ -223,7 +223,6 @@
         ]
     (.log js/console (str "thing-entry :default " value-map))))
 
-
 ;
 ; :person will recursive call thing-entry to display :parent or :child.
 (defmethod thing-entry
@@ -369,12 +368,11 @@
                          override)
         title (get value-map :title)
         ; create or add to group
-        add-group-form-name (str "#add-group-form-" thing-id)
-        add-group-form-fields {:group/title (str "#group-name-" thing-id)
-                               :group/email (str "#group-email-" thing-id)
-                               :group/url (str "#group-url-" thing-id)
-                              }
-        add-group-form-data {:group/person thing-id}
+        join-group-form-name (str "#join-group-form-" thing-id)
+        join-group-form-fields {:group/title (str "#group-name-" thing-id)
+                                :group/remark (str "#group-remark-" thing-id)
+                               }
+        join-group-form-data {:group/person thing-id}
        ]
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
@@ -423,11 +421,11 @@
                 [:span.toggle [:a.option.active {:href "#"} "groups"]]]]
 
             [:li.share
-              [:div {:class (:add-group-class value-map)}
+              [:div {:class (:join-group-class value-map)}
                 [:span.toggle [:a.option.active
                   {:href "#"
                    :on-click (fn [_]
-                      (let [f (sel1 (keyword add-group-form-name))]
+                      (let [f (sel1 (keyword join-group-form-name))]
                         (dommy/toggle-class! f "hide")))
                   }
                   "join group"]]]]
@@ -445,18 +443,16 @@
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}
-            [:div.hide {:id (subs add-group-form-name 1)}
-              [:form.add-group-form {:style #js {:float "left;"}}
+            [:div.hide {:id (subs join-group-form-name 1)}
+              [:form.join-group-form {:style #js {:float "left;"}}
                 [:input {:id (str "group-name-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "group name"}]
-                [:input {:id (str "group-email-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "group email"}]
-                [:input {:id (str "group-url-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "group url"}]
-                [:input {:type "submit" :value "add-group" :class "btn btn-primary assign-button"
+                [:input {:id (str "group-remark-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "group remark"}]
+                [:input {:type "submit" :value "join-group" :class "btn btn-primary assign-button"
                          :on-click 
                             (submit-form-fn app :join-group 
-                                            add-group-form-name add-group-form-data add-group-form-fields)
+                                            join-group-form-name join-group-form-data join-group-form-fields)
                         }]
               ]
             ]

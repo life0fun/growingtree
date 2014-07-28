@@ -311,8 +311,7 @@
 (defmethod add-thing
   :join-group
   [type details]
-  (let [
-        result (dda/join-group details)
+  (let [result (dda/join-group details)
        ]
     result))
 
