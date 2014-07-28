@@ -380,3 +380,69 @@
               "OK"]
             [:button.btn {:id "cancel" :type "button"} "Cancel"]]
         ]])))
+
+
+; add group form
+(defmethod add-form 
+  :create-group
+  [thing-type comm last-nav-path]
+  (let [submit-fn 
+          (fn [e]
+            (let [input-fields {:group/title ".group-title"
+                                :group/type ".group-type"
+                                :group/author ".group-author"
+                                :group/url ".group-url"
+                                :group/email ".group-email"
+                                :group/wiki ".group-wiki"
+                               }
+                  data (-> (reduce (fn [tot [k clz]]
+                                     (assoc tot k (dommy/value (sel1 clz))))
+                                   {}
+                                   input-fields)
+                            (utils/update-enum :group "type" false)) ; always false
+                  ]
+              (.log js/console "add-group form " (pr-str data))
+              ; first is msg type, last is nav-path filter segment.
+              (put! comm [:add-thing {:add-thing :add-group :details data}])
+              ))]
+    (list
+      [:div.create-form
+        [:form.form-horizontal 
+          ; {:method "post" :html "{:multipart=>true}"}
+          [:legend "Group Details"]
+          
+          [:div.control-group
+            [:label.control-label {:for "group-title"} "Title"]
+            [:input {:id "group-title" :class "group-title" :type "text" :placeholder "the title of group ..."}]]
+          [:div.control-group
+            [:label.control-label {:for "group-author"} "Author"]
+            [:input {:id "group-author" :class "group-author" :type "text" :placeholder "the author ..."}]]
+          [:div.control-group
+            [:label.control-label {:for "group-type"} "Type"]
+            [:select {:id "group-type" :class "group-type"}
+              [:option {:value "math"} "Math"]
+              [:option {:value "science"} "Science"]
+              [:option {:value "reading"} "Reading"]
+              [:option {:value "art"} "Art"]
+              [:option {:value "sports"} "Sports"]
+            ]]
+          [:div.control-group
+            [:label.control-label {:for "group-content"} "content"]
+            [:input {:id "group-content" :class "group-content" :type "text" :placeholder "brief description of the group"}]]
+          [:div.control-group
+            [:label.control-label {:for "group-url"} "Url"]
+            [:input {:id "group-url" :class "group-url" :type "text" :placeholder "growingtrees.com/group"}]]
+          [:div.control-group
+            [:label.control-label {:for "group-email"} "Email"]
+            [:input {:id "group-email" :class "group-email" :type "text" :placeholder "group email"}]]
+          [:div.control-group
+            [:label.control-label {:for "group-wiki"} "Wiki"]
+            [:input {:id "group-wiki" :class "group-wiki" :type "text" :placeholder "group wiki"}]]
+
+          [:div.usertext-buttons.control-group
+            [:button.btn.btn-primary 
+              {:id "submit" :type "button"   ; if type :submit, will trigger re-load
+               :on-click submit-fn} 
+              "OK"]
+            [:button.btn {:id "cancel" :type "button"} "Cancel"]]
+        ]])))

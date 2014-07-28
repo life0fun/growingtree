@@ -299,12 +299,11 @@
         ]
     result))
 
-
+;  :group {:group/person 1, :group/title "a", :group/email "b", :group/url "c"}
 (defmethod add-thing
-  :group
+  :create-group
   [type details]
-  (let [author (:author details)
-        result (dda/create-group details)
+  (let [result (dda/create-group details)
        ]
     result))
 
@@ -316,7 +315,6 @@
         result (dda/join-group details)
        ]
     result))
-
 
 ; create like thing
 (defmethod add-thing

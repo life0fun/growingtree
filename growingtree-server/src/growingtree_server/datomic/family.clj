@@ -361,6 +361,7 @@
 (defn find-group
   "find groups by passed in query path"
   [qpath]
+  (log/info "find-group " qpath)
   (let [projkeys (keys group-schema)  ; must select-keys from datum entity attributes
         groups (->> (util/get-qpath-entities qpath get-group-by)
                     (map #(select-keys % projkeys) )
@@ -369,7 +370,7 @@
                  )
        ]
     (doseq [e groups]
-      (prn "find group --> " e))
+      (log/info "find group --> " e))
     groups))
 
 
@@ -401,14 +402,16 @@
       (prn "group " group-title " members --> " e))  ; {:db/id 17592186045419}
     person))
 
-
+; details {:group/person 1, :group/title "a", :group/email "b", :group/url "c"}
 (defn create-group
   "create group from the submitted new thing form details from parent add-group"
   [details]
   (let [author-id (if (clojure.string/blank? (:group/author details))
-                      (:db/id (find-by :person/title (:author details)))
+                      (:db/id (find-by :person/title (:group/person details)))   ; no author, the first one joining is the author
                       (:db/id (find-by :person/title (:group/author details))))
-        group-id (:db/id details)
+        group-id (if (:db/id details)
+                      (:db/id details)
+                      (find-by :group/title (:group/title details)))
         group (-> details
                 (select-keys (keys group-schema))
                 (assoc :group/author author-id)
@@ -416,13 +419,11 @@
 
         trans (submit-transact [group])  ; transaction is a list of maps to update db values
       ]
-    (newline)
-    (prn "create group " group)
-    (prn "create group trans " trans)
+    (log/info "create group " group " trans " trans)
     [group]))
 
 
-; if blank input, take the current user as input
+; join a group from people view.
 (defn join-group
   "join group from the submitted new thing form details from parent add-group"
   [details]
@@ -431,7 +432,9 @@
                        (->> (map #(:db/id (find-by :person/title %))
                                  (util/tagsInputs (:group/person details)))
                             (filter identity)))
-        group-id (:db/id details)
+        group-id (if (:db/id details)
+                      (:db/id details)
+                      (find-by :group/title (:group/title details)))
         group (-> details
                 (select-keys (keys group-schema))
                 (assoc :group/person person-ids)  ; group person if ref many

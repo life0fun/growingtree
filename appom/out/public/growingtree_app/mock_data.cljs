@@ -19,10 +19,6 @@
 
 (def user-emails (keys users))
 
-(def nav-types [:parent :child
-                :course :lecture
-                :question :assignment
-                :timeline])
 
 ; a message contains {:author, :content, :channel-id}
 (defn random-thing [channel-id type & [at-now?]]
@@ -78,6 +74,12 @@
     :name "example.mp3"}])
 
 
+; nav types, in app state [:things] key for navbar use.
+(def nav-types [:parent :child :group
+                :course :lecture
+                :question :assignment
+                :timeline])
+
 ; each chan contains users in the chan and activities inisde chan. random title if no title.
 (defn random-channel [order & [title]]
   (let [title (or title (random-title))]
@@ -93,7 +95,7 @@
              (take (inc (rand-int 0))
                    (shuffle media)))
      :sfx {:source-url nil}
-     :player {:source-url "https://dl.dropboxusercontent.com/u/412963/Why%20This%20Kolaveri%20Di%20Full%20Song%20Promo%20Video%20in%20HD%20-%20.mp3"
+     :player {:source-url "https://dl.dropboxusercontent.com/u/412963/x.mp3"
               :playing-order -1
               :state :playing
               :loading false

@@ -115,7 +115,7 @@
         pid (get-in nav-path [:data :pid])
         override (if pid (entity-view/actionkey-class pid thing-type "hide") {})
        ]
-    (.log js/console "newthing-form " pid (pr-str thing-type override))
+    (.log js/console "newthing-form pid " pid (pr-str thing-type override))
     [:div
       (when pid (thing-entry app title override))
       (when pid [:hr {:size 4}])

@@ -29,8 +29,12 @@
           [:i.icon-spinner.icon-spin])]]))
 
 
-; data as MapCursor to app state by select-keys app [:things :channels :settings]
-(defn navbar [data owner opts]
+; called from core, where data is MapCursor to app state, with select-keys #{:things :channels :settings}
+; navbar must take 2 args, cursor and and the backing Om component referred to as the owner. 
+; f can take a third argument if :opts is specified in m from (om/build f cursor opts)
+; (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
+(defn navbar
+  [data owner opts] ; data is app state with 3 keys, :things, :channels, :settings
   (reify
     om/IDisplayName
     (display-name [_]
@@ -57,7 +61,8 @@
                 {:href "#"
                  :on-click
                   (let [newthing-data {:body [:child :add-parent] :data {}}
-                        newthing-data {:body [:newthing-form [:course :add-course]] :data {:pid nil}}
+                        ;newthing-data {:body [:newthing-form [:course :add-course]] :data {:pid nil}}
+                        newthing-data {:body [:newthing-form [:group :create-group]] :data {:pid nil}}
                        ]
                     #(put! comm [:newthing-form newthing-data]))
                 }

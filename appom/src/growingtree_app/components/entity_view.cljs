@@ -251,6 +251,13 @@
                    :body [:newthing-form [:parent :add-child]]  ; :body is nav-path
                    :data {:pid thing-id}
                   }
+
+        add-group-form-name (str "add-group-form-" thing-id)
+        add-group-form-fields {:group/title (str "#group-name-" thing-id)
+                               :group/email (str "#group-email-" thing-id)
+                               :group/url (str "#group-url-" thing-id)
+                              }
+        add-group-form-data {:group/person thing-id}                  
        ]
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
@@ -306,7 +313,11 @@
 
             [:li.share
               [:div {:class (:group-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "groups"]]]]
+                [:span.toggle [:a.option.active
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :parent :group)
+                  } 
+                  "groups"]]]]
 
             [:li.share
               [:div {:class (:add-group-class value-map)}
@@ -324,7 +335,23 @@
           ]
 
           ; hidden divs for in-line forms
-          [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}]
+          [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}
+            [:div.hide {:id add-group-form-name}
+              [:form.add-group-form {:style #js {:float "left;"}}
+                [:input {:id (str "group-name-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "group name"}]
+                [:input {:id (str "group-email-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "group email"}]
+                [:input {:id (str "group-ulr" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "remarks"}]
+                [:input {:type "submit" :value "add-group" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :group 
+                                            add-group-form-name add-group-form-data add-group-form-fields)
+                        }]
+              ]
+            ]
+          ]
           [:div.clearleft]
       ]])))
 
@@ -341,6 +368,13 @@
                          (actionkeys-class thing-id actionkeys)
                          override)
         title (get value-map :title)
+        ; create or add to group
+        add-group-form-name (str "#add-group-form-" thing-id)
+        add-group-form-fields {:group/title (str "#group-name-" thing-id)
+                               :group/email (str "#group-email-" thing-id)
+                               :group/url (str "#group-url-" thing-id)
+                              }
+        add-group-form-data {:group/person thing-id}
        ]
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
@@ -390,7 +424,13 @@
 
             [:li.share
               [:div {:class (:add-group-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "join group"]]]]
+                [:span.toggle [:a.option.active
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword add-group-form-name))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "join group"]]]]
 
             [:li.share
               [:div {:class (:timeline-class value-map)}
@@ -404,7 +444,23 @@
           ]
 
           ; hidden divs for in-line forms
-          [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}]
+          [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}
+            [:div.hide {:id (subs add-group-form-name 1)}
+              [:form.add-group-form {:style #js {:float "left;"}}
+                [:input {:id (str "group-name-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "group name"}]
+                [:input {:id (str "group-email-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "group email"}]
+                [:input {:id (str "group-url-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "group url"}]
+                [:input {:type "submit" :value "add-group" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :join-group 
+                                            add-group-form-name add-group-form-data add-group-form-fields)
+                        }]
+              ]
+            ]
+          ]
           [:div.clearleft]
       ]])))
 
@@ -946,7 +1002,6 @@
           [:div.clearleft]
       ]])))
 
-
 ; thingroot is the id of thing this comments tree made to. 
 ; origin is the parent comment node of this comment.
 ; for nested comments tree, use the len of :navpath to determine indention.
@@ -1034,6 +1089,137 @@
                                             reply-form-data 
                                             reply-form-fields)
                          }]
+              ]
+            ]
+          ]
+          [:div.clearleft]
+      ]])))
+
+
+(defmethod thing-entry
+  :group
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :groups/author))
+        
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        title (get value-map :title)
+        join-group-form-name (str "#join-group-form-" thing-id)
+        join-group-form-fields {:group/person (str "#group-person-" thing-id)
+                                :group/remark (str "#group-remark-" thing-id)
+                               }
+        join-group-form-data {:group/title title}
+
+        add-activity-form-data {:group/title title}
+        add-activity-form-name (str "#add-activity-form-" thing-id)
+        add-activity-form-fields {:activity/title (str "#activity-title-" thing-id)
+                                  :activity/content (str "#activity-content-" thing-id)
+                                  :activity/location (str "#activity-location-" thing-id)
+                                  :activity/start (str "#activity-start-" thing-id)
+                                  :activity/url (str "#activity-url-" thing-id)
+                                 }
+        add-activity-form-data {:activity/author "rich-dad"}
+
+       ]
+    (.log js/console "groups thing value " (pr-str value-map))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
+        [:span.rank "1"]   ; index offset in the list of filtered things
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      
+        [:a.thumbnail {:href "#"}
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+      
+        [:div.entry.unvoted
+          [:p.title [:a.title {:href "#"} title]]
+          [:p.tagline "created by " authors]
+
+          [:ul.flat-list.buttons
+            [:li.share
+              [:div {:class (:group-members-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :groups :group-members)
+                  } 
+                  "group-members"]]]]
+
+            [:li.share
+              [:div {:class (:comments-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :groups :comments)
+                  } "comments"]]]]
+
+            [:li.share
+              [:div {:class (:groups-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword (str "#join-group-form-" thing-id)))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "join-group"]]]]
+
+            [:li.share
+              [:div {:class (:activity-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :groups :activity)
+                  } 
+                  "activities"]]]]
+
+            [:li.share
+              [:div {:class (:add-activity-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword (str "#add-activity-form-" thing-id)))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "add-activity"]]]]      
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (str "child-form-" thing-id)}
+            ; join group
+            [:div.hide {:id (subs join-group-form-name 1)}
+              [:form.join-group-form {:style #js {:float "left;"}}
+                [:input {:id (str "group-person-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "name"}]
+                [:input {:id (str "group-remark-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "remark"}]
+                [:input {:type "submit" :value "join-group" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :join-group 
+                                            join-group-form-name join-group-form-data join-group-form-fields)
+                        }]
+              ]
+            ]
+            ; add group activity
+            [:div.hide {:id (subs add-activity-form-name 1)}
+              [:form.add-activity-form {:style #js {:float "left;"}}
+                [:input {:id (str "activity-name-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "activity name"}]
+                [:input {:id (str "activity-content-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "activity content"}]
+                [:input {:id (str "activity-address-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "activity address"}]
+                [:input {:id (str "activity-time-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "activity time"}]         
+                [:input {:type "submit" :value "add-group" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :add-activity
+                                            add-activity-form-name add-activity-form-data add-activity-form-fields)
+                        }]
               ]
             ]
           ]

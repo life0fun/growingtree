@@ -213,7 +213,7 @@
         result {:status 200 :data things}
         jsonresp (bootstrap/edn-response result)
        ]
-    (log/info "service peer/get-things " type thing-type path result)
+      (log/info "service peer/get-things " type thing-type path result)
     jsonresp))
 
 ;------------------------------------------------------------------------------------
@@ -235,7 +235,7 @@
 ;;==================================================================================
 (defn add-thing
   "add a thing upon post request, request contains http post data"
-  [{postbody :edn-params :as request}]
+  [{postbody :edn-params :as request}]   ; :path-params {:thing "group"}
   (log/info "add-thing " postbody)
   (let [;resp (bootstrap/json-print {:result msg-data})
         type (get-in request [:path-params :thing])  ; /api/:thing
