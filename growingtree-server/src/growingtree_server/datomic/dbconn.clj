@@ -213,19 +213,16 @@
     (doseq [a attrs]
       (prn a  (a e)))))
 
-;;==========================================================================
-; datomic transaction, all attr in entity must not be nil. transaction does
-; not help you to filter out nil, you need to filter out nil attr value before submit.
-;;==========================================================================
-;; submit transaction (transact connection tx-data)
-; tx-data is a list of lists, each of which specifies a write
-; operation, either an assertion, a retraction or the invocation of
-; a data function. Each nested list starts with a keyword identifying
-; the operation followed by the arguments for the operation.
-; Returns a completed future to monitor the completion of tran.
+;==========================================================================
+; datomic transaction, all attr in entity must not be nil.
+; transaction is an entity(map) data structure with :db/id point to the entity CRUD.
+; each trans CRUD one specific fact about an entity, attribute, and value;
+; [:db/add entity-id attribute value]  {:db/id entity-id attr1 val1 attr2 val2}
+; [:db/retract entity-id attribute value]
+;==========================================================================
 (defn submit-transact
   "submit a transaction"
-  [tx-data]
+  [tx-data]  ; tx-data is a list of list/map, each map must have :db/id
   (let [
         ; ft (d/transact (get-conn) tx-data)  ; ret future task
         ft tx-data

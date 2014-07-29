@@ -26,7 +26,7 @@
   {
     :parent {:title ""
              :child "" :add-child ""
-             :group "" :add-group " hide"
+             :group "" :join-group " hide"
              :assignment "" :timeline ""
              :upvote "" :like "" :follow ""
             }
@@ -34,7 +34,8 @@
     :child {:title ""
             :parent "" :add-parent " hide"
             :schoolclass "" :add-schoolclass " hide"
-            :enrollment "" :assignment "" :activity "" :group ""
+            :enrollment "" :assignment "" :activity "" 
+            :group "" :join-group " hide"
             :timeline "" :upvote "" :like "" :follow ""
            }
 
@@ -251,12 +252,12 @@
                    :data {:pid thing-id}
                   }
 
-        add-group-form-name (str "add-group-form-" thing-id)
-        add-group-form-fields {:group/title (str "#group-name-" thing-id)
+        join-group-form-name (str "join-group-form-" thing-id)
+        join-group-form-fields {:group/title (str "#group-name-" thing-id)
                                :group/email (str "#group-email-" thing-id)
                                :group/url (str "#group-url-" thing-id)
                               }
-        add-group-form-data {:group/person thing-id}                  
+        join-group-form-data {:group/person thing-id}                  
        ]
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
@@ -319,7 +320,7 @@
                   "groups"]]]]
 
             [:li.share
-              [:div {:class (:add-group-class value-map)}
+              [:div {:class (:join-group-class value-map)}
                 [:span.toggle [:a.option.active {:href "#"} "join group"]]]]
 
             [:li.share
@@ -335,18 +336,18 @@
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}
-            [:div.hide {:id add-group-form-name}
-              [:form.add-group-form {:style #js {:float "left;"}}
+            [:div.hide {:id join-group-form-name}
+              [:form.join-group-form {:style #js {:float "left;"}}
                 [:input {:id (str "group-name-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "group name"}]
                 [:input {:id (str "group-email-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "group email"}]
                 [:input {:id (str "group-ulr" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "remarks"}]
-                [:input {:type "submit" :value "add-group" :class "btn btn-primary assign-button"
+                [:input {:type "submit" :value "join-group" :class "btn btn-primary assign-button"
                          :on-click 
                             (submit-form-fn app :group 
-                                            add-group-form-name add-group-form-data add-group-form-fields)
+                                            join-group-form-name join-group-form-data join-group-form-fields)
                         }]
               ]
             ]
@@ -418,7 +419,11 @@
 
             [:li.share
               [:div {:class (:group-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "groups"]]]]
+                [:span.toggle [:a.option.active
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :child :group)
+                  } 
+                  "groups"]]]]
 
             [:li.share
               [:div {:class (:join-group-class value-map)}
@@ -1211,7 +1216,7 @@
                          :style #js {:display "block"} :placeholder "activity address"}]
                 [:input {:id (str "activity-time-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "activity time"}]         
-                [:input {:type "submit" :value "add-group" :class "btn btn-primary assign-button"
+                [:input {:type "submit" :value "add-activity" :class "btn btn-primary assign-button"
                          :on-click 
                             (submit-form-fn app :add-activity
                                             add-activity-form-name add-activity-form-data add-activity-form-fields)

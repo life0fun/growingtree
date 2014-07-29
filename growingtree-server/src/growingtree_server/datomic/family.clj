@@ -402,6 +402,7 @@
       (prn "group " group-title " members --> " e))  ; {:db/id 17592186045419}
     person))
 
+; create group from sidebar with author and group title by name.
 ; details {:group/person 1, :group/title "a", :group/email "b", :group/url "c"}
 (defn create-group
   "create group from the submitted new thing form details from parent add-group"
@@ -423,7 +424,8 @@
     [group]))
 
 
-; join a group from people view.
+; when join a group from people view group ppl is current user id.
+; leave option to have group person as a trags input string "tom,jerry,..."
 (defn join-group
   "join group from the submitted new thing form details from parent add-group"
   [details]
@@ -434,6 +436,7 @@
                        (->> (map #(:db/id (find-by :person/title %))
                                   (util/tagsInputs (:group/person details)))
                             (filter identity)))
+        ; transact map must include a :db/id key identifying the entity data is being add.
         group-id (or (:group/id details)
                      (:db/id (find-by :group/title (:group/title details))))
         group (-> details
