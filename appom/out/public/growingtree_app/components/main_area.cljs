@@ -81,7 +81,9 @@
     (things-list app thing-type nav-path search-filter opts)))
 
 
-; request to display filtered-thing.
+; filter things, entered from thing-nav-actionkey. click handler set pid so we show clicked
+; thing on top section, and filtered things in content section.
+; we toggle nav key inside top thing based on which nav key is clicked.
 ; :filter-things {:title :title, :body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
 ; {:body [:newthing-form [:parent :add-child]], :data {:pid 17592186045419} }
 (defmethod main-content 
@@ -90,11 +92,13 @@
   (let [comm (get-in app [:comms :controls])
         thing-type (get-in nav-path [:body 1 2]) ; newthing type is last last
         add-thing (keyword (str "add-" (name thing-type)))
+        join-thing (keyword (str "join-" (name thing-type)))
         topview (get-in app [:top])  ; topview get from :top slot
         pid (get-in nav-path [:data :pid])
         override (cond-> {}
                   pid (merge (entity-view/actionkey-class pid thing-type "hide"))
-                  pid (merge (entity-view/actionkey-class pid add-thing " ")))
+                  pid (merge (entity-view/actionkey-class pid add-thing " "))
+                  pid (merge (entity-view/actionkey-class pid join-thing " ")))
        ]
     (.log js/console "main-content filter-things " (pr-str pid thing-type override))
     [:div
