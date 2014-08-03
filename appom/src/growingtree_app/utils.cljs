@@ -136,7 +136,7 @@
       thing-val)))
 
 
-; convert time stamp field to unix epoch
+; convert time stamp field to unix epoch, using moment js.
 ; start time format 2013-02-08 09:30
 (defn update-time
   "update in time value from string to keyword"
@@ -167,7 +167,8 @@
        (cljs-time-format/unparse (cljs-time-format/formatter "dow MMM dth yyyy at HH:mm:ss"))))
        ; (cljs-time-format/unparse (:date-time cljs-time-format/formatters))))
       
-
+;
+; set time use cljs-time-coerce here.
 (defn set-time
   "update in time value from string to keyword"
   [thing-map thing-type keyname]

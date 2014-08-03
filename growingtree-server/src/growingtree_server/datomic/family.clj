@@ -140,6 +140,7 @@
 (def person-schema (assoc (list-attr :person) :db/id :db.type/id))
 (def family-schema (assoc (list-attr :family) :db/id :db.type/id))
 (def group-schema (assoc (list-attr :group) :db/id :db.type/id))
+(def activity-schema (assoc (list-attr :activity) :db/id :db.type/id))
 
 
 ; rules to find person by any name,
@@ -457,11 +458,12 @@
   '[[(:all ?e ?val) [?e :activity/title]]
     [(:title ?e ?val) [?e :activity/title ?val]]
     [(:author ?e ?val) [?e :activity/author ?val]]
-    [(:parent ?e ?val) [?e :activity/person ?val]]
-    [(:child ?e ?val) [?e :activity/person ?val]]
+    [(:person ?e ?val) [?e :activity/person ?val]]
+    [(:location ?e ?val) [?e :activity/location ?val]]
+    [(:group ?e ?val) [?e :activity/origin ?val]]
+    [(:content ?e ?val) [?e :activity/content ?val]]
     [(:type ?e ?val) [?e :activity/type ?val]]
-    [(:email ?e ?val) [?e :activity/email ?val]]
-    [(:url ?e ?val) [?e :activity/url ?val]]
+    [(:start ?e ?val) [?e :activity/start ?val]]
   ])
 
 ; create activity.
@@ -469,12 +471,12 @@
 (defn create-activity
   "create activity from the submitted new thing form details from group add-activity"
   [details]
+  (log/info "create-activity " details)
   (let [author-id (if (clojure.string/blank? (:activity/author details))
                       (:db/id (find-by :person/title (:activity/person details)))   ; no author, the first one joining is the author
                       (:db/id (find-by :person/title (:activity/author details))))
-        activity-id (if (:db/id details)
-                      (:db/id details)
-                      (find-by :activity/title (:activity/title details)))
+        group-id (or (:activity/origin details)
+                     (:db/id (find-by :group/title (:group/title details))))
         activity (-> details
                 (select-keys (keys activity-schema))
                 (assoc :activity/author author-id)

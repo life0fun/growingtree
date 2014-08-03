@@ -191,12 +191,15 @@
   (let [comm (get-in app [:comms :controls])]
     (fn [_]
       (let [$form (sel1 (keyword form-name))
-            data (reduce (fn [tot [attr fieldid]] ; 
+            data (reduce (fn [tot [attr fieldid]]
+                    ; (.log js/console (pr-str fieldid (dommy/value (sel1 fieldid))))
                     (assoc tot attr (dommy/value (sel1 fieldid))))
                     {}
                     fields)
             form-data (-> (merge base-data data)
-                        (utils/set-time :assignment "end"))
+                          (utils/set-time :assignment "end")
+                          (utils/set-time :activity "start")
+                          )
            ]
         (dommy/toggle-class! $form "hide")
         (.log js/console (pr-str form-name " data " form-data))
@@ -1131,6 +1134,8 @@
                                   :activity/url (str "#activity-url-" thing-id)
                                  }
         add-activity-form-data {:activity/origin thing-id} ; activity origin points to group.
+        activity-start-id (str "activity-start-" thing-id)
+        activity-start-js (str "javascript:NewCal('" activity-start-id "', 'mmddyyyy', 'true');")
        ]
     (.log js/console "groups thing value " (pr-str value-map))
     (list
@@ -1220,11 +1225,16 @@
                          :style #js {:display "block"} :placeholder "activity content"}]
                 [:input {:id (str "activity-location-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "activity address"}]
-                [:input {:id (str "activity-start-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "activity time"}]
+                [:input {:id (str "activity-url-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "activity url"}]                         
+                [:div#activity-start-picker.input-append
+                  [:input {:id activity-start-id :type "datetime" :placeholder "start time" :data-format "hh:mm:ss MM/dd/yyyy"}]
+                  [:span.add-on [:a {:href activity-start-js}
+                              [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
+                              [:img {:src "cal.gif" :width "16" :height "16"}]]]]
                 [:input {:type "submit" :value "add-activity" :class "btn btn-primary assign-button"
                          :on-click 
-                            (submit-form-fn app :add-activity
+                            (submit-form-fn app :activity
                                             add-activity-form-name add-activity-form-data add-activity-form-fields)
                         }]
               ]
