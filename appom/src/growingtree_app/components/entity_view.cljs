@@ -1120,16 +1120,17 @@
                                }
         join-group-form-data {:group/title title}
 
+        ; add group event/activity
         add-activity-form-data {:group/title title}
         add-activity-form-name (str "#add-activity-form-" thing-id)
         add-activity-form-fields {:activity/title (str "#activity-title-" thing-id)
+                                  :activity/author (str "#activity-author-" thing-id)
                                   :activity/content (str "#activity-content-" thing-id)
                                   :activity/location (str "#activity-location-" thing-id)
                                   :activity/start (str "#activity-start-" thing-id)
                                   :activity/url (str "#activity-url-" thing-id)
                                  }
-        add-activity-form-data {:activity/author "rich-dad"}
-
+        add-activity-form-data {:activity/origin thing-id} ; activity origin points to group.
        ]
     (.log js/console "groups thing value " (pr-str value-map))
     (list
@@ -1211,14 +1212,16 @@
             ; add group activity
             [:div.hide {:id (subs add-activity-form-name 1)}
               [:form.add-activity-form {:style #js {:float "left;"}}
-                [:input {:id (str "activity-name-" thing-id) :type "text"
+                [:input {:id (str "activity-title-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "activity name"}]
+                [:input {:id (str "activity-author-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "activity author"}]
                 [:input {:id (str "activity-content-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "activity content"}]
-                [:input {:id (str "activity-address-" thing-id) :type "text"
+                [:input {:id (str "activity-location-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "activity address"}]
-                [:input {:id (str "activity-time-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "activity time"}]         
+                [:input {:id (str "activity-start-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "activity time"}]
                 [:input {:type "submit" :value "add-activity" :class "btn btn-primary assign-button"
                          :on-click 
                             (submit-form-fn app :add-activity

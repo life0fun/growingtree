@@ -315,6 +315,13 @@
        ]
     result))
 
+(defmethod add-thing
+  :activity
+  [type details]
+  (let [result (dda/create-activity details)
+       ]
+    result))
+
 ; create like thing
 (defmethod add-thing
   :like

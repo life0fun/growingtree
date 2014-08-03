@@ -251,7 +251,7 @@
 
 
 ;;==============================================================
-; group
+; group and group activity/event
 ;;==============================================================
 (defn find-group
   "find group by subject, ret a list of group entity"
@@ -278,6 +278,11 @@
   [qpath]
   (family/find-group-members qpath))
 
+; create a group
+(defn create-activity
+  "create a activity with details"
+  [details]
+  (family/create-activity details))
 
 ;;==============================================================
 ;; course related, should use multi-method to dispatch

@@ -444,8 +444,43 @@
                 (assoc :group/person person-ids)  ; group person if ref many
                 (assoc :db/id group-id))
 
-        trans (submit-transact [group])  ; transaction is a list of maps to update db values
+        trans (when group-id (submit-transact [group]))  ; transaction is a list of maps to update db values
       ]
     (log/info "join group " group " trans " trans)
     [group]))
 
+;;==========================================================================
+; activity and event
+;;==========================================================================
+; rule set for get activity by. rule name is the activity thing type.
+(def get-activity-by
+  '[[(:all ?e ?val) [?e :activity/title]]
+    [(:title ?e ?val) [?e :activity/title ?val]]
+    [(:author ?e ?val) [?e :activity/author ?val]]
+    [(:parent ?e ?val) [?e :activity/person ?val]]
+    [(:child ?e ?val) [?e :activity/person ?val]]
+    [(:type ?e ?val) [?e :activity/type ?val]]
+    [(:email ?e ?val) [?e :activity/email ?val]]
+    [(:url ?e ?val) [?e :activity/url ?val]]
+  ])
+
+; create activity.
+; details {:activity/person 1, :activity/title "a", :activity/email "b", :activity/url "c"}
+(defn create-activity
+  "create activity from the submitted new thing form details from group add-activity"
+  [details]
+  (let [author-id (if (clojure.string/blank? (:activity/author details))
+                      (:db/id (find-by :person/title (:activity/person details)))   ; no author, the first one joining is the author
+                      (:db/id (find-by :person/title (:activity/author details))))
+        activity-id (if (:db/id details)
+                      (:db/id details)
+                      (find-by :activity/title (:activity/title details)))
+        activity (-> details
+                (select-keys (keys activity-schema))
+                (assoc :activity/author author-id)
+                (assoc :db/id (d/tempid :db.part/user)))
+
+        trans (submit-transact [activity])  ; transaction is a list of maps to update db values
+      ]
+    (log/info "create activity " activity " trans " trans)
+    [activity]))
