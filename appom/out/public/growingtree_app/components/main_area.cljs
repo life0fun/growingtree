@@ -22,6 +22,7 @@
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; main-area get selected chan app state MapCursor to filter content for selected chan.
+; main-area contains top and body section.
 ; nav-path {:title :title, :body [:filter-things [:course 1 :lecture]]
 ; nav-path [:question {:question/url ...}]
 (defn main-area 
@@ -50,12 +51,13 @@
         ])))))
 
 ; display main content after nav-path updated. latest ele in nav-path vector.
+; main content can be filter-things with :top/:body.
 ; nav-path {:title [...] :body [:newthing-form [:course :add-lecture]] :data {}}
 ; nav-path {:add-thing :lecture :details {}}
 (defmulti main-content 
   (fn [app nav-path search-filter opts]
     (cond
-      (:body nav-path) (first (:body nav-path))
+      (:body nav-path) (first (:body nav-path))  
       (:add-thing nav-path) :refresh
       :else :default)))
 
@@ -154,7 +156,7 @@
             things ])
     ))
 
-; get view for each thing entry
+; get view for each thing entry based on thing-type.
 (defn thing-entry
   [app thing-data override]
   (let [thing-type (utils/thing-ident thing-data)]

@@ -279,6 +279,12 @@
   (family/find-group-members qpath))
 
 ; create a group
+(defn find-activity
+  "find activity from group with details"
+  [details]
+  (family/find-activity details))
+
+; create a group
 (defn create-activity
   "create a activity with details"
   [details]

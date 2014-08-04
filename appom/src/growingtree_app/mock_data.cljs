@@ -126,9 +126,9 @@
 
     ;nav-path segment is a map contains query filters for things in body.
     {; store entity that to be displayed in variouse sections.
-     :title {}   ; store entity to show in 
+     ; :title {}   ; store entity to show in 
+     :top {}     ; top section of main area.
      :body {}
-     :top {}
      :left {}
      :right {}
      :center {}

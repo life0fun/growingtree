@@ -205,7 +205,6 @@
   "get things by type, ret from peer a list of thing in a new line sep string"
   [{postbody :edn-params :as request}] ; post data under :edn-params key :as request
   ; path segment in req contains request params, /api/:thing, /api/:course
-  (log/info "get-things " postbody)
   (let [type (get-in request [:path-params :thing])  ; type is path param /api/:thing
         path (:path postbody)   ; effect msg body, [:group 1 :group-members],
         thing-type (:thing-type postbody)
@@ -213,7 +212,7 @@
         result {:status 200 :data things}
         jsonresp (bootstrap/edn-response result)
        ]
-      (log/info "service peer/get-things " type thing-type path result)
+      (log/info "service peer/get-things ret: " type thing-type path result)
     jsonresp))
 
 ;------------------------------------------------------------------------------------

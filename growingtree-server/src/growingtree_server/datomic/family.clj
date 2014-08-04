@@ -486,3 +486,22 @@
       ]
     (log/info "create activity " activity " trans " trans)
     [activity]))
+
+
+; find all activity, whose origin id is the group id.
+; [:groups 1 :activity]
+(defn find-activity
+  "find all activity from group by query path"
+  [qpath]
+  (let [projkeys (keys activity-schema)  ; must select-keys from datum entity attributes
+        activity (->> (util/get-qpath-entities qpath get-activity-by)
+                      (map #(select-keys % projkeys) )
+                      (map #(util/get-author-name :activity/author %))
+                      (map #(util/get-ref-entity :activity/origin %))
+                      (map #(util/add-upvote-attr %) )
+                      (map #(util/add-navpath % qpath) )
+                 )
+       ]
+    (doseq [e activity]
+      (prn "find activity --> " e))
+    activity))

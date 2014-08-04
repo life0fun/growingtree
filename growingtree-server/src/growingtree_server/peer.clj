@@ -149,6 +149,13 @@
 
 
 (defmethod get-things
+  :activity
+  [type qpath details]
+  (let [members (dda/find-activity qpath)]
+    members))
+
+
+(defmethod get-things
   :like
   [type qpath details]
   (let [likes (dda/find-like qpath)]
