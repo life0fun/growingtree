@@ -290,6 +290,13 @@
   [details]
   (family/create-activity details))
 
+
+(defn find-activity-members
+  "find activity activity members from qpath"
+  [qpath]
+  (family/find-activity-members qpath))
+
+
 ;;==============================================================
 ;; course related, should use multi-method to dispatch
 ;;==============================================================

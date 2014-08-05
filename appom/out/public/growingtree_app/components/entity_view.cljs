@@ -1110,6 +1110,7 @@
       ]])))
 
 
+; group view
 (defmethod thing-entry
   :group
   [app thing-type entity override]
@@ -1298,9 +1299,9 @@
               [:div {:class (:activity-members-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
-                   :on-click (filter-things-onclick app entity :activity :members)
+                   :on-click (filter-things-onclick app entity :activity :activity-members)
                   } 
-                  "members"]]]]
+                  "participants"]]]]
 
             [:li.share
               [:div {:class (:comments-class value-map)}
@@ -1323,9 +1324,9 @@
               [:div {:class (:activity-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
-                   :on-click (filter-things-onclick app entity :activity :activity)
+                   :on-click (filter-things-onclick app entity :activity :group)
                   } 
-                  "activities"]]]]
+                  "group"]]]]
           ]
 
           ; hidden divs for in-line forms

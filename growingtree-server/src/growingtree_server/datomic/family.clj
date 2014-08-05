@@ -387,7 +387,7 @@
                  )
        ]
     (doseq [e person]
-      (prn "find group members --> " e))
+      (log/info "find group members --> " e))
     person))
 
 
@@ -503,5 +503,26 @@
                  )
        ]
     (doseq [e activity]
-      (prn "find activity --> " e))
+      (log/info "find activity --> " e))
     activity))
+
+
+; get group member by group title
+(defn find-activity-members
+  [qpath]
+  (log/info "find activity member " qpath)
+  (let [projkeys (keys person-schema)
+        activity (dbconn/get-entity (second qpath))
+        person (or (:activity/person activity)
+                   (map (comp dbconn/get-entity :db/id) 
+                        (-> (:activity/origin activity) :db/id dbconn/get-entity :group/person)))
+        person (->> person
+                    (map #(select-keys % projkeys) )
+                    (map #(util/add-upvote-attr %) )
+                    (map #(util/add-navpath % qpath) )  ;: navpath [:all 0 :activity 17592186045441]
+                 )
+       ]
+    (doseq [e person]
+      (log/info "activity members --> " e))  ; {:db/id 17592186045419}
+    person))
+
