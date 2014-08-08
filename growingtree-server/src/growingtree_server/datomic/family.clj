@@ -466,8 +466,9 @@
     [(:start ?e ?val) [?e :activity/start ?val]]
   ])
 
-; create activity.
+; create activity, pull in all group persons as activity participate initially.
 ; details {:activity/person 1, :activity/title "a", :activity/email "b", :activity/url "c"}
+; 
 (defn create-activity
   "create activity from the submitted new thing form details from group add-activity"
   [details]
@@ -477,9 +478,13 @@
                       (:db/id (find-by :person/title (:activity/author details))))
         group-id (or (:activity/origin details)
                      (:db/id (find-by :group/title (:group/title details))))
+        ; pull in all group person as activity participate initially
+        ; person ref is a set.
+        group-person (set (map :db/id ((comp :group/person dbconn/get-entity) group-id)))
         activity (-> details
                 (select-keys (keys activity-schema))
                 (assoc :activity/author author-id)
+                (assoc :activity/person group-person)
                 (assoc :db/id (d/tempid :db.part/user)))
 
         trans (submit-transact [activity])  ; transaction is a list of maps to update db values
