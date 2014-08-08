@@ -27,7 +27,8 @@
     :parent {:title ""
              :child "" :add-child ""
              :group "" :join-group " hide"
-             :assignment "" :timeline ""
+             :assignment "" :activity ""
+             :timeline ""
              :upvote "" :like "" :follow ""
             }
 
@@ -447,6 +448,14 @@
                         (dommy/toggle-class! f "hide")))
                   }
                   "join group"]]]]
+
+            [:li.share
+              [:div {:class (:activity-class value-map)}
+                [:span.toggle [:a.option.active
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :child :activity)
+                  } 
+                  "activities"]]]]
 
             [:li.share
               [:div {:class (:timeline-class value-map)}

@@ -458,7 +458,8 @@
   '[[(:all ?e ?val) [?e :activity/title]]
     [(:title ?e ?val) [?e :activity/title ?val]]
     [(:author ?e ?val) [?e :activity/author ?val]]
-    [(:person ?e ?val) [?e :activity/person ?val]]
+    [(:child ?e ?val) [?e :activity/person ?val]]
+    [(:parent ?e ?val) [?e :activity/person ?val]]
     [(:location ?e ?val) [?e :activity/location ?val]]
     [(:group ?e ?val) [?e :activity/origin ?val]]
     [(:content ?e ?val) [?e :activity/content ?val]]
@@ -494,7 +495,7 @@
 
 
 ; find all activity, whose origin id is the group id.
-; [:groups 1 :activity]
+; [:groups 1 :activity], or [:child 1 :activity]
 (defn find-activity
   "find all activity from group by query path"
   [qpath]
