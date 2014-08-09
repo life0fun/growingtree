@@ -20,13 +20,23 @@
                   :data {:author "rich-dad"}
                  }
        ]
-    [:li.protected {:key type  ; 
-                    :on-click #(put! comm [:all-things nav-path]) ; [:all-things [:all 0 :thing-type]]
-                    :class (str (name type) (when (:selected thing-listing) " active"))}
-      [:a.show_channel
-        (:title thing-listing)  ; nav type title, course, parent, lecture, etc.
+    [:li.protected 
+      [:div.nav-channel
+        [:a.show_channel
+          {:key type  ; 
+           :on-click #(put! comm [:all-things nav-path]) ; [:all-things [:all 0 :thing-type]]
+           :class (str (name type) (when (:selected thing-listing) " active"))
+          }
+          (:title thing-listing)]  ; nav type title, course, parent, lecture, etc.
+        [:i.fa.fa-plus-square
+          {:on-click
+            (let [newthing-path (vector type (keyword (str "add-" (name type))))
+                  newthing-data {:body [:newthing-form newthing-path] :data {:pid nil}}]
+              #(put! comm [:newthing-form newthing-data]))
+          }]
         (when (:loading thing-listing)
-          [:i.icon-spinner.icon-spin])]]))
+          [:i.icon-spinner.icon-spin])
+      ]]))
 
 
 ; called from core, where data is MapCursor to app state, with select-keys #{:things :channels :settings}
@@ -56,16 +66,4 @@
           [:ul.nav-ul
             ; :things contains a map of things {:course {:title ... :thing-nodes [{} {}]} :lecture {} ...}
             (map (partial thing-nav comm) (sort-by :order (vals (:things data))))
-            [:li {:key "new-tab"}
-              [:a#newthing-form
-                {:href "#"
-                 :on-click
-                  (let [newthing-data {:body [:child :add-parent] :data {}}
-                        ;newthing-data {:body [:newthing-form [:course :add-course]] :data {:pid nil}}
-                        newthing-data {:body [:newthing-form [:group :create-group]] :data {:pid nil}}
-                       ]
-                    #(put! comm [:newthing-form newthing-data]))
-                }
-                [:strong " + "]  ; text is defined in #create:after
-            ]]]
-          ])))))
+          ]])))))

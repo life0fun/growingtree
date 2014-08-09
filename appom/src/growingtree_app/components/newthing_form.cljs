@@ -384,7 +384,7 @@
 
 ; add group form
 (defmethod add-form 
-  :create-group
+  :add-group
   [thing-type comm last-nav-path]
   (let [submit-fn 
           (fn [e]

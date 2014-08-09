@@ -78,7 +78,7 @@
 (def nav-types [:parent :child :group
                 :course :lecture
                 :question :assignment
-                :timeline])
+                :activity :timeline])
 
 ; each chan contains users in the chan and activities inisde chan. random title if no title.
 (defn random-channel [order & [title]]
@@ -141,7 +141,7 @@
      ; things-vec value, [{:db/id 1, :answer/author #{{:person/url #{rich-son.com}..}]
      :nav-path-things {}
 
-     ; things is thigns category for navbar and sidebar.
+     ; things is things category for navbar and sidebar, nav-types
      ; [:parent :child :course :lecture :question :assignment]
      :things (as-> things ts
                    (update-in ts [:parent] assoc :selected true))
