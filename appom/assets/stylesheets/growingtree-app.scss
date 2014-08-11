@@ -211,13 +211,14 @@ h6{font-size:11.9px}
 
   @media (min-width: 768px) {
     .nav-toggle {
-      display:none !important
+      display:none !important;
     }
   }
 
   @media (min-width: 1024px) {
     .sidebar-toggle {
-      display:none !important
+      display:none !important;
+      z-index: 9;
     }
   }
 }
@@ -282,20 +283,12 @@ h6{font-size:11.9px}
   }
 
   .main-area,.slide-right .sidebar{
-    -webkit-transform:translateX(230px);
-    -moz-transform:translateX(230px);
-    -ms-transform:translateX(230px);
-    -o-transform:translateX(230px);
     transform:translateX(230px)
   }
 
   @media (min-width: 768px) {
     .main-area, .sidebar{
-        -webkit-transform:none;
-        -moz-transform:none;
-        -ms-transform:none;
-        -o-transform:none;
-        transform:none;
+      transform:none;
     }
   }
 }
@@ -451,7 +444,7 @@ h6{font-size:11.9px}
       display:inline-block;
 
       .fa-plus-square {
-        margin-left: 10px;
+        margin: 10px 0px 0px 15px;
       }
 
       &:before {

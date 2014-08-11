@@ -46,7 +46,8 @@
     (swap! history conj [channel record])))
 
 
-; create app component on DOM target app div with app state.
+; app similar to mvc view fn where $el = target, and all event and render logic in function.
+; app component ref to global state for state monitoring and rendering 
 (defn main [target state]
   (let [comms (:comms @state)
         history (or history (atom []))]
@@ -54,41 +55,50 @@
     (routes/define-routes! state (.getElementById js/document "history-container"))
 
     ; create app component, which in turn create all sub components, and start dom state updating. 
-    (om/root app/app state {:target target   ; target is app dom dom element, <div id='app'/>
+    (om/root app/app state {:target target   ; target is app dom element, $el
                             :opts {:comms comms}})
     
-    ; chan msg vec, [msg-type msg-data], [:all-things {:title entity :body [:all-things [nav-path]] :data {:pid}}]
+    ;
+    ; chan msg vec, [msg-type msg-data]. msg-data is nav path.
+    ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
+    ; {:body [:filter-things [:group 1 :activity]], :data {:pid 1}}
     ; :add-thing [:lecture {:lecture/type :math, :lecture/course 1, }]
     ; refer to global state :nav-path for msg-data format. conj msg-data to state nav-path prop.
+    ;
     (go (while true
       (alt!
         (:controls comms) 
           ([v]   ; [:all-things [:parent]], first is msg, rest is nav-path.
-            (when utils/logging-enabled?
-              (mprint "Controls Verbose: " (pr-str v)))
+            (when utils/logging-enabled? (mprint "Controls Verbose: " (pr-str v)))
             ; each event [msg-type msg-data]
             (let [previous-state @state
                   msg-type (first v)
-                  msg-data (last v)
+                  ; if refresh, msg-data is cursor to last nav-path, de-ref it and re-set msg-type.
+                  msg-data (cond
+                            (= :refresh msg-type) @(last v)
+                            :else (last v))
+                  msg-type (if (= :refresh msg-type)
+                              (get-in msg-data [:body 0])
+                              msg-type)
                  ]
-              (.log js/console "controls chan event: " (pr-str msg-type msg-data))
+              (.log js/console (pr-str "controls chan event: " msg-type msg-data))
               ; (update-history! history :controls v)
-              ; update state with selected state id. will cause re-render of app
 
               ; first, control event just append msg-data to nav-path.
               (swap! state (partial controls/control-event target msg-type msg-data))
               ; second, for :add-thing or :get, post-controller take nav-path and ajax to back-end.
               (controls-post/post-control-event! target msg-type msg-data previous-state @state)
               ))
-        (:api comms) 
+        ; server data from cljsajax, (put! api-ch [:api-data {data-path main-path :things-vec (vec things-vec)}])
+        (:api comms)
           ([v]
-            (when utils/logging-enabled?
-              (mprint "API Verbose: " (pr-str v)))
-            ; [:api-data {:nav-path [{:path {:all 0 :parent}}], :things-vec ({:person/url #{rich.com} ...)
+            (when utils/logging-enabled? (mprint "API Verbose: " (pr-str v)))
+            ; [:api-data {:body [:all 0 :group], :things-vec [{:group/email "math-fans@groups.com", :group/ ]
             (let [previous-state @state
                   msg-type (first v)
                   msg-data (last v)
                   things-vec (:things-vec msg-data)]
+              (.log js/console (pr-str "api chan event : type " msg-type " data " msg-data))
               (update-history! history :api v)
               (swap! state (partial api-con/api-event target msg-type msg-data))
               (api-pcon/post-api-event! target msg-type msg-data previous-state @state)))

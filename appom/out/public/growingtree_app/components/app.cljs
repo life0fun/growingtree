@@ -25,6 +25,7 @@
       ; get app state cursors for related keys, and pass map state cursor when building sub-components.
       (let [nav-path                (last (get-in app [:nav-path])) ; last path segment {:path [:all 0 :parent]}
             thing-type              (last (:body nav-path))
+            error                   (get-in app [:error])
 
             selected-channel        (get-in app [:channels (:selected-channel app)])
             current-user            (get-in app [:users (:current-user-email app)])
@@ -55,7 +56,7 @@
                               "ctrl+r"     restore-local-state!
                               ;"slash"      focus-search!
                               "esc"        blur-current-field!})]
-        (.log js/console "app state change, render nav-path " (pr-str nav-path))
+        (.log js/console (pr-str "app state change, render nav-path " nav-path))
         (html/html
           [:div
             {:className (str (when (get-in app [:settings :sidebar :right :open]) "slide-left ")

@@ -23,8 +23,6 @@
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; main-area get selected chan app state MapCursor to filter content for selected chan.
 ; main-area contains top and body section.
-; nav-path {:title :title, :body [:filter-things [:course 1 :lecture]]
-; nav-path [:question {:question/url ...}]
 (defn main-area 
   [{:keys [app nav-path channel search-filter]} owner opts]
   (reify
@@ -34,7 +32,7 @@
     (render [this]
       (html/html
         (let [comm (get-in opts [:comms :controls])]
-          (.log js/console "rendering main-area : nav-path " (pr-str nav-path))
+          (.log js/console "rendering main-area : last nav-path " (pr-str nav-path))
           [:article.main-area
             [:header.header
               [:a.nav-toggle.button.left 
@@ -50,9 +48,10 @@
               ]]
         ])))))
 
+
 ; display main content after nav-path updated. latest ele in nav-path vector.
-; main content can be filter-things with :top/:body.
-; nav-path {:title [...] :body [:newthing-form [:course :add-lecture]] :data {}}
+; nav-path for query contains :body key that indicate how to show main-content body.
+; for add-thing, we need to refresh the last last nav-path before we add things.
 ; nav-path {:add-thing :lecture :details {}}
 (defmulti main-content 
   (fn [app nav-path search-filter opts]
@@ -62,15 +61,28 @@
       :else :default)))
 
 
-; all filtered things navigation or details things
+; after adding new thing, refresh the last nav-path.
+; we are in render state, so last nav path is a cursor to state. when core go thread processing
+; nav path cursor, it needs to de-ref.
 ; {:body [:all-things [:all 0 :question]]} data {:body [:all-things [:all 0 :question]]}
 (defmethod main-content 
   :refresh
   [app nav-path search-filter opts]
-  (.log js/console "main content refresh " (pr-str nav-path))
-  (let [thing-type (get nav-path :add-thing)
-        nav-path {:body [:all-things [:all 0 thing-type]]}]
-    (things-list app thing-type nav-path search-filter opts)
+  (let [comm (get-in app [:comms :controls])
+        last-nav-path (last (drop-last (get-in app [:nav-path])))
+        msg-type (get-in last-nav-path [:body 0])
+        thing-type (get nav-path :add-thing)
+        ; nav-path {:body [:all-things [:all 0 thing-type]]}
+        error (get-in (get-in app [:error]) [:error :status-text])
+       ]
+    (.log js/console (pr-str "main content refresh after add-thing " last-nav-path nav-path))
+    (if-not error
+      ; (things-list app thing-type last-nav-path search-filter opts)
+      (main-content app last-nav-path search-filter opts)
+      (do 
+        (.log js/console (pr-str "add-thing error " msg-type last-nav-path error))
+        (put! comm [:refresh last-nav-path])
+        ))
     ))
 
 ; all filtered things navigation or details things
@@ -134,10 +146,9 @@
 ; :center key contains things-vec for displaying in center section.
 (defn things-list 
   [app thing-type nav-path search-filter opts]
-  (let [;thing-nodes   (get-in things [thing-type :thing-nodes])
-        comm (get-in opts [:comms :controls])
-        ; things-vec is a cursor to global state
-        things-vec (get-in app [:center])
+  (let [comm (get-in opts [:comms :controls])
+        ; things-vec is cursor to global state [:body]
+        things-vec (get-in app [:body])  ; get thing-vec from state :body slot
         re-filter  (when search-filter (js/RegExp. search-filter "ig"))
         ; if search filter exist, filter thing's :content
         filtered-things
@@ -151,7 +162,7 @@
                filtered-things)
        ]
     ; wrap thing listing inside paginated div
-    (.log js/console "things-list " (pr-str thing-type nav-path search-filter things-vec))
+    (.log js/console (pr-str "things-lists " thing-type nav-path))
     (list [:div.paginated-activities
             things ])
     ))

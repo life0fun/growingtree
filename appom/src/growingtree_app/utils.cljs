@@ -175,9 +175,10 @@
   (let [schema-key (keyword (str (name thing-type) "/" keyname))]
     (if (contains? thing-map schema-key)
       (let [
-            epoch-fn (fn [t] 
-              (cljs-time-coerce/to-epoch (cljs-time-format/parse (cljs-time-format/formatter "M-d-yyyy hh:mm:ss") t)))
-            update-fn (fn [t & args] (epoch-fn t))
+            epoch-fn (fn [t]
+              (when-not (empty? t)
+                (cljs-time-coerce/to-epoch (cljs-time-format/parse (cljs-time-format/formatter "M-d-yyyy hh:mm:ss") t))))
+            update-fn (fn [t & args] (epoch-fn (string/trim t)))
             new-map (-> thing-map
                         (update-in [schema-key] update-fn))
             ]

@@ -128,12 +128,12 @@
     {; store entity that to be displayed in variouse sections.
      ; :title {}   ; store entity to show in 
      :top {}     ; top section of main area.
-     :body {}
+     :body {}    ; set in api-event, main area thing-list read.
      :left {}
      :right {}
-     :center {}
      :bottom {}
      :nav-path [{:title [] :body [:all 0 :parent] :data {}}]
+     :error {}   ; error from ajax
      
      ; XXXX do not use this, not reliable.
      ; store api-eivent data, updated from api/api-event

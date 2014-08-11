@@ -11,13 +11,14 @@
 
 (declare update-navbar-selected)
 
-; dispatch based on msg-type type.
-; msg-data is nav-path {:title :title, :body [:filter-things [:course 1 :lecture]], :data {:pid 1}}
+; control event process msg from control chan.
+; just conj msg-data to global state nav-path. msg-data is nav-path, 
+; {:body [:filter-things [:group 1 :activity]], :data {:pid 1}}
+; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
 (defmulti control-event
   (fn [target msg-type msg-data state] msg-type))
 
 ; the default handling of evts from control chan is conj nav-path with msg-data
-; msg-data is {:title ... :body [:qpath [:course thing-id :lecture]] :data {}}
 (defmethod control-event 
   :default
   [target msg-type msg-data state]
@@ -27,8 +28,7 @@
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; global state update for control event for navbar.
-; nav-path = [{:title [], :body [:all 0 :parent], :data {}}] 
-; note that we noly update selected 
+; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
 (defmethod control-event 
   :all-things
   [target msg-type msg-data state]
@@ -41,13 +41,14 @@
       :else (update-in [:nav-path] conj msg-data)
       )))
 
+;{:body [:filter-things [:group 1 :activity]], :data {:pid 1}}
 (defmethod control-event 
   :filter-things
   [target msg-type msg-data state]
   (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
         cur-nav-type (get-in msg-data [:body 1 2])
        ] 
-    (.log js/console "filter-things event " (pr-str cur-nav-type last-nav-type msg-data))
+    (.log js/console "filter-things conj nav-path msg-data " (pr-str msg-data))
     (cond-> state
       :else (update-navbar-selected last-nav-type cur-nav-type)
       :else (update-in [:nav-path] conj msg-data)

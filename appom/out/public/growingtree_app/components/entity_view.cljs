@@ -185,8 +185,7 @@
       (fn [_]
         (om/update! app [:top] entity) ; persist entity into state :top section
         (put! comm [:filter-things
-          { ; for filter things, we need to put the :body into :center
-           :body [:filter-things [title-type thing-id filtered-type]]
+          {:body [:filter-things [title-type thing-id filtered-type]]
            :data (merge {:pid thing-id} options)
           }])
       )))
@@ -1154,7 +1153,7 @@
         activity-start-id (str "activity-start-" thing-id)
         activity-start-js (str "javascript:NewCal('" activity-start-id "', 'mmddyyyy', 'true');")
        ]
-    (.log js/console "groups thing value " (pr-str value-map))
+    (.log js/console "groups thing value " (pr-str thing-id title authors))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
         [:span.rank "1"]   ; index offset in the list of filtered things
@@ -1285,7 +1284,7 @@
                                   }
         join-activity-form-data {:activity/title title}
        ]
-    (.log js/console "activity thing value " (pr-str value-map))
+    (.log js/console "thing-entry " (pr-str thing-id title url))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
         [:span.rank "1"]   ; index offset in the list of filtered things
