@@ -503,13 +503,10 @@
         authors (map #(get % :person/title) (get entity :course/author))
         title (get value-map :title)
         type (name (get value-map :type))
-        add-lecture {:title :title  ; the key used to get the value from state.
+        add-lecture {;:title :title  ; the key used to get the value from state.
                      :body [:newthing-form [:course :add-lecture]]
                      :data {:pid thing-id}
                     }
-        add-assignment {:path [:add-thing :assignment] 
-                        :data {:author thing-id}}
-
         enroll-form-name (str "#enrollment-form-" thing-id)
         enroll-form-fields {:enrollment/name (str "#enroll-name-" thing-id)
                             :enrollment/remark (str "#enroll-remark-" thing-id)}
@@ -549,10 +546,13 @@
               [:div {:class (:add-lecture-class value-map)}
                 [:span.toggle [:a.option.active
                   {:href "#" 
+                   ; :on-click (fn [_]
+                   ;    ; persist entity into title slot in global state
+                   ;    (om/update! app [:title] entity)
+                   ;    (put! comm [:newthing-form add-lecture]))
                    :on-click (fn [_]
-                      ; persist entity into title slot in global state
-                      (om/update! app [:title] entity)
-                      (put! comm [:newthing-form add-lecture]))
+                      (let [f (sel1 (keyword (str ".add-lecture-form")))]
+                        (dommy/toggle-class! f "hide")))
                   } 
                   "add lecture"]]]]
 
@@ -626,8 +626,6 @@
                       :body [:newthing-form [:lecture :add-question]]
                       :data {:pid thing-id}
                     }
-        add-assignment {:path [:add-thing :assignment] 
-                        :data {:author thing-id}}
        ]
     (.log js/console "lecture thing value " (pr-str value-map))
     (list

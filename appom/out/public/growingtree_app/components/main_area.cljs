@@ -16,6 +16,7 @@
 (declare thing-entry)
 (declare things-list)
 (declare main-content)
+(declare add-thing-forms)
 
 (def delimiter-re #" ")
 
@@ -32,7 +33,6 @@
     (render [this]
       (html/html
         (let [comm (get-in opts [:comms :controls])]
-          (.log js/console "rendering main-area : last nav-path " (pr-str nav-path))
           [:article.main-area
             [:header.header
               [:a.nav-toggle.button.left 
@@ -118,6 +118,8 @@
     [:div
       (when pid (thing-entry app topview override))
       (when pid [:hr {:size 4}])
+      (add-thing-forms app nav-path search-filter opts)
+      ; (when pid [:hr {:size 4}])
       (things-list app thing-type nav-path search-filter opts)
     ]))
 
@@ -173,6 +175,20 @@
   (let [thing-type (utils/thing-ident thing-data)]
     (entity-view/thing-entry app thing-type thing-data override)))
 
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; hide all add thing form, lecture form, new child form.
+; toggle hide upon add-lecture click
+(defn add-thing-forms
+  [app nav-path search-filter opts]
+  (let [comm (get-in app [:comms :controls])
+        thing-type (get-in nav-path [:body 1 2]) ; newthing type is last last
+        topview (get-in app [:top])  ; topview get from :top slot
+        pid (get-in nav-path [:data :pid])
+       ]
+    [:div.forms
+      (newthing-form/add-form :add-lecture comm nav-path)
+    ]))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; chatbox, deprecated.

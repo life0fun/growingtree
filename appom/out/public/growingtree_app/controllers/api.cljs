@@ -32,14 +32,14 @@
       (assoc-in [:body] things-vec))
     ))
 
-; api-event error from ajax, set to state error slot.
-; msg-data has {:nav-path {:add-thing :activity :details {}} :error {:status :response :status-text ...}}
+; api-event error from ajax, set to state error slot. msg-data has :nav-path and :error, nil :things-vec
+; msg-data {:nav-path {:add-thing :activity :details {}} :error {:status :response :status-text ...}}
 (defmethod api-event
   :api-error
   [target msg-type msg-data state]
   (let [error (:error msg-data)
         nav-path (:nav-path msg-data)]
-    (.log js/console (pr-str "api-event api-error state [:error] " nav-path msg-data))
+    (.log js/console (pr-str "api-event api-error state [:error] " (get-in msg-data [:error :status-text])))
     (-> state
       (assoc-in [:error] msg-data))
     ))
