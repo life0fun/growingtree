@@ -221,7 +221,8 @@
         ]])))
 
 
-; add lecture form
+; add lecture form and submit handler.
+; put into comm msg-type :add-thing msg-data as nav-path as {:add-thing add-thing-type :details form-data}
 (defmethod add-form 
   :add-lecture
   [thing-type comm last-nav-path]
@@ -248,7 +249,7 @@
                             (utils/set-time :lecture "end"))
                   ]
               (.log js/console "add-lecture form " (pr-str data))
-              ; first is msg type, last is nav-path filter segment.
+              ; first is msg type, last is nav-path, {:add-thing add-thing-type :details form-data} 
               (put! comm [:add-thing {:add-thing :lecture :details data}])
               ))]
     (list
@@ -304,9 +305,16 @@
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 
               {:id "submit" :type "button"   ; if type :submit, will trigger re-load
-               :on-click submit-fn} 
+               :on-click submit-fn
+              } 
               "OK"]
-            [:button.btn {:id "cancel" :type "button"} "Cancel"]]
+            [:button.btn 
+              {:id "cancel" :type "button"
+               :on-click (fn [_]
+                  (let [f (sel1 (keyword (str ".add-lecture-form")))]
+                    (dommy/toggle-class! f "hide")))
+              } 
+              "Cancel"]]
         ]])))
 
 
@@ -335,11 +343,11 @@
                             )
                   ]
               (.log js/console "add-question form " (pr-str data))
-              ; first is msg type, last is nav-path filter segment.
+              ; first is msg type, last is nav-path, {:add-thing add-thing-type :details form-data}
               (put! comm [:add-thing {:add-thing :question :details data}])
               ))]
     (list
-      [:div.create-form
+      [:div.add-question-form.hide  ; hide first.
         [:form.form-horizontal 
           ; {:method "post" :html "{:multipart=>true}"}
           [:legend "Question Details"]
@@ -446,64 +454,3 @@
               "OK"]
             [:button.btn {:id "cancel" :type "button"} "Cancel"]]
         ]])))
-
-
-(defn add-lecture-form
-  []
-  (list
-    [:div.create-form.hide
-      [:form.form-horizontal 
-        ; {:method "post" :html "{:multipart=>true}"}
-        [:legend "Lecture Details"]
-        
-        [:div.control-group
-          [:label.control-label {:for "lecture-title"} "Title"]
-          [:input {:id "lecture-title" :class "lecture-title" :type "text" :placeholder "the title of lecture ..."}]]
-        [:div.control-group
-          [:label.control-label {:for "lecture-author"} "Author"]
-          [:input {:id "lecture-author" :class "lecture-author" :type "text" :placeholder "the author ..."}]]
-        [:div.control-group
-          [:label.control-label {:for "lecture-type"} "Type"]
-          [:select {:id "lecture-type" :class "lecture-type"}
-            [:option {:value "math"} "Math"]
-            [:option {:value "science"} "Science"]
-            [:option {:value "reading"} "Reading"]
-            [:option {:value "art"} "Art"]
-            [:option {:value "sports"} "Sports"]
-          ]]
-        [:div.control-group
-          [:label.control-label {:for "lecture-content"} "content"]
-          [:input {:id "lecture-content" :class "lecture-content" :type "text" :placeholder "brief content of the lecture"}]]
-
-        ; http://jsfiddle.net/foo4u/HJHq8/light/
-        [:div.control-group
-          [:label.control-label {:for "lecture-start"} "start time"]
-          [:div#lecture-start-picker.input-append
-            [:input#lecture-start.input-xlarge {:type "datetime" :placeholder "start time" :data-format "hh:mm:ss MM/dd/yyyy"}]
-            [:span.add-on [:a {:href "javascript:NewCal('lecture-start','mmddyyyy', 'true');"}
-                            [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
-                            [:img {:src "cal.gif" :width "16" :height "16"}]]]]
-        ]
-
-        [:div.control-group
-          [:label.control-label {:for "lecture-end"} "end time"]
-          [:div#lecture-end-picker.input-append
-            [:input#lecture-end.input-xlarge {:type "datetime" :placeholder "end time" :data-format "hh:mm:ss MM/dd/yyyy"}]
-            [:span.add-on [:a {:href "javascript:NewCal('lecture-end','mmddyyyy', 'true');"}
-                            [:img {:src "cal.gif" :width "16" :height "16"}]]]]
-        ]
-
-        [:div.control-group
-          [:label.control-label {:for "lecture-url"} "url"]
-          [:input {:id "lecture-url" :class "lecture-url" :type "text" :placeholder "growingtrees.com/courses"}]]
-        [:div.control-group
-          [:label.control-label {:for "lecture-wiki"} "Wiki Page"]
-          [:input {:id "lecture-wiki" :class "lecture-wiki" :type "text" :placeholder "wiki of the lecture"}]]
-        
-        [:div.usertext-buttons.control-group
-          [:button.btn.btn-primary 
-            {:id "submit" :type "button"   ; if type :submit, will trigger re-load
-             :on-click submit-fn} 
-            "OK"]
-          [:button.btn {:id "cancel" :type "button"} "Cancel"]]
-      ]]))

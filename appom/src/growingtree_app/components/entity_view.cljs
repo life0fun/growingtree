@@ -191,7 +191,9 @@
       )))
   )
 
-; inline input form submit handle, collect inputs data from fields and 
+
+;
+; inline child input form submit handle, collect inputs data from fields and 
 ; merge with base data as form data for submission.
 (defn submit-form-fn
   [app add-thing-type form-name base-data fields]
@@ -514,7 +516,7 @@
                           :enrollment/content (str "enroll into " title)
                          } ; peer add-thing :enrollment
        ]
-    (.log js/console "course thing value " (pr-str value-map))
+    (.log js/console "course thing value " (pr-str thing-id title authors))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
         [:span.rank "1"]   ; index offset in the list of filtered things
@@ -545,11 +547,7 @@
             [:li.share
               [:div {:class (:add-lecture-class value-map)}
                 [:span.toggle [:a.option.active
-                  {:href "#" 
-                   ; :on-click (fn [_]
-                   ;    ; persist entity into title slot in global state
-                   ;    (om/update! app [:title] entity)
-                   ;    (put! comm [:newthing-form add-lecture]))
+                  {:href "#"
                    :on-click (fn [_]
                       (let [f (sel1 (keyword (str ".add-lecture-form")))]
                         (dommy/toggle-class! f "hide")))
@@ -618,7 +616,9 @@
                          (actionkeys-class thing-id actionkeys)
                          override)
         authors (map #(get % :person/title) (get entity :lecture/author))
-
+        title (:title value-map)
+        content (:content value-map)
+        url (:url value-map)
         start (-> (get value-map :start) (utils/time-to-string))
         end (-> (get value-map :end) (utils/time-to-string))
 
@@ -627,9 +627,9 @@
                       :data {:pid thing-id}
                     }
        ]
-    (.log js/console "lecture thing value " (pr-str value-map))
+    (.log js/console "lecture thing value " (pr-str authors title content))
     (list
-      [:div.thing.link {:id (str (:db/id value-map))}
+      [:div.thing.link {:id (str thing-id)}
         [:span.rank "1"]   ; index offset in the list of filtered things
         [:div.midcol.unvoted
           [:div.arrow.up {:role "button" :arial-label "upvote"}]
@@ -640,9 +640,9 @@
           [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} (:title value-map)]]
-          [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
-          [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
+          [:p.title [:a.title {:href "#"} title]]
+          [:p.subtitle [:span.tagline (str "content: " content)]]
+          [:p.subtitle [:span.tagline (str "url: " url)]]
           [:p.tagline "Offered by " authors]
           [:p.tagline start "   - -  " end]
 
@@ -667,10 +667,10 @@
                 [:span.toggle [:a.option.active
                   {:href "#" 
                    :on-click (fn [_]
-                      ; persist entity into title slot in global state
-                      (om/update! app [:title] entity)
-                      (put! comm [:newthing-form add-question]))}
-                   "add question"]]]]
+                      (let [f (sel1 (keyword (str ".add-question-form")))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "add question"]]]]
 
             [:li.share
               [:div {:class (:enrollment-class value-map)}

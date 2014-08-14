@@ -95,7 +95,7 @@
     (things-list app thing-type nav-path search-filter opts)))
 
 
-; filter things, entered from thing-nav-actionkey. click handler set pid so we show clicked
+; show filter things, entered from thing-nav-actionkey. click handler set pid so we show clicked
 ; thing on top section, and filtered things in content section.
 ; we toggle nav key inside top thing based on which nav key is clicked.
 ; :filter-things {:title :title, :body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
@@ -187,6 +187,7 @@
        ]
     [:div.forms
       (newthing-form/add-form :add-lecture comm nav-path)
+      (newthing-form/add-form :add-question comm nav-path)
     ]))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
