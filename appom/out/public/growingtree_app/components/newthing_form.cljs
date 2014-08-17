@@ -386,7 +386,13 @@
               {:id "submit" :type "button"   ; if type :submit, will trigger re-load
                :on-click submit-fn} 
               "OK"]
-            [:button.btn {:id "cancel" :type "button"} "Cancel"]]
+            [:button.btn 
+              {:id "cancel" :type "button"
+               :on-click (fn [_] 
+                (let [f (sel1 (keyword (str ".add-question-form")))]
+                  (dommy/toggle-class! f "hide")))
+              }
+            "Cancel"]]
         ]])))
 
 

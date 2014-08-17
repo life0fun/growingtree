@@ -51,8 +51,11 @@
             things-vec (:data result)  ; alway ret a list of things
             dbid (:db/id (first things-vec))
            ]
-        (.log js/console (pr-str "cljsajax thing-vec " query-path " thing-vec " things-vec))
-        (put! api-ch [:api-data {:nav-path query-path :things-vec (vec things-vec)}])
+        (.log js/console (pr-str "cljsajax handler: nav-path " query-path " thing-vec " things-vec))
+        (if query-path  ; set only when query-path / nav-path is  valid
+          (put! api-ch [:api-data {:nav-path query-path :things-vec (vec things-vec)}])
+          (put! api-ch [:api-error "in add-thing success, no query path, trigger refresh"])
+          )
       ))))
 
 (defn error-handler
@@ -74,7 +77,8 @@
 (defn cljs-ajax
   "service a get or post request using cljs-ajax GET POST call"
   [command nav-path api-ch param-details]
-  (let [query-path (get-in nav-path [:body 1])  ; {:body [:filter-things [:course 1 :lecture]]}
+  (let [; query-path is filter-things inside nav-path :body, for add-thing, no query-path
+        query-path (get-in nav-path [:body 1])  ; {:body [:filter-things [:course 1 :lecture]]}
         thing-type (or (last query-path) (get nav-path :add-thing)) ; filter-things, or {:add-thing :enrollment :details {}}
         request {:handler (handler command query-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)

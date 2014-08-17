@@ -16,8 +16,12 @@ goog.require('cljs.core.async');
 * cljs-ajax success handler, send back things-vec to api-ch
 */
 growingtree_app.api.cljsajax.handler = (function handler(command,query_path,api_ch){return (function (response){var temp__4092__auto__ = response;if(cljs.core.truth_(temp__4092__auto__))
-{var result = temp__4092__auto__;var status = new cljs.core.Keyword(null,"status","status",4416389988).cljs$core$IFn$_invoke$arity$1(result);var things_vec = new cljs.core.Keyword(null,"data","data",1016980252).cljs$core$IFn$_invoke$arity$1(result);var dbid = new cljs.core.Keyword("db","id","db/id",1014111942).cljs$core$IFn$_invoke$arity$1(cljs.core.first.call(null,things_vec));console.log(cljs.core.pr_str.call(null,"cljsajax thing-vec ",query_path," thing-vec ",things_vec));
-return cljs.core.async.put_BANG_.call(null,api_ch,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"api-data","api-data",1934674671),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"nav-path","nav-path",3061255681),query_path,new cljs.core.Keyword(null,"things-vec","things-vec",905584254),cljs.core.vec.call(null,things_vec)], null)], null));
+{var result = temp__4092__auto__;var status = new cljs.core.Keyword(null,"status","status",4416389988).cljs$core$IFn$_invoke$arity$1(result);var things_vec = new cljs.core.Keyword(null,"data","data",1016980252).cljs$core$IFn$_invoke$arity$1(result);var dbid = new cljs.core.Keyword("db","id","db/id",1014111942).cljs$core$IFn$_invoke$arity$1(cljs.core.first.call(null,things_vec));console.log(cljs.core.pr_str.call(null,"cljsajax handler: nav-path ",query_path," thing-vec ",things_vec));
+if(cljs.core.truth_(query_path))
+{return cljs.core.async.put_BANG_.call(null,api_ch,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"api-data","api-data",1934674671),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"nav-path","nav-path",3061255681),query_path,new cljs.core.Keyword(null,"things-vec","things-vec",905584254),cljs.core.vec.call(null,things_vec)], null)], null));
+} else
+{return cljs.core.async.put_BANG_.call(null,api_ch,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"api-error","api-error",3789412359),"in add-thing success, no query path, trigger refresh"], null));
+}
 } else
 {return null;
 }

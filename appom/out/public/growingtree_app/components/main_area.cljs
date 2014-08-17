@@ -74,6 +74,7 @@
         thing-type (get nav-path :add-thing)
         ; nav-path {:body [:all-things [:all 0 thing-type]]}
         error (get-in (get-in app [:error]) [:error :status-text])
+        error (get-in app [:error])
        ]
     (.log js/console (pr-str "main content refresh after add-thing " last-nav-path nav-path))
     (if-not error
@@ -119,6 +120,7 @@
       (when pid (thing-entry app topview override))
       (when pid [:hr {:size 4}])
       (add-thing-forms app nav-path search-filter opts)
+      ; datomic peer query to get things-list by nav-path
       (things-list app thing-type nav-path search-filter opts)
     ]))
 
@@ -163,7 +165,7 @@
                filtered-things)
        ]
     ; wrap thing listing inside paginated div
-    (.log js/console (pr-str "things-lists " thing-type nav-path))
+    (.log js/console (pr-str "things-lists type = " thing-type " nav-path = " nav-path))
     (list [:div.paginated-activities
             things ])
     ))
@@ -171,6 +173,7 @@
 ; get view for each thing entry based on thing-type.
 (defn thing-entry
   [app thing-data override]
+  (.log js/console (pr-str "thing-entry thing-data " thing-data))
   (let [thing-type (utils/thing-ident thing-data)]
     (entity-view/thing-entry app thing-type thing-data override)))
 

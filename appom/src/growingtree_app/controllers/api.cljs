@@ -27,7 +27,7 @@
   (let [things-vec (:things-vec msg-data)
         nav-path (:nav-path msg-data)   ; nav-path is query-path in ajax query to fill the body
        ]
-    (.log js/console (pr-str "api-event api-data state [:body] " nav-path msg-data))
+    (.log js/console (pr-str "api-event api-data state [:body]=" nav-path msg-data))
     (-> state
       (assoc-in [:body] things-vec))
     ))
@@ -39,7 +39,7 @@
   [target msg-type msg-data state]
   (let [error (:error msg-data)
         nav-path (:nav-path msg-data)]
-    (.log js/console (pr-str "api-event api-error state [:error] " (get-in msg-data [:error :status-text])))
+    (.log js/console (pr-str "api-event api-error state [:error]=" (get-in msg-data [:error :status-text])))
     (-> state
       (assoc-in [:error] msg-data))
     ))
