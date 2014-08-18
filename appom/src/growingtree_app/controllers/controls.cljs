@@ -6,7 +6,7 @@
 
 (enable-console-print!)
 
-; this module update global state with event data from control chan.
+; Control chan event processing. update global state with event data from control chan.
 ; XXX App state updated triggers IRender on app component, cascade to sidebar and main.
 
 (declare update-navbar-selected)
@@ -22,7 +22,7 @@
 (defmethod control-event 
   :default
   [target msg-type msg-data state]
-  (.log js/console "default control-event is conj nav-path " (pr-str msg-type msg-data))
+  (.log js/console (pr-str "default control-event : conj nav-path "  msg-type msg-data))
   (-> state
     (update-in [:nav-path] conj msg-data)))
 
@@ -35,7 +35,7 @@
   (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
         cur-nav-type (get-in msg-data [:body 1 2])
        ]
-    (.log js/console "all-things event " (pr-str cur-nav-type last-nav-type msg-data))
+    (.log js/console (pr-str "all-things event : conj nav-path " msg-data))
     (cond-> state
       :else (update-navbar-selected last-nav-type cur-nav-type)
       :else (update-in [:nav-path] conj msg-data)
@@ -48,7 +48,7 @@
   (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
         cur-nav-type (get-in msg-data [:body 1 2])
        ] 
-    (.log js/console "filter-things conj nav-path msg-data " (pr-str msg-data))
+    (.log js/console (pr-str "filter-things : conj nav-path " msg-data))
     (cond-> state
       :else (update-navbar-selected last-nav-type cur-nav-type)
       :else (update-in [:nav-path] conj msg-data)
@@ -59,7 +59,7 @@
 (defmethod control-event 
   :add-thing
   [target msg-type msg-data state] ; msg-data = [:course {:title :content}]
-  (.log js/console "add-thing event " (pr-str msg-data))
+  (.log js/console (pr-str "add-thing event : conj nav-path " msg-data))
   (-> state
     (update-in [:nav-path] conj msg-data))) ; nav-path [.[:lecture {:content ... :author ...}]]
 

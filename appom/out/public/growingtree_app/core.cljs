@@ -7,7 +7,7 @@
             [growingtree-app.controllers.controls :as controls]
             [growingtree-app.controllers.post-controls :as controls-post]
             [growingtree-app.controllers.api :as api-con]
-            [growingtree-app.controllers.post-api :as api-pcon]
+            [growingtree-app.controllers.post-api :as api-post]
             [growingtree-app.datetime :as dt]
             [growingtree-app.api.kandan :as kandan-api]
             [growingtree-app.mock-data :as mock-data]
@@ -100,8 +100,10 @@
                   things-vec (:things-vec msg-data)]
               (.log js/console (pr-str "api chan event : type " msg-type " data " msg-data))
               (update-history! history :api v)
+              ; api-event process api-data, api-success, and api-error.
               (swap! state (partial api-con/api-event target msg-type msg-data))
-              (api-pcon/post-api-event! target msg-type msg-data previous-state @state)))
+              ; post-api-event do nothing for now.
+              (api-post/post-api-event! target msg-type msg-data previous-state @state)))
         (async/timeout 30000) 
         (mprint (pr-str @history)))))
     ))

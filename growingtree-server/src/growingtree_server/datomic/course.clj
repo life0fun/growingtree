@@ -188,6 +188,7 @@
   (let [projkeys (keys lecture-schema)
         lectures (->> (util/get-qpath-entities qpath get-lecture-by)
                      (map #(select-keys % projkeys) )
+                     (map #(util/get-author-name :lecture/author %))
                      (map #(util/add-upvote-attr %) )
                      (map #(util/add-numcomments-attr %) )
                      (map #(util/add-navpath % qpath) )

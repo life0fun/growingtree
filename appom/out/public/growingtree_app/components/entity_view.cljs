@@ -1123,14 +1123,14 @@
   (let [
         comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
-        authors (map #(get % :person/title) (get entity :groups/author))
-        
+
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
         title (get value-map :title)
+        authors (map #(get % :person/title) (get entity :group/author))
         join-group-form-name (str "#join-group-form-" thing-id)
         join-group-form-fields {:group/person (str "#group-person-" thing-id)
                                 :group/remark (str "#group-remark-" thing-id)

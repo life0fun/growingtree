@@ -49,58 +49,45 @@
         ])))))
 
 
-; display main content after nav-path updated. latest ele in nav-path vector.
-; nav-path for query contains :body key that indicate how to show main-content body.
-; for add-thing, we need to refresh the last last nav-path before we add things.
+; display main content after nav-path updated. 
+; For Filter things nav-path :body slot has nav-path vector for filtered things.
+; {:body [:all-things [:all 0 :question]]} data {:body [:all-things [:all 0 :question]]}
+; {:body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
+; for add-thing, do nothing, wait until add-thing result, and process there.
 ; nav-path {:add-thing :lecture :details {}}
 (defmulti main-content 
   (fn [app nav-path search-filter opts]
     (cond
-      (:body nav-path) (first (:body nav-path))  
-      (:add-thing nav-path) :refresh
+      (:body nav-path) (first (:body nav-path))
+      ; (:peer-result nav-path) :refresh 
+      ; (:add-thing nav-path) :refresh
       :else :default)))
 
-
-; after adding new thing, refresh the last nav-path.
-; we are in render state, so last nav path is a cursor to state. when core go thread processing
-; nav path cursor, it needs to de-ref.
-; {:body [:all-things [:all 0 :question]]} data {:body [:all-things [:all 0 :question]]}
-(defmethod main-content 
-  :refresh
-  [app nav-path search-filter opts]
-  (let [comm (get-in app [:comms :controls])
-        last-nav-path (last (drop-last (get-in app [:nav-path])))
-        msg-type (get-in last-nav-path [:body 0])
-        thing-type (get nav-path :add-thing)
-        ; nav-path {:body [:all-things [:all 0 thing-type]]}
-        error (get-in (get-in app [:error]) [:error :status-text])
-        error (get-in app [:error])
-       ]
-    (.log js/console (pr-str "main content refresh after add-thing " last-nav-path nav-path))
-    (if-not error
-      ; (things-list app thing-type last-nav-path search-filter opts)
-      (main-content app last-nav-path search-filter opts)
-      (do 
-        (.log js/console (pr-str "add-thing error " msg-type last-nav-path error))
-        (put! comm [:refresh last-nav-path])
-        ))
-    ))
-
-; all filtered things navigation or details things
-; {:body [:all-things [:all 0 :course]
+; main content shall display query result filtered thing list.
+; default case is when nav-path does not have query filter in :body slot. do nothing.
 (defmethod main-content 
   :default
   [app nav-path search-filter opts]
-  (.log js/console "main content default thing listing nav-path " (pr-str nav-path))
-  (let [thing-type (get-in nav-path [:body 1 2])]
-    (things-list app thing-type nav-path search-filter opts)))
+  (.log js/console  (pr-str "main content nav-path body slot no query filter. do nothing" nav-path))
+  ; (let [thing-type (get-in nav-path [:body 1 2])]
+  ;   (things-list app thing-type nav-path search-filter opts))
+  )
 
+
+; for all-things.
+; {:body [:all-things [:all 0 :lecture]], :data {:author "rich-dad"}} 
+(defmethod main-content 
+  :all-things
+  [app nav-path search-filter opts]
+  (.log js/console  (pr-str "main content nav-path body :all-things " nav-path))
+  (let [thing-type (get-in nav-path [:body 1 2])]
+    (things-list app thing-type nav-path search-filter opts))
+  )
 
 ; show filter things, entered from thing-nav-actionkey. click handler set pid so we show clicked
 ; thing on top section, and filtered things in content section.
 ; we toggle nav key inside top thing based on which nav key is clicked.
-; :filter-things {:title :title, :body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
-; {:body [:newthing-form [:parent :add-child]], :data {:pid 17592186045419} }
+; :filter-things {:body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
 (defmethod main-content 
   :filter-things
   [app nav-path search-filter opts]
@@ -142,6 +129,31 @@
       (when pid [:hr {:size 4}])
       (newthing-form/add-form thing-type comm nav-path)
     ]))
+
+; after adding new thing, refresh the last nav-path.
+; we are in render state, so last nav path is a cursor to state. when core go thread processing
+; nav path cursor, it needs to de-ref.
+; {:body [:all-things [:all 0 :question]]} data {:body [:all-things [:all 0 :question]]}
+(defmethod main-content 
+  :refresh
+  [app nav-path search-filter opts]
+  (let [comm (get-in app [:comms :controls])
+        last-nav-path (last (drop-last (get-in app [:nav-path])))
+        msg-type (get-in last-nav-path [:body 0])
+        thing-type (get nav-path :add-thing)
+        ; nav-path {:body [:all-things [:all 0 thing-type]]}
+        error (get-in (get-in app [:error]) [:error :status-text])
+        error (get-in app [:error])
+       ]
+    (.log js/console (pr-str "main content add-thing trigger refresh " last-nav-path nav-path))
+    (if-not error
+      ; (things-list app thing-type last-nav-path search-filter opts)
+      (main-content app last-nav-path search-filter opts)
+      (do 
+        (.log js/console (pr-str "add-thing error " msg-type last-nav-path error))
+        (put! comm [:refresh last-nav-path])  ; re-dicrect by append last-nav-path to nav-path.
+        ))
+    ))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; defaut main content is a list of things under nav ul

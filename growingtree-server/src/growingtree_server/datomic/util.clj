@@ -228,10 +228,12 @@
 (defn get-author-name
   [attr entity]
   (let [author-ids (as-> (attr entity) aid 
-                         (when-not (set? aid) (conj #{} aid)))
+                         (if-not (set? aid) 
+                            (conj #{} aid)
+                            aid))
         author-titles (map #(dbconn/get-entity (:db/id %)) author-ids)
        ]
-    (log/info "get author name " author-ids author-titles)
+    (log/info "get author name " (attr entity) author-ids author-titles)
     (assoc entity attr (set author-titles))))
 
 ; ============================================================================
