@@ -39,7 +39,7 @@
   [target msg-type msg-data state]
   (let [last-nav-path (last (drop-last (get-in state [:nav-path])))  ; url before :add-thing
        ]
-    (.log js/console (pr-str "api-success : re-direct to " last-nav-path)) 
+    (.log js/console (pr-str "api-success : re-direct with update-in to " last-nav-path)) 
     (-> state
       (update-in [:nav-path] conj last-nav-path))
     ))
@@ -53,8 +53,8 @@
         nav-path (:nav-path msg-data)
         last-nav-path (last (drop-last (get-in state [:nav-path])))]
     (.log js/console (pr-str "api-error set state [:error] " (get-in msg-data [:error :status-text])))
-    (-> state
-      (assoc-in [:error] msg-data))
+    ; (-> state
+    ;   (assoc-in [:error] msg-data))
     ))
 
 (defmethod api-event 

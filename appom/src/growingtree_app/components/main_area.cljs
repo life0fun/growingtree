@@ -17,6 +17,7 @@
 (declare things-list)
 (declare main-content)
 (declare add-thing-forms)
+(declare main-html)
 
 (def delimiter-re #" ")
 
@@ -29,25 +30,40 @@
   (reify
     om/IDisplayName
     (display-name [_] "MainArea")
+    ; hook should update to not render of add-thing form to retain user inputed data
+    om/IShouldUpdate
+    (should-update [this next-props next-state]
+      ;next-props is the next app state we are moving to. next-state is the next component local state.
+      (let [body (:body (get-in next-props [:nav-path]))]
+        (.log js/console (pr-str "shouldupdate " (get-in next-props [:nav-path])))
+        (if body true false)))
+    ; render impl.
     om/IRender
     (render [this]
-      (html/html
-        (let [comm (get-in opts [:comms :controls])]
-          [:article.main-area
-            [:header.header
-              [:a.nav-toggle.button.left 
-                {:href "#" :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
-              [:a.sidebar-toggle.button.right 
-                {:href "#" :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
-              [:a.logo {:href "#" :on-click (constantly false)}
-                [:img {:src "logo_app.png" :height "35" :title "growingtree-app"}]]]
-            [:div.container
-              [:div#content
-                (main-content app nav-path search-filter opts)
-              ;(chatbox comm opts)
-              ]]
-        ])))))
+      (main-html app nav-path search-filter opts)
+      )))
 
+
+; render html for main area
+(defn main-html
+  [app nav-path search-filter opts]
+  (html/html
+    (let [comm (get-in opts [:comms :controls])]
+      [:article.main-area
+        [:header.header
+          [:a.nav-toggle.button.left 
+            {:href "#" :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
+          [:a.sidebar-toggle.button.right 
+            {:href "#" :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
+          [:a.logo {:href "#" :on-click (constantly false)}
+            [:img {:src "logo_app.png" :height "35" :title "growingtree-app"}]]]
+        [:div.container
+          [:div#content
+            (main-content app nav-path search-filter opts)
+          ;(chatbox comm opts)
+          ]]
+      ]
+    )))
 
 ; display main content after nav-path updated. 
 ; For Filter things nav-path :body slot has nav-path vector for filtered things.
@@ -68,9 +84,7 @@
 (defmethod main-content 
   :default
   [app nav-path search-filter opts]
-  (.log js/console  (pr-str "main content nav-path body slot no query filter. do nothing" nav-path))
-  ; (let [thing-type (get-in nav-path [:body 1 2])]
-  ;   (things-list app thing-type nav-path search-filter opts))
+  (.log js/console  (pr-str "main content nav-path body slot no query filter. do nothing " nav-path))
   )
 
 

@@ -345,7 +345,10 @@
               (.log js/console "add-question form " (pr-str data))
               ; first is msg type, last is nav-path, {:add-thing add-thing-type :details form-data}
               (put! comm [:add-thing {:add-thing :question :details data}])
-              ))]
+              ))
+            f (sel1 (keyword (str ".add-question-form")))]
+    (.log js/console (pr-str "add-form question"))
+    (when f (dommy/add-class! f "hide"))
     (list
       [:div.add-question-form.hide  ; hide first.
         [:form.form-horizontal 
