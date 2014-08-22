@@ -36,6 +36,7 @@
         cur-nav-type (get-in msg-data [:body 1 2])
        ]
     (.log js/console (pr-str "all-things event : conj nav-path " msg-data))
+    ;(.log js/console (pr-str "all-things event : state things " state))
     (cond-> state
       :else (update-navbar-selected last-nav-type cur-nav-type)
       :else (update-in [:nav-path] conj msg-data)
@@ -259,10 +260,11 @@
 ; update -navbar selected in state :things, {:parent {:title ...} :course {:title ...}
 (defn update-navbar-selected
   [state last-nav-type cur-nav-type]
+  (.log js/console (pr-str "update-navbar-selected : state things " last-nav-type cur-nav-type (:things state)))
   (let [last-nav-type (some #{last-nav-type} mock-data/nav-types)
         cur-nav-type (some #{cur-nav-type}  mock-data/nav-types)
        ]
-    (.log js/console "update-navbar-selected " (pr-str cur-nav-type last-nav-type))
+    (.log js/console (pr-str "update-navbar-selected cur-nav-type " cur-nav-type " last " last-nav-type))
     (cond-> state
       last-nav-type (assoc-in [:things last-nav-type :selected] false)
       cur-nav-type (assoc-in [:things cur-nav-type :selected] true))

@@ -30,13 +30,6 @@
   (reify
     om/IDisplayName
     (display-name [_] "MainArea")
-    ; hook should update to not render of add-thing form to retain user inputed data
-    om/IShouldUpdate
-    (should-update [this next-props next-state]
-      ;next-props is the next app state we are moving to. next-state is the next component local state.
-      (let [body (:body (get-in next-props [:nav-path]))]
-        (.log js/console (pr-str "shouldupdate " (get-in next-props [:nav-path])))
-        (if body true false)))
     ; render impl.
     om/IRender
     (render [this]

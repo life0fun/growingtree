@@ -2,19 +2,19 @@
  "file":
  "/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/controllers/post_api.js",
  "sources":["post_api.cljs"],
- "lineCount":55,
+ "lineCount":59,
  "mappings":
- ";AAAA;;;;;;;;;;;;;;;;;AAQA,iEAAA,oDAAA,rHAAMA,qGAAsBC,SAASC,OACnC,yjBAAA,rjBAAMC,eAAa,iCAAA,mFAAA,pHAACC,2BAAOF,gJAAc,AAAA,+GAAqBA,oBACxDG,OAAK,iCAAA,mFAAA,uDAAA,3KAACD,2BAAOF,sNACjB,oBAAM,iBAAAI,qPAAA,AAAA,GAAAA,pOAAK,AAACC,4BAAK,AAAA,qFAAQJ,cAAc,AAAA,uFAASF;CACzC,OAACO,yCAAQ,kBAAA,PAAKC,OACH,IAAAC,yEAAA,AAAAC,wBAAAD,WAAA,EAAA,gBAAA,AAAAC,wBAAAD,WAAA,EAAA,qBAAA,AAAAC,wBAAAD,WAAA,EAAA,iBAAA,AAAAC,wBAAAD,WAAA,EAAA,MAAA,pNAAOE,mDAAEC,qDAAIC,0DAASC,1NAAM,4BAAA,5BAACC,6CAA0BP,+NACrD,OAACQ,yBAAEH,SAAS,AAAA,0FAAWX;GAC3B,kIAAA,lIAACe,+BAAa,AAAA,yFAAUjB;;CAJlCK;;;CAAN,AAKE,gDAAA,mFAAA,yFAAA,4FAAA,jTAACa,oCAAKd,oQAA+BJ;;CALvC;;;AAUJ,4DAAA,iBAAAmB,6BAAA,AAAAC,yBAAA,wCAAAC,6BAAA,AAAAD,yBAAA,wCAAAE,6BAAA,AAAAF,yBAAA,wCAAAG,iCAAA,AAAAH,yBAAA,wCAAAI,0BAAA,AAAAC,wBAAA,mCAAA,+DAAA,AAAAC,2CAAA,AAAA,YAAAC,kBAAA,tqBAAUC,wrBACR,wDAAA,7CAAKC,OAAOC,QAAQC,eAAeC,eAAeF;GADpD,2DAAAN,wBAAAL,2BAAAE,2BAAAC,2BAAAC;;AAGA,AAAAU,gCAAAL,0DAAA,2DAAA,wDAAA,7CAEGC,OAAOC,QAAQC,eAAeC,eAC/B,8CAAA,vCAACE,mEAAmCJ;;AAEtC,AAAAG,gCAAAL,0DAAA,+FAAA,iEAAA,tDAEGC,OAAOC,QAAQ9B,SAAS+B,eAAeC,eACxC,AAACG,wDAA8BN,OAAO7B,SAASgC;AAC/C,GAAM,AAAChB,yBAAE,AAAA,+FAAahB,UAAU,AAAA,2GAAmBgC;CAAnD,AACE,WAAA,aAAA,xBAACI,wBAAe,OAACC,6EAAkDR,OAAO,AAAA,+FAAa7B;GAAvF;AACA,oBAAM,iBAAAsC,kHAAA,AAAA,oBAAAA,nHAAI,AAAA,qFAAQtC;CAAZsC;;CAAA;;;CAAN,AACE,OAACvC,yEAAqBC,SAASgC;;CADjC;;;CAFF",
+ ";AAAA;;;;;;;;;;;;;;;;;AAQA,iEAAA,oDAAA,rHAAMA,qGAAsBC,SAASC,OACnC,yjBAAA,rjBAAMC,eAAa,iCAAA,mFAAA,pHAACC,2BAAOF,gJAAc,AAAA,gHAAqBA,oBACxDG,OAAK,iCAAA,mFAAA,sDAAA,1KAACD,2BAAOF,qNACjB,oBAAM,iBAAAI,qPAAA,AAAA,GAAAA,pOAAK,AAACC,4BAAK,AAAA,qFAAQJ,cAAc,AAAA,uFAASF;CACzC,OAACO,yCAAQ;yBAAA,PAAKC,OACH,IAAAC,yEAAA,AAAAC,wBAAAD,WAAA,IAAA,gBAAA,AAAAC,wBAAAD,WAAA,IAAA,qBAAA,AAAAC,wBAAAD,WAAA,IAAA,iBAAA,AAAAC,wBAAAD,WAAA,IAAA,MAAA,5NAAOE,qDAAEC,uDAAIC,4DAASC,hOAAM,4BAAA,5BAACC,6CAA0BP,uOACrD,OAACQ,yBAAEH,SAAS,AAAA,2FAAWX;;CAC3B,gIAAA,hIAACe,+BAAa,AAAA,uFAAUjB;;CAJlCK;;;CAAN,AAKE,gDAAA,mFAAA,wFAAA,4FAAA,hTAACa,oCAAKd,mQAA+BJ;;CALvC;;;AAUJ,4DAAA,iBAAAmB,6BAAA,AAAAC,yBAAA,wCAAAC,6BAAA,AAAAD,yBAAA,wCAAAE,6BAAA,AAAAF,yBAAA,wCAAAG,iCAAA,AAAAH,yBAAA,wCAAAI,0BAAA,AAAAC,wBAAA,mCAAA,gEAAA,AAAAC,2CAAA,AAAA,YAAAC,kBAAA,vqBAAUC,yrBACR;+DAAA,7CAAKC,OAAOC,QAAQC,eAAeC,eAAeF;;CADpD,4DAAAN,wBAAAL,2BAAAE,2BAAAC,2BAAAC;;AAGA,AAAAU,gCAAAL,0DAAA,4DAAA,wDAAA,7CAEGC,OAAOC,QAAQC,eAAeC,eAC/B,8CAAA,vCAACE,mEAAmCJ;;AAEtC,AAAAG,gCAAAL,0DAAA,8FAAA,iEAAA,tDAEGC,OAAOC,QAAQ9B,SAAS+B,eAAeC,eACxC,AAACG,wDAA8BN,OAAO7B,SAASgC;AAC/C,GAAM,AAAChB,yBAAE,AAAA,8FAAahB,UAAU,AAAA,2GAAmBgC;CAAnD,AACE,WAAA,aAAA,xBAACI,wBAAe,OAACC,6EAAkDR,OAAO,AAAA,8FAAa7B;GAAvF;AACA,oBAAM,iBAAAsC,mHAAA,AAAA,oBAAAA,pHAAI,AAAA,sFAAQtC;CAAZsC;;CAAA;;;CAAN,AACE,OAACvC,yEAAqBC,SAASgC;;CADjC;;;CAFF",
  "names":
  ["growingtree-app.controllers.post-api/notify-if-mentioned!",
   "activity", "state", "current-user", "cljs.core/get-in", "comm",
-  "and__3431__auto__", "cljs.core/not=",
-  "growingtree-app.useful/ffilter", "piece", "vec__11542",
+  "and__3531__auto__", "cljs.core/not=",
+  "growingtree-app.useful/ffilter", "piece", "vec__12231",
   "cljs.core/nth", "_", "pre", "username", "post", "cljs.core/re-find",
   "cljs.core/=", "clojure.string/split", "cljs.core.async/put!",
-  "method-table__4301__auto__", "cljs.core/atom",
-  "prefer-table__4302__auto__", "method-cache__4303__auto__",
-  "cached-hierarchy__4304__auto__", "hierarchy__4305__auto__",
+  "method-table__4409__auto__", "cljs.core/atom",
+  "prefer-table__4410__auto__", "method-cache__4411__auto__",
+  "cached-hierarchy__4412__auto__", "hierarchy__4413__auto__",
   "cljs.core/get", "cljs.core/get-global-hierarchy",
   "cljs.core/MultiFn",
   "growingtree-app.controllers.post-api/post-api-event!", "target",
@@ -22,4 +22,4 @@
   "cljs.core/-add-method", "growingtree-app.utils/mprint",
   "growingtree-app.commands/handle-maybe-command", "js/setTimeout",
   "growingtree-app.ui/scroll-to-latest-message-when-appropriate!",
-  "or__3443__auto__"]}
+  "or__3543__auto__"]}

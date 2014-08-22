@@ -20,6 +20,13 @@
     om/IDisplayName
     (display-name [_]
       (or (:react-name opts) "growingtree-app"))
+    ; hook should update to not render of add-thing form to retain user inputed data
+    om/IShouldUpdate
+    (should-update [this next-props next-state]
+      ;next-props is the next app state we are moving to. next-state is the next component local state.
+      (let [body (:body (last (get-in next-props [:nav-path])))]
+        (.log js/console (pr-str "app shouldupdate next-props nav-path" (get-in next-props [:nav-path])))
+        (if body true false)))
     om/IRender
     (render [this]
       ; get app state cursors for related keys, and pass map state cursor when building sub-components.
@@ -57,6 +64,7 @@
                               ;"slash"      focus-search!
                               "esc"        blur-current-field!})]
         (.log js/console (pr-str "app state change, render nav-path " nav-path))
+        (.log js/console (pr-str "app state change, render app " (select-keys app [:things])))
         (html/html
           [:div
             {:className (str (when (get-in app [:settings :sidebar :right :open]) "slide-left ")
@@ -83,9 +91,9 @@
                                               :current-user-email (:current-user-email app)
                                               :selected-channel (:selected-channel app)
                                               :channels (:channels app)}})
-            ; pass selected-chan app state MapCursor to main-area component to show content form selected chan.
+            ; pass global app state MapCursor when building main-area component
             (om/build main-area/main-area {:app app
-                                           :nav-path nav-path
+                                           :nav-path nav-path  ; nav-path is cursor path to the last segment
                                            :channel selected-channel
                                            :search-filter (get-in app [:settings :forms :search :value])} 
                                           {:opts {:comms (:comms opts)
