@@ -81,7 +81,7 @@
                               (get-in msg-data [:body 0])
                               msg-type)
                  ]
-              (.log js/console (pr-str "controls chan event: " msg-type msg-data))
+              (.log js/console (pr-str "controls chan event: " msg-type msg-data (om/rendering?)))
               ; (update-history! history :controls v)
 
               ; first, control event just append msg-data to nav-path.

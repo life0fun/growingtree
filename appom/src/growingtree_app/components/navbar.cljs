@@ -20,7 +20,6 @@
                   :data {:author "rich-dad"}
                  }
        ]
-    (.log js/console (pr-str "thing-nav " type nav-path))
     [:li.protected 
       [:div.nav-channel
         [:a.show_channel
@@ -52,7 +51,6 @@
       (or (:react-name opts) "Navbar"))
     om/IRender
     (render [this]
-      (.log js/console (pr-str "navbar render " (:things data)))
       (html/html
        (let [comm (get-in opts [:comms :controls])  ; comm chan is control
              settings (:settings data)

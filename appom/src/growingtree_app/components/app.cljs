@@ -24,8 +24,9 @@
     om/IShouldUpdate
     (should-update [this next-props next-state]
       ;next-props is the next app state we are moving to. next-state is the next component local state.
-      (let [body (:body (last (get-in next-props [:nav-path])))]
-        (.log js/console (pr-str "app shouldupdate next-props nav-path" (get-in next-props [:nav-path])))
+      (let [nav-path (get-in next-props [:nav-path])
+            body (:body (last nav-path))]
+        (.log js/console (pr-str "app shouldupdate next-props nav-path" (last nav-path)))
         (if body true false)))
     om/IRender
     (render [this]
@@ -64,7 +65,6 @@
                               ;"slash"      focus-search!
                               "esc"        blur-current-field!})]
         (.log js/console (pr-str "app state change, render nav-path " nav-path))
-        (.log js/console (pr-str "app state change, render app " (select-keys app [:things])))
         (html/html
           [:div
             {:className (str (when (get-in app [:settings :sidebar :right :open]) "slide-left ")
@@ -79,6 +79,7 @@
                            :content-com ankha/inspector
                            :content-data (get-in app path)
                            :content-opts {}})))
+
             (om/build keyq/KeyboardHandler app {:opts {:keymap keymap
                                                        :error-ch (get-in app [:comms :error])}})
 
@@ -102,7 +103,7 @@
                                                   :input-focused? (get-in app [:settings :forms :user-message :focused])
                                                   :input-value (get-in app [:settings :forms :user-message :value])}}
                                                   )
-          (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
-          ; [:div#at-view.at-view [:ul#at-view-ul]]
+            (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
+            ; [:div#at-view.at-view [:ul#at-view-ul]]
           ])
       ))))

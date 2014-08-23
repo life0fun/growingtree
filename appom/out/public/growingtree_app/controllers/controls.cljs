@@ -260,7 +260,6 @@
 ; update -navbar selected in state :things, {:parent {:title ...} :course {:title ...}
 (defn update-navbar-selected
   [state last-nav-type cur-nav-type]
-  (.log js/console (pr-str "update-navbar-selected : state things " last-nav-type cur-nav-type (:things state)))
   (let [last-nav-type (some #{last-nav-type} mock-data/nav-types)
         cur-nav-type (some #{cur-nav-type}  mock-data/nav-types)
        ]

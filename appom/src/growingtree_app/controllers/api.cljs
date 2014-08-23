@@ -53,8 +53,9 @@
         nav-path (:nav-path msg-data)
         last-nav-path (last (drop-last (get-in state [:nav-path])))]
     (.log js/console (pr-str "api-error set state [:error] " (get-in msg-data [:error :status-text])))
-    ; (-> state
-    ;   (assoc-in [:error] msg-data))
+    ; must ret valid state atom.
+    (-> state
+      (assoc-in [:error] msg-data))
     ))
 
 (defmethod api-event 
