@@ -23,54 +23,53 @@
       false
       true)))
 
+; target is view $el, not used. msg-type is query type, all-things or filter things.
+; msg-data is nav-path. 
+; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}  
+; {:body [:filter-things [:group 17592186045438 :activity]], :data {:pid 17592186045438}}
+; Ajax request to get data using query path.
 (defmulti post-control-event!
-  (fn [target message args previous-state current-state] message))
+  (fn [target msg-type msg-data previous-state current-state] msg-type))
 
 ; nothing to do for default control event.
 (defmethod post-control-event! 
   :default
-  [target message args previous-state current-state]
-  (.log js/console "default post-control for: " (pr-str message)))
+  [target msg-type msg-data previous-state current-state]
+  (.log js/console (pr-str "default post-control for: " msg-type)))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; post control event for navbar, last nav-path tuple.
-; called from core to process control event, nav-path {:path [:all 0 :parent]}
-; send xhr request to get data.
+; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
 (defmethod post-control-event! 
   :all-things
-  [target message nav-path previous-state current-state]
-  (print "post-control-event! all-things nav-path " nav-path)  ; {:path [:all 0 :parent]}
+  [target msg-type nav-path previous-state current-state]
+  (.log js/console (pr-str "post-control-event! all-things nav-path " nav-path))
   (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (get-in nav-path [:body 1 2]))}))
   (cljsajax/cljs-ajax :request-things
                       nav-path
                       (get-in current-state [:comms :api])
-                      nav-path)   ; [:all 0 :parent]
+                      nav-path)
     )
-  ; (when-let [new-path (get-in current-state [:nav-path])]
-  ;   (js/setTimeout #(imp-ui/scroll-to-latest-message! target (last (last new-path))) 35)))
-
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-; comm chan post control event, called from core to process control event in comm chan. 
-; nav-path {:title :title, :body [:qpath [:course 1 :lecture]], :data {:pid 1}}
-; send xhr request to get data.
+  
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; comm chan post control event, called from core to process control event in comm chan.
+; {:body [:filter-things [:group 17592186045438 :activity]], :data {:pid 17592186045438}}
+; ajax request to get data using query path.
 (defmethod post-control-event! 
   :filter-things
-  [target message nav-path previous-state current-state]
-  (print "post-control-event! filter-things nav-path " nav-path)  ; {:path [:all 0 :parent]}
+  [target msg-type nav-path previous-state current-state]
+  (.log js/console (pr-str "post-control-event! filter-things nav-path " nav-path))
   (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (get-in nav-path [:body 1 2]))}))
   (cljsajax/cljs-ajax :request-things
                       nav-path
                       (get-in current-state [:comms :api])
                       nav-path)   ; data is nav-path. [:all 0 :parent], or [:qpath [:course 1 :lecture]]
-    )
-  ; (when-let [new-path (get-in current-state [:nav-path])]
-  ;   (js/setTimeout #(imp-ui/scroll-to-latest-message! target (last (last new-path))) 35)))
+  )
 
-
-; msg is :add-thing, nav-path {:add-thing :lecture :details {:lecture/course 1 :lecture/title ...}}
+; nav-path {:add-thing :lecture :details {:lecture/course 1 :lecture/title ...}}
 (defmethod post-control-event! 
   :add-thing
-  [target message nav-path previous-state current-state]
+  [target msg-type nav-path previous-state current-state]
   (print "post-control-event! add-thing nav-path :" nav-path) ; [:lecture {:lecture/course ...}]
   (utils/set-window-href! (routes/v1-thing-nodes 
     {:thing-type (name (get nav-path :add-thing))}))

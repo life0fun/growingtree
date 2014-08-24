@@ -79,6 +79,7 @@
                 :course :lecture
                 :question :assignment
                 :activity :timeline])
+(def root-add-type #{:parent :child :group :course})
 
 ; each chan contains users in the chan and activities inisde chan. random title if no title.
 (defn random-channel [order & [title]]

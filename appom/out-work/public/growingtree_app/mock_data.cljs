@@ -19,9 +19,6 @@
 
 (def user-emails (keys users))
 
-(def nav-types [:parent :child
-                :course :lecture
-                :question :assignment])
 
 ; a message contains {:author, :content, :channel-id}
 (defn random-thing [channel-id type & [at-now?]]
@@ -77,6 +74,13 @@
     :name "example.mp3"}])
 
 
+; nav types, in app state [:things] key for navbar use.
+(def nav-types [:parent :child :group
+                :course :lecture
+                :question :assignment
+                :activity :timeline])
+(def root-add-type #{:parent :child :group :course})
+
 ; each chan contains users in the chan and activities inisde chan. random title if no title.
 (defn random-channel [order & [title]]
   (let [title (or title (random-title))]
@@ -92,7 +96,7 @@
              (take (inc (rand-int 0))
                    (shuffle media)))
      :sfx {:source-url nil}
-     :player {:source-url "https://dl.dropboxusercontent.com/u/412963/Why%20This%20Kolaveri%20Di%20Full%20Song%20Promo%20Video%20in%20HD%20-%20.mp3"
+     :player {:source-url "https://dl.dropboxusercontent.com/u/412963/x.mp3"
               :playing-order -1
               :state :playing
               :loading false
@@ -122,13 +126,27 @@
        ]
 
     ;nav-path segment is a map contains query filters for things in body.
-    {; store entity to display in header and body
-     :title {}   ; store entity to show in 
-     :body {}
+    {; store entity that to be displayed in variouse sections.
+     ; :title {}   ; store entity to show in 
+     :top {}     ; top section of main area.
+     :body {}    ; set in api-event, main area thing-list read.
+     :left {}
+     :right {}
+     :bottom {}
      :nav-path [{:title [] :body [:all 0 :parent] :data {}}]
+     :error {}   ; error from ajax
      
-     ; nav-path as key, things-vec value
+     ; XXXX do not use this, not reliable.
+     ; store api-eivent data, updated from api/api-event
+     ; nav-path as key, [:assignment 1 :answer] 
+     ; things-vec value, [{:db/id 1, :answer/author #{{:person/url #{rich-son.com}..}]
      :nav-path-things {}
+
+     ; things is things category for navbar and sidebar, nav-types
+     ; [:parent :child :course :lecture :question :assignment]
+     :things (as-> things ts
+                   (update-in ts [:parent] assoc :selected true))
+
     
      :audio {:volume 100
              :muted true}
@@ -141,8 +159,6 @@
                           :right {:open false}}
                 :inspector {:path [:users]}}
 
-     :things (as-> things ts
-                   (update-in ts [:parent] assoc :selected true))
 
      ; channels is nested map keyed by id
      :selected-channel "1"

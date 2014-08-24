@@ -25,16 +25,18 @@
 (def thing-nav-actionkey
   {
     :parent {:title ""
-             :child "" :add-child ""
-             :group "" :add-group " hide"
-             :assignment "" :timeline ""
+             :child "" :add-child " hide"
+             :group "" :join-group " hide"
+             :assignment "" :activity ""
+             :timeline ""
              :upvote "" :like "" :follow ""
             }
 
     :child {:title ""
             :parent "" :add-parent " hide"
             :schoolclass "" :add-schoolclass " hide"
-            :enrollment "" :assignment "" :activity "" :group ""
+            :enrollment "" :assignment "" :activity "" 
+            :group "" :join-group " hide"
             :timeline "" :upvote "" :like "" :follow ""
            }
 
@@ -80,6 +82,12 @@
             :upvote "" :like "" :share ""
            }
 
+    :activity {:title "" :author ""
+            :participants "" :join ""
+            :comments ""
+            :upvote "" :like "" :share ""
+           }
+
     :answer {:title "" :author ""
              :grade ""
              :assignment ""
@@ -113,6 +121,7 @@
     :like "like.jpg"
     :timeline "timeline.jpg"
     :group "group.jpg"
+    :activity "group.jpg"
   })
 
 ;;===============================================================
@@ -152,11 +161,12 @@
   (let [id (:db/id entity)
         thing-data (dissoc entity :db/id)
         attrs (keys thing-data)
-        value-map (reduce (fn [tot [k v]]
-                              (assoc tot (keyword (name k)) 
-                                          (if (utils/many? v)
-                                            (string/join ", " v)
-                                            v)))
+        value-map (reduce 
+                    (fn [tot [k v]]
+                      (assoc tot (keyword (name k)) 
+                                  (if (utils/many? v)
+                                    (string/join ", " v)
+                                    v)))
                    {}
                    thing-data)
        ]
@@ -166,31 +176,39 @@
 ; when click flat list subthing link, put title type thing in title, and filtered in body.
 ; title-type :answer, filtered-type :comments, title thing id is parent id in data.pid
 (defn filter-things-onclick
-  [app entity title-type filtered-type]
-  (let [comm (get-in app [:comms :controls])
-        thing-id (:db/id entity)]
-    (fn [_]
-      (om/update! app [:title] entity) ; persist entity into state :title slot
-      (put! comm [:filter-things
-        {:title :title
-         :body [:filter-things [title-type thing-id filtered-type]]
-         :data {:pid thing-id}
-        }])
-    )))
+  ([app entity title-type filtered-type]
+    (filter-things-onclick app entity title-type filtered-type {}))
 
-; inline input form submit handle, collect inputs data from fields and 
+  ([app entity title-type filtered-type options]
+    (let [comm (get-in app [:comms :controls])
+          thing-id (:db/id entity)]
+      (fn [_]
+        (om/update! app [:top] entity) ; persist entity into state :top section
+        (put! comm [:filter-things
+          {:body [:filter-things [title-type thing-id filtered-type]]
+           :data (merge {:pid thing-id} options)
+          }])
+      )))
+  )
+
+
+;
+; inline child input form submit handle, collect inputs data from fields and 
 ; merge with base data as form data for submission.
 (defn submit-form-fn
   [app add-thing-type form-name base-data fields]
   (let [comm (get-in app [:comms :controls])]
     (fn [_]
       (let [$form (sel1 (keyword form-name))
-            data (reduce (fn [tot [attr fieldid]] ; 
+            data (reduce (fn [tot [attr fieldid]]
+                    ; (.log js/console (pr-str fieldid (dommy/value (sel1 fieldid))))
                     (assoc tot attr (dommy/value (sel1 fieldid))))
                     {}
                     fields)
             form-data (-> (merge base-data data)
-                        (utils/set-time :assignment "end"))
+                          (utils/set-time :assignment "end")
+                          (utils/set-time :activity "start")
+                          )
            ]
         (dommy/toggle-class! $form "hide")
         (.log js/console (pr-str form-name " data " form-data))
@@ -218,7 +236,6 @@
         ]
     (.log js/console (str "thing-entry :default " value-map))))
 
-
 ;
 ; :person will recursive call thing-entry to display :parent or :child.
 (defmethod thing-entry
@@ -241,10 +258,17 @@
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
+        title (:title value-map)
         add-child {:title :title  ; key is :title cursor in app state.
                    :body [:newthing-form [:parent :add-child]]  ; :body is nav-path
                    :data {:pid thing-id}
                   }
+        ; join a group form
+        join-group-form-name (str "#join-group-form-" thing-id)
+        join-group-form-fields {:group/title (str "#group-name-" thing-id)
+                                :group/remark (str "#group-remark-" thing-id)
+                               }
+        join-group-form-data {:group/person thing-id} 
        ]
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
@@ -258,7 +282,7 @@
           [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} (:title value-map)]]
+          [:p.title [:a.title {:href "#"} title]]
           [:p.subtitle [:span.tagline (str "phone: " (:phone value-map))]]
           [:p.subtitle [:span.tagline (str "email: " (:email value-map))]]
           [:p.tagline "Joined since " [:time "Aug 2013"]]
@@ -274,17 +298,22 @@
 
             [:li.share
               [:div {:class (:add-child-class value-map)}
-                [:span.toggle [:a.option.active
-                  {:href "#" 
-                   :on-click (fn [_]
-                      ; persist entity into global state title
-                      (om/update! app [:title] entity)
-                      (put! comm [:newthing-form add-child]))}
-                   "add child"]]]]
+                [:span.toggle 
+                  [:a.option.active
+                    {:href "#"
+                     :on-click (fn [_]
+                        (let [f (sel1 (keyword (str ".add-child-form")))]
+                          (dommy/toggle-class! f "hide")))
+                    }
+                    "add child"]]]]
 
             [:li.share
               [:div {:class (:assignment-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "assignments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :parent :assignment)
+                  } 
+                  "assignments"]]]]
 
             [:li.share
               [:div {:class (:like-class value-map)}
@@ -296,19 +325,49 @@
 
             [:li.share
               [:div {:class (:group-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "groups"]]]]
+                [:span.toggle [:a.option.active
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :parent :group)
+                  } 
+                  "groups"]]]]
 
             [:li.share
-              [:div {:class (:add-group-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "join group"]]]]
+              [:div {:class (:join-group-class value-map)}
+                [:span.toggle [:a.option.active
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword join-group-form-name))]
+                        (.log js/console "join-group " f join-group-form-name)
+                        (dommy/toggle-class! f "hide")))
+                  } "join group"]]]]
 
             [:li.share
               [:div {:class (:timeline-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "timeline"]]]]
+                [:span.toggle [:a.option.active 
+                  {
+                   :href "#"
+                   :on-click (filter-things-onclick app entity :parent :timeline
+                              {:author title})
+                  } 
+                  "timeline"]]]]
           ]
 
           ; hidden divs for in-line forms
-          [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}]
+          [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}
+            [:div.hide {:id (subs join-group-form-name 1)}
+              [:form.join-group-form {:style #js {:float "left;"}}
+                [:input {:id (str "group-name-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "group name"}]
+                [:input {:id (str "group-remark-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "group remark"}]
+                [:input {:type "submit" :value "join-group" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :join-group 
+                                            join-group-form-name join-group-form-data join-group-form-fields)
+                        }]
+              ]
+            ]
+          ]
           [:div.clearleft]
       ]])))
 
@@ -324,6 +383,13 @@
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
+        title (get value-map :title)
+        ; create or add to group
+        join-group-form-name (str "#join-group-form-" thing-id)
+        join-group-form-fields {:group/title (str "#group-name-" thing-id)
+                                :group/remark (str "#group-remark-" thing-id)
+                               }
+        join-group-form-data {:group/person thing-id}
        ]
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
@@ -337,7 +403,7 @@
           [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} (:title value-map)]]
+          [:p.title [:a.title {:href "#"} title]]
           [:p.subtitle [:span.tagline (str "phone: " (:phone value-map))]]
           [:p.subtitle [:span.tagline (str "email: " (:email value-map))]]
           [:p.tagline "Joined since " [:time "Aug 2013"]]
@@ -353,7 +419,11 @@
 
             [:li.share
               [:div {:class (:assignment-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "assignments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :child :assignment)
+                  }
+                  "assignments"]]]]
 
             [:li.share
               [:div {:class (:like-class value-map)}
@@ -365,19 +435,57 @@
 
             [:li.share
               [:div {:class (:group-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "groups"]]]]
+                [:span.toggle [:a.option.active
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :child :group)
+                  } 
+                  "groups"]]]]
 
             [:li.share
-              [:div {:class (:add-group-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "join group"]]]]
+              [:div {:class (:join-group-class value-map)}
+                [:span.toggle [:a.option.active
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword join-group-form-name))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "join group"]]]]
+
+            [:li.share
+              [:div {:class (:activity-class value-map)}
+                [:span.toggle [:a.option.active
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :child :activity)
+                  } 
+                  "activities"]]]]
 
             [:li.share
               [:div {:class (:timeline-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "timeline"]]]]
+                [:span.toggle [:a.option.active
+                  {
+                   :href "#"
+                   :on-click (filter-things-onclick app entity :child :timeline
+                              {:author title})
+                  }  
+                  "timeline"]]]]
           ]
 
           ; hidden divs for in-line forms
-          [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}]
+          [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}
+            [:div.hide {:id (subs join-group-form-name 1)}
+              [:form.join-group-form {:style #js {:float "left;"}}
+                [:input {:id (str "group-name-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "group name"}]
+                [:input {:id (str "group-remark-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "group remark"}]
+                [:input {:type "submit" :value "join-group" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :join-group 
+                                            join-group-form-name join-group-form-data join-group-form-fields)
+                        }]
+              ]
+            ]
+          ]
           [:div.clearleft]
       ]])))
 
@@ -388,27 +496,28 @@
   (let [
         comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
-        authors (map #(get % :person/title) (get entity :course/author))
+        
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
-        add-lecture {:title :title  ; the key used to get the value from state.
+
+        authors (map #(get % :person/title) (get entity :course/author))
+        title (get value-map :title)
+        type (name (get value-map :type))
+        add-lecture {;:title :title  ; the key used to get the value from state.
                      :body [:newthing-form [:course :add-lecture]]
                      :data {:pid thing-id}
                     }
-        add-assignment {:path [:add-thing :assignment] 
-                        :data {:author thing-id}}
-
         enroll-form-name (str "#enrollment-form-" thing-id)
         enroll-form-fields {:enrollment/name (str "#enroll-name-" thing-id)
                             :enrollment/remark (str "#enroll-remark-" thing-id)}
         enroll-form-data {:enrollment/course thing-id
-                          :enrollment/content (str "enroll into " (get entity :course/title))
+                          :enrollment/content (str "enroll into " title)
                          } ; peer add-thing :enrollment
        ]
-    (.log js/console "course thing value " (pr-str value-map))
+    (.log js/console "course thing value " (pr-str thing-id title authors))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
         [:span.rank "1"]   ; index offset in the list of filtered things
@@ -424,6 +533,7 @@
           [:p.title [:a.title {:href "#"} (:title value-map)]]
           [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
           [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
+          [:p.tagline "type " type]
           [:p.tagline "Offered by " authors]
 
           [:ul.flat-list.buttons
@@ -432,17 +542,18 @@
                 [:span.toggle [:a.option.active 
                   {:href "#"
                    :on-click (filter-things-onclick app entity :course :lecture)
-                  } "lectures"]]]]
+                  } 
+                  "lectures"]]]]
 
             [:li.share
               [:div {:class (:add-lecture-class value-map)}
                 [:span.toggle [:a.option.active
-                  {:href "#" 
+                  {:href "#"
                    :on-click (fn [_]
-                      ; persist entity into title slot in global state
-                      (om/update! app [:title] entity)
-                      (put! comm [:newthing-form add-lecture]))}
-                   "add lecture"]]]]
+                      (let [f (sel1 (keyword (str ".add-lecture-form")))]
+                        (dommy/toggle-class! f "hide")))
+                  } 
+                  "add lecture"]]]]
 
             [:li.share
               [:div {:class (:enrollment-class value-map)}
@@ -455,12 +566,17 @@
                    :on-click (fn [_]
                       (let [f (sel1 (keyword (str "#enrollment-form-" thing-id)))]
                         (dommy/toggle-class! f "hide")))
-                  } "enroll"]
+                  } 
+                  "enroll"]
               ]]]
 
             [:li.share
               [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :course :comments)
+                  } 
+                  "comments"]]]]
 
             [:li.share
               [:div {:class (:similar-class value-map)}
@@ -479,7 +595,7 @@
                          :on-click 
                             (submit-form-fn app :enrollment 
                                             enroll-form-name enroll-form-data enroll-form-fields)
-                         }]
+                        }]
               ]
             ]
           ]
@@ -494,24 +610,27 @@
   (let [
         comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
-        authors (map #(get % :person/title) (get entity :lecture/author))
-        start (get entity :lecture/start)
-        end (get entity :lecture/end)
+
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
+        authors (map #(get % :person/title) (get entity :lecture/author))
+        title (:title value-map)
+        content (:content value-map)
+        url (:url value-map)
+        start (-> (get value-map :start) (utils/time-to-string))
+        end (-> (get value-map :end) (utils/time-to-string))
+
         add-question {:title :title  ; key is :title cursor in app state. XXXX how was it consumed ?
                       :body [:newthing-form [:lecture :add-question]]
                       :data {:pid thing-id}
                     }
-        add-assignment {:path [:add-thing :assignment] 
-                        :data {:author thing-id}}
        ]
-    (.log js/console "lecture thing value " (pr-str value-map))
+    (.log js/console "lecture thing value " (pr-str authors title content))
     (list
-      [:div.thing.link {:id (str (:db/id value-map))}
+      [:div.thing.link {:id (str thing-id)}
         [:span.rank "1"]   ; index offset in the list of filtered things
         [:div.midcol.unvoted
           [:div.arrow.up {:role "button" :arial-label "upvote"}]
@@ -522,11 +641,11 @@
           [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} (:title value-map)]]
-          [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
-          [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
+          [:p.title [:a.title {:href "#"} title]]
+          [:p.subtitle [:span.tagline (str "content: " content)]]
+          [:p.subtitle [:span.tagline (str "url: " url)]]
           [:p.tagline "Offered by " authors]
-          [:p.tagline "start " start " == " end]
+          [:p.tagline start "   - -  " end]
 
           [:ul.flat-list.buttons
             [:li.share
@@ -549,10 +668,10 @@
                 [:span.toggle [:a.option.active
                   {:href "#" 
                    :on-click (fn [_]
-                      ; persist entity into title slot in global state
-                      (om/update! app [:title] entity)
-                      (put! comm [:newthing-form add-question]))}
-                   "add question"]]]]
+                      (let [f (sel1 (keyword (str ".add-question-form")))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "add question"]]]]
 
             [:li.share
               [:div {:class (:enrollment-class value-map)}
@@ -560,7 +679,11 @@
 
             [:li.share
               [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :lecture :comments)
+                  } 
+                  "comments"]]]]
           ]
 
           ; hidden divs for in-line forms
@@ -651,7 +774,11 @@
 
             [:li.share
               [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :question :comments)
+                  } 
+                  "comments"]]]]
           ]
 
           ; hidden divs for in-line forms
@@ -763,7 +890,11 @@
 
             [:li.share
               [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "comments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :assignment :comments)
+                  } 
+                  "comments"]]]]
           ]
 
           ; hidden divs for in-line forms
@@ -892,7 +1023,6 @@
           [:div.clearleft]
       ]])))
 
-
 ; thingroot is the id of thing this comments tree made to. 
 ; origin is the parent comment node of this comment.
 ; for nested comments tree, use the len of :navpath to determine indention.
@@ -982,6 +1112,303 @@
                          }]
               ]
             ]
+          ]
+          [:div.clearleft]
+      ]])))
+
+
+; group view
+(defmethod thing-entry
+  :group
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        title (get value-map :title)
+        authors (map #(get % :person/title) (get entity :group/author))
+        join-group-form-name (str "#join-group-form-" thing-id)
+        join-group-form-fields {:group/person (str "#group-person-" thing-id)
+                                :group/remark (str "#group-remark-" thing-id)
+                               }
+        join-group-form-data {:group/title title}
+
+        ; add group event/activity
+        add-activity-form-data {:group/title title}
+        add-activity-form-name (str "#add-activity-form-" thing-id)
+        add-activity-form-fields {:activity/title (str "#activity-title-" thing-id)
+                                  :activity/author (str "#activity-author-" thing-id)
+                                  :activity/content (str "#activity-content-" thing-id)
+                                  :activity/location (str "#activity-location-" thing-id)
+                                  :activity/start (str "#activity-start-" thing-id)
+                                  :activity/url (str "#activity-url-" thing-id)
+                                 }
+        add-activity-form-data {:activity/origin thing-id} ; activity origin points to group.
+        activity-start-id (str "activity-start-" thing-id)
+        activity-start-js (str "javascript:NewCal('" activity-start-id "', 'mmddyyyy', 'true');")
+       ]
+    (.log js/console "groups thing value " (pr-str thing-id title authors))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
+        [:span.rank "1"]   ; index offset in the list of filtered things
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      
+        [:a.thumbnail {:href "#"}
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+      
+        [:div.entry.unvoted
+          [:p.title [:a.title {:href "#"} title]]
+          [:p.tagline "created by " authors]
+
+          [:ul.flat-list.buttons
+            [:li.share
+              [:div {:class (:group-members-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :groups :group-members)
+                  } 
+                  "group-members"]]]]
+
+            [:li.share
+              [:div {:class (:comments-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :groups :comments)
+                  } "comments"]]]]
+
+            [:li.share
+              [:div {:class (:groups-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword (str "#join-group-form-" thing-id)))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "join-group"]]]]
+
+            [:li.share
+              [:div {:class (:activity-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :group :activity)
+                  } 
+                  "activities"]]]]
+
+            [:li.share
+              [:div {:class (:add-activity-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword (str "#add-activity-form-" thing-id)))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "add-activity"]]]]      
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (str "child-form-" thing-id)}
+            ; join group
+            [:div.hide {:id (subs join-group-form-name 1)}
+              [:form.join-group-form {:style #js {:float "left;"}}
+                [:input {:id (str "group-person-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "name"}]
+                [:input {:id (str "group-remark-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "remark"}]
+                [:input {:type "submit" :value "join-group" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :join-group 
+                                            join-group-form-name join-group-form-data join-group-form-fields)
+                        }]
+              ]
+            ]
+            ; add group activity
+            [:div.hide {:id (subs add-activity-form-name 1)}
+              [:form.add-activity-form {:style #js {:float "left;"}}
+                [:input {:id (str "activity-title-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "activity name"}]
+                [:input {:id (str "activity-author-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "activity author"}]
+                [:input {:id (str "activity-content-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "activity content"}]
+                [:input {:id (str "activity-location-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "activity address"}]
+                [:input {:id (str "activity-url-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "activity url"}]                         
+                [:div#activity-start-picker.input-append
+                  [:input {:id activity-start-id :type "datetime" :placeholder "start time" :data-format "hh:mm:ss MM/dd/yyyy"}]
+                  [:span.add-on [:a {:href activity-start-js}
+                              [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
+                              [:img {:src "cal.gif" :width "16" :height "16"}]]]]
+                [:input {:type "submit" :value "add-activity" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :activity
+                                            add-activity-form-name add-activity-form-data add-activity-form-fields)
+                        }]
+              ]
+            ]
+          ]
+          [:div.clearleft]
+      ]])))
+
+
+(defmethod thing-entry
+  :activity
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :activity/author))
+        
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        title (get value-map :title)
+        content (get value-map :content)
+        start (-> (get value-map :start) (utils/time-to-string))
+        location (get value-map :location)
+        url (get value-map :url)
+        join-activity-form-name (str "#join-activity-form-" thing-id)
+        join-activity-form-fields {:activity/person (str "#activity-person-" thing-id)
+                                   :activity/remark (str "#activity-remark-" thing-id)
+                                  }
+        join-activity-form-data {:activity/title title}
+       ]
+    (.log js/console "thing-entry " (pr-str thing-id title url))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
+        [:span.rank "1"]   ; index offset in the list of filtered things
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      
+        [:a.thumbnail {:href "#"}
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+      
+        [:div.entry.unvoted
+          [:p.title [:a.title {:href "#"} title]]
+          [:p.tagline content]
+          [:p.tagline start "   at   " location]
+          [:p.tagline "url " url]
+
+          [:ul.flat-list.buttons
+            [:li.share
+              [:div {:class (:activity-members-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :activity :activity-members)
+                  } 
+                  "participants"]]]]
+
+            [:li.share
+              [:div {:class (:comments-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :activity :comments)
+                  } "comments"]]]]
+
+            [:li.share
+              [:div {:class (:activity-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (fn [_]
+                      (let [f (sel1 (keyword (str "#join-activity-form-" thing-id)))]
+                        (dommy/toggle-class! f "hide")))
+                  }
+                  "join-activity"]]]]
+
+            [:li.share
+              [:div {:class (:activity-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :activity :group)
+                  } 
+                  "group"]]]]
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (str "child-form-" thing-id)}
+            ; join activity
+            [:div.hide {:id (subs join-activity-form-name 1)}
+              [:form.join-activity-form {:style #js {:float "left;"}}
+                [:input {:id (str "activity-person-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "name"}]
+                [:input {:id (str "activity-remark-" thing-id) :type "text"
+                         :style #js {:display "block"} :placeholder "remark"}]
+                [:input {:type "submit" :value "join-activity" :class "btn btn-primary assign-button"
+                         :on-click 
+                            (submit-form-fn app :join-activity 
+                                            join-activity-form-name join-activity-form-data join-activity-form-fields)
+                        }]
+              ]
+            ]
+          ]
+          [:div.clearleft]
+      ]])))
+
+
+; entity = {:type "lecture" :id 1 :origin {}}
+(defmethod thing-entry
+  :timeline
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :timeline/author))
+        
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        thing-type (keyword (:type value-map))  ; use real thing-type, not timeline
+        thingroot (get value-map :thingroot)
+        title (get-in value-map [:origin (keyword (str (:type value-map) "/title"))])
+        tm (-> (get value-map :txtime) (/ 1000) (utils/time-to-string))
+        ago (utils/moment-from (js/moment (get value-map :txtime)) (js/moment))
+        offset (/ (- (count (get value-map :navpath)) 2) 2)
+       ]
+    (.log js/console "timeline thing value " (pr-str (keyword (str thing-type "/title"))) (pr-str value-map))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map)) :class (str "timeline" offset)}
+        [:span.rank "1"]   ; index offset in the list of filtered things
+        [:div.midcol.unvoted
+          [:div.arrow.up {:role "button" :arial-label "upvote"}]
+          [:div.score.unvoted (:upvote value-map)]
+          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      
+        [:a.thumbnail {:href "#"}
+          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+      
+        [:div.entry.unvoted
+          [:p.title [:a.title {:href "#"} title]]
+          [:p.tagline "submitted " ago " ago at " tm]
+
+          [:ul.flat-list.buttons
+            [:li.share
+              [:div {:class (:timeline-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :timeline :timeline)
+                  } 
+                  "timeline"]]]]
+
+            [:li.share
+              [:div {:class (:lecture-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :timeline :timeline)
+                  } "tips"]]]]
           ]
           [:div.clearleft]
       ]])))

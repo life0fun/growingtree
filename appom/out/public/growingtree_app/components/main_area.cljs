@@ -50,11 +50,10 @@
             {:href "#" :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
           [:a.logo {:href "#" :on-click (constantly false)}
             [:img {:src "logo_app.png" :height "35" :title "growingtree-app"}]]]
-        [:div.container
-          [:div#content
+        [:div#content
             (main-content app nav-path search-filter opts)
           ;(chatbox comm opts)
-          ]]
+        ]
       ]
     )))
 
@@ -208,6 +207,8 @@
         pid (get-in nav-path [:data :pid])
        ]
     [:div.forms
+      (newthing-form/add-form :add-child comm nav-path)
+      (newthing-form/add-form :add-parent comm nav-path)
       (newthing-form/add-form :add-lecture comm nav-path)
       (newthing-form/add-form :add-question comm nav-path)
     ]))

@@ -28,12 +28,15 @@
            :class (str (name type) (when (:selected thing-listing) " active"))
           }
           (:title thing-listing)]  ; nav type title, course, parent, lecture, etc.
-        [:i.fa.fa-plus-square
-          {:on-click
-            (let [newthing-path (vector type (keyword (str "add-" (name type))))
-                  newthing-data {:body [:newthing-form newthing-path] :data {:pid nil}}]
-              #(put! comm [:newthing-form newthing-data]))
-          }]
+        (if (some #{type} mock-data/root-add-type)
+          [:i.fa.fa-plus-square
+            {:on-click
+              (let [newthing-path (vector type (keyword (str "add-" (name type))))
+                    newthing-data {:body [:newthing-form newthing-path] :data {:pid nil}}]
+                #(put! comm [:newthing-form newthing-data]))
+            }]
+          [:i.fa.fa-square]
+        )
         (when (:loading thing-listing)
           [:i.icon-spinner.icon-spin])
       ]]))

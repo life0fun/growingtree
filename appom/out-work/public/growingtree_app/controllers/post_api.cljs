@@ -16,14 +16,19 @@
                     (string/split (:content activity) #" ")))
       (put! comm [:current-user-mentioned [activity "/assets/audio/threetone-alert.wav"]]))))
 
+
+; post-api-event shall just update url route.
+; for now, it does nothing.
 (defmulti post-api-event!
   (fn [target message previous-state current-state] message))
 
-(defmethod post-api-event! :default
+(defmethod post-api-event! 
+  :default
   [target message previous-state current-state]
   (mprint "No post-api handler for: " message))
 
-(defmethod post-api-event! :channel-activity-received
+(defmethod post-api-event! 
+  :channel-activity-received
   [target message activity previous-state current-state]
   (commands/handle-maybe-command target activity current-state)
   (when (= (:channel-id activity) (:selected-channel current-state))

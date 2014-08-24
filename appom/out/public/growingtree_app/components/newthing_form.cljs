@@ -49,8 +49,8 @@
               ; first is msg type, nav-path [:type :filter segment]
               (put! comm [:add-thing {:add-thing :parent :details data}])))]       
     (list
-      [:div.create-form
-        [:form.form-horizontal 
+      [:div.add-parent-form.hide  ; hide first.
+        [:form.form-horizontal
           ; {:method "post" :html "{:multipart=>true}"}
           [:legend "Parent Details"]
           
@@ -113,8 +113,8 @@
               ; first is msg type, nav-path [:type :filter segment]
               (put! comm [:add-thing {:add-thing :child :details data}])))]       
     (list
-      [:div.create-form
-        [:form.form-horizontal 
+      [:div.add-child-form.hide  ; hide first.
+        [:form.form-horizontal
           ; {:method "post" :html "{:multipart=>true}"}
           [:legend "Child Details"]
           

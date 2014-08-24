@@ -25,7 +25,7 @@
 (def thing-nav-actionkey
   {
     :parent {:title ""
-             :child "" :add-child ""
+             :child "" :add-child " hide"
              :group "" :join-group " hide"
              :assignment "" :activity ""
              :timeline ""
@@ -298,13 +298,14 @@
 
             [:li.share
               [:div {:class (:add-child-class value-map)}
-                [:span.toggle [:a.option.active
-                  {:href "#" 
-                   :on-click (fn [_]
-                      ; persist entity into global state title
-                      (om/update! app [:top] entity)
-                      (put! comm [:newthing-form add-child]))}
-                   "add child"]]]]
+                [:span.toggle 
+                  [:a.option.active
+                    {:href "#"
+                     :on-click (fn [_]
+                        (let [f (sel1 (keyword (str ".add-child-form")))]
+                          (dommy/toggle-class! f "hide")))
+                    }
+                    "add child"]]]]
 
             [:li.share
               [:div {:class (:assignment-class value-map)}

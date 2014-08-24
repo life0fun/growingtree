@@ -49,8 +49,8 @@
               ; first is msg type, nav-path [:type :filter segment]
               (put! comm [:add-thing {:add-thing :parent :details data}])))]       
     (list
-      [:div.create-form
-        [:form.form-horizontal 
+      [:div.add-parent-form.hide  ; hide first.
+        [:form.form-horizontal
           ; {:method "post" :html "{:multipart=>true}"}
           [:legend "Parent Details"]
           
@@ -113,8 +113,8 @@
               ; first is msg type, nav-path [:type :filter segment]
               (put! comm [:add-thing {:add-thing :child :details data}])))]       
     (list
-      [:div.create-form
-        [:form.form-horizontal 
+      [:div.add-child-form.hide  ; hide first.
+        [:form.form-horizontal
           ; {:method "post" :html "{:multipart=>true}"}
           [:legend "Child Details"]
           
@@ -221,7 +221,8 @@
         ]])))
 
 
-; add lecture form
+; add lecture form and submit handler.
+; put into comm msg-type :add-thing msg-data as nav-path as {:add-thing add-thing-type :details form-data}
 (defmethod add-form 
   :add-lecture
   [thing-type comm last-nav-path]
@@ -248,11 +249,11 @@
                             (utils/set-time :lecture "end"))
                   ]
               (.log js/console "add-lecture form " (pr-str data))
-              ; first is msg type, last is nav-path filter segment.
+              ; first is msg type, last is nav-path, {:add-thing add-thing-type :details form-data} 
               (put! comm [:add-thing {:add-thing :lecture :details data}])
               ))]
     (list
-      [:div.create-form
+      [:div.add-lecture-form.hide  ; hide first.
         [:form.form-horizontal 
           ; {:method "post" :html "{:multipart=>true}"}
           [:legend "Lecture Details"]
@@ -304,9 +305,16 @@
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 
               {:id "submit" :type "button"   ; if type :submit, will trigger re-load
-               :on-click submit-fn} 
+               :on-click submit-fn
+              } 
               "OK"]
-            [:button.btn {:id "cancel" :type "button"} "Cancel"]]
+            [:button.btn 
+              {:id "cancel" :type "button"
+               :on-click (fn [_]
+                  (let [f (sel1 (keyword (str ".add-lecture-form")))]
+                    (dommy/toggle-class! f "hide")))
+              } 
+              "Cancel"]]
         ]])))
 
 
@@ -335,11 +343,14 @@
                             )
                   ]
               (.log js/console "add-question form " (pr-str data))
-              ; first is msg type, last is nav-path filter segment.
+              ; first is msg type, last is nav-path, {:add-thing add-thing-type :details form-data}
               (put! comm [:add-thing {:add-thing :question :details data}])
-              ))]
+              ))
+            f (sel1 (keyword (str ".add-question-form")))]
+    (.log js/console (pr-str "add-form question"))
+    (when f (dommy/add-class! f "hide"))
     (list
-      [:div.create-form
+      [:div.add-question-form.hide  ; hide first.
         [:form.form-horizontal 
           ; {:method "post" :html "{:multipart=>true}"}
           [:legend "Question Details"]
@@ -373,6 +384,78 @@
             [:label.control-label {:for "question-tag"} "Tag"]
             [:input {:id "question-tag" :class "question-tag" :type "text" :placeholder "tags"}]]
           
+          [:div.usertext-buttons.control-group
+            [:button.btn.btn-primary 
+              {:id "submit" :type "button"   ; if type :submit, will trigger re-load
+               :on-click submit-fn} 
+              "OK"]
+            [:button.btn 
+              {:id "cancel" :type "button"
+               :on-click (fn [_] 
+                (let [f (sel1 (keyword (str ".add-question-form")))]
+                  (dommy/toggle-class! f "hide")))
+              }
+            "Cancel"]]
+        ]])))
+
+
+; add group form
+(defmethod add-form 
+  :add-group
+  [thing-type comm last-nav-path]
+  (let [submit-fn 
+          (fn [e]
+            (let [input-fields {:group/title ".group-title"
+                                :group/type ".group-type"
+                                :group/author ".group-author"
+                                :group/url ".group-url"
+                                :group/email ".group-email"
+                                :group/wiki ".group-wiki"
+                               }
+                  data (-> (reduce (fn [tot [k clz]]
+                                     (assoc tot k (dommy/value (sel1 clz))))
+                                   {}
+                                   input-fields)
+                            (utils/update-enum :group "type" false)) ; always false
+                  ]
+              (.log js/console "add-group form " (pr-str data))
+              ; first is msg type, last is nav-path filter segment.
+              (put! comm [:add-thing {:add-thing :add-group :details data}])
+              ))]
+    (list
+      [:div.create-form
+        [:form.form-horizontal 
+          ; {:method "post" :html "{:multipart=>true}"}
+          [:legend "Group Details"]
+          
+          [:div.control-group
+            [:label.control-label {:for "group-title"} "Title"]
+            [:input {:id "group-title" :class "group-title" :type "text" :placeholder "the title of group ..."}]]
+          [:div.control-group
+            [:label.control-label {:for "group-author"} "Author"]
+            [:input {:id "group-author" :class "group-author" :type "text" :placeholder "the author ..."}]]
+          [:div.control-group
+            [:label.control-label {:for "group-type"} "Type"]
+            [:select {:id "group-type" :class "group-type"}
+              [:option {:value "math"} "Math"]
+              [:option {:value "science"} "Science"]
+              [:option {:value "reading"} "Reading"]
+              [:option {:value "art"} "Art"]
+              [:option {:value "sports"} "Sports"]
+            ]]
+          [:div.control-group
+            [:label.control-label {:for "group-content"} "content"]
+            [:input {:id "group-content" :class "group-content" :type "text" :placeholder "brief description of the group"}]]
+          [:div.control-group
+            [:label.control-label {:for "group-url"} "Url"]
+            [:input {:id "group-url" :class "group-url" :type "text" :placeholder "growingtrees.com/group"}]]
+          [:div.control-group
+            [:label.control-label {:for "group-email"} "Email"]
+            [:input {:id "group-email" :class "group-email" :type "text" :placeholder "group email"}]]
+          [:div.control-group
+            [:label.control-label {:for "group-wiki"} "Wiki"]
+            [:input {:id "group-wiki" :class "group-wiki" :type "text" :placeholder "group wiki"}]]
+
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 
               {:id "submit" :type "button"   ; if type :submit, will trigger re-load

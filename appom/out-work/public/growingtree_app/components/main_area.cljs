@@ -16,93 +16,106 @@
 (declare thing-entry)
 (declare things-list)
 (declare main-content)
+(declare add-thing-forms)
+(declare main-html)
 
 (def delimiter-re #" ")
 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; main-area get selected chan app state MapCursor to filter content for selected chan.
-; nav-path {:title :title, :body [:filter-things [:course 1 :lecture]]
-; nav-path [:question {:question/url ...}]
-; nav-path-things are cursor to global state.
+; main-area contains top and body section.
 (defn main-area 
-  [{:keys [app nav-path nav-path-things channel search-filter]} owner opts]
+  [{:keys [app nav-path channel search-filter]} owner opts]
   (reify
     om/IDisplayName
     (display-name [_] "MainArea")
+    ; render impl.
     om/IRender
     (render [this]
-      (html/html
-        (let [comm (get-in opts [:comms :controls])]
-          (.log js/console "rendering main-area : nav-path " (pr-str nav-path))
-          [:article.main-area
-            [:header.header
-              [:a.nav-toggle.button.left 
-                {:href "#" :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
-              [:a.sidebar-toggle.button.right 
-                {:href "#" :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
-              [:a.logo {:href "#" :on-click (constantly false)}
-                [:img {:src "logo_app.png" :height "35" :title "growingtree-app"}]]]
-            [:div.container
-              [:div#content
-                (main-content app nav-path nav-path-things search-filter opts)
-              ;(chatbox comm opts)
-              ]]
-        ])))))
+      (main-html app nav-path search-filter opts)
+      )))
 
-; display main content after nav-path updated. latest ele in nav-path vector.
-; nav-path {:title [...] :body [:newthing-form [:course :add-lecture]] :data {}}
+
+; render html for main area
+(defn main-html
+  [app nav-path search-filter opts]
+  (html/html
+    (let [comm (get-in opts [:comms :controls])]
+      [:article.main-area
+        [:header.header
+          [:a.nav-toggle.button.left 
+            {:href "#" :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
+          [:a.sidebar-toggle.button.right 
+            {:href "#" :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
+          [:a.logo {:href "#" :on-click (constantly false)}
+            [:img {:src "logo_app.png" :height "35" :title "growingtree-app"}]]]
+        [:div.container
+          [:div#content
+            (main-content app nav-path search-filter opts)
+          ;(chatbox comm opts)
+          ]]
+      ]
+    )))
+
+; display main content after nav-path updated. 
+; For Filter things nav-path :body slot has nav-path vector for filtered things.
+; {:body [:all-things [:all 0 :question]]} data {:body [:all-things [:all 0 :question]]}
+; {:body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
+; for add-thing, do nothing, wait until add-thing result, and process there.
 ; nav-path {:add-thing :lecture :details {}}
 (defmulti main-content 
-  (fn [app nav-path nav-path-things search-filter opts]
+  (fn [app nav-path search-filter opts]
     (cond
       (:body nav-path) (first (:body nav-path))
-      (:add-thing nav-path) :refresh
+      ; (:peer-result nav-path) :refresh 
+      ; (:add-thing nav-path) :refresh
       :else :default)))
 
-
-; all filtered things navigation or details things
-; {:body [:all-things [:all 0 :question]]} data {:body [:all-things [:all 0 :question]]}
-(defmethod main-content 
-  :refresh
-  [app nav-path nav-path-things search-filter opts]
-  (.log js/console "main content refresh " (pr-str nav-path))
-  (let [thing-type (get nav-path :add-thing)
-        nav-path {:body [:all-things [:all 0 thing-type]]}]
-    (things-list app thing-type nav-path nav-path-things search-filter opts)
-    ))
-
-; all filtered things navigation or details things
-; {:body [:all-things [:all 0 :course]
+; main content shall display query result filtered thing list.
+; default case is when nav-path does not have query filter in :body slot. do nothing.
 (defmethod main-content 
   :default
-  [app nav-path nav-path-things search-filter opts]
-  (.log js/console "main content default thing listing " (pr-str nav-path))
+  [app nav-path search-filter opts]
+  (.log js/console  (pr-str "main content nav-path body slot no query filter. do nothing " nav-path))
+  )
+
+
+; for all-things.
+; {:body [:all-things [:all 0 :lecture]], :data {:author "rich-dad"}} 
+(defmethod main-content 
+  :all-things
+  [app nav-path search-filter opts]
+  (.log js/console  (pr-str "main content nav-path body :all-things " nav-path))
   (let [thing-type (get-in nav-path [:body 1 2])]
-    (things-list app thing-type nav-path nav-path-things search-filter opts)))
+    (things-list app thing-type nav-path search-filter opts))
+  )
 
-
-; request to display filtered-thing.
-; :filter-things {:title :title, :body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
-; {:body [:newthing-form [:parent :add-child]], :data {:pid 17592186045419} }
-; if we have :data, need to show title thing, :db/id 17592186045419.
+; show filter things, entered from thing-nav-actionkey. click handler set pid so we show clicked
+; thing on top section, and filtered things in content section.
+; we toggle nav key inside top thing based on which nav key is clicked.
+; :filter-things {:body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
 (defmethod main-content 
   :filter-things
-  [app nav-path nav-path-things search-filter opts]
+  [app nav-path search-filter opts]
   (let [comm (get-in app [:comms :controls])
         thing-type (get-in nav-path [:body 1 2]) ; newthing type is last last
         add-thing (keyword (str "add-" (name thing-type)))
-        title (get-in app [:title])
+        join-thing (keyword (str "join-" (name thing-type)))
+        topview (get-in app [:top])  ; topview get from :top slot
         pid (get-in nav-path [:data :pid])
         override (cond-> {}
                   pid (merge (entity-view/actionkey-class pid thing-type "hide"))
-                  pid (merge (entity-view/actionkey-class pid add-thing " ")))
+                  pid (merge (entity-view/actionkey-class pid add-thing " "))
+                  pid (merge (entity-view/actionkey-class pid join-thing " ")))
        ]
     (.log js/console "main-content filter-things " (pr-str pid thing-type override))
     [:div
-      (when pid (thing-entry app title override))
+      (when pid (thing-entry app topview override))
       (when pid [:hr {:size 4}])
-      (things-list app thing-type nav-path nav-path-things search-filter opts)
+      (add-thing-forms app nav-path search-filter opts)
+      ; datomic peer query to get things-list by nav-path
+      (things-list app thing-type nav-path search-filter opts)
     ]))
 
 ; request to display newthing form to add thing.
@@ -110,39 +123,55 @@
 ; if we have :data, need to show title thing, :db/id 17592186045419.
 (defmethod main-content 
   :newthing-form
-  [app nav-path nav-path-things search-filter]
+  [app nav-path search-filter]
   (let [comm (get-in app [:comms :controls])
         thing-type (get-in nav-path [:body 1 1]) ; newthing type is last last
         title (get-in app [:title])
         pid (get-in nav-path [:data :pid])
         override (if pid (entity-view/actionkey-class pid thing-type "hide") {})
        ]
-    (.log js/console "newthing-form " pid (pr-str thing-type override))
+    (.log js/console "main-content newthing-form with pid " pid (pr-str thing-type override))
     [:div
       (when pid (thing-entry app title override))
       (when pid [:hr {:size 4}])
       (newthing-form/add-form thing-type comm nav-path)
     ]))
 
-; ; all the add new thing case
-; (defmethod main-content 
-;   :add-thing
-;   [app nav-path nav-path-things search-filter opts]
-;   (.log js/console "main content submit add-thing " (pr-str nav-path))
-;   (things-list app :parent search-filter opts))
-
+; after adding new thing, refresh the last nav-path.
+; we are in render state, so last nav path is a cursor to state. when core go thread processing
+; nav path cursor, it needs to de-ref.
+; {:body [:all-things [:all 0 :question]]} data {:body [:all-things [:all 0 :question]]}
+(defmethod main-content 
+  :refresh
+  [app nav-path search-filter opts]
+  (let [comm (get-in app [:comms :controls])
+        last-nav-path (last (drop-last (get-in app [:nav-path])))
+        msg-type (get-in last-nav-path [:body 0])
+        thing-type (get nav-path :add-thing)
+        ; nav-path {:body [:all-things [:all 0 thing-type]]}
+        error (get-in (get-in app [:error]) [:error :status-text])
+        error (get-in app [:error])
+       ]
+    (.log js/console (pr-str "main content add-thing trigger refresh " last-nav-path nav-path))
+    (if-not error
+      ; (things-list app thing-type last-nav-path search-filter opts)
+      (main-content app last-nav-path search-filter opts)
+      (do 
+        (.log js/console (pr-str "add-thing error " msg-type last-nav-path error))
+        (put! comm [:refresh last-nav-path])  ; re-dicrect by append last-nav-path to nav-path.
+        ))
+    ))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; defaut main content is a list of things under nav ul
 ; opts is init state map, (:settings opts)
-; nav-path-things is cursor in global state, can not see it outside render.
+; :center key contains things-vec for displaying in center section.
 (defn things-list 
-  [app thing-type nav-path nav-path-things search-filter opts]
-  (let [;thing-nodes   (get-in things [thing-type :thing-nodes])
-        comm (get-in opts [:comms :controls])
-        ; things-vec is a cursor to global state nav-path-things
-        things-vec (get nav-path-things (get-in nav-path [:body 1]))
-        re-filter     (when search-filter (js/RegExp. search-filter "ig"))
+  [app thing-type nav-path search-filter opts]
+  (let [comm (get-in opts [:comms :controls])
+        ; things-vec is cursor to global state [:body]
+        things-vec (get-in app [:body])  ; get thing-vec from state :body slot
+        re-filter  (when search-filter (js/RegExp. search-filter "ig"))
         ; if search filter exist, filter thing's :content
         filtered-things
           (if re-filter
@@ -155,16 +184,35 @@
                filtered-things)
        ]
     ; wrap thing listing inside paginated div
+    (.log js/console (pr-str "things-lists type = " thing-type " nav-path = " nav-path))
     (list [:div.paginated-activities
             things ])
     ))
 
-; get view for each thing entry
+; get view for each thing entry based on thing-type.
 (defn thing-entry
   [app thing-data override]
+  (.log js/console (pr-str "thing-entry thing-data " thing-data))
   (let [thing-type (utils/thing-ident thing-data)]
     (entity-view/thing-entry app thing-type thing-data override)))
 
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; hide all add thing form, lecture form, new child form.
+; toggle hide upon add-lecture click
+(defn add-thing-forms
+  [app nav-path search-filter opts]
+  (let [comm (get-in app [:comms :controls])
+        thing-type (get-in nav-path [:body 1 2]) ; newthing type is last last
+        topview (get-in app [:top])  ; topview get from :top slot
+        pid (get-in nav-path [:data :pid])
+       ]
+    [:div.forms
+      (newthing-form/add-form :add-child comm nav-path)
+      (newthing-form/add-form :add-parent comm nav-path)
+      (newthing-form/add-form :add-lecture comm nav-path)
+      (newthing-form/add-form :add-question comm nav-path)
+    ]))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; chatbox, deprecated.

@@ -36,11 +36,12 @@
 
 ;;==================================================================================
 ; server always deliver list of things, parse to cljs.core.PersistentVector.
-; nav-path [:all 0 :parent] response {"status" 200, "data" [{"db/id" ... "course/author" ...}]
+; nav-path {:body [:filter-things/:all-things [:course 1 :lecture]] :title ... :data {}}]
+; for add, nav-path is {:add-thing :lecture :details {:lecture/name "ab", :lecture/remark "cd"}
 ;;==================================================================================
 (defn handler
   "cljs-ajax success handler, send back things-vec to api-ch"
-  [command main-path api-ch]
+  [command nav-path api-ch]
   (fn [response]
     ; server uses edn-response. no need js-clj, but no hurt. 
     (when-let [ ;result (js->clj response :keywordize-keys true)
@@ -48,13 +49,14 @@
               ]
       (let [;bodyjson body ;(.parse js/JSON body)
             status (:status result)
-            data-path :body
             things-vec (:data result)  ; alway ret a list of things
             dbid (:db/id (first things-vec))
            ]
-        ;(.log js/console (str "xhr response tuples " dbid " type " thing-type msg-topic msg-type things-vec))
-        (.log js/console (str "xhr thing-vec " main-path " thing-vec " things-vec))
-        (put! api-ch [:api-data {data-path main-path :things-vec (vec things-vec)}])
+        (.log js/console (pr-str "cljsajax onSuccess: nav-path " nav-path " thing-vec " things-vec))
+        (if (:body nav-path)  ; set only when query-path / nav-path is  valid
+          (put! api-ch [:api-data {:nav-path nav-path :things-vec (vec things-vec)}])
+          (put! api-ch [:api-success {:msg "in add-thing success, no query path, trigger re-direct"}])
+          )
       ))))
 
 (defn error-handler
@@ -63,8 +65,8 @@
   (fn [error]
     (let [{:keys [status status-text response]} error
           err {:nav-path nav-path :things-vec nil :error error}]
-      (.log js/console (str "xhr error : " command " " nav-path " " (pr-str error)))
-      (put! api-ch [:api-data err])
+      (.log js/console (pr-str "xhr error : nav-path " nav-path " err : " err))
+      (put! api-ch [:api-error err])
     )))
 
 
@@ -76,13 +78,14 @@
 (defn cljs-ajax
   "service a get or post request using cljs-ajax GET POST call"
   [command nav-path api-ch param-details]
-  (let [main-path (get-in nav-path [:body 1])  ; {:body [:filter-things [:course 1 :lecture]]}
-        thing-type (or (last main-path) (get nav-path :add-thing)) ; filter-things, or {:add-thing :enrollment :details {}}
-        request {:handler (handler command main-path api-ch)
+  (let [; query-path is filter-things inside nav-path :body, for add-thing, no query-path
+        query-path (get-in nav-path [:body 1])  ; {:body [:filter-things [:course 1 :lecture]]}
+        thing-type (or (last query-path) (get nav-path :add-thing)) ; filter-things, or {:add-thing :enrollment :details {}}
+        request {:handler (handler command nav-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)
                  :format :edn    ; always use edn for clj programs internally.
                  :params {:thing-type thing-type 
-                          :path main-path 
+                          :path query-path 
                           :qpath (get nav-path :title)
                           :details param-details}  ; param-details is nav-path for filter-things.
                  :headers {}
@@ -100,6 +103,8 @@
         ; nav-path [:all 0 :parent]
         :request-things (POST (str "/api/" (name thing-type)) request)
 
-        ; nav-path [:course {:title ... :name ...}], we did not use param-details
+        ; :add-thing nav-path {:add-thing :activity, :details {:activity/origin 17592186045438, :activity/title "a", :activity/author 
         :add-thing (POST (str "/add/" (name thing-type)) request)
         "default")))
+
+

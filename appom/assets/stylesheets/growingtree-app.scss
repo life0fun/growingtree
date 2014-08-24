@@ -100,7 +100,7 @@ h6{font-size:11.9px}
 }
 
 /* contain have thing-list as content. under main-area */
-.container {
+/*.container {
     margin: 10px;
     padding: 1px 0 61px;
     position: absolute;
@@ -121,7 +121,7 @@ h6{font-size:11.9px}
     overflow-y: auto;
     display: block;
     min-height: 100%;
-}
+}*/
 
 /* forms for create new things */
 
@@ -257,62 +257,6 @@ h6{font-size:11.9px}
 }
 
 
-/*----------------------------------------------------
-  slide left right css to translateX 
-----------------------------------------------------*/
-.slide-right,.slide-left {
-    overflow:hidden
-}
-@media (min-width: 1024px) { 
-    .sidebar+.main-area {
-        margin-right:230px
-    }
-    .sidebar ~ .nav {
-        right:230px
-    }
-}
-
-.slide-right {
-  .nav {
-    width: 230px;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 0;
-  }
-
-  .main-area,.slide-right .sidebar{
-    transform:translateX(230px)
-  }
-
-  @media (min-width: 768px) {
-    .main-area, .sidebar{
-      transform:none;
-    }
-  }
-}
-
-.slide-left {
-  .main-area,.slide-left .nav {
-    -webkit-transform:translateX(-230px);
-    -moz-transform:translateX(-230px);
-    -ms-transform:translateX(-230px);
-    -o-transform:translateX(-230px);
-    transform:translateX(-230px)
-  }
-
-  @media (min-width: 1024px) {
-    .main-area, .nav {
-      -webkit-transform:none;
-      -moz-transform:none;
-      -ms-transform:none;
-      -o-transform:none;
-      transform:none;
-    }
-  }
-}
-
 /* ----------------------------------------------------
   nav and nav search 
 ----------------------------------------------------*/
@@ -409,7 +353,7 @@ h6{font-size:11.9px}
         padding:10px 30px 10px 10px
       }
 
-      .fa-plus-square {
+      .fa-plus-square, .fa-square {
         float: right;
         margin: 10px;
       }
@@ -443,7 +387,7 @@ h6{font-size:11.9px}
       height:30px;
       display:inline-block;
 
-      .fa-plus-square {
+      .fa-plus-square, .fa-square {
         margin: 10px 0px 0px 15px;
       }
 
@@ -477,6 +421,12 @@ h6{font-size:11.9px}
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
    sidebar and widget
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+@media (min-width: 1024px) {
+  .sidebar .header, .sidebar .nav .search, .nav .sidebar .search{
+    top:auto;bottom:100%;left:-1px
+  }
+}
+
 .sidebar {
   padding: 45px 10px 10px;
   width: 230px;
@@ -563,12 +513,9 @@ h6{font-size:11.9px}
   }
 }
 
-@media (min-width: 1024px){
-  .sidebar .header,.sidebar .nav .search,.nav .sidebar .search{
-    top:auto;bottom:100%;left:-1px
-  }
-}
-
+/*----------------------------------------------------
+  sidebar notification, user list and file list
+----------------------------------------------------*/
 .notifications_list{list-style:none;padding:0;margin:0}
 .notifications_list .notification{margin:0;padding:0}
 .notifications_list .notification label{display:block;line-height:25px;padding:5px 10px;position:relative}
@@ -586,6 +533,56 @@ h6{font-size:11.9px}
 .file_list .file_item img{width:14px;height:12px;margin-right:10px}
 .file_list .file_item a{text-decoration:none;font-weight:bold;color:#585d5f}
 .file_list .file_item a:hover span{text-decoration:underline !important}
+
+
+
+/*----------------------------------------------------
+  slide left right css to translateX 
+----------------------------------------------------*/
+.slide-right,.slide-left {
+    overflow:hidden
+}
+@media (min-width: 1024px) { 
+  .sidebar+.main-area {
+      margin-right:230px
+  }
+  .sidebar ~ .nav {
+      right:230px
+  }
+}
+
+.slide-right {
+  .nav {
+    width: 230px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+  }
+
+  .main-area, .sidebar{
+    transform:translateX(230px)
+  }
+
+  @media (min-width: 768px) {
+    .main-area, .sidebar{
+      transform:none;
+    }
+  }
+}
+
+.slide-left {
+  .main-area, .nav {
+    transform:translateX(-230px)
+  }
+
+  @media (min-width: 1024px) {
+    .main-area, .nav {
+      transform:none;
+    }
+  }
+}
 
 
 /*  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
