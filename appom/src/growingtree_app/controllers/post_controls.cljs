@@ -11,7 +11,6 @@
             [growingtree-app.utils :as utils :refer [mprint]])
   (:use-macros [dommy.macros :only [sel sel1]]))
 
-; process event from chan, aside from global state update from controls ns.
 
 (def local-only-commands
   ["/mute" "/unmute"])
@@ -23,11 +22,17 @@
       false
       true)))
 
+
+;
+; post control event perform ajax call to backend services and send result to api-channel.
+; msg-type is [:all-things :filter-things :add-thing]
+;
 ; target is view $el, not used. msg-type is query type, all-things or filter things.
 ; msg-data is nav-path. 
 ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}  
 ; {:body [:filter-things [:group 17592186045438 :activity]], :data {:pid 17592186045438}}
 ; Ajax request to get data using query path.
+; previouse-state is NOT used.
 (defmulti post-control-event!
   (fn [target msg-type msg-data previous-state current-state] msg-type))
 
@@ -47,7 +52,7 @@
   (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (get-in nav-path [:body 1 2]))}))
   (cljsajax/cljs-ajax :request-things
                       nav-path
-                      (get-in current-state [:comms :api])
+                      (get-in current-state [:comms :api]) ; ajax ret data to api-ch.
                       nav-path)
     )
   
@@ -62,7 +67,7 @@
   (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (get-in nav-path [:body 1 2]))}))
   (cljsajax/cljs-ajax :request-things
                       nav-path
-                      (get-in current-state [:comms :api])
+                      (get-in current-state [:comms :api])  ; ajax ret data to api-ch.
                       nav-path)   ; data is nav-path. [:all 0 :parent], or [:qpath [:course 1 :lecture]]
   )
 

@@ -1,5 +1,7 @@
 (ns growingtree-app.controllers.api
-  (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]))
+  (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
+            [growingtree-app.controllers.post-controls :as controls-post])
+  )
 
 
 (declare append-activity-to-channel)
@@ -15,7 +17,7 @@
   (fn [target msg-type msg-data state] msg-type))
 
 
-; api-data set ajax result/things-vec to state :body slot. will trigger re-render.
+; when query data available, api-data set ajax result/things-vec to state :body slot. trigger re-render.
 ; api-data {:body [:all 0 :parent]}, :things-vec ({:person/url #{rich.com} ...}]
 ; api-data {:body [:course 1 :lecture], :things-vec [{:lecture/type :math, :lecture/numcomments 0, :lectu
 ; store into global state map with nav-path as map key and things-vec as value.
@@ -33,15 +35,22 @@
 
 ; api-event add-thing success ajax. refresh after add means just re-direct url to nav-path that
 ; just before add-thing. This way we can switch to client side routing in the future.
+; To trigger ajax call on the last nav-path, post control event.
 ; update-in nav path directly. Or put! comm last-nav-path, 
 (defmethod api-event
   :api-success
   [target msg-type msg-data state]
-  (let [last-nav-path (last (drop-last (get-in state [:nav-path])))  ; url before :add-thing
+  (let [comm (get-in state [:comms :controls])
+        last-nav-path (last (drop-last (get-in state [:nav-path])))  ; url before :add-thing
+        last-msg-type (get-in last-nav-path [:body 0]) ;  {:body [:filter-things [:parent 1 :child]], :data {:pid 1}} 
        ]
-    (.log js/console (pr-str "api-success : re-direct with update-in to " last-nav-path)) 
-    (-> state
-      (update-in [:nav-path] conj last-nav-path))
+    (.log js/console (pr-str "api-success : re-direct with update-in to " last-nav-path))
+    (put! comm [last-msg-type last-nav-path])
+    ; (controls-post/post-control-event! target last-msg-type last-nav-path state state)
+    (-> state   ; nullify state :body slot where thing-vec taken from in main_area things-list
+      (assoc-in [:body] nil))
+        ; (-> state
+    ;   (update-in [:nav-path] conj last-nav-path))
     ))
 
 ; api-event error from ajax, set to state error slot. msg-data has :nav-path and :error, nil :things-vec

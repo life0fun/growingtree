@@ -206,9 +206,15 @@
         topview (get-in app [:top])  ; topview get from :top slot
         pid (get-in nav-path [:data :pid])
        ]
+    ; I have to set hide explicitly
+    (when (sel1 :.add-child-form)
+      (dommy/add-class! (sel1 :.add-child-form) "hide"))
+    (when (sel1 :.add-lecture-form)
+      (dommy/add-class! (sel1 :.add-lecture-form) "hide"))
+    (when (sel1 :.add-question-form)
+      (dommy/add-class! (sel1 :.add-question-form) "hide"))
     [:div.forms
       (newthing-form/add-form :add-child comm nav-path)
-      (newthing-form/add-form :add-parent comm nav-path)
       (newthing-form/add-form :add-lecture comm nav-path)
       (newthing-form/add-form :add-question comm nav-path)
     ]))

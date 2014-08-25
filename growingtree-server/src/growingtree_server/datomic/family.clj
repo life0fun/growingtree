@@ -321,8 +321,7 @@
         trans (submit-transact [child family])  ; transaction is a list of maps to update db values
       ]
     (newline)
-    (log/info "create child " child  " family " family)
-    (log/info "create child trans " trans)
+    (log/info "create child " child  " family " family " trans " trans)
     [child]))
 
 

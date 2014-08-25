@@ -29,7 +29,8 @@
 (defmethod add-form 
   :add-parent
   [thing-type comm last-nav-path]
-  (let [submit-fn 
+  (let [child-id (get-in last-nav-path [:data :pid])
+        submit-fn 
           (fn [e]
             (let [input-fields {:person/title ".person-title"
                                 :person/lname ".person-lname"
@@ -41,15 +42,15 @@
                                }
                   data (reduce (fn [tot [k clz]]
                                    (assoc tot k (dommy/value (sel1 clz))))
-                                {}
+                                {:family/child child-id}
                                 input-fields)
                   ; attach current user name as author
                   ]
-              (.log js/console "add-parent form " (pr-str data))
+              (.log js/console (pr-str "add-parent form " data))
               ; first is msg type, nav-path [:type :filter segment]
               (put! comm [:add-thing {:add-thing :parent :details data}])))]       
     (list
-      [:div.add-parent-form.hide  ; hide first.
+      [:div.add-parent-form  ; hide first.
         [:form.form-horizontal
           ; {:method "post" :html "{:multipart=>true}"}
           [:legend "Parent Details"]
@@ -109,9 +110,10 @@
                                 input-fields)
                   ; attach current user name as author
                   ]
-              (.log js/console "add-child form " (pr-str data))
+              (.log js/console (pr-str "add-child form " data))
               ; first is msg type, nav-path [:type :filter segment]
               (put! comm [:add-thing {:add-thing :child :details data}])))]       
+    (.log js/console (pr-str "add-form add-child-form "))
     (list
       [:div.add-child-form.hide  ; hide first.
         [:form.form-horizontal

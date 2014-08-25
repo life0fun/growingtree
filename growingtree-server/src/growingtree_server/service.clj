@@ -239,7 +239,7 @@
   (let [;resp (bootstrap/json-print {:result msg-data})
         type (get-in request [:path-params :thing])  ; /api/:thing
         added-things (peer/add-thing (keyword type) (:details postbody))
-        result {:status 200 :data added-things}  ; data is [{:course/author ...} {}]
+        result {:status 200 :data (map #(dissoc % :db/id) added-things)}  ; data is [{:course/author ...} {}]
         ; jsonresp (bootstrap/json-response result)
         resp (bootstrap/edn-response result)
        ]
