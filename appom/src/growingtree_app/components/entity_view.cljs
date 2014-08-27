@@ -557,7 +557,11 @@
 
             [:li.share
               [:div {:class (:enrollment-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "enrollments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :course :enrollment)
+                  } 
+                  "enrollments"]]]]
 
             [:li.share
               [:div {:class (:enroll-class value-map)}
@@ -653,7 +657,8 @@
                 [:span.toggle [:a.option.active 
                   {:href "#"
                    :on-click (filter-things-onclick app entity :lecture :course)
-                  } "course"]]]]
+                  } 
+                  "course"]]]]
 
             [:li.share
               [:div {:class (:question-class value-map)}
@@ -675,7 +680,11 @@
 
             [:li.share
               [:div {:class (:enrollment-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "enrollments"]]]]
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :lecture :enrollment)
+                  }
+                  "enrollments"]]]]
 
             [:li.share
               [:div {:class (:comments-class value-map)}

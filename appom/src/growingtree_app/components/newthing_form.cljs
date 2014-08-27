@@ -113,7 +113,6 @@
               (.log js/console (pr-str "add-child form " data))
               ; first is msg type, nav-path [:type :filter segment]
               (put! comm [:add-thing {:add-thing :child :details data}])))]       
-    (.log js/console (pr-str "add-form add-child-form "))
     (list
       [:div.add-child-form.hide  ; hide first.
         [:form.form-horizontal
@@ -349,7 +348,6 @@
               (put! comm [:add-thing {:add-thing :question :details data}])
               ))
             f (sel1 (keyword (str ".add-question-form")))]
-    (.log js/console (pr-str "add-form question"))
     (when f (dommy/add-class! f "hide"))
     (list
       [:div.add-question-form.hide  ; hide first.
