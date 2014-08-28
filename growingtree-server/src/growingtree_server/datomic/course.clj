@@ -177,7 +177,6 @@
     [entity]))
 
 
-
 ;;===============================================================
 ; lecture
 ;;===============================================================
@@ -197,6 +196,13 @@
     (doseq [e lectures]
       (log/info"lecture --> " e))
     lectures))
+
+(defn get-lecture-ids-by-course-id
+  "get lecture by course"
+  [course-id]
+  (let [entities (dbconn/find-entities :lecture/course course-id)]
+    (log/info "get lecture by course id "(map first entities))
+    (map first entities)))
 
 
 ; for now, all courses are created and lectured by person
@@ -276,12 +282,15 @@
   [details]
   (log/info "create-enrollment " details  "schema " (keys enrollment-schema))
   (let [course-id (:enrollment/course details)
-        lecture-id (:enrollment/lecture details)
+        ; automatically enroll to all lectures in course
+        ; lecture-id (:enrollment/lecture details)
         enrollment (if course-id
-                      (dbconn/find-by :enrollment/course course-id)
-                      (dbconn/find-by :enrollment/lecture lecture-id))
-        enrollment-id (if enrollment (:db/id enrollment) (d/tempid :db.part/user))
-
+                      (dbconn/find-by :enrollment/course course-id))
+                      ; (dbconn/find-by :enrollment/lecture lecture-id))
+        enrollment-id (if enrollment 
+                        (:db/id enrollment) 
+                        (d/tempid :db.part/user))
+        lecture-id (into #{} (get-lecture-ids-by-course-id course-id))
         person (util/tagsInputs (:enrollment/person details))
         person-id (->> (map #(family/get-person-by-title %) person)
                        (map :db/id )
@@ -301,12 +310,9 @@
                         lecture-id (assoc :enrollment/lecture lecture-id)
                         course-id (assoc :enrollment/course course-id)
                   ))
-        enrolls (map entity all-person)
-
+        enrolls (vec (map entity all-person))
         trans (submit-transact enrolls)  ; transaction is a list of entity
       ]
-    (newline)
-    (log/info "create enrollment " enrolls)
-    (log/info "submit enrollment trans " trans)
+    (log/info "create enrollment " enrolls " trans " trans)
     enrolls))
 

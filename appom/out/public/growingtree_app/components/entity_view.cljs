@@ -21,6 +21,7 @@
 ; action key for each thing nav sublink type,
 ; the value for each sublink is thing class selector hide or not.
 ; referred by emitter thing-navpath-transforms to emit transform enable msg.
+; toggle when rendering main_area main-content. 
 ;;==================================================================================
 (def thing-nav-actionkey
   {
@@ -511,8 +512,8 @@
                      :data {:pid thing-id}
                     }
         enroll-form-name (str "#enrollment-form-" thing-id)
-        enroll-form-fields {:enrollment/name (str "#enroll-name-" thing-id)
-                            :enrollment/remark (str "#enroll-remark-" thing-id)}
+        enroll-form-fields {:enrollment/person (str "#enroll-person-" thing-id)
+                            :enrollment/title (str "#enroll-title-" thing-id)}
         enroll-form-data {:enrollment/course thing-id
                           :enrollment/content (str "enroll into " title)
                          } ; peer add-thing :enrollment
@@ -591,9 +592,9 @@
           [:div.child-form {:id (str "child-form-" thing-id)}
             [:div.hide {:id (str "enrollment-form-" thing-id)}
               [:form.enrollment-form {:style #js {:float "left;"}}
-                [:input {:id (str "enroll-name-" thing-id) :type "text"
+                [:input {:id (str "enroll-person-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "attendee"}]
-                [:input {:id (str "enroll-remark-" thing-id) :type "text"
+                [:input {:id (str "enroll-title-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "remarks"}]
                 [:input {:type "submit" :value "enroll" :class "btn btn-primary assign-button"
                          :on-click 

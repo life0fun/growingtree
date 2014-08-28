@@ -274,7 +274,7 @@
     [title :string :fulltext " the title enrollment of the enrollment"]
     [content :string :fulltext " the content of the enrollment"]
     [course :ref :one :indexed "the course of this enrollment"]
-    [lecture :ref :one :indexed "you can enroll to a lecture, if needed"]
+    [lecture :ref :one :indexed "normally all course lectures, but you can enroll to a lecture, if needed"]
     [person :ref :many :indexed "a list of persons in the enrollment"]
     [url :string "url of the thing"]
     [email :string :indexed "uniquely identifier"]
