@@ -516,6 +516,8 @@
                             :enrollment/title (str "#enroll-title-" thing-id)}
         enroll-form-data {:enrollment/course thing-id
                           :enrollment/content (str "enroll into " title)
+                          :enrollment/email (str "rich-son@rich.com")
+                          :enrollment/url (str "growingtree.com/enrollment/course/" thing-id)
                          } ; peer add-thing :enrollment
        ]
     (.log js/console "course thing value " (pr-str thing-id title authors))

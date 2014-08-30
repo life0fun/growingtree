@@ -214,7 +214,7 @@
       (prn a  (a e)))))
 
 ;==========================================================================
-; datomic transaction, all attr in entity must not be nil.
+; datomic transaction, all attr in entity must _not_ be nil.
 ; transaction is an entity(map) data structure with :db/id point to the entity CRUD.
 ; each trans CRUD one specific fact about an entity, attribute, and value;
 ; [:db/add entity-id attribute value]  {:db/id entity-id attr1 val1 attr2 val2}
@@ -223,7 +223,6 @@
 (defn submit-transact
   "submit a transaction"
   [tx-data]  ; tx-data is a list of list/map, each map must have :db/id
-  (prn "submit trans " tx-data)
   (let [
         ft (d/transact (get-conn) tx-data)  ; ret future task
         ; ft tx-data

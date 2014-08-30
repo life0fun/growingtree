@@ -290,7 +290,7 @@
         enrollment-id (if enrollment 
                         (:db/id enrollment) 
                         (d/tempid :db.part/user))
-        lecture-id (into #{} (get-lecture-ids-by-course-id course-id))
+        lecture-id (first (into #{} (get-lecture-ids-by-course-id course-id)))
         person (util/tagsInputs (:enrollment/person details))
         person-id (->> (map #(family/get-person-by-title %) person)
                        (map :db/id )
@@ -310,7 +310,7 @@
                         lecture-id (assoc :enrollment/lecture lecture-id)
                         course-id (assoc :enrollment/course course-id)
                   ))
-        enrolls (vec (map entity all-person))
+        enrolls (map entity all-person)
         trans (submit-transact enrolls)  ; transaction is a list of entity
       ]
     (log/info "create enrollment " enrolls " trans " trans)
