@@ -175,21 +175,19 @@
 
 
 ; when click flat list subthing link, put title type thing in title, and filtered in body.
-; title-type :answer, filtered-type :comments, title thing id is parent id in data.pid
+; parent-type :answer, filtered-type :comments, title thing id is parent id in data.pid
 (defn filter-things-onclick
-  ([app entity title-type filtered-type]
-    (filter-things-onclick app entity title-type filtered-type {}))
+  ([app entity parent-type filtered-type]
+    (filter-things-onclick app entity parent-type filtered-type {}))
 
-  ([app entity title-type filtered-type options]
+  ([app entity parent-type filtered-type options]
     (let [comm (get-in app [:comms :controls])
-          thing-id (:db/id entity)]
+          parent-id (:db/id entity)]
       (fn [_]
         (om/update! app [:top] entity) ; persist entity into state :top section
-        (put! comm [:filter-things
-          {:body [:filter-things [title-type thing-id filtered-type]]
-           :data (merge {:pid thing-id} options)
-          }])
-      )))
+        (put! comm (mock-data/get-filter-things-msg parent-type parent-id filtered-type options)))
+      )
+    )
   )
 
 
@@ -213,7 +211,7 @@
            ]
         (dommy/toggle-class! $form "hide")
         (.log js/console (pr-str form-name " data " form-data))
-        (put! comm [:add-thing {:add-thing add-thing-type :details form-data}])
+        (put! comm (mock-data/get-add-thing-msg add-thing-type form-data))
       ))))
 
 ;;=============================================================================
@@ -385,7 +383,8 @@
                          (actionkeys-class thing-id actionkeys)
                          override)
         title (get value-map :title)
-        ; create or add to group
+
+        ; join group
         join-group-form-name (str "#join-group-form-" thing-id)
         join-group-form-fields {:group/title (str "#group-name-" thing-id)
                                 :group/remark (str "#group-remark-" thing-id)
@@ -417,6 +416,14 @@
                    :on-click (filter-things-onclick app entity :child :parent)
                   } 
                   "parent"]]]]
+
+            [:li.share
+              [:div {:class (:enrollment-class value-map)}
+                [:span.toggle [:a.option.active 
+                  {:href "#"
+                   :on-click (filter-things-onclick app entity :child :enrollment)
+                  }
+                  "enrollment"]]]]
 
             [:li.share
               [:div {:class (:assignment-class value-map)}

@@ -79,17 +79,46 @@
                 :course :lecture
                 :question :assignment
                 :activity :timeline])
-(def root-add-type #{:parent :child :group :course})
+(def root-add-type #{:parent :group :course})
 
 
-; get :all-thing msg to be sent to control channel to trigger.
-; "controls chan event: " :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} false 
+; get :all-things msg to be sent to control channel to trigger controls chan event for ajax.
+; :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} false 
 (defn get-all-things-msg
   [thing-type data]
   (let [msg [:all-things {:body [:all-things [:all 0 thing-type]]
                           :data data}]
         ]
     msg))
+
+; get :filter-things msg to be sent to control channel to trigger controls chan event ajax. 
+; :filter-things {:body [:filter-things [:parent 1 :child]], :data {:pid 1}}
+(defn get-filter-things-msg
+  [parent-type parent-id filtered-type data]
+  (let [msg [:filter-things 
+              {:body [:filter-things [parent-type parent-id filtered-type]]
+               :data (merge {:pid parent-id} data)}]
+       ]
+    msg))
+
+
+; get :newthing-form msg to be sent to control channel to trigger controls chan event ajax. 
+; :newthing-form {:body [:newthing-form [:group :add-group]], :data {:pid nil}}
+(defn get-newthing-form-msg
+  [thing-type data]
+  (let [msg []]
+    msg))
+
+; get :add-thing msg to be sent to control channel to trigger controls chan event ajax. 
+; {:add-thing :add-group, :details {:group/title "a", :group/type :math, :group/author "poor-dad", :group/url "c", :group/email "d", :group/wiki "e"}} 
+(defn get-add-thing-msg
+  [thing-type data]
+  (let [msg [:add-thing 
+              {:add-thing thing-type
+               :details data}]
+       ]
+    msg))
+
 
 ; each chan contains users in the chan and activities inisde chan. random title if no title.
 (defn random-channel [order & [title]]

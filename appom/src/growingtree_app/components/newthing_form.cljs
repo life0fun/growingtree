@@ -2,13 +2,14 @@
   (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
             [clojure.string :as string]
             [dommy.core :as dommy]
-            [growingtree-app.datetime :as dt]
-            [growingtree-app.plugins :as plugins]
-            [growingtree-app.utils :as utils]
             [om.core :as om]
             [om.dom :as dom]
             [sablono.core :as html :refer-macros [html]]
-            [cljs-time.core :as cljs-time])
+            [cljs-time.core :as cljs-time]
+            [growingtree-app.mock-data :as mock-data]
+            [growingtree-app.datetime :as dt]
+            [growingtree-app.plugins :as plugins]
+            [growingtree-app.utils :as utils])
   (:use-macros [dommy.macros :only [sel sel1]]))
 
 ; all newthing forms, by thing-type
@@ -48,7 +49,7 @@
                   ]
               (.log js/console (pr-str "add-parent form " data))
               ; first is msg type, nav-path [:type :filter segment]
-              (put! comm [:add-thing {:add-thing :parent :details data}])))]       
+              (put! comm (mock-data/get-add-thing-msg :parent data))))]
     (list
       [:div.add-parent-form  ; hide first.
         [:form.form-horizontal
@@ -85,7 +86,11 @@
               {:id "submit" :type "button"   ; if type :submit, will trigger re-load
                :on-click submit-fn}
               "OK"]
-            [:button.btn {:id "cancel" :type "button"} "Cancel"]]
+            [:button.btn 
+              {:id "cancel" :type "button"
+               :on-click #(put! comm (mock-data/get-all-things-msg :parent {}))
+              } 
+            "Cancel"]]
         ]])))
 
 ; add child form can only be launched from parent list
@@ -112,7 +117,7 @@
                   ]
               (.log js/console (pr-str "add-child form " data))
               ; first is msg type, nav-path [:type :filter segment]
-              (put! comm [:add-thing {:add-thing :child :details data}])))]       
+              (put! comm (mock-data/get-add-thing-msg :child data))))]
     (list
       [:div.add-child-form.hide  ; hide first.
         [:form.form-horizontal
@@ -178,7 +183,7 @@
                   ]
               (.log js/console "add-course form " (pr-str data))
               ; first is msg type, last is nav-path filter segment.
-              (put! comm [:add-thing {:add-thing :course :details data}])))]
+              (put! comm (mock-data/get-add-thing-msg :course data))))]
     (list
       [:div.create-form
         [:form.form-horizontal 
@@ -251,8 +256,7 @@
                   ]
               (.log js/console "add-lecture form " (pr-str data))
               ; first is msg type, last is nav-path, {:add-thing add-thing-type :details form-data} 
-              (put! comm [:add-thing {:add-thing :lecture :details data}])
-              ))]
+              (put! comm (mock-data/get-add-thing-msg :lecture data))))]
     (list
       [:div.add-lecture-form.hide  ; hide first.
         [:form.form-horizontal 
@@ -345,8 +349,7 @@
                   ]
               (.log js/console "add-question form " (pr-str data))
               ; first is msg type, last is nav-path, {:add-thing add-thing-type :details form-data}
-              (put! comm [:add-thing {:add-thing :question :details data}])
-              ))
+              (put! comm (mock-data/get-add-thing-msg :question data))))
             f (sel1 (keyword (str ".add-question-form")))]
     (when f (dommy/add-class! f "hide"))
     (list
@@ -420,8 +423,8 @@
                   ]
               (.log js/console "add-group form " (pr-str data))
               ; first is msg type, last is nav-path filter segment.
-              (put! comm [:add-thing {:add-thing :add-group :details data}])
-              ))]
+              (put! comm (mock-data/get-add-thing-msg :add-group data))))
+        ]
     (list
       [:div.create-form
         [:form.form-horizontal 
