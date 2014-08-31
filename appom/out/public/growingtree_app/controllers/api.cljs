@@ -1,5 +1,6 @@
 (ns growingtree-app.controllers.api
   (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
+            [growingtree-app.mock-data :as mock-data]
             [growingtree-app.controllers.post-controls :as controls-post])
   )
 
@@ -41,16 +42,19 @@
   :api-success
   [target msg-type msg-data state]
   (let [comm (get-in state [:comms :controls])
+        ;{:body [:filter-things [:pareni 1 :child]], :data {:pid 1}} 
         last-nav-path (last (drop-last (get-in state [:nav-path])))  ; url before :add-thing
-        last-msg-type (get-in last-nav-path [:body 0]) ;  {:body [:filter-things [:parent 1 :child]], :data {:pid 1}} 
+        ; when api success, replace {:body [:newthing-form [:course :add-course]]} with [:all-things [:all 0 :thing-type]] 
+        msg (as-> (get-in last-nav-path [:body 0]) msg-type 
+              (if (= :newthing-form msg-type)
+                ; refer to thing-nav in navbar for creating nav-path for :all-things
+                (mock-data/get-all-things-msg (get-in last-nav-path [:body 1 0]) {:author "rich-dad"})
+                [msg-type last-nav-path]))
        ]
-    (.log js/console (pr-str "api-success : re-direct with update-in to " last-nav-path))
-    (put! comm [last-msg-type last-nav-path])
-    ; (controls-post/post-control-event! target last-msg-type last-nav-path state state)
+    (.log js/console (pr-str "api-success : re-direct with update-in to " msg))
+    (put! comm msg)
     (-> state   ; nullify state :body slot where thing-vec taken from in main_area things-list
       (assoc-in [:body] nil))
-        ; (-> state
-    ;   (update-in [:nav-path] conj last-nav-path))
     ))
 
 ; api-event error from ajax, set to state error slot. msg-data has :nav-path and :error, nil :things-vec

@@ -98,7 +98,7 @@ return React.DOM.div({"className": (''+cljs.core.str.cljs$core$IFn$_invoke$arity
 });
 growingtree_app.components.app.t11505.prototype.om$core$IShouldUpdate$ = true;
 growingtree_app.components.app.t11505.prototype.om$core$IShouldUpdate$should_update$arity$3 = (function (this$,next_props,next_state){var self__ = this;
-var this$__$1 = this;var nav_path = cljs.core.get_in.call(null,next_props,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"nav-path","nav-path",-444531376)], null));var body = new cljs.core.Keyword(null,"body","body",-2049205669).cljs$core$IFn$_invoke$arity$1(cljs.core.last.call(null,nav_path));console.log(cljs.core.pr_str.call(null,"app shouldupdate next-props nav-path",cljs.core.last.call(null,nav_path)));
+var this$__$1 = this;var nav_path = cljs.core.get_in.call(null,next_props,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"nav-path","nav-path",-444531376)], null));var body = new cljs.core.Keyword(null,"body","body",-2049205669).cljs$core$IFn$_invoke$arity$1(cljs.core.last.call(null,nav_path));console.log(cljs.core.pr_str.call(null,"app shouldupdate unless path has body. next-props nav-path",cljs.core.last.call(null,nav_path)));
 if(cljs.core.truth_(body))
 {return true;
 } else

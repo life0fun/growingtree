@@ -26,8 +26,11 @@
       ;next-props is the next app state we are moving to. next-state is the next component local state.
       (let [nav-path (get-in next-props [:nav-path])
             body (:body (last nav-path))]
-        (.log js/console (pr-str "app shouldupdate next-props nav-path" (last nav-path)))
-        (if body true false)))
+        (.log js/console (pr-str "app shouldupdate unless path has body. next-props nav-path" (last nav-path)))
+        ; re-render only when we have body slot in nav path to render.
+        (if body 
+          true
+          false)))
     om/IRender
     (render [this]
       ; get app state cursors for related keys, and pass map state cursor when building sub-components.

@@ -81,6 +81,16 @@
                 :activity :timeline])
 (def root-add-type #{:parent :child :group :course})
 
+
+; get :all-thing msg to be sent to control channel to trigger.
+; "controls chan event: " :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} false 
+(defn get-all-things-msg
+  [thing-type data]
+  (let [msg [:all-things {:body [:all-things [:all 0 thing-type]]
+                          :data data}]
+        ]
+    msg))
+
 ; each chan contains users in the chan and activities inisde chan. random title if no title.
 (defn random-channel [order & [title]]
   (let [title (or title (random-title))]

@@ -35,7 +35,7 @@
   (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
         cur-nav-type (get-in msg-data [:body 1 2])
        ]
-    (.log js/console (pr-str "all-things event : conj nav-path " msg-data))
+    (.log js/console (pr-str "control event :all-things : conj nav-path " msg-data))
     ;(.log js/console (pr-str "all-things event : state things " state))
     (cond-> state
       :else (update-navbar-selected last-nav-type cur-nav-type)
@@ -49,7 +49,7 @@
   (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
         cur-nav-type (get-in msg-data [:body 1 2])
        ] 
-    (.log js/console (pr-str "filter-things : conj nav-path " msg-data))
+    (.log js/console (pr-str "control event :filter-things conj nav-path " msg-data))
     (cond-> state
       :else (update-navbar-selected last-nav-type cur-nav-type)
       :else (update-in [:nav-path] conj msg-data)
@@ -60,7 +60,7 @@
 (defmethod control-event 
   :add-thing
   [target msg-type msg-data state] ; msg-data = [:course {:title :content}]
-  (.log js/console (pr-str "add-thing event : conj nav-path " msg-data))
+  (.log js/console (pr-str "control event :add-thing : conj nav-path " msg-data))
   (-> state
     (update-in [:nav-path] conj msg-data))) ; nav-path [.[:lecture {:content ... :author ...}]]
 

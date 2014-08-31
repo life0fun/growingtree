@@ -290,7 +290,7 @@
         enrollment-id (if enrollment 
                         (:db/id enrollment) 
                         (d/tempid :db.part/user))
-        lecture-id (first (into #{} (get-lecture-ids-by-course-id course-id)))
+        lecture-id (into #{} (get-lecture-ids-by-course-id course-id))
         person (util/tagsInputs (:enrollment/person details))
         person-id (->> (map #(family/get-person-by-title %) person)
                        (map :db/id )

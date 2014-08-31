@@ -42,6 +42,7 @@
       ; (instance? java.util.Map x)
       ))
 
+
 (def initial-query-map
   {:kandan-channels  (string/split (or (.getParameterValue parsed-uri "kandan-channels") "1") #",")
    :kandan-api-key   (.getParameterValue parsed-uri "kandan-api-key")

@@ -24,7 +24,8 @@
       [:div.nav-channel
         [:a.show_channel
           {:key type  ; 
-           :on-click #(put! comm [:all-things nav-path]) ; [:all-things [:all 0 :thing-type]]
+           ; :on-click #(put! comm [:all-things nav-path]) ; [:all-things [:all 0 :thing-type]]
+           :on-click #(put! comm (mock-data/get-all-things-msg type {:author "rich-dad"}))
            :class (str (name type) (when (:selected thing-listing) " active"))
           }
           (:title thing-listing)]  ; nav type title, course, parent, lecture, etc.

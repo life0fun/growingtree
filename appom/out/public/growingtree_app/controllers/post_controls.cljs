@@ -48,7 +48,7 @@
 (defmethod post-control-event! 
   :all-things
   [target msg-type nav-path previous-state current-state]
-  (.log js/console (pr-str "post-control-event! all-things nav-path " nav-path))
+  (.log js/console (pr-str "post ajax :all-things nav-path " nav-path))
   (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (get-in nav-path [:body 1 2]))}))
   (cljsajax/cljs-ajax :request-things
                       nav-path
@@ -63,7 +63,7 @@
 (defmethod post-control-event! 
   :filter-things
   [target msg-type nav-path previous-state current-state]
-  (.log js/console (pr-str "post-control-event! filter-things nav-path " nav-path))
+  (.log js/console (pr-str "post ajax filter-things nav-path " nav-path))
   (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (get-in nav-path [:body 1 2]))}))
   (cljsajax/cljs-ajax :request-things
                       nav-path
@@ -75,7 +75,7 @@
 (defmethod post-control-event! 
   :add-thing
   [target msg-type nav-path previous-state current-state]
-  (print "post-control-event! add-thing nav-path :" nav-path) ; [:lecture {:lecture/course ...}]
+  (.log js/console (pr-str "post ajax add-thing nav-path " nav-path)) ; [:lecture {:lecture/course ...}]
   (utils/set-window-href! (routes/v1-thing-nodes 
     {:thing-type (name (get nav-path :add-thing))}))
   (cljsajax/cljs-ajax :add-thing
