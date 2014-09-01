@@ -258,10 +258,6 @@
                          (actionkeys-class thing-id actionkeys)
                          override)
         title (:title value-map)
-        add-child {:title :title  ; key is :title cursor in app state.
-                   :body [:newthing-form [:parent :add-child]]  ; :body is nav-path
-                   :data {:pid thing-id}
-                  }
         ; join a group form
         join-group-form-name (str "#join-group-form-" thing-id)
         join-group-form-fields {:group/title (str "#group-name-" thing-id)
@@ -513,11 +509,7 @@
 
         authors (map #(get % :person/title) (get entity :course/author))
         title (get value-map :title)
-        type (name (get value-map :type))
-        add-lecture {;:title :title  ; the key used to get the value from state.
-                     :body [:newthing-form [:course :add-lecture]]
-                     :data {:pid thing-id}
-                    }
+        
         enroll-form-name (str "#enrollment-form-" thing-id)
         enroll-form-fields {:enrollment/person (str "#enroll-person-" thing-id)
                             :enrollment/title (str "#enroll-title-" thing-id)}
@@ -636,11 +628,6 @@
         url (:url value-map)
         start (-> (get value-map :start) (utils/time-to-string))
         end (-> (get value-map :end) (utils/time-to-string))
-
-        add-question {:title :title  ; key is :title cursor in app state. XXXX how was it consumed ?
-                      :body [:newthing-form [:lecture :add-question]]
-                      :data {:pid thing-id}
-                    }
        ]
     (.log js/console "lecture thing value " (pr-str authors title content))
     (list
@@ -843,10 +830,12 @@
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
+        assignee (get-in value-map [:person :person/title])
         content (get-in value-map [:origin :question/content])
         url (get-in value-map [:origin :question/url])
         hint (get value-map :hint)
         end (-> (get value-map :end) (utils/time-to-string))
+
         answer-form-name (str "#answer-form-" thing-id)
         answer-form-fields {:answer/title (str "#answer-title-" thing-id)
                             :answer/content (str "#answer-content-" thing-id)
@@ -869,7 +858,10 @@
           [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} (:title value-map)]]
+          [:p.title [:a.title 
+            {:href "#"
+             :on-click #(put! comm (mock-data/get-filter-things-msg :child thing-id :assignment {}))}
+            (str "assigned to " assignee)]]
           [:p.subtitle [:span.tagline (str "content: " content)]]
           [:p.subtitle [:span.tagline (str "url: " url)]]
           [:p.tagline "hint :" hint]

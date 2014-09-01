@@ -147,7 +147,7 @@
   (let [projkeys (keys course-schema)  ; must select-keys from datum entity attributes
         courses (->> (util/get-qpath-entities qpath get-course-by)
                      (map #(select-keys % projkeys) )
-                     (map #(util/get-author-name :course/author %))
+                     (map #(util/get-author-entity :course/author %))
                      (map #(util/add-upvote-attr %) )
                      (map #(util/add-numcomments-attr %) )
                      (map #(util/add-navpath % qpath) )  ; :qpath ["all" 0 "course" 17592186045425],
@@ -187,7 +187,7 @@
   (let [projkeys (keys lecture-schema)
         lectures (->> (util/get-qpath-entities qpath get-lecture-by)
                      (map #(select-keys % projkeys) )
-                     (map #(util/get-author-name :lecture/author %))
+                     (map #(util/get-author-entity :lecture/author %))
                      (map #(util/add-upvote-attr %) )
                      (map #(util/add-numcomments-attr %) )
                      (map #(util/add-navpath % qpath) )

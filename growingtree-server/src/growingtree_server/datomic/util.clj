@@ -222,19 +222,30 @@
 
 
 ; ============================================================================
-; get author name, if author-name is not set, convert to set.
+; get author entity, if author ref entity is not set, convert to set.
 ; :course/author #{{:db/id 17592186045419}}
 ; ============================================================================
-(defn get-author-name
+(defn get-author-entity
   [attr entity]
   (let [author-ids (as-> (attr entity) aid 
-                         (if-not (set? aid) 
-                            (conj #{} aid)
-                            aid))
-        author-titles (map #(dbconn/get-entity (:db/id %)) author-ids)
+                      (if-not (set? aid) 
+                        (conj #{} aid)
+                        aid))
+        author-entities (map #(dbconn/get-entity (:db/id %)) author-ids)
        ]
-    (log/info "get author name " (attr entity) author-ids author-titles)
-    (assoc entity attr (set author-titles))))
+    (log/info "get author name " author-ids author-entities)
+    (assoc entity attr (set author-entities))))
+
+
+; get :thing-type/person entity in each thing-type
+; :assign/person {:db/id 12345}
+(defn get-person-entity
+  [attr entity]
+  (let [person-id (attr entity)  ; entity always has :db/id{:db/id 1234}
+        person-entity (dbconn/get-entity (:db/id person-id))]
+    (log/info "get person name " person-id person-entity)
+    (assoc entity attr person-entity)
+  ))
 
 ; ============================================================================
 ; get no of likes for certain entity, and add it as upvote attr to the entity

@@ -170,7 +170,7 @@
   (let [projkeys (keys (dissoc question-schema :question/lecture))
         question (->> (util/get-qpath-entities qpath get-question-by)
                       (map #(select-keys % projkeys) )
-                      (map #(util/get-author-name :question/author %))
+                      (map #(util/get-author-entity :question/author %))
                       (map #(util/add-upvote-attr %) )
                       (map #(util/add-numcomments-attr %) )
                       (map #(util/add-navpath % qpath) )
@@ -213,6 +213,7 @@
 
 ;;================================================================================
 ;; assignment
+;; we touch assignment author and person entity to have all person attrs.
 ;;================================================================================
 ; find all assignment,  qpath [:all 0 :assignment]
 (defn find-assignment
@@ -221,7 +222,8 @@
   (let [projkeys (keys assignment-schema)
         assignments (->> (util/get-qpath-entities qpath get-assignment-by)
                       (map #(select-keys % projkeys) )
-                      (map #(util/get-author-name :assignment/author %))
+                      (map #(util/get-author-entity :assignment/author %))
+                      (map #(util/get-person-name :assignment/person %))
                       (map #(util/get-ref-entity :assignment/origin %))
                       (map #(util/add-upvote-attr %) )
                       (map #(util/add-numcomments-attr %) )
@@ -294,7 +296,7 @@
   (let [projkeys (keys answer-schema)
         answers (->> (util/get-qpath-entities qpath get-answer-by)
                      (map #(select-keys % projkeys) )
-                     (map #(util/get-author-name :answer/author %))
+                     (map #(util/get-author-entity :answer/author %))
                      (map #(util/get-ref-entity :answer/origin %))
                      (map #(util/add-upvote-attr %) )
                      (map #(util/add-numcomments-attr %) )

@@ -105,17 +105,20 @@
 ; get :newthing-form msg to be sent to control channel to trigger controls chan event ajax. 
 ; :newthing-form {:body [:newthing-form [:group :add-group]], :data {:pid nil}}
 (defn get-newthing-form-msg
-  [thing-type data]
-  (let [msg []]
+  [thing-type]
+  (let [newthing-path (vector thing-type (keyword (str "add-" (name thing-type))))
+        newthing-data {:body [:newthing-form newthing-path] 
+                       :data {:pid nil}}
+        msg [:newthing-form newthing-data]]
     msg))
+
 
 ; get :add-thing msg to be sent to control channel to trigger controls chan event ajax. 
 ; {:add-thing :add-group, :details {:group/title "a", :group/type :math, :group/author "poor-dad", :group/url "c", :group/email "d", :group/wiki "e"}} 
 (defn get-add-thing-msg
   [thing-type data]
-  (let [msg [:add-thing 
-              {:add-thing thing-type
-               :details data}]
+  (let [msg [:add-thing {:add-thing thing-type
+                         :details data}]
        ]
     msg))
 

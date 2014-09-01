@@ -365,7 +365,7 @@
   (let [projkeys (keys group-schema)  ; must select-keys from datum entity attributes
         groups (->> (util/get-qpath-entities qpath get-group-by)
                     (map #(select-keys % projkeys) )
-                    (map #(util/get-author-name :group/author %))
+                    (map #(util/get-author-entity :group/author %))
                     (map #(util/add-upvote-attr %) )
                     (map #(util/add-navpath % qpath) )  ;: navpath [:all 0 :group 17592186045441]
                  )
@@ -502,7 +502,7 @@
   (let [projkeys (keys activity-schema)  ; must select-keys from datum entity attributes
         activity (->> (util/get-qpath-entities qpath get-activity-by)
                       (map #(select-keys % projkeys) )
-                      (map #(util/get-author-name :activity/author %))
+                      (map #(util/get-author-entity :activity/author %))
                       (map #(util/get-ref-entity :activity/origin %))
                       (map #(util/add-upvote-attr %) )
                       (map #(util/add-navpath % qpath) )

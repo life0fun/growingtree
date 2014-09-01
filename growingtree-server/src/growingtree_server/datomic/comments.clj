@@ -158,7 +158,7 @@
         qpath (take-last 3 navpath)
         comments (->> (util/get-qpath-entities qpath get-comments-by)
                       (map #(select-keys % projkeys) )
-                      (map #(util/get-author-name :comments/author %))
+                      (map #(util/get-author-entity :comments/author %))
                       (map #(util/get-ref-entity :comments/origin %))
                       (map #(util/add-upvote-attr %) )
                       (map #(util/ref->dbid % :comments/thingroot))
