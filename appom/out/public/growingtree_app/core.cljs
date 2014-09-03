@@ -40,6 +40,8 @@
 (defn filtered-message? [message]
   (get #{:credit-card-updated} message))
 
+
+; conj nav-path into window location history
 (defn update-history! [history channel message]
   (let [m (first message)
         record (if (filtered-message? m) m message)]
@@ -81,7 +83,7 @@
                               (get-in msg-data [:body 0])
                               msg-type)
                  ]
-              (.log js/console (pr-str "controls chan event: " msg-type msg-data (om/rendering?)))
+              ; (.log js/console (pr-str "controls chan event: " msg-type msg-data (om/rendering?)))
               ; (update-history! history :controls v)
 
               ; first, control event just append msg-data to nav-path.
@@ -98,8 +100,8 @@
                   msg-type (first v)
                   msg-data (last v)
                   things-vec (:things-vec msg-data)]
-              (.log js/console (pr-str "api chan event : type " msg-type " data " msg-data))
-              (update-history! history :api v)
+              ; (.log js/console (pr-str "api chan event : type " msg-type " data " msg-data))
+              ; (update-history! history :api v)
               ; api-event process api-data, api-success, and api-error.
               (swap! state (partial api-con/api-event target msg-type msg-data))
               ; post-api-event do nothing for now.

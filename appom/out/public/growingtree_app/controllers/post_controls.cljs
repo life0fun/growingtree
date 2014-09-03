@@ -22,7 +22,6 @@
       false
       true)))
 
-
 ;
 ; post control event perform ajax call to backend services and send result to api-channel.
 ; msg-type is [:all-things :filter-things :add-thing]
@@ -49,7 +48,8 @@
   :all-things
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax :all-things nav-path " nav-path))
-  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (get-in nav-path [:body 1 2]))}))
+  (utils/set-window-href! (routes/v1-all-things
+                            {:thing-type (name (get-in nav-path [:body 1 2]))}))
   (cljsajax/cljs-ajax :request-things
                       nav-path
                       (get-in current-state [:comms :api]) ; ajax ret data to api-ch.
@@ -64,7 +64,11 @@
   :filter-things
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax filter-things nav-path " nav-path))
-  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (get-in nav-path [:body 1 2]))}))
+  (utils/set-window-href! (routes/v1-filter-things 
+                            {:parent (name (get-in nav-path [:body 1 0]))
+                             :id (get-in nav-path [:body 1 1])
+                             :filtered (name (get-in nav-path [:body 1 2]))
+                            }))
   (cljsajax/cljs-ajax :request-things
                       nav-path
                       (get-in current-state [:comms :api])  ; ajax ret data to api-ch.

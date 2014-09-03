@@ -14,7 +14,7 @@
 
 
 (declare thing-entry)
-(declare things-list)
+(declare list-things)
 (declare main-content)
 (declare add-thing-forms)
 (declare main-html)
@@ -87,7 +87,7 @@
   [app nav-path search-filter opts]
   (.log js/console  (pr-str "main content nav-path body :all-things " nav-path))
   (let [thing-type (get-in nav-path [:body 1 2])]
-    (things-list app thing-type nav-path search-filter opts))
+    (list-things app thing-type nav-path search-filter opts))
   )
 
 ; show filter things, entered from thing-nav-actionkey. click handler set pid so we show clicked
@@ -101,20 +101,20 @@
         thing-type (get-in nav-path [:body 1 2]) ; newthing type is last last
         add-thing (keyword (str "add-" (name thing-type)))
         join-thing (keyword (str "join-" (name thing-type)))
-        topview (get-in app [:top])  ; topview get from :top slot
+        topview (get-in app [:top])  ; topview ref app state :top, updated at filter-things-onclick
         pid (get-in nav-path [:data :pid])
         override (cond-> {}
                   pid (merge (entity-view/actionkey-class pid thing-type "hide"))
                   pid (merge (entity-view/actionkey-class pid add-thing " "))
                   pid (merge (entity-view/actionkey-class pid join-thing " ")))
        ]
-    (.log js/console "main-content filter-things " (pr-str pid thing-type override))
+    (.log js/console "main-content showing filter-things " (pr-str pid thing-type))
     [:div
       (when pid (thing-entry app topview override))
       (when pid [:hr {:size 4}])
       (add-thing-forms app nav-path search-filter opts)
-      ; datomic peer query to get things-list by nav-path
-      (things-list app thing-type nav-path search-filter opts)
+      ; datomic peer query to get list of things by nav-path
+      (list-things app thing-type nav-path search-filter opts)
     ]))
 
 ; request to display newthing form to add thing.
@@ -153,7 +153,7 @@
        ]
     (.log js/console (pr-str "main content add-thing trigger refresh " last-nav-path nav-path))
     (if-not error
-      ; (things-list app thing-type last-nav-path search-filter opts)
+      ; (list-things app thing-type last-nav-path search-filter opts)
       (main-content app last-nav-path search-filter opts)
       (do 
         (.log js/console (pr-str "add-thing error " msg-type last-nav-path error))
@@ -162,13 +162,14 @@
     ))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-; defaut main content is a list of things under nav ul
+; main content listing things render things from app state :body slot, 
+; api-event :api-data set app state :body slot.
 ; opts is init state map, (:settings opts)
-; :center key contains things-vec for displaying in center section.
-(defn things-list 
+(defn list-things 
   [app thing-type nav-path search-filter opts]
+  (.log js/console (pr-str "main content listing things  " thing-type " nav-path " nav-path))
   (let [comm (get-in opts [:comms :controls])
-        ; things-vec is cursor to global state [:body]
+        ; things-vec is cursor to global state [:body] slot, set by api-event :api-data
         things-vec (get-in app [:body])  ; get thing-vec from state :body slot
         re-filter  (when search-filter (js/RegExp. search-filter "ig"))
         ; if search filter exist, filter thing's :content
@@ -183,15 +184,13 @@
                filtered-things)
        ]
     ; wrap thing listing inside paginated div
-    (.log js/console (pr-str "things-lists type = " thing-type " nav-path = " nav-path))
     (list [:div.paginated-activities
             things ])
     ))
 
-; get view for each thing entry based on thing-type.
+; main-area list-things, for each thing entry, get view based on thing-type.
 (defn thing-entry
   [app thing-data override]
-  (.log js/console (pr-str "thing-entry thing-data " thing-data))
   (let [thing-type (utils/thing-ident thing-data)]
     (entity-view/thing-entry app thing-type thing-data override)))
 
@@ -215,7 +214,7 @@
       (dommy/add-class! (sel1 :.add-question-form) "hide"))
     [:div.forms
       (newthing-form/add-form :add-child comm nav-path)
-      (newthing-form/add-form :add-lecture comm nav-path)
+      ; (newthing-form/add-form :add-lecture comm nav-path)
       (newthing-form/add-form :add-question comm nav-path)
     ]))
 

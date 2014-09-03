@@ -731,12 +731,21 @@ h6{font-size:11.9px}
 }
 
 
-/*  create new thing form  */
+/* newthing-form  */
 .control-group {
+  margin-left: 100px;
+
   label {
+    margin: 20px;
     display: inline-block; 
-    width: 140px; 
+    width: 140px;
     text-align: right;
+    color: black;
+    background-color: transparent;
+  }
+
+  field {
+
   }
 
   // datetime picker add-on

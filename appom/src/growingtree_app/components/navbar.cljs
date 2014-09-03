@@ -15,16 +15,11 @@
 ; ul list of things for each nav-type, :course {:type :title :thing-node}
 ; initial-state :things = {:course {:type ... :title ... :thing-nodes [{}]} :lecture {:type ...}} 
 (defn thing-nav [comm thing-listing]
-  (let [type (:type thing-listing)
-        nav-path {:body [:all-things [:all 0 type]]
-                  :data {:author "rich-dad"}
-                 }
-       ]
+  (let [type (:type thing-listing)]
     [:li.protected 
       [:div.nav-channel
         [:a.show_channel
-          {:key type  ; 
-           ; :on-click #(put! comm [:all-things nav-path]) ; [:all-things [:all 0 :thing-type]]
+          {:key type
            :on-click #(put! comm (mock-data/get-all-things-msg type {:author "rich-dad"}))
            :class (str (name type) (when (:selected thing-listing) " active"))
           }

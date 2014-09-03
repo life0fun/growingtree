@@ -59,25 +59,32 @@
   (when logging-enabled?
     (apply print message)))
 
-(defn safe-sel [s]
+(defn safe-sel 
+  [s]
   (str (string/replace (string/lower-case (str s)) #"[\W]" "-")))
 
-(defn email->gravatar-url [email]
+(defn email->gravatar-url
+  [email]
   (let [email (or email "unknown-email@unknown-domain.com")
         container (doto (goog.crypt.Md5.)
                     (.update email))
         hash (crypt/byteArrayToHex (.digest container))]
     (str "http://gravatar.com/avatar/" hash "?s=30&d=identicon")))
 
-(defn gravatar-for [email]
+(defn gravatar-for
+  [email]
   [:img.avatar
    {:src
     (email->gravatar-url email)}])
 
-(defn set-window-href! [path]
+; window history pushState path
+(defn set-window-href! 
+  [path]
   (js/window.history.pushState #js {}, "", path))
 
-(defn ajax [url method data-string success & [error headers]]
+
+(defn ajax 
+  [url method data-string success & [error headers]]
   (let [request (XhrIo.)
         d (goog.async.Deferred.)
         listener-id (ge/listen request gevt/COMPLETE (fn [response]
@@ -104,6 +111,7 @@
   [thing-type attr-name]
   (keyword (str (name thing-type) "/" attr-name)))
 
+
 ; get the namespace of thing
 (defn thing-ident
   "get thing type of the entity, the namespace, or ident of entity. remove :db/id"
@@ -124,11 +132,6 @@
     (if (contains? thing-val schema-key)
       (let [enum-key (str (name thing-type) "." keyname)
             enum-fn (fn [v & args] (keyword (str enum-key "/" v)))
-            ; new-val (if enum
-            ;           (-> thing-val
-            ;               (update-in [schema-key] enum-fn))
-            ;           (-> thing-val
-            ;               (update-in [schema-key] keyword)))
             new-val (cond-> thing-val
                       enum (update-in [schema-key] enum-fn)
                       :else (update-in [schema-key] keyword))

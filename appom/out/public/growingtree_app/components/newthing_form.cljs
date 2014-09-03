@@ -57,29 +57,29 @@
           [:legend "Parent Details"]
           
           [:div.control-group
-            [:label.control-label {:for "person-name"} "Name"]
-            [:input {:id "person-title" :class "person-title" :type "text" :placeholder "user name"}]]
+            [:label.label {:for "person-name"} "Name"]
+            [:input.field {:id "person-title" :class "person-title" :type "text" :placeholder "user name"}]]
           [:div.control-group
-            [:label.control-label {:for "person-lname"} "Last Name"]
-            [:input {:id "person-lname" :class "person-lname" :type "text" :placeholder "user last name"}]]
+            [:label.label {:for "person-lname"} "Last Name"]
+            [:input.field {:id "person-lname" :class "person-lname" :type "text" :placeholder "user last name"}]]
           [:div.control-group
-            [:label.control-label {:for "person-type"} "Type"]
+            [:label.label {:for "person-type"} "Type"]
             [:select {:id "person-type" :class "person-type"}
               [:option {:value "M"} "Dad"]
               [:option {:value "F"} "Mom"]
               [:option {:value "T"} "Teacher"]]]
           [:div.control-group
-            [:label.control-label {:for "person-email"} "Email"]
-            [:input {:id "person-email" :class "person-email" :type "text" :placeholder "user email"}]]
+            [:label.label {:for "person-email"} "Email"]
+            [:input.field {:id "person-email" :class "person-email" :type "text" :placeholder "user email"}]]
           [:div.control-group
-            [:label.control-label {:for "person-phone"} "Phone"]
-            [:input {:id "person-phone" :class "person-phone" :type "text" :placeholder "user phone"}]]
+            [:label.label {:for "person-phone"} "Phone"]
+            [:input.field {:id "person-phone" :class "person-phone" :type "text" :placeholder "user phone"}]]
           [:div.control-group
-            [:label.control-label {:for "person-address"} "Address"]
-            [:input {:id "person-address" :class "person-address" :type "text" :placeholder "user address"}]]
+            [:label.label {:for "person-address"} "Address"]
+            [:input.field {:id "person-address" :class "person-address" :type "text" :placeholder "user address"}]]
           [:div.control-group
-            [:label.control-label {:for "person-url"} "Social Network"]
-            [:input {:id "person-url" :class "person-url" :type "text" :placeholder "social network url"}]]
+            [:label.label {:for "person-url"} "Social Network"]
+            [:input.field {:id "person-url" :class "person-url" :type "text" :placeholder "social network url"}]]
           
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 
@@ -125,13 +125,13 @@
           [:legend "Child Details"]
           
           [:div.control-group
-            [:label.control-label {:for "person-name"} "Name"]
-            [:input {:id "person-title" :class "person-title" :type "text" :placeholder "user name"}]]
+            [:label.label {:for "person-name"} "Name"]
+            [:input.field {:id "person-title" :class "person-title" :type "text" :placeholder "user name"}]]
           [:div.control-group
-            [:label.control-label {:for "person-lname"} "Last Name"]
-            [:input {:id "person-lname" :class "person-lname" :type "text" :placeholder "user last name"}]]
+            [:label.label {:for "person-lname"} "Last Name"]
+            [:input.field {:id "person-lname" :class "person-lname" :type "text" :placeholder "user last name"}]]
           [:div.control-group
-            [:label.control-label {:for "person-type"} "Type"]
+            [:label.label {:for "person-type"} "Type"]
             [:select {:id "person-type" :class "person-type"}
               [:option {:value "S"} "Son"]
               [:option {:value "D"} "Daughter"]
@@ -139,17 +139,17 @@
               [:option {:value "F"} "Mom"]
               [:option {:value "T"} "Teacher"]]]
           [:div.control-group
-            [:label.control-label {:for "person-email"} "Email"]
-            [:input {:id "person-email" :class "person-email" :type "text" :placeholder "user email"}]]
+            [:label.label {:for "person-email"} "Email"]
+            [:input.field {:id "person-email" :class "person-email" :type "text" :placeholder "user email"}]]
           [:div.control-group
-            [:label.control-label {:for "person-phone"} "Phone"]
-            [:input {:id "person-phone" :class "person-phone" :type "text" :placeholder "user phone"}]]
+            [:label.label {:for "person-phone"} "Phone"]
+            [:input.field {:id "person-phone" :class "person-phone" :type "text" :placeholder "user phone"}]]
           [:div.control-group
-            [:label.control-label {:for "person-address"} "Address"]
-            [:input {:id "person-address" :class "person-address" :type "text" :placeholder "user address"}]]
+            [:label.label {:for "person-address"} "Address"]
+            [:input.field {:id "person-address" :class "person-address" :type "text" :placeholder "user address"}]]
           [:div.control-group
-            [:label.control-label {:for "person-url"} "Social Network"]
-            [:input {:id "person-url" :class "person-url" :type "text" :placeholder "social network url"}]]
+            [:label.label {:for "person-url"} "Social Network"]
+            [:input.field {:id "person-url" :class "person-url" :type "text" :placeholder "social network url"}]]
           
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 
@@ -191,13 +191,13 @@
           [:legend "Course Details"]
           
           [:div.control-group
-            [:label.control-label {:for "course-title"} "Title"]
-            [:input {:id "course-title" :class "course-title" :type "text" :placeholder "the title of course ..."}]]
+            [:label.label {:for "course-title"} "Title"]
+            [:input.field {:id "course-title" :class "course-title" :type "text" :placeholder "the title of course ..."}]]
           [:div.control-group
-            [:label.control-label {:for "course-author"} "Author"]
-            [:input {:id "course-author" :class "course-author" :type "text" :placeholder "the author ..."}]]
+            [:label.label {:for "course-author"} "Author"]
+            [:input.field {:id "course-author" :class "course-author" :type "text" :placeholder "the author ..."}]]
           [:div.control-group
-            [:label.control-label {:for "course-type"} "Type"]
+            [:label.label {:for "course-type"} "Type"]
             [:select {:id "course-type" :class "course-type"}
               [:option {:value "math"} "Math"]
               [:option {:value "science"} "Science"]
@@ -206,17 +206,17 @@
               [:option {:value "sports"} "Sports"]
             ]]
           [:div.control-group
-            [:label.control-label {:for "course-content"} "content"]
-            [:input {:id "course-content" :class "course-content" :type "text" :placeholder "brief content of the this course"}]]
+            [:label.label {:for "course-content"} "content"]
+            [:input.field {:id "course-content" :class "course-content" :type "text" :placeholder "brief content of the this course"}]]
           [:div.control-group
-            [:label.control-label {:for "course-url"} "url"]
-            [:input {:id "course-url" :class "course-url" :type "text" :placeholder "growingtrees.com/courses"}]]
+            [:label.label {:for "course-url"} "url"]
+            [:input.field {:id "course-url" :class "course-url" :type "text" :placeholder "growingtrees.com/courses"}]]
           [:div.control-group
-            [:label.control-label {:for "course-email"} "group email"]
-            [:input {:id "course-email" :class "course-email" :type "text" :placeholder "course@group.growingtrees.com"}]]
+            [:label.label {:for "course-email"} "group email"]
+            [:input.field {:id "course-email" :class "course-email" :type "text" :placeholder "course@group.growingtrees.com"}]]
           [:div.control-group
-            [:label.control-label {:for "course-wiki"} "Wiki Page"]
-            [:input {:id "course-wiki" :class "course-wiki" :type "text" :placeholder "wiki of the course"}]]
+            [:label.label {:for "course-wiki"} "Wiki Page"]
+            [:input.field {:id "course-wiki" :class "course-wiki" :type "text" :placeholder "wiki of the course"}]]
           
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 
@@ -264,13 +264,13 @@
           [:legend "Lecture Details"]
           
           [:div.control-group
-            [:label.control-label {:for "lecture-title"} "Title"]
-            [:input {:id "lecture-title" :class "lecture-title" :type "text" :placeholder "the title of lecture ..."}]]
+            [:label.label {:for "lecture-title"} "Title"]
+            [:input.field {:id "lecture-title" :class "lecture-title" :type "text" :placeholder "the title of lecture ..."}]]
           [:div.control-group
-            [:label.control-label {:for "lecture-author"} "Author"]
-            [:input {:id "lecture-author" :class "lecture-author" :type "text" :placeholder "the author ..."}]]
+            [:label.label {:for "lecture-author"} "Author"]
+            [:input.field {:id "lecture-author" :class "lecture-author" :type "text" :placeholder "the author ..."}]]
           [:div.control-group
-            [:label.control-label {:for "lecture-type"} "Type"]
+            [:label.label {:for "lecture-type"} "Type"]
             [:select {:id "lecture-type" :class "lecture-type"}
               [:option {:value "math"} "Math"]
               [:option {:value "science"} "Science"]
@@ -279,33 +279,33 @@
               [:option {:value "sports"} "Sports"]
             ]]
           [:div.control-group
-            [:label.control-label {:for "lecture-content"} "content"]
-            [:input {:id "lecture-content" :class "lecture-content" :type "text" :placeholder "brief content of the lecture"}]]
+            [:label.label {:for "lecture-content"} "content"]
+            [:input.field {:id "lecture-content" :class "lecture-content" :type "text" :placeholder "brief content of the lecture"}]]
 
           ; http://jsfiddle.net/foo4u/HJHq8/light/
           [:div.control-group
-            [:label.control-label {:for "lecture-start"} "start time"]
+            [:label.label {:for "lecture-start"} "start time"]
             [:div#lecture-start-picker.input-append
-              [:input#lecture-start.input-xlarge {:type "datetime" :placeholder "start time" :data-format "hh:mm:ss MM/dd/yyyy"}]
+              [:input#lecture-start.input-xlarge.field {:type "datetime" :placeholder "start time" :data-format "hh:mm:ss MM/dd/yyyy"}]
               [:span.add-on [:a {:href "javascript:NewCal('lecture-start','mmddyyyy', 'true');"}
                               [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
                               [:img {:src "cal.gif" :width "16" :height "16"}]]]]
           ]
 
           [:div.control-group
-            [:label.control-label {:for "lecture-end"} "end time"]
+            [:label.label {:for "lecture-end"} "end time"]
             [:div#lecture-end-picker.input-append
-              [:input#lecture-end.input-xlarge {:type "datetime" :placeholder "end time" :data-format "hh:mm:ss MM/dd/yyyy"}]
+              [:input#lecture-end.input-xlarge.field {:type "datetime" :placeholder "end time" :data-format "hh:mm:ss MM/dd/yyyy"}]
               [:span.add-on [:a {:href "javascript:NewCal('lecture-end','mmddyyyy', 'true');"}
                               [:img {:src "cal.gif" :width "16" :height "16"}]]]]
           ]
 
           [:div.control-group
-            [:label.control-label {:for "lecture-url"} "url"]
-            [:input {:id "lecture-url" :class "lecture-url" :type "text" :placeholder "growingtrees.com/courses"}]]
+            [:label.label {:for "lecture-url"} "url"]
+            [:input.field {:id "lecture-url" :class "lecture-url" :type "text" :placeholder "growingtrees.com/courses"}]]
           [:div.control-group
-            [:label.control-label {:for "lecture-wiki"} "Wiki Page"]
-            [:input {:id "lecture-wiki" :class "lecture-wiki" :type "text" :placeholder "wiki of the lecture"}]]
+            [:label.label {:for "lecture-wiki"} "Wiki Page"]
+            [:input.field {:id "lecture-wiki" :class "lecture-wiki" :type "text" :placeholder "wiki of the lecture"}]]
           
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 
@@ -359,13 +359,13 @@
           [:legend "Question Details"]
           
           [:div.control-group
-            [:label.control-label {:for "question-title"} "Title"]
-            [:input {:id "question-title" :class "question-title" :type "text" :placeholder "the title of question ..."}]]
+            [:label.label {:for "question-title"} "Title"]
+            [:input.field {:id "question-title" :class "question-title" :type "text" :placeholder "the title of question ..."}]]
           [:div.control-group
-            [:label.control-label {:for "question-author"} "Author"]
-            [:input {:id "question-author" :class "question-author" :type "text" :placeholder "the author ..."}]]
+            [:label.label {:for "question-author"} "Author"]
+            [:input.field {:id "question-author" :class "question-author" :type "text" :placeholder "the author ..."}]]
           [:div.control-group
-            [:label.control-label {:for "question-type"} "Type"]
+            [:label.label {:for "question-type"} "Type"]
             [:select {:id "question-type" :class "question-type"}
               [:option {:value "math"} "Math"]
               [:option {:value "science"} "Science"]
@@ -374,18 +374,18 @@
               [:option {:value "sports"} "Sports"]
             ]]
           [:div.control-group
-            [:label.control-label {:for "question-content"} "content"]
-            [:input {:id "question-content" :class "question-content" :type "text" :placeholder "brief content of the question"}]]
+            [:label.label {:for "question-content"} "content"]
+            [:input.field {:id "question-content" :class "question-content" :type "text" :placeholder "brief content of the question"}]]
 
           [:div.control-group
-            [:label.control-label {:for "question-difficulty"} "difficulty"]
-            [:input {:id "question-difficulty" :class "question-difficulty" :type "text" :placeholder "difficulty level"}]]
+            [:label.label {:for "question-difficulty"} "difficulty"]
+            [:input.field {:id "question-difficulty" :class "question-difficulty" :type "text" :placeholder "difficulty level"}]]
           [:div.control-group
-            [:label.control-label {:for "question-url"} "url"]
-            [:input {:id "question-url" :class "question-url" :type "text" :placeholder "growingtrees.com/question"}]]
+            [:label.label {:for "question-url"} "url"]
+            [:input.field {:id "question-url" :class "question-url" :type "text" :placeholder "growingtrees.com/question"}]]
           [:div.control-group
-            [:label.control-label {:for "question-tag"} "Tag"]
-            [:input {:id "question-tag" :class "question-tag" :type "text" :placeholder "tags"}]]
+            [:label.label {:for "question-tag"} "Tag"]
+            [:input.field {:id "question-tag" :class "question-tag" :type "text" :placeholder "tags"}]]
           
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 
@@ -432,13 +432,13 @@
           [:legend "Group Details"]
           
           [:div.control-group
-            [:label.control-label {:for "group-title"} "Title"]
-            [:input {:id "group-title" :class "group-title" :type "text" :placeholder "the title of group ..."}]]
+            [:label.label {:for "group-title"} "Title"]
+            [:input.field {:id "group-title" :class "group-title" :type "text" :placeholder "the title of group ..."}]]
           [:div.control-group
-            [:label.control-label {:for "group-author"} "Author"]
-            [:input {:id "group-author" :class "group-author" :type "text" :placeholder "the author ..."}]]
+            [:label.label {:for "group-author"} "Author"]
+            [:input.field {:id "group-author" :class "group-author" :type "text" :placeholder "the author ..."}]]
           [:div.control-group
-            [:label.control-label {:for "group-type"} "Type"]
+            [:label.label {:for "group-type"} "Type"]
             [:select {:id "group-type" :class "group-type"}
               [:option {:value "math"} "Math"]
               [:option {:value "science"} "Science"]
@@ -447,17 +447,17 @@
               [:option {:value "sports"} "Sports"]
             ]]
           [:div.control-group
-            [:label.control-label {:for "group-content"} "content"]
-            [:input {:id "group-content" :class "group-content" :type "text" :placeholder "brief description of the group"}]]
+            [:label.label {:for "group-content"} "content"]
+            [:input.field {:id "group-content" :class "group-content" :type "text" :placeholder "brief description of the group"}]]
           [:div.control-group
-            [:label.control-label {:for "group-url"} "Url"]
-            [:input {:id "group-url" :class "group-url" :type "text" :placeholder "growingtrees.com/group"}]]
+            [:label.label {:for "group-url"} "Url"]
+            [:input.field {:id "group-url" :class "group-url" :type "text" :placeholder "growingtrees.com/group"}]]
           [:div.control-group
-            [:label.control-label {:for "group-email"} "Email"]
-            [:input {:id "group-email" :class "group-email" :type "text" :placeholder "group email"}]]
+            [:label.label {:for "group-email"} "Email"]
+            [:input.field {:id "group-email" :class "group-email" :type "text" :placeholder "group email"}]]
           [:div.control-group
-            [:label.control-label {:for "group-wiki"} "Wiki"]
-            [:input {:id "group-wiki" :class "group-wiki" :type "text" :placeholder "group wiki"}]]
+            [:label.label {:for "group-wiki"} "Wiki"]
+            [:input.field {:id "group-wiki" :class "group-wiki" :type "text" :placeholder "group wiki"}]]
 
           [:div.usertext-buttons.control-group
             [:button.btn.btn-primary 

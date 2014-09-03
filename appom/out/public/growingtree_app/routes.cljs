@@ -19,12 +19,14 @@
       (on-loaded @app)
       (add-watch app listener-id sentinel))))
 
+
 (defn open-to-channel!
   [app controls-ch channel-id]
   (.log js/console "channel route handle open-to-channel " channel-id)
   (listen-once-for-app! app
                         #(get-in % [:channels channel-id])
                         #(put! controls-ch [:all-things channel-id])))
+
 
 ; thing nodes of thing-type
 (defn thing-nodes!
@@ -36,19 +38,30 @@
 
 
 ; secretary client side named route dispatch ui click event to control chan. 
-(defn define-routes! [app history-el]
+(defn define-routes! 
+  [app history-el]
   (let [controls-ch (get-in @app [:comms :controls])
         api-ch      (get-in @app [:comms :api])]
+  
     (defroute v1-channel-link "/v1/channels/:channel-id"
       [channel-id]
       (open-to-channel! app controls-ch (utils/safe-sel channel-id)))
-    (defroute v1-thing-nodes "/v1/things/:thing-type"
+  
+    (defroute v1-all-things "/v1/:thing-type"
       [thing-type]
-      (thing-nodes! app controls-ch (utils/safe-sel thing-type))))
+      (.log js/console (pr-str "matching all things route " thing-type))
+      ; (thing-nodes! app controls-ch (utils/safe-sel thing-type))
+      )
+
+    (defroute v1-filter-things "/v1/:parent/:id/:filtered"
+      [parent id filtered]
+      (.log js/console (pr-str "matching filtered things route " parent id filtered))
+      ; (thing-nodes! app controls-ch (utils/safe-sel thing-type))
+      )
+  )
   ;; This triggers the dispatch on the above routes, when a deep link URL is provided.
   ;; goog.History(opt_invisible, opt_blankPageUrl, opt_input, opt_iframe)
   (let [history-el (goog.History. false nil history-el)]
-    (.log js/console " " history-el)
     ; (goog.events/listen history-el "navigate" #(sec/dispatch! (.-token %)))
     (goog.events/listen history-el goog.history.EventType.NAVIGATE, #(sec/dispatch! (.-token %)))
     (doto history-el

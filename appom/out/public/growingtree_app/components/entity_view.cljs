@@ -155,6 +155,8 @@
     actionkeys))
 
 
+; for each thing entity, we strip out namespace prefix on thing props.
+; without namespace, we can re-use code for parent/child person.
 ; use name of :person/url as key to strip out (namespace :person/url).
 (defn thing-value
   "ret thing value map from datomic entity by striping out attr's namespace"
@@ -184,12 +186,12 @@
     (let [comm (get-in app [:comms :controls])
           parent-id (:db/id entity)]
       (fn [_]
-        (om/update! app [:top] entity) ; persist entity into state :top section
+        ; persist entity into state :top slot. will trigger re-render.
+        (om/update! app [:top] entity) 
         (put! comm (mock-data/get-filter-things-msg parent-type parent-id filtered-type options)))
       )
     )
   )
-
 
 ;
 ; inline child input form submit handle, collect inputs data from fields and 
@@ -411,7 +413,7 @@
                   {:href "#"
                    :on-click (filter-things-onclick app entity :child :parent)
                   } 
-                  "parent"]]]]
+                  "parents"]]]]
 
             [:li.share
               [:div {:class (:enrollment-class value-map)}
@@ -419,7 +421,7 @@
                   {:href "#"
                    :on-click (filter-things-onclick app entity :child :enrollment)
                   }
-                  "enrollment"]]]]
+                  "enrollments"]]]]
 
             [:li.share
               [:div {:class (:assignment-class value-map)}
@@ -720,7 +722,7 @@
                              }
         assignto-form-data {:assigment/origin thing-id
                             :assignment/author "rich-dad"   ; XXX hard code
-                            :assignment/title (str "assignment based on " (get entity :question/title))
+                            :assignment/title (str "based on question of " (get entity :question/title))
                             :assignment/start (utils/to-epoch)
                             :assignment/status :active
                             :assignment/origin thing-id
@@ -741,8 +743,8 @@
       
         [:div.entry.unvoted
           [:p.title [:a.title {:href "#"} (:title value-map)]]
-          [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
-          [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
+          [:p.subtitle [:span.tagline (str " " (:content value-map))]]
+          [:p.subtitle [:span.tagline (str " " (:url value-map))]]
           [:p.tagline "Authored by " authors]
           [:p.tagline "difficulty " difficulty]
 
@@ -752,21 +754,24 @@
                 [:span.toggle [:a.option.active 
                   {:href "#"
                    :on-click (filter-things-onclick app entity :question :lecture)
-                  } "lecture"]]]]
+                  } 
+                  "lecture"]]]]
 
             [:li.share
               [:div {:class (:assignment-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
                    :on-click (filter-things-onclick app entity :question :assignment)
-                  } "assignments"]]]]
+                  } 
+                  "assignments"]]]]
 
             [:li.share
               [:div {:class (:similar-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
                    :on-click (filter-things-onclick app entity :question :similar)
-                  } "similar questions"]]]]
+                  } 
+                  "similar questions"]]]]
 
             [:li.share
               [:div {:class (:assignto-class value-map)}
@@ -819,31 +824,31 @@
 (defmethod thing-entry
   :assignment
   [app thing-type entity override]
-  (let [
-        comm (get-in app [:comms :controls])
-        thing-id (:db/id entity)
-        authors (map #(get % :person/title) (get entity :assignment/author))
-        
-        
+  (let [comm (get-in app [:comms :controls])
         ; all sublink class selector with thing-id is defined in actionkeys-class
+        thing-id (:db/id entity)
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
-        assignee (get-in value-map [:person :person/title])
+        
+        authors (map #(get % :person/title) (get entity :assignment/author))
         content (get-in value-map [:origin :question/content])
         url (get-in value-map [:origin :question/url])
         hint (get value-map :hint)
         end (-> (get value-map :end) (utils/time-to-string))
 
+        ; for assignment
+        assignee (get-in value-map [:person])
+        assignee-name (get-in value-map [:person :person/title])
+        assignee-id (get-in value-map [:person :db/id])
+        ; for answer form
         answer-form-name (str "#answer-form-" thing-id)
         answer-form-fields {:answer/title (str "#answer-title-" thing-id)
-                            :answer/content (str "#answer-content-" thing-id)
-                           }
+                            :answer/content (str "#answer-content-" thing-id)}
         answer-form-data {:answer/origin thing-id
                           :answer/author "rich-son"   ; XXX hard code
-                          :answer/start (utils/to-epoch)
-                         } ; peer add-thing :answer
+                          :answer/start (utils/to-epoch)}
        ]
     (.log js/console "assignment thing value " (pr-str value-map))
     (list
@@ -858,10 +863,11 @@
           [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
       
         [:div.entry.unvoted
-          [:p.title [:a.title 
+          [:p.title "to   " [:a.title 
             {:href "#"
-             :on-click #(put! comm (mock-data/get-filter-things-msg :child thing-id :assignment {}))}
-            (str "assigned to " assignee)]]
+             :on-click (filter-things-onclick app assignee :child :assignment)
+            }
+            (str "   " assignee-name)]]
           [:p.subtitle [:span.tagline (str "content: " content)]]
           [:p.subtitle [:span.tagline (str "url: " url)]]
           [:p.tagline "hint :" hint]
@@ -929,7 +935,7 @@
           [:div.clearleft]
       ]])))
 
-; thing-entry view for answer, datum entity contains thing data value
+; Answer thing-entry view, datum entity contains thing data value
 (defmethod thing-entry
   :answer
   [app thing-type entity override]
@@ -1034,6 +1040,7 @@
           [:div.clearleft]
       ]])))
 
+; comments thing-entry view
 ; thingroot is the id of thing this comments tree made to. 
 ; origin is the parent comment node of this comment.
 ; for nested comments tree, use the len of :navpath to determine indention.
@@ -1128,7 +1135,7 @@
       ]])))
 
 
-; group view
+; group thing-entry view
 (defmethod thing-entry
   :group
   [app thing-type entity override]
@@ -1163,7 +1170,7 @@
         activity-start-id (str "activity-start-" thing-id)
         activity-start-js (str "javascript:NewCal('" activity-start-id "', 'mmddyyyy', 'true');")
        ]
-    (.log js/console "groups thing value " (pr-str thing-id title authors))
+    (.log js/console "groups thing entry " (pr-str thing-id title authors))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
         [:span.rank "1"]   ; index offset in the list of filtered things
@@ -1270,6 +1277,7 @@
       ]])))
 
 
+; activity thing entry view
 (defmethod thing-entry
   :activity
   [app thing-type entity override]
@@ -1368,7 +1376,7 @@
       ]])))
 
 
-; entity = {:type "lecture" :id 1 :origin {}}
+; timeline thing-entry view.
 (defmethod thing-entry
   :timeline
   [app thing-type entity override]
