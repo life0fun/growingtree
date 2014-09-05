@@ -405,8 +405,8 @@
 
 ; create group from sidebar with author and group title by name.
 ; details {:group/person 1, :group/title "a", :group/email "b", :group/url "c"}
-(defn create-group
-  "create group from the submitted new thing form details from parent add-group"
+(defn add-group
+  "add group from the submitted new thing form details from parent add-group"
   [details]
   (let [author-id (if (clojure.string/blank? (:group/author details))
                       (:db/id (find-by :person/title (:group/person details)))   ; no author, the first one joining is the author
@@ -421,7 +421,7 @@
 
         trans (submit-transact [group])  ; transaction is a list of maps to update db values
       ]
-    (log/info "create group " group " trans " trans)
+    (log/info "add-group " group " trans " trans)
     [group]))
 
 

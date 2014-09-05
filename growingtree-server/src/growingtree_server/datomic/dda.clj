@@ -260,10 +260,10 @@
 
 
 ; create a group
-(defn create-group
+(defn add-group
   "create a group with details"
   [details]
-  (family/create-group details))
+  (family/add-group details))
 
 
 ; join a group

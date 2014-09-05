@@ -74,12 +74,12 @@ goog.addDependency("structs/priorityqueue.js", ['goog.structs.PriorityQueue'], [
 goog.addDependency("structs/prioritypool.js", ['goog.structs.PriorityPool'], ['goog.structs.Pool', 'goog.structs.PriorityQueue']);
 goog.addDependency("net/xhriopool.js", ['goog.net.XhrIoPool'], ['goog.net.XhrIo', 'goog.structs', 'goog.structs.PriorityPool']);
 goog.addDependency("net/xhrmanager.js", ['goog.net.XhrManager', 'goog.net.XhrManager.Event', 'goog.net.XhrManager.Request'], ['goog.events', 'goog.events.Event', 'goog.events.EventHandler', 'goog.events.EventTarget', 'goog.net.ErrorCode', 'goog.net.EventType', 'goog.net.XhrIo', 'goog.net.XhrIoPool', 'goog.structs', 'goog.structs.Map']);
+goog.addDependency("ui/idgenerator.js", ['goog.ui.IdGenerator'], []);
 goog.addDependency("dom/tagname.js", ['goog.dom.TagName'], []);
 goog.addDependency("dom/classes.js", ['goog.dom.classes'], ['goog.array']);
 goog.addDependency("math/coordinate.js", ['goog.math.Coordinate'], ['goog.math']);
 goog.addDependency("math/size.js", ['goog.math.Size'], []);
 goog.addDependency("dom/dom.js", ['goog.dom', 'goog.dom.Appendable', 'goog.dom.DomHelper'], ['goog.array', 'goog.asserts', 'goog.dom.BrowserFeature', 'goog.dom.NodeType', 'goog.dom.TagName', 'goog.dom.classes', 'goog.functions', 'goog.math.Coordinate', 'goog.math.Size', 'goog.object', 'goog.string', 'goog.userAgent']);
-goog.addDependency("ui/idgenerator.js", ['goog.ui.IdGenerator'], []);
 goog.addDependency("i18n/datetimeformat.js", ['goog.i18n.DateTimeFormat', 'goog.i18n.DateTimeFormat.Format'], ['goog.asserts', 'goog.date', 'goog.i18n.DateTimeSymbols', 'goog.i18n.TimeZone', 'goog.string']);
 goog.addDependency("history/eventtype.js", ['goog.history.EventType'], []);
 goog.addDependency("history/event.js", ['goog.history.Event'], ['goog.events.Event', 'goog.history.EventType']);

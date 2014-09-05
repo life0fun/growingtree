@@ -314,13 +314,13 @@
 
 ;  :group {:group/person 1, :group/title "a", :group/email "b", :group/url "c"}
 (defmethod add-thing
-  :create-group
+  :add-group
   [type details]
-  (let [result (dda/create-group details)
+  (let [result (dda/add-group details)
        ]
     result))
 
-; join group use create-group, just details map has :db/id value
+; join group, just details map has :db/id value
 (defmethod add-thing
   :join-group
   [type details]

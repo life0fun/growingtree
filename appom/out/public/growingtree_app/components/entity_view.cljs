@@ -10,7 +10,8 @@
             [goog.net.EventType :as gevt]
             [goog.i18n.NumberFormat.Format :as formats]
             [growingtree-app.utils :as utils :refer [mprint]]
-            [growingtree-app.mock-data :as mock-data] 
+            [growingtree-app.mock-data :as mock-data]
+            [growingtree-app.ui :as ui] 
             [om.core :as om]
             [sablono.core :as html :refer-macros [html]]
             [dommy.core :as dommy])
@@ -187,6 +188,7 @@
           parent-id (:db/id entity)]
       (fn [_]
         ; persist entity into state :top slot. will trigger re-render.
+        (ui/hide-all-forms parent-id)
         (om/update! app [:top] entity) 
         (put! comm (mock-data/get-filter-things-msg parent-type parent-id filtered-type options)))
       )
@@ -1206,9 +1208,7 @@
               [:div {:class (:groups-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword (str "#join-group-form-" thing-id)))]
-                        (dommy/toggle-class! f "hide")))
+                   :on-click (ui/toggle-hide-fn (str "#join-group-form-" thing-id))
                   }
                   "join-group"]]]]
 
@@ -1224,9 +1224,7 @@
               [:div {:class (:add-activity-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword (str "#add-activity-form-" thing-id)))]
-                        (dommy/toggle-class! f "hide")))
+                   :on-click (ui/toggle-hide-fn (str "#add-activity-form-" thing-id))
                   }
                   "add-activity"]]]]      
           ]
@@ -1235,12 +1233,13 @@
           [:div.child-form {:id (str "child-form-" thing-id)}
             ; join group
             [:div.hide {:id (subs join-group-form-name 1)}
-              [:form.join-group-form {:style #js {:float "left;"}}
+              [:form.join-group-form.input-form
                 [:input {:id (str "group-person-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "name"}]
                 [:input {:id (str "group-remark-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "remark"}]
-                [:input {:type "submit" :value "join-group" :class "btn btn-primary assign-button"
+                [:input {:type "submit" :value "join-group" 
+                         :class "btn btn-primary assign-button pull-right"
                          :on-click 
                             (submit-form-fn app :join-group 
                                             join-group-form-name join-group-form-data join-group-form-fields)
@@ -1249,7 +1248,7 @@
             ]
             ; add group activity
             [:div.hide {:id (subs add-activity-form-name 1)}
-              [:form.add-activity-form {:style #js {:float "left;"}}
+              [:form.add-activity-form.input-form
                 [:input {:id (str "activity-title-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "activity name"}]
                 [:input {:id (str "activity-author-" thing-id) :type "text"
@@ -1265,7 +1264,8 @@
                   [:span.add-on [:a {:href activity-start-js}
                               [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
                               [:img {:src "cal.gif" :width "16" :height "16"}]]]]
-                [:input {:type "submit" :value "add-activity" :class "btn btn-primary assign-button"
+                [:input {:type "submit" :value "add-activity" 
+                         :class "btn btn-primary assign-button pull-right"
                          :on-click 
                             (submit-form-fn app :activity
                                             add-activity-form-name add-activity-form-data add-activity-form-fields)

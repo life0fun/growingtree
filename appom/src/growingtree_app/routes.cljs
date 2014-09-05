@@ -37,6 +37,7 @@
                         #(put! controls-ch [:all-things (vector thing-type)])))
 
 
+; 
 ; secretary client side named route dispatch ui click event to control chan. 
 (defn define-routes! 
   [app history-el]
@@ -47,12 +48,14 @@
       [channel-id]
       (open-to-channel! app controls-ch (utils/safe-sel channel-id)))
   
+    ; all thing route matcher to its action.
     (defroute v1-all-things "/v1/:thing-type"
       [thing-type]
       (.log js/console (pr-str "matching all things route " thing-type))
       ; (thing-nodes! app controls-ch (utils/safe-sel thing-type))
       )
 
+    ; filtered thing route match to its action.
     (defroute v1-filter-things "/v1/:parent/:id/:filtered"
       [parent id filtered]
       (.log js/console (pr-str "matching filtered things route " parent id filtered))

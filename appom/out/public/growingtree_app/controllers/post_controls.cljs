@@ -64,6 +64,7 @@
   :filter-things
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax filter-things nav-path " nav-path))
+  ; update secretary router match to action.
   (utils/set-window-href! (routes/v1-filter-things 
                             {:parent (name (get-in nav-path [:body 1 0]))
                              :id (get-in nav-path [:body 1 1])
@@ -80,8 +81,9 @@
   :add-thing
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax add-thing nav-path " nav-path)) ; [:lecture {:lecture/course ...}]
-  (utils/set-window-href! (routes/v1-thing-nodes 
-    {:thing-type (name (get nav-path :add-thing))}))
+  ; ; update secretary router match to action.
+  (utils/set-window-href! (routes/v1-all-things
+                            {:thing-type (name (get nav-path :add-thing))}))
   (cljsajax/cljs-ajax :add-thing
                       nav-path
                       (get-in current-state [:comms :api])
