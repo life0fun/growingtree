@@ -18,6 +18,7 @@
     (let [f (sel1 (keyword div))]
       (dommy/toggle-class! f "hide"))))
 
+
 (defn hide-div
   [div]
   (let [f (sel1 (keyword div))]

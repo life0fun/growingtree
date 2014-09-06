@@ -425,7 +425,8 @@
     [group]))
 
 
-; when join a group from people view group ppl is current user id.
+; join a group from people view group ppl is current user id.
+; find group-id from group-name, and upsert person ref many set.
 ; leave option to have group person as a trags input string "tom,jerry,..."
 (defn join-group
   "join group from the submitted new thing form details from parent add-group"
@@ -433,7 +434,7 @@
   (log/info "join-group " details (util/tagsInputs (:group/person details)))
   (let [person (:group/person details)
         person-ids (if (= java.lang.Long (type person))
-                       (vector person)
+                       (hash-set person)
                        (->> (map #(:db/id (find-by :person/title %))
                                   (util/tagsInputs (:group/person details)))
                             (filter identity)))
@@ -443,7 +444,7 @@
         group (-> details
                 (select-keys (keys group-schema))
                 (assoc :group/person person-ids)  ; group person if ref many
-                (assoc :db/id group-id))
+                (assoc :db/id group-id))  ; group-id is :db/id for update
 
         trans (when group-id (submit-transact [group]))  ; transaction is a list of maps to update db values
       ]

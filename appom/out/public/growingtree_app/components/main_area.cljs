@@ -214,7 +214,7 @@
       (dommy/add-class! (sel1 :.add-question-form) "hide"))
     [:div.forms
       (newthing-form/add-form :add-child comm nav-path)
-      ; (newthing-form/add-form :add-lecture comm nav-path)
+      (newthing-form/add-form :add-lecture comm nav-path)
       (newthing-form/add-form :add-question comm nav-path)
     ]))
 

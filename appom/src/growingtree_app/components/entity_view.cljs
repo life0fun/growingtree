@@ -300,9 +300,7 @@
                 [:span.toggle 
                   [:a.option.active
                     {:href "#"
-                     :on-click (fn [_]
-                        (let [f (sel1 (keyword (str ".add-child-form")))]
-                          (dommy/toggle-class! f "hide")))
+                     :on-click (ui/toggle-hide-fn (str ".add-child-form"))
                     }
                     "add child"]]]]
 
@@ -334,10 +332,7 @@
               [:div {:class (:join-group-class value-map)}
                 [:span.toggle [:a.option.active
                   {:href "#"
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword join-group-form-name))]
-                        (.log js/console "join-group " f join-group-form-name)
-                        (dommy/toggle-class! f "hide")))
+                   :on-click (ui/toggle-hide-fn join-group-form-name)
                   } "join group"]]]]
 
             [:li.share
@@ -347,8 +342,7 @@
                    :href "#"
                    :on-click (filter-things-onclick app entity :parent :timeline
                               {:author title})
-                  } 
-                  "timeline"]]]]
+                  } "timeline"]]]]
           ]
 
           ; hidden divs for in-line forms
@@ -453,19 +447,15 @@
               [:div {:class (:join-group-class value-map)}
                 [:span.toggle [:a.option.active
                   {:href "#"
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword join-group-form-name))]
-                        (dommy/toggle-class! f "hide")))
-                  }
-                  "join group"]]]]
+                   :on-click (ui/toggle-hide-fn join-group-form-name)
+                  } "join group"]]]]
 
             [:li.share
               [:div {:class (:activity-class value-map)}
                 [:span.toggle [:a.option.active
                   {:href "#"
                    :on-click (filter-things-onclick app entity :child :activity)
-                  } 
-                  "activities"]]]]
+                  } "activities"]]]]
 
             [:li.share
               [:div {:class (:timeline-class value-map)}
@@ -474,8 +464,7 @@
                    :href "#"
                    :on-click (filter-things-onclick app entity :child :timeline
                               {:author title})
-                  }  
-                  "timeline"]]]]
+                  } "timeline"]]]]
           ]
 
           ; hidden divs for in-line forms
@@ -555,10 +544,8 @@
               [:div {:class (:add-lecture-class value-map)}
                 [:span.toggle [:a.option.active
                   {:href "#"
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword (str ".add-lecture-form")))]
-                        (dommy/toggle-class! f "hide")))
-                  } 
+                   :on-click (ui/toggle-hide-fn (str ".add-lecture-form"))
+                  }
                   "add lecture"]]]]
 
             [:li.share
@@ -573,9 +560,7 @@
               [:div {:class (:enroll-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword (str "#enrollment-form-" thing-id)))]
-                        (dommy/toggle-class! f "hide")))
+                   :on-click (ui/toggle-hide-fn (str "#enrollment-form-" thing-id))
                   } 
                   "enroll"]
               ]]]
@@ -611,7 +596,6 @@
           ]
           [:div.clearleft]
       ]])))
-
 
 ; thing-entry view for lecture, datum entity contains thing data value
 (defmethod thing-entry
@@ -673,9 +657,7 @@
               [:div {:class (:add-question-class value-map)}
                 [:span.toggle [:a.option.active
                   {:href "#" 
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword (str ".add-question-form")))]
-                        (dommy/toggle-class! f "hide")))
+                   :on-click (ui/toggle-hide-fn (str ".add-question-form"))
                   }
                   "add question"]]]]
 
@@ -779,9 +761,7 @@
               [:div {:class (:assignto-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword (str "#assignto-form-" thing-id)))]
-                        (dommy/toggle-class! f "hide")))
+                   :on-click (ui/toggle-hide-fn (str "#assignto-form-" thing-id))
                   }
                   "assign to"]]]]
 
@@ -809,7 +789,7 @@
                          :style #js {:display "block"} :placeholder "priority"}]
                 [:input {:id (str "assignto-hint-" thing-id) :type "text"
                          :style #js {:display "block"} :placeholder "hint"}]
-                [:input {:type "submit" :value "assign to" :class "btn btn-primary assign-button"
+                [:input {:type "submit" :value "assign" :class "btn btn-primary assign-button"
                          :on-click 
                             (submit-form-fn app :assignment 
                                             assignto-form-name 
@@ -901,9 +881,7 @@
               [:div {:class (:answer-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword (str "#answer-form-" thing-id)))]
-                        (dommy/toggle-class! f "hide")))
+                   :on-click (ui/toggle-hide-fn (str "#answer-form-" thing-id))
                   }
                   "answer"]]]]
 
@@ -999,9 +977,7 @@
               [:div {:class (:answer-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword (str "#grade-form-" thing-id)))]
-                        (dommy/toggle-class! f "hide")))
+                   :on-click (ui/toggle-hide-fn (str "#grade-form-" thing-id))
                   }
                   "grade"]]]]
 
@@ -1017,8 +993,7 @@
                 [:span.toggle [:a.option.active 
                   {:href "#"
                    :on-click (filter-things-onclick app entity :answer :comments)
-                  } 
-                  "comments"]]]]
+                  } "comments"]]]]
           ]
 
           ; hidden divs for in-line forms
@@ -1110,9 +1085,7 @@
               [:div {:class (:comments-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword (str "#reply-form-" thing-id)))]
-                        (dommy/toggle-class! f "hide")))
+                   :on-click (ui/toggle-hide-fn (str "#reply-form-" thing-id))
                   }
                   "reply"]]]]
           ]
@@ -1340,9 +1313,7 @@
               [:div {:class (:activity-class value-map)}
                 [:span.toggle [:a.option.active 
                   {:href "#"
-                   :on-click (fn [_]
-                      (let [f (sel1 (keyword (str "#join-activity-form-" thing-id)))]
-                        (dommy/toggle-class! f "hide")))
+                   :on-click (ui/toggle-hide-fn (str "#join-activity-form-" thing-id))
                   }
                   "join-activity"]]]]
 

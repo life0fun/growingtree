@@ -223,7 +223,7 @@
         assignments (->> (util/get-qpath-entities qpath get-assignment-by)
                       (map #(select-keys % projkeys) )
                       (map #(util/get-author-entity :assignment/author %))
-                      (map #(util/get-person-name :assignment/person %))
+                      (map #(util/get-person-entity :assignment/person %))
                       (map #(util/get-ref-entity :assignment/origin %))
                       (map #(util/add-upvote-attr %) )
                       (map #(util/add-numcomments-attr %) )
