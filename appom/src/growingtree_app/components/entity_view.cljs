@@ -248,7 +248,6 @@
         thing-type (:person/type entity)]
     (thing-entry app thing-type entity override)))
 
-
 ; thing-entry view for parent. entity is cursor into state nav-path-things
 (defmethod thing-entry
   :parent
@@ -350,9 +349,9 @@
             [:div.hide {:id (subs join-group-form-name 1)}
               [:form.join-group-form {:style #js {:float "left;"}}
                 [:input {:id (str "group-name-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "group name"}]
+                         :placeholder "group name"}]
                 [:input {:id (str "group-remark-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "group remark"}]
+                         :placeholder "group remark"}]
                 [:input {:type "submit" :value "join-group" :class "btn btn-primary assign-button"
                          :on-click 
                             (submit-form-fn app :join-group 
@@ -472,9 +471,9 @@
             [:div.hide {:id (subs join-group-form-name 1)}
               [:form.join-group-form {:style #js {:float "left;"}}
                 [:input {:id (str "group-name-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "group name"}]
+                         :placeholder "group name"}]
                 [:input {:id (str "group-remark-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "group remark"}]
+                         :placeholder "group remark"}]
                 [:input {:type "submit" :value "join-group" :class "btn btn-primary assign-button"
                          :on-click 
                             (submit-form-fn app :join-group 
@@ -583,9 +582,9 @@
             [:div.hide {:id (str "enrollment-form-" thing-id)}
               [:form.enrollment-form {:style #js {:float "left;"}}
                 [:input {:id (str "enroll-person-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "attendee"}]
+                         :placeholder "attendee"}]
                 [:input {:id (str "enroll-title-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "remarks"}]
+                         :placeholder "remarks"}]
                 [:input {:type "submit" :value "enroll" :class "btn btn-primary assign-button"
                          :on-click 
                             (submit-form-fn app :enrollment 
@@ -704,12 +703,11 @@
                               :assignment/priority (str "#assignto-priority-" thing-id)
                               :assignment/end (str "#assignto-end-" thing-id)
                              }
-        assignto-form-data {:assigment/origin thing-id
+        assignto-form-data {:assignment/origin thing-id
                             :assignment/author "rich-dad"   ; XXX hard code
                             :assignment/title (str "based on question of " (get entity :question/title))
                             :assignment/start (utils/to-epoch)
                             :assignment/status :active
-                            :assignment/origin thing-id
                             :assignment/type (get entity :question/type)
                            } ; peer add-thing :assigment
        ]
@@ -777,25 +775,29 @@
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}
             [:div.hide {:id (str "assignto-form-" thing-id)}
-              [:form.enrollment-form {:style #js {:float "left;"}}
+              [:form.assign-form {:style #js {:float "left;"}}
                 [:input {:id (str "assignto-person-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "assign to person"}]
-                [:input {:id (str "assignto-end-" thing-id) :type "datetime" :data-format "hh:mm:ss MM/dd/yyyy"
-                         :style #js {:display "block"} :placeholder "due time"}]
-                [:span.add-on [:a {:href (str "javascript:NewCal('" assignto-end-field "','mmddyyyy', 'true');")}
-                        [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
-                        [:img {:src "cal.gif" :width "16" :height "16"}]]]
+                         :placeholder "person name or group name"}]
+
+                [:div#assignto-end-picker.datetime-picker.input-append
+                  [:input {:id (str "assignto-end-" thing-id) :type "datetime" :data-format "hh:mm:ss MM/dd/yyyy"
+                           :placeholder "due time"}]
+                  [:span.add-on [:a {:href (str "javascript:NewCal('" assignto-end-field "','mmddyyyy', 'true');")}
+                                  [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
+                                  [:img {:src "cal.gif" :width "16" :height "16"}]]]
+                ]
                 [:input {:id (str "assignto-priority-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "priority"}]
+                         :placeholder "priority"}]
                 [:input {:id (str "assignto-hint-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "hint"}]
-                [:input {:type "submit" :value "assign" :class "btn btn-primary assign-button"
-                         :on-click 
-                            (submit-form-fn app :assignment 
-                                            assignto-form-name 
-                                            assignto-form-data 
-                                            assignto-form-fields)
-                         }]
+                         :placeholder "hint"}]
+                [:button.btn.btn-primary.inline-form-btn 
+                  {:type "button" :id "submit"
+                   :on-click 
+                      (submit-form-fn app :assignment 
+                                      assignto-form-name 
+                                      assignto-form-data 
+                                      assignto-form-fields)
+                  } "Assign"]
               ]
             ]
           ]
@@ -899,10 +901,10 @@
             [:div.hide {:id (str "answer-form-" thing-id)}
               [:form.answer-form {:style #js {:float "left;"}}
                 [:input {:id (str "answer-title-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "answer"}]
+                         :placeholder "answer"}]
                 [:input {:id (str "answer-content-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "explain"}]
-                [:input {:type "submit" :value "submit" :class "btn btn-primary assign-button"
+                         :placeholder "explain"}]
+                [:button {:type "submit" :value "submit" :class "btn btn-primary assign-button"
                          :on-click 
                             (submit-form-fn app :answer 
                                             answer-form-name 
@@ -1001,9 +1003,9 @@
             [:div.hide {:id (str "grade-form-" thing-id)}
               [:form.grade-form {:style #js {:float "left;"}}
                 [:input {:id (str "grade-score-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "grade"}]
+                         :placeholder "grade"}]
                 [:input {:id (str "grade-comments-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "comments"}]
+                         :placeholder "comments"}]
                 [:input {:type "submit" :value "submit" :class "btn btn-primary assign-button"
                          :on-click 
                             (submit-form-fn app :grade 
@@ -1208,9 +1210,9 @@
             [:div.hide {:id (subs join-group-form-name 1)}
               [:form.join-group-form.input-form
                 [:input {:id (str "group-person-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "name"}]
+                         :placeholder "name"}]
                 [:input {:id (str "group-remark-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "remark"}]
+                         :placeholder "remark"}]
                 [:input {:type "submit" :value "join-group" 
                          :class "btn btn-primary assign-button pull-right"
                          :on-click 
@@ -1223,15 +1225,15 @@
             [:div.hide {:id (subs add-activity-form-name 1)}
               [:form.add-activity-form.input-form
                 [:input {:id (str "activity-title-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "activity name"}]
+                         :placeholder "activity name"}]
                 [:input {:id (str "activity-author-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "activity author"}]
+                         :placeholder "activity author"}]
                 [:input {:id (str "activity-content-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "activity content"}]
+                         :placeholder "activity content"}]
                 [:input {:id (str "activity-location-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "activity address"}]
+                         :placeholder "activity address"}]
                 [:input {:id (str "activity-url-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "activity url"}]                         
+                         :placeholder "activity url"}]                         
                 [:div#activity-start-picker.input-append
                   [:input {:id activity-start-id :type "datetime" :placeholder "start time" :data-format "hh:mm:ss MM/dd/yyyy"}]
                   [:span.add-on [:a {:href activity-start-js}
@@ -1332,9 +1334,9 @@
             [:div.hide {:id (subs join-activity-form-name 1)}
               [:form.join-activity-form {:style #js {:float "left;"}}
                 [:input {:id (str "activity-person-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "name"}]
+                         :placeholder "name"}]
                 [:input {:id (str "activity-remark-" thing-id) :type "text"
-                         :style #js {:display "block"} :placeholder "remark"}]
+                         :placeholder "remark"}]
                 [:input {:type "submit" :value "join-activity" :class "btn btn-primary assign-button"
                          :on-click 
                             (submit-form-fn app :join-activity 

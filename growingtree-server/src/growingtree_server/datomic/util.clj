@@ -132,6 +132,7 @@
         ; touch entity to realize/materialize all attributes.
         entities (map (comp get-entity first) eids)
        ]
+    (log/info "get-entities-by-rule " entities)
     entities))
 
 
@@ -141,7 +142,6 @@
 (defn get-qpath-entities
   "ret a list of entities by qpath and rule-set, formulate query rules from qpath"
   [qpath rule-set]
-  (log/info "qpath " qpath)
   (let [[thing-type eid nxt-thing-type] (take-last 3 qpath)  ; [:course 1 :comments 2 :comments]
         e (get-entity eid)   ; we have thing-id, get thing entity
         nxt-thing-val (leaf-thing-origin e thing-type nxt-thing-type)
@@ -161,6 +161,7 @@
         (map (comp get-entity :db/id) nxt-thing-val)
 
       ; entity does not have nxt-thing-type, nxt-thing-type is inbound to entity from target [:course 1 :lectures]
+      ; [:child 1 :assignment], :child is the rule-name of assignment rule-set for :assignment/person = :child
       :else
         (get-entities-by-rule thing-type rule-set eid))))
 
@@ -189,8 +190,7 @@
 (defn get-ref-entity
   [ref-attr entity]
   (log/info "get-ref-entity " ref-attr entity)
-  (let [
-        ref-id (get-in entity [ref-attr :db/id])
+  (let [ref-id (get-in entity [ref-attr :db/id])
         ref-e (dbconn/get-entity ref-id)]
     (log/info "get-ref-entity " ref-id ref-e)
     (assoc entity ref-attr ref-e)))

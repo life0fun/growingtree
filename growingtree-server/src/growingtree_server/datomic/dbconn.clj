@@ -172,7 +172,8 @@
 (defn get-entity
   "ret an datomic EntityMap from eid"
   [eid]
-  (d/touch (d/entity (get-db) eid)))
+  (if eid
+    (d/touch (d/entity (get-db) eid))))
 
 ; give an entity, it can not resolve to entity namespace keyword.
 (defn ident
@@ -224,8 +225,8 @@
   "submit a transaction"
   [tx-data]  ; tx-data is a list of list/map, each map must have :db/id
   (let [
-        ; ft (d/transact (get-conn) tx-data)  ; ret future task
-        ft tx-data
+        ft (d/transact (get-conn) tx-data)  ; ret future task
+        ; ft tx-data
        ]
     (prn "dbconn submit trans " tx-data ft)
     ft))

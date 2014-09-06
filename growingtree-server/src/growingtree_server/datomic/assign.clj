@@ -114,6 +114,7 @@
 ;---------------------------------------------------------------------------------
 ; rules to find all parent or child with the name,
 ; for all rule lists with the same name, results are OR logic.
+; rule-set is list of [rule-head(rule-name rule-args) rule-body[?e attr rule-args]]
 ;---------------------------------------------------------------------------------
 ; rule set for get child by. rule name is the parent thing type.
 (def get-question-by
@@ -130,17 +131,17 @@
 
 ; rule name is the parent of navpath [:parent 1 :assignment] [:child 1 :assignment]
 (def get-assignment-by
-  '[[(:all ?e ?val) [?e :assignment/author]]   ; select all assignment that has author
-    [(:title ?e ?val) [?e :assignment/title ?val]]
-    [(:status ?e ?val) [?e :assignment/status ?val]]
-    [(:end ?e ?val) [?e :assignment/end ?val]]
+  '[[(:all ?e ?val) [?e :assignment/author] [?e :assignment/origin]]   ; select all assignment that has author
+    [(:title ?e ?val) [?e :assignment/title ?val] [?e :assignment/origin]]
+    [(:status ?e ?val) [?e :assignment/status ?val] [?e :assignment/origin]]
+    [(:end ?e ?val) [?e :assignment/end ?val] [?e :assignment/origin]]
 
-    [(:parent ?e ?val) [?e :assignment/author ?val]]
+    [(:parent ?e ?val) [?e :assignment/author ?val] [?e :assignment/origin]]
     [(:child ?e ?val) [?e :assignment/person ?val]]
 
-    [(:question ?e ?val) [?e :assignment/origin ?val]]
-    [(:lecture ?e ?val) [?e :assignment/origin ?val]]
-    [(:course ?e ?val) [?e :assignment/origin ?val]]
+    [(:question ?e ?val) [?e :assignment/origin ?val] [?e :assignment/origin]]
+    [(:lecture ?e ?val) [?e :assignment/origin ?val] [?e :assignment/origin]]
+    [(:course ?e ?val) [?e :assignment/origin ?val] [?e :assignment/origin]]
   ])
 
 
@@ -219,12 +220,13 @@
 (defn find-assignment
   "find all assignment by query path "
   [qpath]
+  (log/info "find-assignment " (util/get-qpath-entities qpath get-assignment-by))
   (let [projkeys (keys assignment-schema)
         assignments (->> (util/get-qpath-entities qpath get-assignment-by)
                       (map #(select-keys % projkeys) )
                       (map #(util/get-author-entity :assignment/author %))
                       (map #(util/get-person-entity :assignment/person %))
-                      (map #(util/get-ref-entity :assignment/origin %))
+                      (map #(util/get-ref-entity :assignment/origin %)) ; assignment must have orign
                       (map #(util/add-upvote-attr %) )
                       (map #(util/add-numcomments-attr %) )
                       (map #(util/add-navpath % qpath) )
@@ -234,8 +236,9 @@
       (log/info "assignment --> " e))
     assignments))
 
-; tagsInput sep is , when assign to group, the :assignment/person is a list of name, separated by comma.
-; "fun math,rich-baby", we need split and strip it.
+; assignment can be to group. We query group to group member ids.
+; tagsInput sep is comma(,) when assign to group, the :assignment/person is a list of name, separated by comma.
+; "fun math,rich-baby", split and strip it.
 ; when assign to group, use mapcat to collect group ref many persons into a list.
 (defn create-assignment
   "new assignment form the submitted form data"
@@ -264,7 +267,6 @@
         assigns (map entity all-person)
         trans (submit-transact assigns)  ; transaction is a list of assigns
       ]
-    (newline)
     (log/info author-id "create assignment to " person " " all-person " assigns " assigns)
     (log/info "create assignment trans " trans)
     assigns))

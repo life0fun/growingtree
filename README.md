@@ -30,28 +30,55 @@ To create a connection string, simply replace DB-NAME with your db name.
 
 You can use repl to verify database is initialized properly. Note datomic db schema, config and db-uri are defined inside project.clj.
 
-java console, remember to end the command with ;
+## Datomic console, and excise/retract data.
+    
+    bin/console -p 8088 colorcloud "datomic:sql://?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic"
 
+A transaction is simply a list of lists and/or maps, each of which is a statement in the transaction.
+
+    [:db/add entity-id attribute value]
+    [:db/retract entity-id attribute value]   ; retract certain attr value.
+    {:db/id entity-id attribute value }
+
+    {:db/id #db/id[:db.part/user] :person/title "Bob"}
+
+Repl
+
+    bin/repl
+    (require '[datomic.api :as d])
+    (def uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
+    (d/delete-database uri)
+    (d/create-database uri)
+
+    (def conn (d/connect uri))
+    (def db (d/db conn))
+
+    (d/q '[:find ?e :where [?e :person/title]] db)
+    (d/q '[:find ?atn :where [?ref ?attr] [?attr :db/ident ?atn]] db)
+
+    (d/transact conn '[{:db/id #db/id[db.part/user] :db/excise 17592186045471}])
+
+    (d/transact conn '[[:db/retract 17592186045471 :person/email "x"]])
+
+java console, remember to end the command with ;
+    
     bin/shell
     uri = "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic";
     Peer.createDatabase(uri);
     conn = Peer.connect(uri);
+    results = Peer.q("[:find ?e :where [?e :person/title]]",conn.db());
+    entity = conn.db().entity(id)
+    name = entity.get(":person/title")
 
-    lein repl
-    (require '[datomic.api :as d])
-    (def uri "datomic:free://localhost:4334/colorcloud")
-             "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic"
-    (d/delete-database uri)
-    (d/create-database uri)
-    (def conn (d/connect uri))
-    (def db (d/db conn))
+Retract is to retract entity attr value.
+Excise is remove the entity, or all attribute values totally.
+To excise a specific entity, manufacture a new entity with a :db/excise attribute pointing to that entity's id. 
+    
+    [{:db/id #db/id[db.part/user], :db/excise 42}]
+    [{:db/id #db/id[db.part/user], :db/excise 42 :db.excise/attrs [:person/title :person/email]}]
+    [{:db/id #db/id[db.part/user], :db/excise :event/user :db.excise/before #inst "2012"}]
+    [{:db/id #db/id[db.part/user], :db/excise :event/user}]
 
-    (def results (q '[:find ?c :where [?c :community/name]] db))
-    results
-    (d/delete-database uri)
-    (d/create-database uri)
-
-    (d/q '[:find ?atn :where [?ref ?attr] [?attr :db/ident ?atn]] db)
 
 ## Entity model
 

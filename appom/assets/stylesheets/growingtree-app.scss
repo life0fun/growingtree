@@ -624,6 +624,17 @@ h6{font-size:11.9px}
 /** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     new  thing forms 
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **/
+// form btn
+.inline-form-btn {
+  float: right;
+}
+
+// datetime picker at the end of div block.
+.datetime-picker {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 /* add comments box s*/
 .add-comments-form {
   textarea {
@@ -688,6 +699,8 @@ h6{font-size:11.9px}
   }
 
   input {
+    display: inline-block;
+    vertical-align: middle;;
     width: 300px;
   }
 
