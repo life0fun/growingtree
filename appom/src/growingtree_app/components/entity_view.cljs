@@ -275,9 +275,9 @@
 ; input-map {:group/title {:id :type :text} :group/remart {:id :type :text}}
 ;
 (defn thing-entry-child-form
-  [form-id form-name input-map submit-text submit-fn]
+  [form-id form-class input-map submit-text submit-fn]
   [:div.hide {:id form-id}
-    [:form {:class form-name :style #js {:float "left;"}}
+    [:form {:class form-class :style #js {:float "left;"}}
       (for [[fk fmap] input-map]
         [:input {:id (:id fmap) :type (:type fmap) :placeholder (:text fmap)}])
       [:button.btn.btn-primary.inline-form-btn  
@@ -366,26 +366,15 @@
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}
-            ; [:div.hide {:id (subs join-group-form-name 1)}
-            ;   [:form.join-group-form {:style #js {:float "left;"}}
-            ;     [:input {:id (str "group-name-" thing-id) :type "text"
-            ;              :placeholder "group name"}]
-            ;     [:input {:id (str "group-remark-" thing-id) :type "text"
-            ;              :placeholder "group remark"}]
-            ;     [:button {:type "submit" :value "join-group" :class "btn btn-primary assign-button"
-            ;              :on-click 
-            ;                 (submit-form-fn app :join-group 
-            ;                                 join-group-form-name join-group-form-data join-group-form-fields)
-            ;             }]
-            ;   ]
-            ; ]
-
-            (thing-entry-child-form (subs join-group-form-name 1) 
-                                    "join-group-form"
+            (thing-entry-child-form (subs join-group-form-name 1)  ; form id
+                                    "join-group-form"   ; form class
                                     join-group-form-input-map
-                                    "join-group"
-                                    (submit-form-fn app :join-group join-group-form-name 
-                                                    join-group-form-data join-group-form-fields))
+                                    "join group"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :join-group
+                                                    join-group-form-name 
+                                                    join-group-form-data
+                                                    join-group-form-fields))
 
           ]
           [:div.clearleft]
@@ -407,108 +396,58 @@
 
         ; join group
         join-group-form-name (str "#join-group-form-" thing-id)
-        join-group-form-fields {:group/title (str "#group-name-" thing-id)
-                                :group/remark (str "#group-remark-" thing-id)
-                               }
+        join-group-form-input-map {
+          :group/title {:id (str "group-name-" thing-id) :type "text" :text "group name"}
+          :group/remark {:id (str "group-remark-" thing-id) :type "text" :text "brief intro"}
+        }
+        join-group-form-fields {
+          :group/title (str "#" (get-in join-group-form-input-map [:group/title :id]))
+          :group/remark (str "#" (get-in join-group-form-input-map [:group/remark :id]))
+        }
         join-group-form-data {:group/person thing-id}
        ]
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        [:span.rank "1"]   ; index offset in the list of filtered things
-        [:div.midcol.unvoted
-          [:div.arrow.up {:role "button" :arial-label "upvote"}]
-          [:div.score.unvoted (:upvote value-map)]
-          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
-      
-        [:a.thumbnail {:href "#"}
-          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+        (thing-entry-thumbnail thing-type value-map)
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} title]]
-          [:p.subtitle [:span.tagline (str "phone: " (:phone value-map))]]
-          [:p.subtitle [:span.tagline (str "email: " (:email value-map))]]
-          [:p.tagline "Joined since " [:time "Aug 2013"]]
+          (thing-entry-titles (vector title))
+          (thing-entry-subtitles (vector (str "phone: " (:phone value-map)) 
+                                         (str "email: " (:email value-map))))
+          (thing-entry-taglines (vector (str "Joined since " [:time "Aug 2013"])))
 
           [:ul.flat-list.buttons
-            [:li.share
-              [:div {:class (:parent-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :child :parent)
-                  } 
-                  "parents"]]]]
-
-            [:li.share
-              [:div {:class (:enrollment-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :child :enrollment)
-                  }
-                  "enrollments"]]]]
-
-            [:li.share
-              [:div {:class (:assignment-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :child :assignment)
-                  }
-                  "assignments"]]]]
-
-            [:li.share
-              [:div {:class (:like-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "likes"]]]]
-
-            [:li.share
-              [:div {:class (:follow-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "followers"]]]]
-
-            [:li.share
-              [:div {:class (:group-class value-map)}
-                [:span.toggle [:a.option.active
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :child :group)
-                  } 
-                  "groups"]]]]
-
-            [:li.share
-              [:div {:class (:join-group-class value-map)}
-                [:span.toggle [:a.option.active
-                  {:href "#"
-                   :on-click (ui/toggle-hide-fn join-group-form-name)
-                  } "join group"]]]]
-
-            [:li.share
-              [:div {:class (:activity-class value-map)}
-                [:span.toggle [:a.option.active
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :child :activity)
-                  } "activities"]]]]
-
-            [:li.share
-              [:div {:class (:timeline-class value-map)}
-                [:span.toggle [:a.option.active
-                  {
-                   :href "#"
-                   :on-click (filter-things-onclick app entity :child :timeline
-                              {:author title})
-                  } "timeline"]]]]
+            (thing-entry-action-button-li "parents" (:parent-class value-map)
+                                          (filter-things-onclick app entity :child :parent))
+            (thing-entry-action-button-li "enrollments" (:enrollment-class value-map)
+                                          (filter-things-onclick app entity :child :enrollment))
+            (thing-entry-action-button-li "assignments" (:assignment-class value-map)
+                                          (filter-things-onclick app entity :child :assignment))
+            (thing-entry-action-button-li "likes" (:like-class value-map)
+                                          (filter-things-onclick app entity :child :like))
+            (thing-entry-action-button-li "followers" (:follow-class value-map)
+                                          (filter-things-onclick app entity :child :follow))
+            (thing-entry-action-button-li "groups" (:group-class value-map)
+                                          (filter-things-onclick app entity :child :group))
+            (thing-entry-action-button-li "join group" (:join-group-class value-map)
+                                          (ui/toggle-hide-fn join-group-form-name))
+            (thing-entry-action-button-li "activies" (:activity-class value-map)
+                                          (filter-things-onclick app entity :child :activity))
+            (thing-entry-action-button-li "timeline" (:timeline-class value-map)
+                                          (filter-things-onclick app entity :child :timeline {:author title}))
           ]
 
           ; hidden divs for in-line forms
-          [:div.child-form {:id (:child-form-id (str "child-form-" thing-id))}
-            [:div.hide {:id (subs join-group-form-name 1)}
-              [:form.join-group-form {:style #js {:float "left;"}}
-                [:input {:id (str "group-name-" thing-id) :type "text"
-                         :placeholder "group name"}]
-                [:input {:id (str "group-remark-" thing-id) :type "text"
-                         :placeholder "group remark"}]
-                [:input {:type "submit" :value "join-group" :class "btn btn-primary assign-button"
-                         :on-click 
-                            (submit-form-fn app :join-group 
-                                            join-group-form-name join-group-form-data join-group-form-fields)
-                        }]
-              ]
-            ]
+          [:div.child-form {:id (str "child-form-" thing-id)}
+            (thing-entry-child-form (subs join-group-form-name 1)  ; form id
+                                    "join-group-form"   ; form class
+                                    join-group-form-input-map
+                                    "join group"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :join-group
+                                                    join-group-form-name 
+                                                    join-group-form-data
+                                                    join-group-form-fields))
           ]
           [:div.clearleft]
       ]])))
@@ -531,95 +470,60 @@
         title (get value-map :title)
         
         enroll-form-name (str "#enrollment-form-" thing-id)
-        enroll-form-fields {:enrollment/person (str "#enroll-person-" thing-id)
-                            :enrollment/title (str "#enroll-title-" thing-id)}
-        enroll-form-data {:enrollment/course thing-id
-                          :enrollment/content (str "enroll into " title)
-                          :enrollment/email (str "rich-son@rich.com")
-                          :enrollment/url (str "growingtree.com/enrollment/course/" thing-id)
-                         } ; peer add-thing :enrollment
+        enroll-form-input-map {
+          :enrollment/person {:id (str "enroll-person-" thing-id) :type "text" :text "attendee"}
+          :enrollment/title {:id (str "enroll-title-" thing-id) :type "text" :text "remarks"}
+        }
+        enroll-form-fields {
+          :enrollment/person (str "#" (get-in enroll-form-input-map [:enrollment/person :id]))
+          :enrollment/title (str "#" (get-in enroll-form-input-map [:enrollment/title :id]))
+        }
+        enroll-form-data {
+          :enrollment/course thing-id
+          :enrollment/content (str "enroll into " title)
+          :enrollment/email (str "rich-son@rich.com")
+          :enrollment/url (str "growingtree.com/enrollment/course/" thing-id)
+        } ; peer add-thing :enrollment
        ]
     (.log js/console "course thing value " (pr-str thing-id title authors))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        [:span.rank "1"]   ; index offset in the list of filtered things
-        [:div.midcol.unvoted
-          [:div.arrow.up {:role "button" :arial-label "upvote"}]
-          [:div.score.unvoted (:upvote value-map)]
-          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
-      
-        [:a.thumbnail {:href "#"}
-          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
-      
+        (thing-entry-thumbnail thing-type value-map)
+
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} (:title value-map)]]
-          [:p.subtitle [:span.tagline (str "content: " (:content value-map))]]
-          [:p.subtitle [:span.tagline (str "url: " (:url value-map))]]
-          [:p.tagline "type " type]
-          [:p.tagline "Offered by " authors]
+          (thing-entry-titles (vector title))
+          (thing-entry-subtitles (vector (str "  " (:content value-map)) 
+                                         (str "  " (:url value-map))))
+          (thing-entry-taglines (vector (str " " type) (str "Offered by " authors)))
 
           [:ul.flat-list.buttons
-            [:li.share
-              [:div {:class (:lecture-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :course :lecture)
-                  } 
-                  "lectures"]]]]
-
-            [:li.share
-              [:div {:class (:add-lecture-class value-map)}
-                [:span.toggle [:a.option.active
-                  {:href "#"
-                   :on-click (ui/toggle-hide-fn (str ".add-lecture-form"))
-                  }
-                  "add lecture"]]]]
-
-            [:li.share
-              [:div {:class (:enrollment-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :course :enrollment)
-                  } 
-                  "enrollments"]]]]
-
-            [:li.share
-              [:div {:class (:enroll-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (ui/toggle-hide-fn (str "#enrollment-form-" thing-id))
-                  } 
-                  "enroll"]
-              ]]]
-
-            [:li.share
-              [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :course :comments)
-                  } 
-                  "comments"]]]]
-
-            [:li.share
-              [:div {:class (:similar-class value-map)}
-                [:span.toggle [:a.option.active {:href "#"} "similar courses"]]]]
+            (thing-entry-action-button-li "lectures" (:lecture-class value-map)
+                                          (filter-things-onclick app entity :course :lecture))
+            (thing-entry-action-button-li "add lecture" (:add-lecture-class value-map)
+                                          (ui/toggle-hide-fn (str ".add-lecture-form")))
+            (thing-entry-action-button-li "enrollments" (:enrollment-class value-map)
+                                          (filter-things-onclick app entity :course :enrollment))
+            (thing-entry-action-button-li "enroll" (:enroll-class value-map)
+                                          (ui/toggle-hide-fn (str "#enrollment-form-" thing-id)))
+            (thing-entry-action-button-li "likes" (:like-class value-map)
+                                          (filter-things-onclick app entity :course :like))
+            (thing-entry-action-button-li "comments" (:comments-class value-map)
+                                          (filter-things-onclick app entity :course :comments))
+            (thing-entry-action-button-li "similar courses" (:similar-class value-map)
+                                          (filter-things-onclick app entity :course :similar))
           ]
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}
-            [:div.hide {:id (str "enrollment-form-" thing-id)}
-              [:form.enrollment-form {:style #js {:float "left;"}}
-                [:input {:id (str "enroll-person-" thing-id) :type "text"
-                         :placeholder "attendee"}]
-                [:input {:id (str "enroll-title-" thing-id) :type "text"
-                         :placeholder "remarks"}]
-                [:input {:type "submit" :value "enroll" :class "btn btn-primary assign-button"
-                         :on-click 
-                            (submit-form-fn app :enrollment 
-                                            enroll-form-name enroll-form-data enroll-form-fields)
-                        }]
-              ]
-            ]
+            (thing-entry-child-form (subs enroll-form-name 1)  ; form id
+                                    "enrollment-form"   ; form class
+                                    enroll-form-input-map
+                                    "enroll"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :enrollment
+                                                    enroll-form-name
+                                                    enroll-form-data
+                                                    enroll-form-fields))
           ]
           [:div.clearleft]
       ]])))
@@ -647,62 +551,28 @@
     (.log js/console "lecture thing value " (pr-str authors title content))
     (list
       [:div.thing.link {:id (str thing-id)}
-        [:span.rank "1"]   ; index offset in the list of filtered things
-        [:div.midcol.unvoted
-          [:div.arrow.up {:role "button" :arial-label "upvote"}]
-          [:div.score.unvoted (:upvote value-map)]
-          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
-      
-        [:a.thumbnail {:href "#"}
-          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+        (thing-entry-thumbnail thing-type value-map)
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} title]]
-          [:p.subtitle [:span.tagline (str "content: " content)]]
-          [:p.subtitle [:span.tagline (str "url: " url)]]
-          [:p.tagline "Offered by " authors]
-          [:p.tagline start "   - -  " end]
+          (thing-entry-titles (vector title))
+          (thing-entry-subtitles (vector (str "  " content) 
+                                         (str "  " url)))
+          (thing-entry-taglines (vector (str "Offered by " authors)
+                                        (str start "  -  " end)))
 
           [:ul.flat-list.buttons
-            [:li.share
-              [:div {:class (:course-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :lecture :course)
-                  } 
-                  "course"]]]]
-
-            [:li.share
-              [:div {:class (:question-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :lecture :question)
-                  } 
-                  "questions"]]]]
-
-            [:li.share
-              [:div {:class (:add-question-class value-map)}
-                [:span.toggle [:a.option.active
-                  {:href "#" 
-                   :on-click (ui/toggle-hide-fn (str ".add-question-form"))
-                  }
-                  "add question"]]]]
-
-            [:li.share
-              [:div {:class (:enrollment-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :lecture :enrollment)
-                  }
-                  "enrollments"]]]]
-
-            [:li.share
-              [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :lecture :comments)
-                  } 
-                  "comments"]]]]
+            (thing-entry-action-button-li "course" (:course-class value-map)
+                                          (filter-things-onclick app entity :lecture :course))
+            (thing-entry-action-button-li "questions" (:question-class value-map)
+                                          (filter-things-onclick app entity :lecture :question))
+            (thing-entry-action-button-li "add question" (:add-question-class value-map)
+                                          (ui/toggle-hide-fn (str ".add-question-form")))
+            (thing-entry-action-button-li "enrollments" (:enrollment-class value-map)
+                                          (filter-things-onclick app entity :lecture :enrollment))
+            (thing-entry-action-button-li "likes" (:like-class value-map)
+                                          (filter-things-onclick app entity :lecture :like))
+            (thing-entry-action-button-li "comments" (:comments-class value-map)
+                                          (filter-things-onclick app entity :lecture :comments))
           ]
 
           ; hidden divs for in-line forms
