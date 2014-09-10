@@ -269,7 +269,6 @@
           } 
           text]]]]))
 
-
 ;
 ; child form at the bottom of thing entry
 ; input-map {:group/title {:id :type :text} :group/remart {:id :type :text}}
@@ -279,7 +278,14 @@
   [:div.hide {:id form-id}
     [:form {:class form-class :style #js {:float "left;"}}
       (for [[fk fmap] input-map]
-        [:input {:id (:id fmap) :type (:type fmap) :placeholder (:text fmap)}])
+        (if (= "datetime" (:type fmap))
+          [:div.datetime-picker.input-append
+            [:input {:id (:id fmap) :type (:type fmap) :data-format "hh:mm:ss MM/dd/yyyy" :placeholder (:text fmap)}]
+            [:span.add-on [:a {:href (str "javascript:NewCal('" (:id fmap) "','mmddyyyy', 'true');")}
+                            [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
+                            [:img {:src "cal.gif" :width "16" :height "16"}]]] 
+          ]
+          [:input {:id (:id fmap) :type (:type fmap) :placeholder (:text fmap)}]))
       [:button.btn.btn-primary.inline-form-btn  
         {:type "button" :id "submit" :on-click submit-fn}
       submit-text]
@@ -587,20 +593,37 @@
   (let [
         comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
-        authors (map #(get % :person/title) (get entity :question/author))
-        difficulty (get entity :question/difficulty)
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
         value-map (merge (thing-value entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
+        authors (map #(get % :person/title) (get entity :question/author))
+        difficulty (get entity :question/difficulty)
+        title (:title value-map)
+        content (:content value-map)
+        url (:url value-map)
+        
         assignto-form-name (str "#assignto-form-" thing-id)
-        assignto-end-field (str "assignto-end-" thing-id)
-        assignto-form-fields {:assignment/person (str "#assignto-person-" thing-id)
-                              :assignment/hint (str "#assignto-hint-" thing-id)
-                              :assignment/priority (str "#assignto-priority-" thing-id)
-                              :assignment/end (str "#assignto-end-" thing-id)
-                             }
+        assignto-form-input-map {
+          :assignment/person {:id (str "assignto-person-" thing-id) :type "text" :text "person name or group name"}
+          :assignment/hint {:id (str "assignto-hint-" thing-id) :type "text" :text "hint"}
+          :assignment/priority {:id (str "assignto-priority-" thing-id) :type "text" :text "priority"}
+          :assignment/end {:id (str "assignto-end-" thing-id) :type "datetime" :text "due time"}
+        }
+        assignto-form-fields {
+          :assignment/person (str "#" (get-in assignto-form-input-map [:assignment/person :id]))
+          :assignment/hint (str "#" (get-in assignto-form-input-map [:assignment/hint :id]))
+          :assignment/priority (str "#" (get-in assignto-form-input-map [:assignment/priority :id]))
+          :assignment/end (str "#" (get-in assignto-form-input-map [:assignment/end :id]))
+        }
+        ; assignto-end-field (str "assignto-end-" thing-id)
+        ; assignto-form-fields {:assignment/person (str "#assignto-person-" thing-id)
+        ;                       :assignment/hint (str "#assignto-hint-" thing-id)
+        ;                       :assignment/priority (str "#assignto-priority-" thing-id)
+        ;                       :assignment/end (str "#assignto-end-" thing-id)
+        ;                      }
+
         assignto-form-data {:assignment/origin thing-id
                             :assignment/author "rich-dad"   ; XXX hard code
                             :assignment/title (str "based on question of " (get entity :question/title))
@@ -612,92 +635,69 @@
     (.log js/console "question thing value " (pr-str value-map))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        [:span.rank "1"]   ; index offset in the list of filtered things
-        [:div.midcol.unvoted
-          [:div.arrow.up {:role "button" :arial-label "upvote"}]
-          [:div.score.unvoted (:upvote value-map)]
-          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
-      
-        [:a.thumbnail {:href "#"}
-          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+        (thing-entry-thumbnail thing-type value-map)
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} (:title value-map)]]
-          [:p.subtitle [:span.tagline (str " " (:content value-map))]]
-          [:p.subtitle [:span.tagline (str " " (:url value-map))]]
-          [:p.tagline "Authored by " authors]
-          [:p.tagline "difficulty " difficulty]
+          (thing-entry-titles (vector title))
+          (thing-entry-subtitles (vector (str "  " content) 
+                                         (str "  " url)))
+          (thing-entry-taglines (vector (str "Authored by " authors)
+                                        (str "difficulty " difficulty)))
 
           [:ul.flat-list.buttons
-            [:li.share
-              [:div {:class (:lecture-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :question :lecture)
-                  } 
-                  "lecture"]]]]
-
-            [:li.share
-              [:div {:class (:assignment-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :question :assignment)
-                  } 
-                  "assignments"]]]]
-
-            [:li.share
-              [:div {:class (:similar-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :question :similar)
-                  } 
-                  "similar questions"]]]]
-
-            [:li.share
-              [:div {:class (:assignto-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (ui/toggle-hide-fn (str "#assignto-form-" thing-id))
-                  }
-                  "assign to"]]]]
-
-            [:li.share
-              [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :question :comments)
-                  } 
-                  "comments"]]]]
+            (thing-entry-action-button-li "lecture" (:lecture-class value-map)
+                                          (filter-things-onclick app entity :question :lecture))
+            (thing-entry-action-button-li "assignments" (:assignment-class value-map)
+                                          (filter-things-onclick app entity :question :assignment))
+            (thing-entry-action-button-li "assign to" (:assignto-class value-map)
+                                          (ui/toggle-hide-fn (str "#assignto-form-" thing-id)))
+            (thing-entry-action-button-li "similar questions" (:similar-class value-map)
+                                          (filter-things-onclick app entity :question :similar))
+            (thing-entry-action-button-li "comments" (:comments-class value-map)
+                                          (filter-things-onclick app entity :question :comments))
           ]
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}
-            [:div.hide {:id (str "assignto-form-" thing-id)}
-              [:form.assign-form {:style #js {:float "left;"}}
-                [:input {:id (str "assignto-person-" thing-id) :type "text"
-                         :placeholder "person name or group name"}]
+            (thing-entry-child-form (subs assignto-form-name 1)  ; form id
+                                    "assignto-form"   ; form class
+                                    assignto-form-input-map
+                                    "assign"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :assignment
+                                                    assignto-form-name
+                                                    assignto-form-data
+                                                    assignto-form-fields))
 
-                [:div#assignto-end-picker.datetime-picker.input-append
-                  [:input {:id (str "assignto-end-" thing-id) :type "datetime" :data-format "hh:mm:ss MM/dd/yyyy"
-                           :placeholder "due time"}]
-                  [:span.add-on [:a {:href (str "javascript:NewCal('" assignto-end-field "','mmddyyyy', 'true');")}
-                                  [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
-                                  [:img {:src "cal.gif" :width "16" :height "16"}]]]
-                ]
-                [:input {:id (str "assignto-priority-" thing-id) :type "text"
-                         :placeholder "priority"}]
-                [:input {:id (str "assignto-hint-" thing-id) :type "text"
-                         :placeholder "hint"}]
-                [:button.btn.btn-primary.inline-form-btn 
-                  {:type "button" :id "submit"
-                   :on-click 
-                      (submit-form-fn app :assignment 
-                                      assignto-form-name 
-                                      assignto-form-data 
-                                      assignto-form-fields)
-                  } "Assign"]
-              ]
-            ]
+            ; [:div.hide {:id (str "assignto-form-" thing-id)}
+            ;   [:form.assign-form {:style #js {:float "left;"}}
+            ;     [:input {:id (str "assignto-person-" thing-id) :type "text"
+            ;              :placeholder "person name or group name"}]
+
+            ;     [:div#assignto-end-picker.datetime-picker.input-append
+            ;       [:input {:id (str "assignto-end-" thing-id) :type "datetime" :data-format "hh:mm:ss MM/dd/yyyy"
+            ;                :placeholder "due time"}]
+            ;       [:span.add-on [:a {:href (str "javascript:NewCal('" assignto-end-field "','mmddyyyy', 'true');")}
+            ;                       [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
+            ;                       [:img {:src "cal.gif" :width "16" :height "16"}]]]
+            ;     ]
+
+            ;     [:input {:id (str "assignto-priority-" thing-id) :type "text"
+            ;              :placeholder "priority"}]
+
+            ;     [:input {:id (str "assignto-hint-" thing-id) :type "text"
+            ;              :placeholder "hint"}]
+
+            ;     [:button.btn.btn-primary.inline-form-btn 
+            ;       {:type "button" :id "submit"
+            ;        :on-click 
+            ;           (submit-form-fn app :assignment 
+            ;                           assignto-form-name 
+            ;                           assignto-form-data 
+            ;                           assignto-form-fields)
+            ;       } "Assign"]
+            ;   ]
+            ; ]
           ]
           [:div.clearleft]
       ]])))
