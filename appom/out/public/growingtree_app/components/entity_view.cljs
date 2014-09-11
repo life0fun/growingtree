@@ -247,6 +247,16 @@
   (for [t titles]
     [:p.title [:a.title {:href "#"} t]]))
 
+(defn thing-entry-clickable-titles
+  [title click-fn]
+  [:p.title "to   " 
+    [:a.title 
+      {:href "#"
+       :on-click click-fn
+      }
+    (str "   " title)
+    ]])
+
 (defn thing-entry-subtitles
   [subtitles]
   (for [subt subtitles]
@@ -474,6 +484,8 @@
 
         authors (map #(get % :person/title) (get entity :course/author))
         title (get value-map :title)
+        content (:content value-map)
+        url (:url value-map)
         
         enroll-form-name (str "#enrollment-form-" thing-id)
         enroll-form-input-map {
@@ -498,8 +510,8 @@
 
         [:div.entry.unvoted
           (thing-entry-titles (vector title))
-          (thing-entry-subtitles (vector (str "  " (:content value-map)) 
-                                         (str "  " (:url value-map))))
+          (thing-entry-subtitles (vector (str "  " content value-map)
+                                         (str "  " url)))
           (thing-entry-taglines (vector (str " " type) (str "Offered by " authors)))
 
           [:ul.flat-list.buttons
@@ -617,13 +629,6 @@
           :assignment/priority (str "#" (get-in assignto-form-input-map [:assignment/priority :id]))
           :assignment/end (str "#" (get-in assignto-form-input-map [:assignment/end :id]))
         }
-        ; assignto-end-field (str "assignto-end-" thing-id)
-        ; assignto-form-fields {:assignment/person (str "#assignto-person-" thing-id)
-        ;                       :assignment/hint (str "#assignto-hint-" thing-id)
-        ;                       :assignment/priority (str "#assignto-priority-" thing-id)
-        ;                       :assignment/end (str "#assignto-end-" thing-id)
-        ;                      }
-
         assignto-form-data {:assignment/origin thing-id
                             :assignment/author "rich-dad"   ; XXX hard code
                             :assignment/title (str "based on question of " (get entity :question/title))
@@ -668,36 +673,6 @@
                                                     assignto-form-name
                                                     assignto-form-data
                                                     assignto-form-fields))
-
-            ; [:div.hide {:id (str "assignto-form-" thing-id)}
-            ;   [:form.assign-form {:style #js {:float "left;"}}
-            ;     [:input {:id (str "assignto-person-" thing-id) :type "text"
-            ;              :placeholder "person name or group name"}]
-
-            ;     [:div#assignto-end-picker.datetime-picker.input-append
-            ;       [:input {:id (str "assignto-end-" thing-id) :type "datetime" :data-format "hh:mm:ss MM/dd/yyyy"
-            ;                :placeholder "due time"}]
-            ;       [:span.add-on [:a {:href (str "javascript:NewCal('" assignto-end-field "','mmddyyyy', 'true');")}
-            ;                       [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
-            ;                       [:img {:src "cal.gif" :width "16" :height "16"}]]]
-            ;     ]
-
-            ;     [:input {:id (str "assignto-priority-" thing-id) :type "text"
-            ;              :placeholder "priority"}]
-
-            ;     [:input {:id (str "assignto-hint-" thing-id) :type "text"
-            ;              :placeholder "hint"}]
-
-            ;     [:button.btn.btn-primary.inline-form-btn 
-            ;       {:type "button" :id "submit"
-            ;        :on-click 
-            ;           (submit-form-fn app :assignment 
-            ;                           assignto-form-name 
-            ;                           assignto-form-data 
-            ;                           assignto-form-fields)
-            ;       } "Assign"]
-            ;   ]
-            ; ]
           ]
           [:div.clearleft]
       ]])))
@@ -715,7 +690,7 @@
                          override)
         
         authors (map #(get % :person/title) (get entity :assignment/author))
-        content (get-in value-map [:origin :question/content])
+        content (get-in value-map [:origin :question/title])
         url (get-in value-map [:origin :question/url])
         hint (get value-map :hint)
         end (-> (get value-map :end) (utils/time-to-string))
@@ -726,91 +701,73 @@
         assignee-id (get-in value-map [:person :db/id])
         ; for answer form
         answer-form-name (str "#answer-form-" thing-id)
-        answer-form-fields {:answer/title (str "#answer-title-" thing-id)
-                            :answer/content (str "#answer-content-" thing-id)}
-        answer-form-data {:answer/origin thing-id
-                          :answer/author "rich-son"   ; XXX hard code
-                          :answer/start (utils/to-epoch)}
+        answer-form-input-map {
+          :answer/title {:id (str "answer-title-" thing-id) :type "text" :text "answer"}
+          :answer/content {:id (str "answer-content-" thing-id) :type "text" :text "reason"}
+        }
+        answer-form-fields {
+          :answer/title (str "#" (get-in answer-form-input-map [:answer/title :id]))
+          :answer/content (str "#" (get-in answer-form-input-map [:answer/content :id]))
+        }
+        answer-form-data {
+          :answer/origin thing-id
+          :answer/author "rich-son"   ; XXX hard code
+          :answer/start (utils/to-epoch)
+        }
        ]
     (.log js/console "assignment thing value " (pr-str value-map))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        [:span.rank "1"]   ; index offset in the list of filtered things
-        [:div.midcol.unvoted
-          [:div.arrow.up {:role "button" :arial-label "upvote"}]
-          [:div.score.unvoted (:upvote value-map)]
-          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
-      
-        [:a.thumbnail {:href "#"}
-          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
-      
+        (thing-entry-thumbnail thing-type value-map)
+
         [:div.entry.unvoted
-          [:p.title "to   " [:a.title 
-            {:href "#"
-             :on-click (filter-things-onclick app assignee :child :assignment)
-            }
-            (str "   " assignee-name)]]
-          [:p.subtitle [:span.tagline (str "content: " content)]]
-          [:p.subtitle [:span.tagline (str "url: " url)]]
-          [:p.tagline "hint :" hint]
-          [:p.tagline "due  :" end]
+          (thing-entry-clickable-titles assignee-name 
+                                        (filter-things-onclick app assignee :child :assignment))
+
+          (thing-entry-subtitles (vector (str "  " content) (str " " url)))
+          (thing-entry-taglines (vector (str "hint " hint) (str "due " end)))
 
           [:ul.flat-list.buttons
-            [:li.share
-              [:div {:class (:lecture-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :assignment :question)
-                  } "question"]]]]
-
-            [:li.share
-              [:div {:class (:assignment-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :assignment :answer)
-                  } "answers"]]]]
-
-            [:li.share
-              [:div {:class (:similar-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :assignment :similar)
-                  } "related assignments"]]]]
-
-            [:li.share
-              [:div {:class (:answer-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (ui/toggle-hide-fn (str "#answer-form-" thing-id))
-                  }
-                  "answer"]]]]
-
-            [:li.share
-              [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :assignment :comments)
-                  } 
-                  "comments"]]]]
+            (thing-entry-action-button-li "question" (:queston-class value-map)
+                                          (filter-things-onclick app entity :assignment :question))
+            (thing-entry-action-button-li "answers" (:answer-class value-map)
+                                          (filter-things-onclick app entity :assignment :answer))
+            (thing-entry-action-button-li "submit answer" (:submit-answer-class value-map)
+                                          (ui/toggle-hide-fn (str "#answer-form-" thing-id)))
+            (thing-entry-action-button-li "related assignments" (:similar-class value-map)
+                                          (filter-things-onclick app entity :assignment :similar))
+            (thing-entry-action-button-li "likes" (:like-class value-map)
+                                          (filter-things-onclick app entity :assignment :like))
+            (thing-entry-action-button-li "comments" (:comments-class value-map)
+                                          (filter-things-onclick app entity :assignment :comments))
           ]
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}
-            [:div.hide {:id (str "answer-form-" thing-id)}
-              [:form.answer-form {:style #js {:float "left;"}}
-                [:input {:id (str "answer-title-" thing-id) :type "text"
-                         :placeholder "answer"}]
-                [:input {:id (str "answer-content-" thing-id) :type "text"
-                         :placeholder "explain"}]
-                [:button {:type "submit" :value "submit" :class "btn btn-primary assign-button"
-                         :on-click 
-                            (submit-form-fn app :answer 
-                                            answer-form-name 
-                                            answer-form-data 
-                                            answer-form-fields)
-                         }]
-              ]
-            ]
+            (thing-entry-child-form (subs answer-form-name 1)  ; form id
+                                    "answer-form"   ; form class
+                                    answer-form-input-map
+                                    "answer"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :answer
+                                                    answer-form-name
+                                                    answer-form-data
+                                                    answer-form-fields))
+            ; [:div.hide {:id (str "answer-form-" thing-id)}
+            ;   [:form.answer-form {:style #js {:float "left;"}}
+            ;     [:input {:id (str "answer-title-" thing-id) :type "text"
+            ;              :placeholder "answer"}]
+            ;     [:input {:id (str "answer-content-" thing-id) :type "text"
+            ;              :placeholder "explain"}]
+            ;     [:button {:type "submit" :value "submit" :class "btn btn-primary assign-button"
+            ;              :on-click 
+            ;                 (submit-form-fn app :answer 
+            ;                                 answer-form-name 
+            ;                                 answer-form-data 
+            ;                                 answer-form-fields)
+            ;              }]
+            ;   ]
+            ; ]
           ]
           [:div.clearleft]
       ]])))
