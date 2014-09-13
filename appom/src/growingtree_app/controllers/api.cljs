@@ -10,9 +10,10 @@
 (declare drop-old-activity-from-channel)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-; API chan event processing. update global state with ajax data from datomic peer.
+; API chan event processing fn calle by swap to trans global state.
+; assoc-in api ajax data from datomic peer into slots inside global state.
+; Note api is not part of OM UI rendering interactive phase. so no use of om/update. 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
 ; target is view fn $el, not used.
 (defmulti api-event
   (fn [target msg-type msg-data state] msg-type))
@@ -25,7 +26,7 @@
 ; api event come back, store in app state body section.
 (defmethod api-event
   :api-data
-  [target msg-type msg-data state]
+  [target msg-type msg-data state]  ; state is atom passed from swap! state
   (let [things-vec (:things-vec msg-data)
         nav-path (:nav-path msg-data)
        ]

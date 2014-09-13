@@ -510,7 +510,7 @@
 
         [:div.entry.unvoted
           (thing-entry-titles (vector title))
-          (thing-entry-subtitles (vector (str "  " content value-map)
+          (thing-entry-subtitles (vector (str "  " content)
                                          (str "  " url)))
           (thing-entry-taglines (vector (str " " type) (str "Offered by " authors)))
 
@@ -753,21 +753,6 @@
                                                     answer-form-name
                                                     answer-form-data
                                                     answer-form-fields))
-            ; [:div.hide {:id (str "answer-form-" thing-id)}
-            ;   [:form.answer-form {:style #js {:float "left;"}}
-            ;     [:input {:id (str "answer-title-" thing-id) :type "text"
-            ;              :placeholder "answer"}]
-            ;     [:input {:id (str "answer-content-" thing-id) :type "text"
-            ;              :placeholder "explain"}]
-            ;     [:button {:type "submit" :value "submit" :class "btn btn-primary assign-button"
-            ;              :on-click 
-            ;                 (submit-form-fn app :answer 
-            ;                                 answer-form-name 
-            ;                                 answer-form-data 
-            ;                                 answer-form-fields)
-            ;              }]
-            ;   ]
-            ; ]
           ]
           [:div.clearleft]
       ]])))
@@ -794,82 +779,53 @@
         start (-> (get value-map :start) (utils/time-to-string))
 
         grade-form-name (str "#grade-form-" thing-id)
-        grade-form-fields {:grade/score (str "#grade-score-" thing-id)
-                           :grade/comments (str "#grade-comments-" thing-id)
-                          }
-        grade-form-data {:grade/origin thing-id
-                          :grade/author "rich-dad"   ; XXX hard code
-                          :grade/start (utils/to-epoch)
-                         } ; peer add-thing :grade
+        grade-form-input-map {
+          :grade/score {:id (str "grade-score-" thing-id) :type "text" :text "100"}
+          :grade/comments {:id (str "grade-comments-" thing-id) :type "text" :text "comments"}
+        }
+        grade-form-fields {
+          :grade/score (str "#" (get-in grade-form-input-map [:grade/score :id]))
+          :grade/comments (str "#" (get-in grade-form-input-map [:grade/comments :id]))
+        }
+        grade-form-data {
+          :grade/origin thing-id
+          :grade/author "rich-dad"   ; XXX hard code
+          :grade/start (utils/to-epoch)
+        } ; peer add-thing :grade
        ]
     (.log js/console "answer thing value " (pr-str value-map))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        [:span.rank "1"]   ; index offset in the list of filtered things
-        [:div.midcol.unvoted
-          [:div.arrow.up {:role "button" :arial-label "upvote"}]
-          [:div.score.unvoted (:upvote value-map)]
-          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
-      
-        [:a.thumbnail {:href "#"}
-          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+        (thing-entry-thumbnail thing-type value-map)
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} title]]
-          [:p.subtitle [:span.tagline (str "content: " content)]]
-          [:p.subtitle [:span.tagline (str "assignment : " origin-content)]]
-          [:p.tagline "submitted at :" start]
-
-          [:p.title (str "Score : " score)]
+          (thing-entry-titles (vector title))
+          (thing-entry-subtitles (vector (str "  " content) (str "  " origin-content)))
+          (thing-entry-taglines (vector (str "submitted at : " start)))
+          (thing-entry-titles (vector score))
 
           [:ul.flat-list.buttons
-            [:li.share
-              [:div {:class (:lecture-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :answer :assignment)
-                  } "assignment"]]]]
-
-            [:li.share
-              [:div {:class (:answer-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (ui/toggle-hide-fn (str "#grade-form-" thing-id))
-                  }
-                  "grade"]]]]
-
-            [:li.share
-              [:div {:class (:similar-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :answer :similar)
-                  } "similar answers"]]]]
-
-            [:li.share
-              [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :answer :comments)
-                  } "comments"]]]]
+            (thing-entry-action-button-li "assignment" (:assignment-class value-map)
+                                          (filter-things-onclick app entity :answer :assignment))
+            (thing-entry-action-button-li "grade" (:grade-class value-map)
+                                          (ui/toggle-hide-fn (str "#grade-form-" thing-id)))
+            (thing-entry-action-button-li "similar answers" (:similar-class value-map)
+                                          (filter-things-onclick app entity :answer :similar))
+            (thing-entry-action-button-li "comments" (:comments-class value-map)
+                                          (filter-things-onclick app entity :answer :comments))
           ]
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}
-            [:div.hide {:id (str "grade-form-" thing-id)}
-              [:form.grade-form {:style #js {:float "left;"}}
-                [:input {:id (str "grade-score-" thing-id) :type "text"
-                         :placeholder "grade"}]
-                [:input {:id (str "grade-comments-" thing-id) :type "text"
-                         :placeholder "comments"}]
-                [:input {:type "submit" :value "submit" :class "btn btn-primary assign-button"
-                         :on-click 
-                            (submit-form-fn app :grade 
-                                            grade-form-name 
-                                            grade-form-data 
-                                            grade-form-fields)
-                         }]
-              ]
-            ]
+            (thing-entry-child-form (subs grade-form-name 1)  ; form id
+                                    "grade-form"   ; form class
+                                    grade-form-input-map
+                                    "grade"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :grade
+                                                    grade-form-name
+                                                    grade-form-data
+                                                    grade-form-fields))
           ]
           [:div.clearleft]
       ]])))
@@ -899,69 +855,47 @@
         offset (/ (- (count (get value-map :navpath)) 2) 2)
 
         reply-form-name (str "#reply-form-" thing-id)
-        reply-form-fields {:comments/title (str "#reply-title-" thing-id)
-                          }
-        reply-form-data {:comments/origin thing-id
-                         :comments/thingroot thingroot
-                          :comments/author "rich-son"   ; XXX hard code
-                         } ; peer add-thing :reply
+        reply-form-input-map {
+          :comments/title {:id (str "reply-title-" thing-id) :type "text" :text "comments"}
+        }
+        reply-form-fields {
+          :comments/title (str "#" (get-in reply-form-input-map [:comments/title :id]))
+        }
+        reply-form-data {
+          :comments/origin thing-id
+          :comments/thingroot thingroot
+          :comments/author "rich-son"   ; XXX hard code
+        } ; peer add-thing :reply
        ]
     (.log js/console "comments thing value " (pr-str value-map))
     (list
       [:div.thing.link {:id (str (:db/id value-map)) :class (str "comment" offset)}
-        [:span.rank "1"]   ; index offset in the list of filtered things
-        [:div.midcol.unvoted
-          [:div.arrow.up {:role "button" :arial-label "upvote"}]
-          [:div.score.unvoted (:upvote value-map)]
-          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
-      
-        [:a.thumbnail {:href "#"}
-          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+        (thing-entry-thumbnail thing-type value-map)
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} title]]
-          [:p.tagline "submitted " ago " ago at " tm]
+          (thing-entry-titles (vector title))
+          (thing-entry-taglines (vector (str "submitted " ago  " ago at " tm)))
 
           [:ul.flat-list.buttons
-            [:li.share
-              [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :comments :comments)
-                  } 
-                  "comments"]]]]
-
-            [:li.share
-              [:div {:class (:lecture-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :comments :comments)
-                  } "tips"]]]]
-
-            [:li.share
-              [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (ui/toggle-hide-fn (str "#reply-form-" thing-id))
-                  }
-                  "reply"]]]]
+            (thing-entry-action-button-li "comments" (:comments-class value-map)
+                                          (filter-things-onclick app entity :comments :comments))
+            (thing-entry-action-button-li "tips" (:tips-class value-map)
+                                          (filter-things-onclick app entity :comments :comments))
+            (thing-entry-action-button-li "reply" (:comments-class value-map)
+                                          (ui/toggle-hide-fn (str "#reply-form-" thing-id)))
           ]
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}
-            [:div.hide {:id (str "reply-form-" thing-id)}
-              [:form.reply-form {:style #js {:float "left;"}}
-                [:textarea {:id (str "reply-title-" thing-id) :type "text" :placeholder "comments"
-                            :style #js {:display "block" :width "90%" :height "100px"} }]
-                [:input {:type "submit" :value "submit" :class "btn btn-primary assign-button"
-                         :on-click 
-                            (submit-form-fn app :comments 
-                                            reply-form-name 
-                                            reply-form-data 
-                                            reply-form-fields)
-                         }]
-              ]
-            ]
+            (thing-entry-child-form (subs reply-form-name 1)  ; form id
+                                    "reply-form"   ; form class
+                                    reply-form-input-map
+                                    "reply"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :comments       ; reply of a comment itself is a comment
+                                                    reply-form-name
+                                                    reply-form-data
+                                                    reply-form-fields))
           ]
           [:div.clearleft]
       ]])))
@@ -982,126 +916,83 @@
                          override)
         title (get value-map :title)
         authors (map #(get % :person/title) (get entity :group/author))
+
+        ; join group form
         join-group-form-name (str "#join-group-form-" thing-id)
-        join-group-form-fields {:group/person (str "#group-person-" thing-id)
-                                :group/remark (str "#group-remark-" thing-id)
-                               }
+        join-group-form-input-map {
+          :group/person {:id (str "group-person-" thing-id) :type "text" :text "name"}
+          :group/remark {:id (str "group-remark-" thing-id) :type "text" :text "remark"}
+        }
+        join-group-form-fields {
+          :group/person (str "#" (get-in join-group-form-input-map [:group/person :id]))
+          :group/remark (str "#" (get-in join-group-form-input-map [:group/remark :id]))
+        }
         join-group-form-data {:group/title title}
 
-        ; add group event/activity
-        add-activity-form-data {:group/title title}
+        ; group activity form
         add-activity-form-name (str "#add-activity-form-" thing-id)
-        add-activity-form-fields {:activity/title (str "#activity-title-" thing-id)
-                                  :activity/author (str "#activity-author-" thing-id)
-                                  :activity/content (str "#activity-content-" thing-id)
-                                  :activity/location (str "#activity-location-" thing-id)
-                                  :activity/start (str "#activity-start-" thing-id)
-                                  :activity/url (str "#activity-url-" thing-id)
-                                 }
+        add-activity-form-input-map {
+          :activity/title {:id (str "activity-title-" thing-id) :type "text" :text "activity name"}
+          :activity/author {:id (str "activity-author-" thing-id) :type "text" :text "activity author"}
+          :activity/content {:id (str "activity-content-" thing-id) :type "text" :text "activity content"}
+          :activity/location {:id (str "activity-location-" thing-id) :type "text" :text "activity address"}
+          :activity/start {:id (str "activity-start-" thing-id) :type "datetime" :text "start time"}
+          :activity/url {:id (str "activity-url-" thing-id) :type "text" :text "activity url"}
+        }
+        add-activity-form-fields {
+          :activity/title (str "#" (get-in add-activity-form-input-map [:activity/title :id]))
+          :activity/author (str "#" (get-in add-activity-form-input-map [:activity/author :id]))
+          :activity/content (str "#" (get-in add-activity-form-input-map [:activity/content :id]))
+          :activity/location (str  "#" (get-in add-activity-form-input-map [:activity/location :id]))
+          :activity/start (str "#" (get-in add-activity-form-input-map [:activity/start :id]))
+          :activity/url (str "#" (get-in add-activity-form-input-map [:activity/url :id]))
+        }
         add-activity-form-data {:activity/origin thing-id} ; activity origin points to group.
-        activity-start-id (str "activity-start-" thing-id)
-        activity-start-js (str "javascript:NewCal('" activity-start-id "', 'mmddyyyy', 'true');")
        ]
     (.log js/console "groups thing entry " (pr-str thing-id title authors))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        [:span.rank "1"]   ; index offset in the list of filtered things
-        [:div.midcol.unvoted
-          [:div.arrow.up {:role "button" :arial-label "upvote"}]
-          [:div.score.unvoted (:upvote value-map)]
-          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
-      
-        [:a.thumbnail {:href "#"}
-          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+        (thing-entry-thumbnail thing-type value-map)
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} title]]
-          [:p.tagline "created by " authors]
+          (thing-entry-titles (vector title))
+          (thing-entry-taglines (vector (str "created by " authors)))
 
           [:ul.flat-list.buttons
-            [:li.share
-              [:div {:class (:group-members-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :groups :group-members)
-                  } 
-                  "group-members"]]]]
-
-            [:li.share
-              [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :groups :comments)
-                  } "comments"]]]]
-
-            [:li.share
-              [:div {:class (:groups-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (ui/toggle-hide-fn (str "#join-group-form-" thing-id))
-                  }
-                  "join-group"]]]]
-
-            [:li.share
-              [:div {:class (:activity-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :group :activity)
-                  } 
-                  "activities"]]]]
-
-            [:li.share
-              [:div {:class (:add-activity-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (ui/toggle-hide-fn (str "#add-activity-form-" thing-id))
-                  }
-                  "add-activity"]]]]      
+            (thing-entry-action-button-li "group members" (:group-members-class value-map)
+                                          (filter-things-onclick app entity :groups :group-members))
+            (thing-entry-action-button-li "comments" (:comments-class value-map)
+                                          (filter-things-onclick app entity :groups :comments))
+            (thing-entry-action-button-li "join-group" (:groups-class value-map)
+                                          (ui/toggle-hide-fn (str "#join-group-form-" thing-id)))
+            (thing-entry-action-button-li "activities" (:activity-class value-map)
+                                          (filter-things-onclick app entity :group :activity))
+            (thing-entry-action-button-li "add-activity" (:add-activity-class value-map)
+                                          (ui/toggle-hide-fn (str "#add-activity-form-" thing-id)))
           ]
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}
             ; join group
-            [:div.hide {:id (subs join-group-form-name 1)}
-              [:form.join-group-form.input-form
-                [:input {:id (str "group-person-" thing-id) :type "text"
-                         :placeholder "name"}]
-                [:input {:id (str "group-remark-" thing-id) :type "text"
-                         :placeholder "remark"}]
-                [:input {:type "submit" :value "join-group" 
-                         :class "btn btn-primary assign-button pull-right"
-                         :on-click 
-                            (submit-form-fn app :join-group 
-                                            join-group-form-name join-group-form-data join-group-form-fields)
-                        }]
-              ]
-            ]
-            ; add group activity
-            [:div.hide {:id (subs add-activity-form-name 1)}
-              [:form.add-activity-form.input-form
-                [:input {:id (str "activity-title-" thing-id) :type "text"
-                         :placeholder "activity name"}]
-                [:input {:id (str "activity-author-" thing-id) :type "text"
-                         :placeholder "activity author"}]
-                [:input {:id (str "activity-content-" thing-id) :type "text"
-                         :placeholder "activity content"}]
-                [:input {:id (str "activity-location-" thing-id) :type "text"
-                         :placeholder "activity address"}]
-                [:input {:id (str "activity-url-" thing-id) :type "text"
-                         :placeholder "activity url"}]                         
-                [:div#activity-start-picker.input-append
-                  [:input {:id activity-start-id :type "datetime" :placeholder "start time" :data-format "hh:mm:ss MM/dd/yyyy"}]
-                  [:span.add-on [:a {:href activity-start-js}
-                              [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
-                              [:img {:src "cal.gif" :width "16" :height "16"}]]]]
-                [:input {:type "submit" :value "add-activity" 
-                         :class "btn btn-primary assign-button pull-right"
-                         :on-click 
-                            (submit-form-fn app :activity
-                                            add-activity-form-name add-activity-form-data add-activity-form-fields)
-                        }]
-              ]
-            ]
+            (thing-entry-child-form (subs join-group-form-name 1)  ; form id
+                                    "join-group-form"   ; form class
+                                    join-group-form-input-map
+                                    "join group"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :join-group
+                                                    join-group-form-name
+                                                    join-group-form-data
+                                                    join-group-form-fields))
+
+            (thing-entry-child-form (subs add-activity-form-name 1)  ; form id
+                                    "add-activity-form"   ; form class
+                                    add-activity-form-input-map
+                                    "add activity"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :add-activity
+                                                    add-activity-form-name
+                                                    add-activity-form-data
+                                                    add-activity-form-fields))
           ]
           [:div.clearleft]
       ]])))
@@ -1127,78 +1018,47 @@
         location (get value-map :location)
         url (get value-map :url)
         join-activity-form-name (str "#join-activity-form-" thing-id)
-        join-activity-form-fields {:activity/person (str "#activity-person-" thing-id)
-                                   :activity/remark (str "#activity-remark-" thing-id)
-                                  }
+        join-activity-form-input-map {
+          :activity/person {:id (str "activity-person-" thing-id) :type "text" :text "name"}
+          :activity/remark {:id (str "activity-remark-" thing-id) :type "text" :text "remark"}
+        }
+        join-activity-form-fields {
+          :activity/person (str "#" (get-in join-activity-form-input-map [:activity/person :id]))
+          :activity/remark (str "#" (get-in join-activity-form-input-map [:activity/remark :id]))
+        }
         join-activity-form-data {:activity/title title}
        ]
     (.log js/console "thing-entry " (pr-str thing-id title url))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        [:span.rank "1"]   ; index offset in the list of filtered things
-        [:div.midcol.unvoted
-          [:div.arrow.up {:role "button" :arial-label "upvote"}]
-          [:div.score.unvoted (:upvote value-map)]
-          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
-      
-        [:a.thumbnail {:href "#"}
-          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+        (thing-entry-thumbnail thing-type value-map)
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} title]]
-          [:p.tagline content]
-          [:p.tagline start "   at   " location]
-          [:p.tagline "url " url]
+          (thing-entry-titles (vector title))
+          (thing-entry-taglines (vector (str content) (str start "  at  " location) (str url)))
 
           [:ul.flat-list.buttons
-            [:li.share
-              [:div {:class (:activity-members-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :activity :activity-members)
-                  } 
-                  "participants"]]]]
-
-            [:li.share
-              [:div {:class (:comments-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :activity :comments)
-                  } "comments"]]]]
-
-            [:li.share
-              [:div {:class (:activity-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (ui/toggle-hide-fn (str "#join-activity-form-" thing-id))
-                  }
-                  "join-activity"]]]]
-
-            [:li.share
-              [:div {:class (:activity-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :activity :group)
-                  } 
-                  "group"]]]]
+            (thing-entry-action-button-li "participants" (:activity-members-class value-map)
+                                          (filter-things-onclick app entity :activity :activity-members))
+            (thing-entry-action-button-li "join activity" (:activity-class value-map)
+                                          (ui/toggle-hide-fn (str "#join-activity-form-" thing-id)))
+            (thing-entry-action-button-li "comments" (:comments-class value-map)
+                                          (filter-things-onclick app entity :activity :comments))
+            (thing-entry-action-button-li "group" (:group-class value-map)
+                                          (filter-things-onclick app entity :activity :group))
           ]
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}
-            ; join activity
-            [:div.hide {:id (subs join-activity-form-name 1)}
-              [:form.join-activity-form {:style #js {:float "left;"}}
-                [:input {:id (str "activity-person-" thing-id) :type "text"
-                         :placeholder "name"}]
-                [:input {:id (str "activity-remark-" thing-id) :type "text"
-                         :placeholder "remark"}]
-                [:input {:type "submit" :value "join-activity" :class "btn btn-primary assign-button"
-                         :on-click 
-                            (submit-form-fn app :join-activity 
-                                            join-activity-form-name join-activity-form-data join-activity-form-fields)
-                        }]
-              ]
-            ]
+            (thing-entry-child-form (subs join-activity-form-name 1)  ; form id
+                                    "join-activity-form"   ; form class
+                                    join-activity-form-input-map
+                                    "join activity"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :join-activity
+                                                    join-activity-form-name
+                                                    join-activity-form-data
+                                                    join-activity-form-fields))
           ]
           [:div.clearleft]
       ]])))
@@ -1228,34 +1088,18 @@
     (.log js/console "timeline thing value " (pr-str (keyword (str thing-type "/title"))) (pr-str value-map))
     (list
       [:div.thing.link {:id (str (:db/id value-map)) :class (str "timeline" offset)}
-        [:span.rank "1"]   ; index offset in the list of filtered things
-        [:div.midcol.unvoted
-          [:div.arrow.up {:role "button" :arial-label "upvote"}]
-          [:div.score.unvoted (:upvote value-map)]
-          [:div.arrow.down {:role "button" :arial-label "downvote"}]]
-      
-        [:a.thumbnail {:href "#"}
-          [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
+        (thing-entry-thumbnail thing-type value-map)
       
         [:div.entry.unvoted
-          [:p.title [:a.title {:href "#"} title]]
-          [:p.tagline "submitted " ago " ago at " tm]
-
+          (thing-entry-titles (vector title))
+          (thing-entry-taglines (vector (str "submitted " ago " at " tm)))
+          
           [:ul.flat-list.buttons
-            [:li.share
-              [:div {:class (:timeline-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :timeline :timeline)
-                  } 
-                  "timeline"]]]]
-
-            [:li.share
-              [:div {:class (:lecture-class value-map)}
-                [:span.toggle [:a.option.active 
-                  {:href "#"
-                   :on-click (filter-things-onclick app entity :timeline :timeline)
-                  } "tips"]]]]
+            (thing-entry-action-button-li "timeline" (:timeline-class value-map)
+                                          (filter-things-onclick app entity :timeline :timeline))
+            (thing-entry-action-button-li "tips" (:tips-class value-map)
+                                          (filter-things-onclick app entity :timeline :timeline))
+            
           ]
           [:div.clearleft]
       ]])))

@@ -101,7 +101,6 @@
                   msg-data (last v)
                   things-vec (:things-vec msg-data)]
               ; (.log js/console (pr-str "api chan event : type " msg-type " data " msg-data))
-              ; (update-history! history :api v)
               ; api-event process api-data, api-success, and api-error.
               (swap! state (partial api-con/api-event target msg-type msg-data))
               ; post-api-event do nothing for now.

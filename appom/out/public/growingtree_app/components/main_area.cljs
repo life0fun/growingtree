@@ -79,7 +79,6 @@
   (.log js/console  (pr-str "main content nav-path body slot no query filter. do nothing " nav-path))
   )
 
-
 ; for all-things.
 ; {:body [:all-things [:all 0 :lecture]], :data {:author "rich-dad"}} 
 (defmethod main-content 
