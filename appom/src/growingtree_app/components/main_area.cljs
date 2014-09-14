@@ -49,7 +49,7 @@
           [:a.sidebar-toggle.button.right 
             {:href "#" :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
           [:a.logo {:href "#" :on-click (constantly false)}
-            [:img {:src "logo_app.png" :height "35" :title "growingtree-app"}]]]
+            [:img {:src "logo_thumb.png" :height "35" :title "growingtree-app"}]]]
         [:div#content
             (main-content app nav-path search-filter opts)
           ;(chatbox comm opts)
