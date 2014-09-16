@@ -90,6 +90,20 @@
                       (get nav-path :details))  ; input data is {:add-thing :course :details {:title ... :content ...}}
   )
 
+; nav-path {:search-thing :all-things, :details {:searchkey "math"}}
+(defmethod post-control-event! 
+  :search-thing
+  [target msg-type nav-path previous-state current-state]
+  (.log js/console (pr-str "post ajax search-thing nav-path " nav-path)) ; {:search-thing "xxx" :data "xxx"}
+  ; ; update secretary router match to action.
+  (utils/set-window-href! (routes/v1-all-things
+                            {:thing-type (name (get nav-path :search-thing))}))
+  (cljsajax/cljs-ajax :search-thing
+                      nav-path  
+                      (get-in current-state [:comms :api]) ; api-ch
+                      (get nav-path :details))  ; {:searchkey "math"}
+  )
+
 (defmethod post-control-event! 
   :current-user-mentioned
   [target message args previous-state current-state]

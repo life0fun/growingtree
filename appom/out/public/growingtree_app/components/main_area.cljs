@@ -66,9 +66,7 @@
 (defmulti main-content 
   (fn [app nav-path search-filter opts]
     (cond
-      (:body nav-path) (first (:body nav-path))
-      ; (:peer-result nav-path) :refresh 
-      ; (:add-thing nav-path) :refresh
+      (:body nav-path) (first (:body nav-path))  ; {:body [:all-things [:all 0 :x]]}
       :else :default)))
 
 ; main content shall display query result filtered thing list.
@@ -76,7 +74,7 @@
 (defmethod main-content 
   :default
   [app nav-path search-filter opts]
-  (.log js/console  (pr-str "main content nav-path body slot no query filter. do nothing " nav-path))
+  (.log js/console  (pr-str "main content default: [:body nav-path] null " nav-path))
   )
 
 ; for all-things.
@@ -135,30 +133,31 @@
       (newthing-form/add-form thing-type comm nav-path)
     ]))
 
+; XXX deprecates !
 ; after adding new thing, refresh the last nav-path.
 ; we are in render state, so last nav path is a cursor to state. when core go thread processing
 ; nav path cursor, it needs to de-ref.
 ; {:body [:all-things [:all 0 :question]]} data {:body [:all-things [:all 0 :question]]}
-(defmethod main-content 
-  :refresh
-  [app nav-path search-filter opts]
-  (let [comm (get-in app [:comms :controls])
-        last-nav-path (last (drop-last (get-in app [:nav-path])))
-        msg-type (get-in last-nav-path [:body 0])
-        thing-type (get nav-path :add-thing)
-        ; nav-path {:body [:all-things [:all 0 thing-type]]}
-        error (get-in (get-in app [:error]) [:error :status-text])
-        error (get-in app [:error])
-       ]
-    (.log js/console (pr-str "main content add-thing trigger refresh " last-nav-path nav-path))
-    (if-not error
-      ; (list-things app thing-type last-nav-path search-filter opts)
-      (main-content app last-nav-path search-filter opts)
-      (do 
-        (.log js/console (pr-str "add-thing error " msg-type last-nav-path error))
-        (put! comm [:refresh last-nav-path])  ; re-dicrect by append last-nav-path to nav-path.
-        ))
-    ))
+; (defmethod main-content 
+;   :refresh
+;   [app nav-path search-filter opts]
+;   (let [comm (get-in app [:comms :controls])
+;         last-nav-path (last (drop-last (get-in app [:nav-path])))
+;         msg-type (get-in last-nav-path [:body 0])
+;         thing-type (get nav-path :add-thing)
+;         ; nav-path {:body [:all-things [:all 0 thing-type]]}
+;         error (get-in (get-in app [:error]) [:error :status-text])
+;         error (get-in app [:error])
+;        ]
+;     (.log js/console (pr-str "main content add-thing trigger refresh " last-nav-path nav-path))
+;     (if-not error
+;       ; (list-things app thing-type last-nav-path search-filter opts)
+;       (main-content app last-nav-path search-filter opts)
+;       (do 
+;         (.log js/console (pr-str "add-thing error " msg-type last-nav-path error))
+;         (put! comm [:refresh last-nav-path])  ; re-dicrect by append last-nav-path to nav-path.
+;         ))
+;     ))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; main content listing things render things from app state :body slot, 

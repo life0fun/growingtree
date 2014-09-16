@@ -10,12 +10,14 @@
             [goog.Uri]
             [goog.net.EventType :as gevt]
             [goog.i18n.NumberFormat.Format :as formats]
+
+            [om.core :as om]
+            [dommy.core :as dommy]
+            [sablono.core :as html :refer-macros [html]]
+
             [growingtree-app.utils :as utils :refer [mprint]]
             [growingtree-app.mock-data :as mock-data]
-            [growingtree-app.ui :as ui] 
-            [om.core :as om]
-            [sablono.core :as html :refer-macros [html]]
-            [dommy.core :as dommy])
+            [growingtree-app.ui :as ui])
   (:require-macros [cljs.core.async.macros :as am :refer [go alt!]])
   (:use-macros [dommy.macros :only [node sel sel1]]))
 

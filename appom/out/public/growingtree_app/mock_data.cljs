@@ -123,6 +123,16 @@
     msg))
 
 
+; get :search-thing msg to be sent to control channle to trigger ajax
+; msg-type = :search-thing, msg-data [:]
+(defn get-search-msg
+  [thing-type search]
+  (let [msg [:search-thing {:search-thing thing-type  ; can be :course, :group
+                            :details {:searchkey search}}]
+       ]
+    msg))
+
+
 ; each chan contains users in the chan and activities inisde chan. random title if no title.
 (defn random-channel [order & [title]]
   (let [title (or title (random-title))]

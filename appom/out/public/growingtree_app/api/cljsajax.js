@@ -40,10 +40,18 @@ return cljs.core.async.put_BANG_.call(null,api_ch,new cljs.core.PersistentVector
 growingtree_app.api.cljsajax.cljs_ajax = (function cljs_ajax(command,nav_path,api_ch,param_details){var query_path = cljs.core.get_in.call(null,nav_path,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"body","body",-2049205669),(1)], null));var thing_type = (function (){var or__3543__auto__ = cljs.core.last.call(null,query_path);if(cljs.core.truth_(or__3543__auto__))
 {return or__3543__auto__;
 } else
-{return cljs.core.get.call(null,nav_path,new cljs.core.Keyword(null,"add-thing","add-thing",321362583));
+{var or__3543__auto____$1 = cljs.core.get.call(null,nav_path,new cljs.core.Keyword(null,"add-thing","add-thing",321362583));if(cljs.core.truth_(or__3543__auto____$1))
+{return or__3543__auto____$1;
+} else
+{return cljs.core.get.call(null,nav_path,new cljs.core.Keyword(null,"search-thing","search-thing",-189284446));
+}
 }
 })();var request = new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"handler","handler",-195596612),growingtree_app.api.cljsajax.handler.call(null,command,nav_path,api_ch),new cljs.core.Keyword(null,"error-handler","error-handler",-484945776),growingtree_app.api.cljsajax.error_handler.call(null,command,nav_path,api_ch),new cljs.core.Keyword(null,"format","format",-1306924766),new cljs.core.Keyword(null,"edn","edn",1317840885),new cljs.core.Keyword(null,"params","params",710516235),new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"thing-type","thing-type",15521235),thing_type,new cljs.core.Keyword(null,"path","path",-188191168),query_path,new cljs.core.Keyword(null,"qpath","qpath",-697341501),cljs.core.get.call(null,nav_path,new cljs.core.Keyword(null,"title","title",636505583)),new cljs.core.Keyword(null,"details","details",1956795411),param_details], null),new cljs.core.Keyword(null,"headers","headers",-835030129),cljs.core.PersistentArrayMap.EMPTY], null);console.log(("cljs-ajax >>> "+cljs.core.str.cljs$core$IFn$_invoke$arity$1(command)+" nav-path "+cljs.core.str.cljs$core$IFn$_invoke$arity$1(nav_path)+" param-details "+cljs.core.str.cljs$core$IFn$_invoke$arity$1(param_details)));
 var G__8652 = (((command instanceof cljs.core.Keyword))?command.fqn:null);switch (G__8652) {
+case "search-thing":
+return ajax.core.POST.call(null,("/search/"+cljs.core.str.cljs$core$IFn$_invoke$arity$1(cljs.core.name.call(null,thing_type))),request);
+
+break;
 case "add-thing":
 return ajax.core.POST.call(null,("/add/"+cljs.core.str.cljs$core$IFn$_invoke$arity$1(cljs.core.name.call(null,thing_type))),request);
 

@@ -74,13 +74,16 @@
 ; nav-path {:body [:filter-things/:all-things [:course 1 :lecture]] :title ... :data {}}]
 ; server side service parse request {:params {...}} as :edn-params.
 ; for add, nav-path is {:add-thing :lecture :details {:lecture/name "ab", :lecture/remark "cd"}
+; for search, nav-path {:search-thing :all-things, :details {:searchkey "math"}}
 ;;==================================================================================
 (defn cljs-ajax
   "service a get or post request using cljs-ajax GET POST call"
   [command nav-path api-ch param-details]
   (let [; query-path is filter-things inside nav-path :body, for add-thing, no query-path
         query-path (get-in nav-path [:body 1])  ; {:body [:filter-things [:course 1 :lecture]]}
-        thing-type (or (last query-path) (get nav-path :add-thing)) ; filter-things, or {:add-thing :enrollment :details {}}
+        thing-type (or (last query-path)  ; filter-things, or {:add-thing :enrollment :details {}}
+                       (get nav-path :add-thing)
+                       (get nav-path :search-thing)) ; {:search-thing :all-things :details {:searchkey "xx"}}
         request {:handler (handler command nav-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)
                  :format :edn    ; always use edn for clj programs internally.
@@ -100,11 +103,15 @@
         
         :signup-login (POST "/login" request)
 
-        ; nav-path [:all 0 :parent]
+        ; for :all-things and :filter-things, nav-path [:all 0 :parent]
         :request-things (POST (str "/api/" (name thing-type)) request)
 
-        ; :add-thing nav-path {:add-thing :activity, :details {:activity/origin 17592186045438, :activity/title "a", :activity/author 
+        ; :add-thing, nav-path {:add-thing :activity, :details {:activity/origin 17592186045438, :activity/title "a", :activity/author 
         :add-thing (POST (str "/add/" (name thing-type)) request)
+
+        ; :search-thing, nav-path {:search-thing "xxx" :data "xxx"}
+        :search-thing (POST (str "/search/" (name thing-type)) request)
+
         "default")))
 
 

@@ -462,6 +462,7 @@
 (defn search
   "conduct fulltext search"
   [qpath details]
+  (prn "dda search " qpath " ddd " details)
   (timeline/search-fulltext qpath details))
 
 

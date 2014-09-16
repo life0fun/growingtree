@@ -28,9 +28,8 @@
             body (:body (last nav-path))]
         (.log js/console (pr-str "app shouldupdate unless path has body. next-props " (last nav-path)))
         ; re-render only when we have body slot in nav path to render.
-        (if body 
-          true
-          false)))
+        (if body true false)))
+    ; render fn 
     om/IRender
     (render [this]
       ; get app state cursors for related keys, and pass map state cursor when building sub-components.
@@ -83,8 +82,11 @@
                            :content-data (get-in app path)
                            :content-opts {}})))
 
+            ; Not used, intercept keyboard for real time query
             (om/build keyq/KeyboardHandler app {:opts {:keymap keymap
                                                        :error-ch (get-in app [:comms :error])}})
+
+            (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
 
             ; pass selected-chan app state MapCursor to sidebar subcomponent in data map.
             (om/build sidebar/sidebar {:channel selected-channel
@@ -106,7 +108,7 @@
                                                   :input-focused? (get-in app [:settings :forms :user-message :focused])
                                                   :input-value (get-in app [:settings :forms :user-message :value])}}
                                                   )
-            (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
+            
             ; [:div#at-view.at-view [:ul#at-view-ul]]
           ])
       ))))

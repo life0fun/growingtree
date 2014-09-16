@@ -64,6 +64,15 @@
   (-> state
     (update-in [:nav-path] conj msg-data))) ; nav-path [.[:lecture {:content ... :author ...}]]
 
+
+(defmethod control-event 
+  :search-thing
+  [target msg-type msg-data state] ; msg-data = [:course {:title :content}]
+  (.log js/console (pr-str "control event :search-thing : conj nav-path " msg-data))
+  (-> state
+    (update-in [:nav-path] conj msg-data))) ; nav-path [.[:lecture {:content ... :author ...}]]
+
+
 (defmethod control-event :api-key-updated
   [target msg-type api-key state]
   (assoc-in state [:users (:current-user-email state) :api-key] api-key))

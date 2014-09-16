@@ -178,6 +178,7 @@
 (defn search-fulltext
   "search a fulltext attr with the keyword"
   [qpath details]
+  (log/info (pr-str "search-fulltext " qpath " details " details))
   (let [searchkey (:searchkey details)
         entities (->> (mapcat #(fulltext-attr % searchkey)
                               fulltext-attrs)

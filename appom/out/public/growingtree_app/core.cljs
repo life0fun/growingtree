@@ -75,13 +75,14 @@
             ; each event [msg-type msg-data]
             (let [previous-state @state
                   msg-type (first v)
+                  msg-data (last v)
                   ; if refresh, msg-data is cursor to last nav-path, de-ref it and re-set msg-type.
-                  msg-data (cond
-                            (= :refresh msg-type) @(last v)
-                            :else (last v))
-                  msg-type (if (= :refresh msg-type)
-                              (get-in msg-data [:body 0])
-                              msg-type)
+                  ; msg-data (cond
+                  ;           (= :refresh msg-type) @(last v)
+                  ;           :else (last v))
+                  ; msg-type (if (= :refresh msg-type)
+                  ;             (get-in msg-data [:body 0])
+                  ;             msg-type)
                  ]
               ; (.log js/console (pr-str "controls chan event: " msg-type msg-data (om/rendering?)))
               ; (update-history! history :controls v)

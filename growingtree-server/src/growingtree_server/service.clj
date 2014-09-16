@@ -237,15 +237,28 @@
   [{postbody :edn-params :as request}]   ; :path-params {:thing "group"}
   (log/info "add-thing " postbody)
   (let [;resp (bootstrap/json-print {:result msg-data})
+        path (:path postbody)
         type (get-in request [:path-params :thing])  ; /api/:thing
         added-things (peer/add-thing (keyword type) (:details postbody))
         result {:status 200 :data (map #(dissoc % :db/id) added-things)}  ; data is [{:course/author ...} {}]
         ; jsonresp (bootstrap/json-response result)
-        resp (bootstrap/edn-response result)
+        jsonresp (bootstrap/edn-response result)
        ]
-    (log/info "peer adding thing done " type " res " result " " resp)
-    resp))
+    (log/info "peer adding thing done " type " res " result " " jsonresp)
+    jsonresp))
 
+(defn search-thing
+  "search things based on keyword defined in request :params :path, or :details"
+  [{postbody :edn-params :as request}]   ; :path-params {:thing "group"}
+  (log/info "search-thing " (:details postbody) (get-in request [:path-params :thing]) postbody)
+  (let [;resp (bootstrap/json-print {:result msg-data})
+        type (get-in request [:path-params :thing])
+        things (peer/get-things (keyword type) (:details postbody))
+        result {:status 200 :data things}
+        jsonresp (bootstrap/edn-response result)
+       ]
+    (log/info "peer search thing done: res " result " " jsonresp)
+    jsonresp))
 
 ;;==================================================================================
 ; define routing table with verb map and a list of route interceptors to invoke on request.
@@ -268,6 +281,7 @@
      ["/login" {:post get-signup-login}]
      ["/api/:thing" {:post get-things}]
      ["/add/:thing" {:post add-thing}]
+     ["/search/:thing" {:post search-thing}]
     ]]])
 
 
