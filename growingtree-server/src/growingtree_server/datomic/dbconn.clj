@@ -10,7 +10,8 @@
   (:require [clj-time.core :as clj-time :exclude [extend]]
             [clj-time.format :refer [parse unparse formatter]]
             [clj-time.coerce :refer [to-long from-long]])
-  (:require [datomic.api :as d])
+  (:require [datomic.api :as d]
+            [io.pedestal.service.log :as log])
   (:require [datomic-schema.schema :as dschema]
             [growingtree-server.datomic.dbschema :refer :all]))
 
@@ -572,9 +573,9 @@
 ; [:find ?n :where
 ;   [(fulltext $ :community/name "Wallingford") [[?e ?n]]]]
 ;;==========================================================================
-(defn fulltext-attr
+(defn search-fulltext-attr
   [attr searchkey]
-  (prn "search fulltext " attr " " searchkey)
+  (log/info "search fulltext attr " attr " keyword " searchkey)
   (let [entities (->> (d/q '[:find ?e ?searchkey ?text
                              :in $ ?attr ?searchkey
                              :where [(fulltext $ ?attr ?searchkey) [[?e ?text]]]

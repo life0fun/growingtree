@@ -171,21 +171,22 @@
                     :navpath [:all 0 :search (:db/id entity)]
                    }
        ]
-    (prn "search result entity " result-map)
+    (log/info "search result entity " result-map)
     result-map))
 
 
+; details  {:thing-type :all-things, :searchkey "math"}
 (defn search-fulltext
   "search a fulltext attr with the keyword"
   [qpath details]
-  (log/info (pr-str "search-fulltext " qpath " details " details))
+  (log/info "search-fulltext " qpath " details " details)
   (let [searchkey (:searchkey details)
-        entities (->> (mapcat #(fulltext-attr % searchkey)
-                              fulltext-attrs)
+        ; map search fulltext attr to all fulltext attrs
+        entities (->> (mapcat #(search-fulltext-attr % searchkey) fulltext-attrs)
                       (map #(search-result %)))
        ]
     (doseq [e entities]
-      (prn "fulltext --> " e))
+      (log/info "search fulltext --> " e))
     entities))
 
 

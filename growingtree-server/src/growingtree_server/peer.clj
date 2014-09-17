@@ -181,7 +181,6 @@
 (defmethod get-things
   :search
   [type qpath details]
-  (log/info "peer get things search " qpath " details " details)
   (let [search (dda/search qpath details)]
     search))
 

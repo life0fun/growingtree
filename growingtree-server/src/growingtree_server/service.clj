@@ -196,23 +196,38 @@
 
 
 ;;==================================================================================
-; POST filter from nav path to get things within parent.
-; postbody {:msg-type :set-thing-data, :msg-topic [:data :group 1 :group-members],
+; Ajax post API handler of get-things. postbody is request :params in cljs-ajax.
+; postbody {:thing-type :path :qpath :post-data}
 ; :thing-type :group-members, :path [:group 1 :group-members],
-; :details {:path [:group 1 :group-members], :qpath [:group 1 :group-members], :author "rich-dad"}}
+; :post-data {:path [:group 1 :group-members], :qpath [:group 1 :group-members], :author "rich-dad"}}
 ;;==================================================================================
 (defn get-things
   "get things by type, ret from peer a list of thing in a new line sep string"
   [{postbody :edn-params :as request}] ; post data under :edn-params key :as request
   ; path segment in req contains request params, /api/:thing, /api/:course
+  (log/info "get-things " postbody)
   (let [type (get-in request [:path-params :thing])  ; type is path param /api/:thing
         path (:path postbody)   ; effect msg body, [:group 1 :group-members],
         thing-type (:thing-type postbody)
-        things (peer/get-things thing-type path (:details postbody))
+        things (peer/get-things thing-type path (:post-data postbody))
         result {:status 200 :data things}
         jsonresp (bootstrap/edn-response result)
        ]
       (log/info "service peer/get-things ret: " type thing-type path result)
+    jsonresp))
+
+
+(defn search-thing
+  "search things based on keyword defined in request :params :path, or :post-data"
+  [{postbody :edn-params :as request}]   ; :path-params {:thing "group"}
+  (log/info "search-thing " (:post-data postbody) (get-in request [:path-params :thing]) postbody)
+  (let [;resp (bootstrap/json-print {:result msg-data})
+        post-data (:post-data postbody)  ; {:searchkey "xx"}
+        things (peer/get-things :search (:path postbody) post-data)
+        result {:status 200 :data things}
+        jsonresp (bootstrap/edn-response result)
+       ]
+    (log/info "peer search thing done: res " result " " jsonresp)
     jsonresp))
 
 ;------------------------------------------------------------------------------------
@@ -245,19 +260,6 @@
         jsonresp (bootstrap/edn-response result)
        ]
     (log/info "peer adding thing done " type " res " result " " jsonresp)
-    jsonresp))
-
-(defn search-thing
-  "search things based on keyword defined in request :params :path, or :details"
-  [{postbody :edn-params :as request}]   ; :path-params {:thing "group"}
-  (log/info "search-thing " (:details postbody) (get-in request [:path-params :thing]) postbody)
-  (let [;resp (bootstrap/json-print {:result msg-data})
-        type (get-in request [:path-params :thing])
-        things (peer/get-things (keyword type) (:details postbody))
-        result {:status 200 :data things}
-        jsonresp (bootstrap/edn-response result)
-       ]
-    (log/info "peer search thing done: res " result " " jsonresp)
     jsonresp))
 
 ;;==================================================================================

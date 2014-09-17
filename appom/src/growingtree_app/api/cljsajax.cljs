@@ -37,7 +37,7 @@
 ;;==================================================================================
 ; server always deliver list of things, parse to cljs.core.PersistentVector.
 ; nav-path {:body [:filter-things/:all-things [:course 1 :lecture]] :title ... :data {}}]
-; for add, nav-path is {:add-thing :lecture :details {:lecture/name "ab", :lecture/remark "cd"}
+; for add, nav-path is {:add-thing :lecture :post-data {:lecture/name "ab", :lecture/remark "cd"}
 ;;==================================================================================
 (defn handler
   "cljs-ajax success handler, send back things-vec to api-ch"
@@ -71,31 +71,30 @@
 
 
 ;;==================================================================================
+; search call cljs ajax with nav-path as post data.
 ; nav-path {:body [:filter-things/:all-things [:course 1 :lecture]] :title ... :data {}}]
 ; server side service parse request {:params {...}} as :edn-params.
-; for add, nav-path is {:add-thing :lecture :details {:lecture/name "ab", :lecture/remark "cd"}
-; for search, nav-path {:search-thing :all-things, :details {:searchkey "math"}}
+; for add, nav-path is {:add-thing :lecture :post-data {:lecture/name "ab", :lecture/remark "cd"}
 ;;==================================================================================
 (defn cljs-ajax
   "service a get or post request using cljs-ajax GET POST call"
-  [command nav-path api-ch param-details]
+  [command nav-path api-ch post-data]
   (let [; query-path is filter-things inside nav-path :body, for add-thing, no query-path
         query-path (get-in nav-path [:body 1])  ; {:body [:filter-things [:course 1 :lecture]]}
-        thing-type (or (last query-path)  ; filter-things, or {:add-thing :enrollment :details {}}
-                       (get nav-path :add-thing)
-                       (get nav-path :search-thing)) ; {:search-thing :all-things :details {:searchkey "xx"}}
+        thing-type (or (last query-path)  ; filter-things, or {:add-thing :enrollment :post-data {}}
+                       (get nav-path :add-thing))
         request {:handler (handler command nav-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)
                  :format :edn    ; always use edn for clj programs internally.
                  :params {:thing-type thing-type 
                           :path query-path 
                           :qpath (get nav-path :title)
-                          :details param-details}  ; param-details is nav-path for filter-things.
+                          :post-data post-data}  ; post-data is nav-path for filter-things.
                  :headers {}
                 }
        ]
-      ; :request-things nav-path [:all 0 :parent] param-details [:all 0 :parent]
-      (.log js/console (str "cljs-ajax >>> " command " nav-path " nav-path " param-details " param-details))
+      ; :request-things nav-path [:all 0 :parent] post-data [:all 0 :parent]
+      (.log js/console (str "cljs-ajax >>> " command " nav-path " nav-path " post-data " post-data))
       (case command
         ;; sse subscribe and publish
         :subscribe (GET "/msgs" request)
@@ -106,11 +105,11 @@
         ; for :all-things and :filter-things, nav-path [:all 0 :parent]
         :request-things (POST (str "/api/" (name thing-type)) request)
 
-        ; :add-thing, nav-path {:add-thing :activity, :details {:activity/origin 17592186045438, :activity/title "a", :activity/author 
-        :add-thing (POST (str "/add/" (name thing-type)) request)
+        ; :search-things, thing-type is search keyword
+        :search-things (POST (str "/search/" (name thing-type)) request)
 
-        ; :search-thing, nav-path {:search-thing "xxx" :data "xxx"}
-        :search-thing (POST (str "/search/" (name thing-type)) request)
+        ; :add-thing, nav-path {:add-thing :activity, :post-data {:activity/origin 17592186045438, :activity/title "a", :activity/author 
+        :add-thing (POST (str "/add/" (name thing-type)) request)
 
         "default")))
 

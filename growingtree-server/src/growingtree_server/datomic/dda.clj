@@ -458,11 +458,11 @@
 
 ;;==============================================================
 ; fulltext search
+;  {:thing-type :all-things, :searchkey "math"}
 ;;==============================================================
 (defn search
   "conduct fulltext search"
   [qpath details]
-  (prn "dda search " qpath " ddd " details)
   (timeline/search-fulltext qpath details))
 
 

@@ -91,6 +91,7 @@
         ]
     msg))
 
+
 ; get :filter-things msg to be sent to control channel to trigger controls chan event ajax. 
 ; :filter-things {:body [:filter-things [:parent 1 :child]], :data {:pid 1}}
 (defn get-filter-things-msg
@@ -98,6 +99,16 @@
   (let [msg [:filter-things 
               {:body [:filter-things [parent-type parent-id filtered-type]]
                :data (merge {:pid parent-id} data)}]
+       ]
+    msg))
+
+
+; get :search-thing msg to be sent to control channle to trigger ajax
+; msg-type is :search-things, msg data is map of :body [] and :data {}
+(defn get-search-msg
+  [thing-type search]
+  (let [msg [:search-things {:body [:search-things [thing-type 0 search]]
+                             :data {:thing-type thing-type :searchkey search}}]
        ]
     msg))
 
@@ -119,16 +130,6 @@
   [thing-type data]
   (let [msg [:add-thing {:add-thing thing-type
                          :details data}]
-       ]
-    msg))
-
-
-; get :search-thing msg to be sent to control channle to trigger ajax
-; msg-type = :search-thing, msg-data [:]
-(defn get-search-msg
-  [thing-type search]
-  (let [msg [:search-thing {:search-thing thing-type  ; can be :course, :group
-                            :details {:searchkey search}}]
        ]
     msg))
 

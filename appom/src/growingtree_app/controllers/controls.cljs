@@ -64,9 +64,10 @@
   (-> state
     (update-in [:nav-path] conj msg-data))) ; nav-path [.[:lecture {:content ... :author ...}]]
 
-
+; msg-type is :search-things, msg-data 
+; {:body [:search-things [thing-type 0 "xx"]] :data {:thing-type :all-things :searchkey "xx"}}
 (defmethod control-event 
-  :search-thing
+  :search-things
   [target msg-type msg-data state] ; msg-data = [:course {:title :content}]
   (.log js/console (pr-str "control event :search-thing : conj nav-path " msg-data))
   (-> state
