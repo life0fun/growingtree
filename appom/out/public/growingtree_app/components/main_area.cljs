@@ -63,6 +63,7 @@
 ; {:body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
 ; for add-thing, do nothing, wait until add-thing result, and process there.
 ; nav-path {:add-thing :lecture :details {}}
+; for search, {:body [:search-things [:all-things 0 "math"]]
 (defmulti main-content 
   (fn [app nav-path search-filter opts]
     (cond
@@ -77,7 +78,7 @@
   (.log js/console  (pr-str "main content default: [:body nav-path] null " nav-path))
   )
 
-; for all-things.
+; for all-things, including {:body [:all-things [:all 0 :timeline]]
 ; {:body [:all-things [:all 0 :lecture]], :data {:author "rich-dad"}} 
 (defmethod main-content 
   :all-things
@@ -113,6 +114,14 @@
       ; datomic peer query to get list of things by nav-path
       (list-things app thing-type nav-path search-filter opts)
     ]))
+
+; for search, {:body [:search-things [:all-things 0 "math"]]
+(defmethod main-content 
+  :search-things
+  [app nav-path search-filter opts]
+  (let [thing-type (get-in nav-path [:body 1 2])]
+    (list-things app :search nav-path search-filter opts))
+  )
 
 ; request to display newthing form to add thing.
 ; {:body [:newthing-form [:parent :add-child]], :data {:pid 17592186045419} }

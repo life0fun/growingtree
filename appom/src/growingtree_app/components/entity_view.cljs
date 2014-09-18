@@ -1107,6 +1107,19 @@
       ]])))
 
 
+; timeline thing-entry view.
+; {:db/id 17592186045442,
+;  :search/type "group"
+;  :search/origin {:group/author, ... } }
+(defmethod thing-entry
+  :search
+  [app thing-type entity override]
+  (let [thing-type (keyword (:search/type entity))
+        origin-entity (:search/origin entity)]
+    (.log js/console (pr-str "search thing " entity))
+    (thing-entry app thing-type origin-entity override)))
+
+
 ;;===========================================================================
 ; show add comments input box, trigger by thing data emitter [:setup :x 1 :comments]
 ; form id is the thing-id this comment's origin and thingroot

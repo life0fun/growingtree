@@ -175,12 +175,12 @@
     result-map))
 
 
-; details  {:thing-type :all-things, :searchkey "math"}
+; qpath [:all-things 0 "math"], data: {:body [:search-things []] :data {::thing-type :searchkey}}
 (defn search-fulltext
   "search a fulltext attr with the keyword"
-  [qpath details]
-  (log/info "search-fulltext " qpath " details " details)
-  (let [searchkey (:searchkey details)
+  [qpath filter-data]
+  (log/info "search-fulltext " qpath " filter-data " filter-data)
+  (let [searchkey (last qpath)
         ; map search fulltext attr to all fulltext attrs
         entities (->> (mapcat #(search-fulltext-attr % searchkey) fulltext-attrs)
                       (map #(search-result %)))

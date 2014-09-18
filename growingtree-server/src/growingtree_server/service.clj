@@ -199,7 +199,7 @@
 ; Ajax post API handler of get-things. postbody is request :params in cljs-ajax.
 ; postbody {:thing-type :path :qpath :post-data}
 ; :thing-type :group-members, :path [:group 1 :group-members],
-; :post-data {:path [:group 1 :group-members], :qpath [:group 1 :group-members], :author "rich-dad"}}
+; :post-data is nav-path, from get-filter-things-msg, {:body [:filter-things []] :data {}}
 ;;==================================================================================
 (defn get-things
   "get things by type, ret from peer a list of thing in a new line sep string"
@@ -217,13 +217,16 @@
     jsonresp))
 
 
+; postbody is cljs-ajax request map :params slot, {:thing-type :path :qpath :post-data}
+; post-data is nav-path, defined in get-search-msg, {:body [:search-things []] :data {}}
 (defn search-thing
   "search things based on keyword defined in request :params :path, or :post-data"
   [{postbody :edn-params :as request}]   ; :path-params {:thing "group"}
   (log/info "search-thing " (:post-data postbody) (get-in request [:path-params :thing]) postbody)
-  (let [;resp (bootstrap/json-print {:result msg-data})
-        post-data (:post-data postbody)  ; {:searchkey "xx"}
-        things (peer/get-things :search (:path postbody) post-data)
+  (let [
+        post-data (:post-data postbody)
+        path (get-in post-data [:body 1]) 
+        things (peer/get-things :search path post-data)
         result {:status 200 :data things}
         jsonresp (bootstrap/edn-response result)
        ]

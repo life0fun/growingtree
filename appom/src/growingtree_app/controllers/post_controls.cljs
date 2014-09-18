@@ -83,14 +83,17 @@
   (.log js/console (pr-str "post ajax search-thing nav-path " nav-path));
   ; ; update secretary router match to action.
   (utils/set-window-href! (routes/v1-all-things
-                            {:thing-type (name (get nav-path :search-thing))}))
+                            {:thing-type (name (get-in nav-path [:body 1 0]))
+                             :key (get-in nav-path [:body 1 1])}))
   (cljsajax/cljs-ajax :search-things
                       nav-path  
                       (get-in current-state [:comms :api]) ; api-ch
                       nav-path) ; request :params :details is nav-path. [:all 0 :parent], or [:qpath [:course 1 :lecture]]
   )
 
-; nav-path {:add-thing :lecture :details {:lecture/course 1 :lecture/title ...}}
+
+; get-add-thing-msg defines msg-data as nav-path 
+; {:add-thing :lecture :data {:lecture/course 1 :lecture/title ...}}
 (defmethod post-control-event! 
   :add-thing
   [target msg-type nav-path previous-state current-state]
@@ -101,7 +104,7 @@
   (cljsajax/cljs-ajax :add-thing
                       nav-path
                       (get-in current-state [:comms :api])
-                      (get nav-path :details))  ; input data is {:add-thing :course :details {:title ... :content ...}}
+                      (get nav-path :data))  ; input data is {:add-thing :course :details {:title ... :content ...}}
   )
 
 

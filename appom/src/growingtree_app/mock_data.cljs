@@ -125,11 +125,11 @@
 
 
 ; get :add-thing msg to be sent to control channel to trigger controls chan event ajax. 
-; {:add-thing :add-group, :details {:group/title "a", :group/type :math, :group/author "poor-dad", :group/url "c", :group/email "d", :group/wiki "e"}} 
+; {:add-thing :add-group, :data {:group/title "a", :group/type :math, :group/author "poor-dad", :group/url "c", :group/email "d", :group/wiki "e"}} 
 (defn get-add-thing-msg
   [thing-type data]
   (let [msg [:add-thing {:add-thing thing-type
-                         :details data}]
+                         :data data}]
        ]
     msg))
 
