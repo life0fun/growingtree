@@ -157,7 +157,7 @@
 
 
 ;;===========================================================================
-; full text search for fulltext attr contains the keyword
+; for each searched out entity, need get all nested props.
 ;;===========================================================================
 (defn search-result
   "convert search result [eid key text] to :search entity"
@@ -174,8 +174,10 @@
     (log/info "search result entity " result-map)
     result-map))
 
-
+;;===========================================================================
+; full text search for fulltext attr contains the keyword
 ; qpath [:all-things 0 "math"], data: {:body [:search-things []] :data {::thing-type :searchkey}}
+;;===========================================================================
 (defn search-fulltext
   "search a fulltext attr with the keyword"
   [qpath filter-data]

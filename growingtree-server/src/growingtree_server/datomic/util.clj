@@ -186,6 +186,7 @@
         origin-thing-val)
       )))
 
+
 ; get the entitry for ref-ed attribute, like
 (defn get-ref-entity
   [ref-attr entity]
@@ -194,6 +195,7 @@
         ref-e (dbconn/get-entity ref-id)]
     (log/info "get-ref-entity " ref-id ref-e)
     (assoc entity ref-attr ref-e)))
+
 
 ; ============================================================================
 ; (json-response result) convert entity to json string, including outbound refs.
@@ -247,6 +249,7 @@
     (assoc entity attr person-entity)
   ))
 
+
 ; ============================================================================
 ; get no of likes for certain entity, and add it as upvote attr to the entity
 ; ============================================================================
@@ -256,6 +259,7 @@
         likes (count (:like/person like-entity))
        ]
     likes))
+
 
 ; assoc upvote val to each entity so we can show upvotes for each entity
 (defn add-upvote-attr
@@ -284,6 +288,7 @@
     ;(prn "num comments " origin thingroot)
     numcomments))
 
+
 ; assoc numcomments val to each entity so we can show upvotes for each entity
 (defn add-numcomments-attr
   [entity]
@@ -294,6 +299,7 @@
     (prn "add numcomments " thing-id " count " numcomments " entity " numcomments-attr)
     (assoc-in entity [numcomments-attr] numcomments)
     ))
+
 
 ; ============================================================================
 ; get tx timestamp, #inst "2014-01-08T21:07:24.366-00:00"

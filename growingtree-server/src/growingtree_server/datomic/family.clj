@@ -119,6 +119,10 @@
 (declare upsert-family-parent-child)
 (declare add-to-family)
 
+(declare get-group-refed-entity)
+(declare get-activity-refed-entity)
+
+
 ; the global id, gened from unix epoch in milliseconds
 (def PersonId (atom (to-long (clj-time/now))))
 
@@ -357,22 +361,30 @@
     [(:url ?e ?val) [?e :group/url ?val]]
   ])
 
+
 ; for parents, [:parent 1 :group]
 (defn find-group
   "find groups by passed in query path"
   [qpath]
   (log/info "find-group " qpath)
-  (let [projkeys (keys group-schema)  ; must select-keys from datum entity attributes
-        groups (->> (util/get-qpath-entities qpath get-group-by)
-                    (map #(select-keys % projkeys) )
-                    (map #(util/get-author-entity :group/author %))
-                    (map #(util/add-upvote-attr %) )
-                    (map #(util/add-navpath % qpath) )  ;: navpath [:all 0 :group 17592186045441]
-                 )
+  (let [entities (util/get-qpath-entities qpath get-group-by)
+        groups (->> (map get-group-refed-entity entities)
+                    (map #(util/add-navpath % qpath)))
        ]
     (doseq [e groups]
       (log/info "find group --> " e))
     groups))
+
+
+; get group refed entity
+(defn get-group-refed-entity
+  [entity]
+  (let [projkeys (keys group-schema)]
+    (as-> entity e
+      (select-keys e projkeys)
+      (util/get-author-entity :group/author e)
+      (util/add-upvote-attr e) )
+  ))
 
 
 ; each qpath response for getting data for one div template. [:group 1 :group-members]
@@ -500,18 +512,25 @@
 (defn find-activity
   "find all activity from group by query path"
   [qpath]
-  (let [projkeys (keys activity-schema)  ; must select-keys from datum entity attributes
-        activity (->> (util/get-qpath-entities qpath get-activity-by)
-                      (map #(select-keys % projkeys) )
-                      (map #(util/get-author-entity :activity/author %))
-                      (map #(util/get-ref-entity :activity/origin %))
-                      (map #(util/add-upvote-attr %) )
-                      (map #(util/add-navpath % qpath) )
-                 )
-       ]
-    (doseq [e activity]
-      (log/info "find activity --> " e))
-    activity))
+  (let [entities (util/get-qpath-entities qpath get-activity-by)
+        activities (->> (map get-activity-refed-entity entities)
+                        (map #(util/add-navpath % qpath) ))
+        ]
+    (doseq [e activities]
+      (log/info "find activity xx --> " e))
+    activities))
+
+
+; given an entity, populate all its external refed attrs.
+(defn get-activity-refed-entity
+  [entity]
+  (let [projkeys (keys activity-schema)]
+    (as-> entity e
+      (select-keys e projkeys)
+      (util/get-author-entity :activity/author e)
+      (util/get-ref-entity :activity/origin e)
+      (util/add-upvote-attr e) )
+  ))
 
 
 ; get group member by group title
