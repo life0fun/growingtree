@@ -119,6 +119,7 @@
 (declare upsert-family-parent-child)
 (declare add-to-family)
 
+(declare get-person-refed-entity)
 (declare get-group-refed-entity)
 (declare get-activity-refed-entity)
 
@@ -248,15 +249,12 @@
 (defn find-person
   "find person by query path "
   [qpath]
-  (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
-        person (->> (util/get-qpath-entities qpath get-person-by)
-                    (map #(select-keys % projkeys) )
-                    (map #(util/add-upvote-attr %) )
-                    (map #(util/add-navpath % qpath) )
-                )
-        ]
+  (let [entities (util/get-qpath-entities qpath get-person-by)
+        person (->> (map get-person-refed-entity entities)
+                    (map #(util/add-navpath % qpath) ))
+       ]
     (doseq [e person]
-      (prn "parent --> " e))
+      (log/info "person --> " e))
     person))
 
 ;;==========================================================================
@@ -267,17 +265,22 @@
 (defn find-parent
   "find parent by query path "
   [qpath]
-  (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
-        parents (->> (util/get-qpath-entities qpath get-parent-by)
-                     (map #(select-keys % projkeys) )
-                     (map #(util/add-upvote-attr %) )
-                     (map #(util/add-navpath % qpath) )
-                )
-        ]
+  (let [entities (util/get-qpath-entities qpath get-parent-by)
+        parents (->> (map get-person-refed-entity entities)
+                     (map #(util/add-navpath % qpath) ))
+       ]
     (doseq [e parents]
-      (prn "parent --> " e))
+      (log/info "parent --> " e))
     parents))
 
+
+(defn get-person-refed-entity
+  [entity]
+  (let [projkeys (keys person-schema)]
+    (as-> entity e
+      (select-keys e projkeys)
+      (util/add-upvote-attr e) )
+  ))
 
 (defn create-parent
   "create parent from the submitted new thing form details"
@@ -300,15 +303,12 @@
 (defn find-child
   "find children by passed in query path"
   [qpath]
-  (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
-        children (->> (util/get-qpath-entities qpath get-child-by)
-                     (map #(select-keys % projkeys) )
-                     (map #(util/add-upvote-attr %) )
-                     (map #(util/add-navpath % qpath) )
-                 )
+  (let [entities (util/get-qpath-entities qpath get-child-by)
+        children (->> (map get-person-refed-entity entities)
+                      (map #(util/add-navpath % qpath) ))
        ]
     (doseq [e children]
-      (prn "child --> " e))
+      (log/info "child --> " e))
     children))
 
 
@@ -324,7 +324,6 @@
         family (upsert-family-parent-child (:family/parent details) (:db/id child))
         trans (submit-transact [child family])  ; transaction is a list of maps to update db values
       ]
-    (newline)
     (log/info "create child " child  " family " family " trans " trans)
     [child]))
 
@@ -386,17 +385,13 @@
       (util/add-upvote-attr e) )
   ))
 
-
 ; each qpath response for getting data for one div template. [:group 1 :group-members]
 (defn find-group-members
   "find all group members by query path"
   [qpath]
-  (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
-        person (->> (:group/person (dbconn/get-entity (second qpath)))
-                    (map #(select-keys % projkeys) )
-                    (map #(util/add-upvote-attr %) )
-                    (map #(util/add-navpath % qpath) )  ;: navpath [:all 0 :group 17592186045441]
-                 )
+  (let [person (->> (:group/person (dbconn/get-entity (second qpath)))
+                    (map get-person-refed-entity)
+                    (map #(util/add-navpath % qpath) ))  ;: navpath [:all 0 :group 17592186045441]
        ]
     (doseq [e person]
       (log/info "find group members --> " e))
@@ -406,13 +401,12 @@
 ; get group member by group title
 (defn get-group-members
   [group-title]
-  (let [projkeys (keys person-schema)  ; must select-keys from datum entity attributes
-        ;group (util/get-entities-by-rule :title get-group-by group-title)
+  (let [;group (util/get-entities-by-rule :title get-group-by group-title)
         group (dbconn/find-by :group/title group-title)
-        person (:group/person group)  ; :ref :many set
+        person (:group/person group)
        ]
     (doseq [e person]
-      (prn "group " group-title " members --> " e))  ; {:db/id 17592186045419}
+      (log/info "group " group-title " members --> " e))  ; {:db/id 17592186045419}
     person))
 
 ; create group from sidebar with author and group title by name.
@@ -537,16 +531,12 @@
 (defn find-activity-members
   [qpath]
   (log/info "find activity member " qpath)
-  (let [projkeys (keys person-schema)
-        activity (dbconn/get-entity (second qpath))
+  (let [activity (dbconn/get-entity (second qpath))
         person (or (:activity/person activity)
                    (map (comp dbconn/get-entity :db/id) 
                         (-> (:activity/origin activity) :db/id dbconn/get-entity :group/person)))
-        person (->> person
-                    (map #(select-keys % projkeys) )
-                    (map #(util/add-upvote-attr %) )
-                    (map #(util/add-navpath % qpath) )  ;: navpath [:all 0 :activity 17592186045441]
-                 )
+        person (->> (map get-person-refed-entity person)
+                    (map #(util/add-navpath % qpath) ))
        ]
     (doseq [e person]
       (log/info "activity members --> " e))  ; {:db/id 17592186045419}

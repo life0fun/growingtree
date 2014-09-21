@@ -109,7 +109,7 @@
     (.log js/console "main-content showing filter-things " (pr-str pid thing-type))
     [:div
       (when pid (thing-entry app topview override))
-      (when pid [:hr {:size 4}])
+      (when pid [:hr.filter-line {:size 4}])
       (add-thing-forms app nav-path search-filter opts)
       ; datomic peer query to get list of things by nav-path
       (list-things app thing-type nav-path search-filter opts)

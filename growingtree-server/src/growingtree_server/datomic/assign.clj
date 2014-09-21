@@ -104,12 +104,15 @@
 (declare inc-question-popularity)
 (declare create-question-math)
 
+(declare get-question-refed-entity)
+(declare get-assignment-refed-entity)
+(declare get-answer-refed-entity)
+
 
 ; schema attr-name value type map for question schema and assignment schema
 (def question-schema (assoc (list-attr :question) :db/id :db.type/id))
 (def assignment-schema (assoc (list-attr :assignment) :db/id :db.type/id))
 (def answer-schema (assoc (list-attr :answer) :db/id :db.type/id))
-
 
 ;---------------------------------------------------------------------------------
 ; rules to find all parent or child with the name,
@@ -168,21 +171,24 @@
 (defn find-question
   "find all question by query path "
   [qpath]
-  (let [projkeys (keys (dissoc question-schema :question/lecture))
-        question (->> (util/get-qpath-entities qpath get-question-by)
-                      (map #(select-keys % projkeys) )
-                      (map #(util/get-author-entity :question/author %))
-                      (map #(util/add-upvote-attr %) )
-                      (map #(util/add-numcomments-attr %) )
-                      (map #(util/add-navpath % qpath) )
-                 )
+  (let [questions (->> (util/get-qpath-entities qpath get-question-by)
+                      (map get-question-refed-entity)
+                      (map #(util/add-navpath % qpath)) )
         ]
-    (log/info "find-question " projkeys question)
-    (doseq [e question]
+    (doseq [e questions]
       (log/info "question --> " e))
-    question
-    ))
+    questions))
 
+
+(defn get-question-refed-entity
+  [entity]
+  (let [projkeys (keys (dissoc question-schema :question/lecture))]
+    (as-> entity e
+      (select-keys e projkeys)
+      (util/get-author-entity :question/author e)
+      (util/add-upvote-attr e)
+      (util/add-numcomments-attr e))
+  ))
 
 ; the enum must be fully qualified, :question.subject/math
 ; {:question/author "bb", :question/origin 17592186045430, :author "rich-dad", :thing-type :question }
@@ -197,9 +203,7 @@
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
-    (newline)
-    (log/info "create question author " author-id " entity " entity)
-    (log/info "create question trans " trans)
+    (log/info "create question author " author-id " entity " entity " trans " trans)
     entity))
 
 
@@ -208,7 +212,7 @@
   []
   (let [hwids (find-question)
         incstmt (map #(incby-stmt % :question/popularity 1) hwids)]
-    (prn "inc-question-popularity " incstmt)
+    (log/info "inc-question-popularity " incstmt)
     (submit-transact (vec incstmt))))
 
 
@@ -220,21 +224,27 @@
 (defn find-assignment
   "find all assignment by query path "
   [qpath]
-  (log/info "find-assignment " (util/get-qpath-entities qpath get-assignment-by))
-  (let [projkeys (keys assignment-schema)
-        assignments (->> (util/get-qpath-entities qpath get-assignment-by)
-                      (map #(select-keys % projkeys) )
-                      (map #(util/get-author-entity :assignment/author %))
-                      (map #(util/get-person-entity :assignment/person %))
-                      (map #(util/get-ref-entity :assignment/origin %)) ; assignment must have orign
-                      (map #(util/add-upvote-attr %) )
-                      (map #(util/add-numcomments-attr %) )
-                      (map #(util/add-navpath % qpath) )
-                    )
+  (let [assignments (->> (util/get-qpath-entities qpath get-assignment-by)
+                      (map get-assignment-refed-entity)
+                      (map #(util/add-navpath % qpath) ))
         ]
     (doseq [e assignments]
       (log/info "assignment --> " e))
     assignments))
+
+
+; populate assingment refed outbound entity
+(defn get-assignment-refed-entity
+  [entity]
+  (let [projkeys (keys assignment-schema)]
+    (as-> entity e
+      (select-keys e projkeys)
+      (util/get-author-entity :assignment/author e)
+      (util/get-person-entity :assignment/person e)
+      (util/get-ref-entity :assignment/origin e)
+      (util/add-upvote-attr e)
+      (util/add-numcomments-attr e))
+  ))
 
 ; assignment can be to group. We query group to group member ids.
 ; tagsInput sep is comma(,) when assign to group, the :assignment/person is a list of name, separated by comma.
@@ -295,20 +305,26 @@
 (defn find-answer
   "find all answer by query path like [:assignment 17592186045430 :answer]"
   [qpath]
-  (let [projkeys (keys answer-schema)
-        answers (->> (util/get-qpath-entities qpath get-answer-by)
-                     (map #(select-keys % projkeys) )
-                     (map #(util/get-author-entity :answer/author %))
-                     (map #(util/get-ref-entity :answer/origin %))
-                     (map #(util/add-upvote-attr %) )
-                     (map #(util/add-numcomments-attr %) )
-                     (map #(util/add-navpath % qpath) )
-                    )
+  (let [answers (->> (util/get-qpath-entities qpath get-answer-by)
+                    (map get-answer-refed-entity)
+                    (map #(util/add-navpath % qpath) ))
         ]
     (doseq [e answers]
       (log/info "answer --> " e))
     answers))
 
+
+; populate answer refed outbound entity
+(defn get-answer-refed-entity
+  [entity]
+  (let [projkeys (keys answer-schema)]
+    (as-> entity e
+      (select-keys e projkeys)
+      (util/get-author-entity :answer/author e)
+      (util/get-ref-entity :answer/origin e)
+      (util/add-upvote-attr e)
+      (util/add-numcomments-attr e))
+  ))
 
 ; create a grade with 2 steps, update answer score, and add comments to the answer.
 (defn create-grade

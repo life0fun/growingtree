@@ -96,6 +96,9 @@
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
 
 (declare comments-of)
+(declare get-comments-refed-entity)
+(declare get-like-refed-entity)
+
 
 ; schema attr-name value type map for parent schema and child schema
 (def like-schema (assoc (list-attr :like) :db/id :db.type/id))
@@ -151,20 +154,25 @@
 ;;==============================================================
 ; for comments query, always
 ;;==============================================================
+(defn get-comments-refed-entity
+  [entity]
+  (let [projkeys (keys comments-schema)]
+    (as-> entity e
+      (select-keys e projkeys)
+      (util/get-author-entity :comments/author e)
+      (util/get-ref-entity :comments/origin e)
+      (util/add-upvote-attr e)
+      (util/ref->dbid e :comments/thingroot)
+      (util/get-entity-attr-tx e))
+    ))
+
 (defn query-comments
   "query comments by path, [:course 1 :comments] or [:course 1 :comments 2 :comments]"
   [navpath]
-  (let [projkeys (keys comments-schema)  ; must select-keys from datum entity attributes])
-        qpath (take-last 3 navpath)
+  (let [qpath (take-last 3 navpath)
         comments (->> (util/get-qpath-entities qpath get-comments-by)
-                      (map #(select-keys % projkeys) )
-                      (map #(util/get-author-entity :comments/author %))
-                      (map #(util/get-ref-entity :comments/origin %))
-                      (map #(util/add-upvote-attr %) )
-                      (map #(util/ref->dbid % :comments/thingroot))
-                      (map #(util/get-entity-attr-tx %))
-                      (map #(util/add-navpath % navpath) )
-                 )
+                      (map get-comments-refed-entity)
+                      (map #(util/add-navpath % navpath)))
        ]
     comments))
 
@@ -175,8 +183,6 @@
   (when-not (nil? c)
     (let [navpath (concat (:navpath c) [:comments])
           comments (query-comments navpath)]
-      ; (doseq [e comments]
-      ;   (prn "comments of " navpath " --> " e ))
       comments)))
 
 
@@ -184,13 +190,7 @@
 (defn find-comments
   "find all comments by query path"
   [qpath]
-  (let [; list comprehension, cartesian production, need to use hash-set to remove dups.
-        ; comments (->> (for [c (query-comments qpath)
-        ;                     l1 (comments-of c)]
-        ;                 [c l1])
-        ;               (reduce #(concat %1 %2) []))
-
-        ; iteratively apply a fn to a coll. result is a new lazy sequence.
+  (let [; iteratively apply a fn to a coll. result is a new lazy sequence.
         ; (iterate f x), ret a lazy sequence of x, (f x), (f (f x)), mapcat to get one list.
         comments (->> (iterate (fn [c] (mapcat #(comments-of %) c)) (query-comments qpath))
                       (take 3)  ; how many levels of recursive comments tree
@@ -225,15 +225,22 @@
 (defn find-like
   "find like by query path"
   [qpath]
-  (let [projkeys (keys like-schema)  ; must select-keys from datum entity attributes
-        likes (->> (util/get-qpath-entities qpath get-like-by)
-                   (map #(select-keys % projkeys) )
-                   (map #(util/add-navpath % qpath) )
-              )
+  (let [likes (->> (util/get-qpath-entities qpath get-like-by)
+                  (map get-like-refed-entity)
+                  (map #(util/add-navpath % qpath) ))
        ]
     (doseq [e likes]
       (log/info "like --> " e))
     likes))
+
+
+; populate like refed outbound entity
+(defn get-like-refed-entity
+  [entity]
+  (let [projkeys (keys like-schema)]
+    (as-> entity e
+      (select-keys e projkeys))
+    ))
 
 
 ; for now, all courses are created and lectured by person

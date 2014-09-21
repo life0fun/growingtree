@@ -101,6 +101,10 @@
 (declare create-lecture)
 (declare create-course-coding)
 
+(declare get-course-refed-entity)
+(declare get-lecture-refed-entity)
+(declare get-course-enrollment-refed-entity)
+(declare get-person-enrollment-refed-entity)
 
 ; schema attr-name value type map for parent schema and child schema
 (def course-schema (assoc (list-attr :course) :db/id :db.type/id))
@@ -140,22 +144,27 @@
   ])
 
 
+(defn get-course-refed-entity
+  [entity]
+  (let [projkeys (keys course-schema)]
+      (as-> entity e
+        (select-keys e projkeys)
+        (util/get-author-entity :course/author e)
+        (util/add-upvote-attr e)
+        (util/add-numcomments-attr e))
+  ))
+
+
 ; find a course, thread thru project keys, and fill :course/likes
 (defn find-course
   "find course by query path"
   [qpath]
-  (let [projkeys (keys course-schema)  ; must select-keys from datum entity attributes
-        courses (->> (util/get-qpath-entities qpath get-course-by)
-                     (map #(select-keys % projkeys) )
-                     (map #(util/get-author-entity :course/author %))
-                     (map #(util/add-upvote-attr %) )
-                     (map #(util/add-numcomments-attr %) )
-                     (map #(util/add-navpath % qpath) )  ; :qpath ["all" 0 "course" 17592186045425],
-                )
-       ]
+  (let [courses (->> (util/get-qpath-entities qpath get-course-by)
+                     (map get-course-refed-entity)
+                     (map #(util/add-navpath % qpath) ))  ; :qpath ["all" 0 "course" 17592186045425],
+        ]
     (doseq [e courses]
       (log/info "course --> " e))
-    (newline)
     courses))
 
 
@@ -171,9 +180,7 @@
                    (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
-    (newline)
     (log/info "create course entity " (:author details) author-id entity)
-    ; (prn "submit course trans " trans)
     [entity]))
 
 
@@ -184,18 +191,25 @@
 (defn find-lecture
   "find lecture by query path "
   [qpath]
-  (let [projkeys (keys lecture-schema)
-        lectures (->> (util/get-qpath-entities qpath get-lecture-by)
-                     (map #(select-keys % projkeys) )
-                     (map #(util/get-author-entity :lecture/author %))
-                     (map #(util/add-upvote-attr %) )
-                     (map #(util/add-numcomments-attr %) )
-                     (map #(util/add-navpath % qpath) )
-                  )
+  (let [lectures (->> (util/get-qpath-entities qpath get-lecture-by)
+                      (map get-lecture-refed-entity)
+                      (map #(util/add-navpath % qpath) ))
         ]
     (doseq [e lectures]
       (log/info"lecture --> " e))
     lectures))
+
+
+(defn get-lecture-refed-entity
+  [entity]
+  (let [projkeys (keys lecture-schema)]
+      (as-> entity e
+        (select-keys e projkeys)
+        (util/get-author-entity :lecture/author e)
+        (util/add-upvote-attr e)
+        (util/add-numcomments-attr e))
+  ))
+
 
 (defn get-lecture-ids-by-course-id
   "get lecture by course"
@@ -223,7 +237,6 @@
                    (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
-    (newline)
     (log/info "create lecture entity " author-id course-id entity)
     (log/info "submit create lecture trans " trans)
     [entity]))
@@ -245,36 +258,52 @@
   ])
 
 
-; one course can have many enrollments. how do we differentiate ?
-; for [:course 1 :enrollment], we should show attendee
+; for course, enrollment can be attendee of a course; for person, find courses he enrolled into.
+; for [:course 1 :enrollment], we should show attendee of the course
 ; however, for [:child 1 :enrollment], we should show course, not attendee.
 (defn find-enrollment
   "find all person that enrolls to the course by query path "
   [qpath]
-  ;(prn "find enrollment " qpath (util/get-qpath-entities qpath get-enrollment-by))
-  (let [projkeys (keys enrollment-schema)
-        person-keys (keys (assoc (list-attr :person) :db/id :db.type/id))
-        course-keys (keys (assoc (list-attr :course) :db/id :db.type/id))
-
-        result (if (#{:parent :child} (first qpath))
+  (log/info "find enrollment " qpath " entities: " (util/get-qpath-entities qpath get-enrollment-by))
+  (let [result (if (#{:parent :child} (first qpath))
                 (->> (util/get-qpath-entities qpath get-enrollment-by)
-                     (map :enrollment/course )
-                     (filter identity)      ; always filter identity
-                     (map (comp get-entity :db/id))
-                     (map #(select-keys % course-keys) )
+                     (map get-person-enrollment-refed-entity)
                      (map #(util/add-navpath % qpath) ))
-                (->> (first (util/get-qpath-entities qpath get-enrollment-by))
-                     (:enrollment/person)  ; select-keys ret a map with subset keys
-                     (filter identity)      ; always filter identity
-                     (map (comp get-entity :db/id))
-                     (map #(select-keys % person-keys) )
+                (->> (util/get-qpath-entities qpath get-enrollment-by)
+                     ; use mapcat to concat list of person in a enrollment group.
+                     (mapcat get-course-enrollment-refed-entity)
                      (map #(util/add-navpath % qpath) )))
         ]
     (doseq [e result]
-      (prn "enrollment --> " e))
+      (log/info "enrollment --> " e))
     result))
 
 
+; course enrollments outbound refed entity contains a set of person,
+; map rets a list, need to be mapcat-ed.
+(defn get-course-enrollment-refed-entity
+  [entity]
+  (let [person-keys (keys (assoc (list-attr :person) :db/id :db.type/id))]
+    (log/info "get-course-enrollment-refed-entity " entity)
+    (as-> entity e
+      (:enrollment/person e)  ; enrollment person set -> e
+      (filter identity e)     ; filter nil in person set
+      (map (comp get-entity :db/id) e)  ; person id to person entity 
+      (map #(select-keys % person-keys) e))  ; 
+  ))
+
+; one person enrollment contains one person one course entity.
+(defn get-person-enrollment-refed-entity
+  [entity]
+  (let [course-keys (keys (assoc (list-attr :course) :db/id :db.type/id))]
+    (log/info "get-person-enrollment-refed-entity " entity)
+    (as-> entity e
+      ((comp get-entity :db/id identity :enrollment/course) e)
+      (select-keys e course-keys))
+  ))
+
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; for now, all courses are created and lectured by person
 ; using cond-> threading, the same as threading to anonymous (-> state (#(if true (inc %) %))
 (defn create-enrollment

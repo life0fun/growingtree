@@ -131,29 +131,29 @@ h6{font-size:11.9px}
   header buttons
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 .header, .nav .search {
-    background-color: #566569;
-    background-image: -webkit-linear-gradient(#566569, #3f494b);
-    background-image: linear-gradient(#566569, #3f494b);
-    border-bottom: 1px solid #fff;
-    box-shadow: inset 0px -10px 10px -10px #000;
-    display: block;
-    height: 35px;
-    margin: 0;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+  background-color: #566569;
+  background-image: -webkit-linear-gradient(#566569, #3f494b);
+  background-image: linear-gradient(#566569, #3f494b);
+  border-bottom: 1px solid #fff;
+  box-shadow: inset 0px -10px 10px -10px #000;
+  display: block;
+  height: 35px;
+  margin: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
 }
 
 .header .button.left, .nav .search .button.left {
-    float: left;
-    line-height: 34px;
-    margin-right: 10px;
-    color: rgba(255,255,255,0.5);
-    display: block;
-    font-size: 21px;
-    height: 100%;
-    text-decoration: none;
+  float: left;
+  line-height: 34px;
+  margin-right: 10px;
+  color: rgba(255,255,255,0.5);
+  display: block;
+  font-size: 21px;
+  height: 100%;
+  text-decoration: none;
 }
 
 .header .button.right, .nav .search .button.right {
@@ -207,7 +207,7 @@ h6{font-size:11.9px}
   }
 }
 
-/*  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   nav side bar
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
@@ -569,9 +569,10 @@ h6{font-size:11.9px}
 }
 
 
-/*  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   activity entry in the each thing node 
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+.filter-line {display: block; height: 2px; border-color: orange;}
 .thing{background:#fff;*zoom:1;min-height:50px;position:relative}
 .thing:before,.thing:after{content:" ";display:table}
 .thing:after{clear:both}
