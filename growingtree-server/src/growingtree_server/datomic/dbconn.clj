@@ -211,9 +211,9 @@
   [eid]
   (let [e (get-entity eid)  ; touch to reify all attributes.
         attrs (keys e)]
-    (prn "--------- " eid " ----------------")
+    (log/info "--------- " eid " ----------------")
     (doseq [a attrs]
-      (prn a  (a e)))))
+      (log/info a  (a e)))))
 
 ;==========================================================================
 ; datomic transaction, all attr in entity must _not_ be nil.
@@ -229,7 +229,7 @@
         ; ft (d/transact (get-conn) tx-data)  ; ret future task
         ft tx-data
        ]
-    (prn "dbconn submit trans " tx-data ft)
+    (log/info "dbconn submit trans " tx-data ft)
     ft))
 
 
@@ -240,7 +240,7 @@
   (let [alltxs (reverse (sort
               (d/q '[:find ?e ?when
                      :where [?e :db/txInstant ?when]] db)))]
-    (prn alltxs)
+    (log/info alltxs)
     alltxs))
 
 
@@ -308,7 +308,7 @@
   [query db & args]
   (->> (apply d/q query db args)
        (mapv (fn [tuple]  ; tuple [id]
-                (prn "qes result tuple " tuple)
+                (log/info "qes result tuple " tuple)
                 (mapv (partial d/entity db) tuple)))))
 
 
@@ -390,7 +390,7 @@
           eid (d/q '[:find ?attr
                      :where [_ :db.install/attribute ?attr]]
                     db)]
-      (prn "list all attr " eid)
+      (log/info "list all attr " eid)
       (map entity-attr eid)))
 
   ; ret a list of attrs in schema, ret val is [ [attr-name attr-type], [], ]
@@ -413,7 +413,6 @@
               {}
               attr-types)
           ]
-    ; (prn "schema attrs " schema-map)
     schema-map)))
 
 
@@ -442,7 +441,7 @@
                   :in $ ?sa ?sn
                   :where [?e ?sa ?sn]]
                 db schema-attr schema-name)
-           seq boolean)))
+          seq boolean)))
 
 
 ; -----------------------------------------------------------------------------
@@ -478,7 +477,7 @@
                         ]
                 (get-db))
         ]
-    (prn "find schema attra " attr-types)))
+    (log/info "find schema attra " attr-types)))
 
 
 ;;==========================================================================
@@ -490,7 +489,7 @@
   [eid attr amt]
   (let [db (get-db)
         code [:db/add eid attr (-> (d/entity db eid) attr ((fnil + 0) amt))]]
-    (prn "code " code)
+    (log/info "code " code)
     code))
 
 ; to use the reted write op tuple inside a transact, wrap inside (vec code)
@@ -500,14 +499,15 @@
   "ret a write datomc to set a ref attr by eid for d/transact conn (vec setref-stmt)"
   [eid attr refid]
   (let [code [:db/add eid attr refid]]
-    (prn "code " code)
+    (log/info "code " code)
     code))
+
 
 (defn setval-stmt
   "ret a write datom to set the value of a attr by eid for d/transact conn (vec setref-stmt)"
   [eid attr value]
   (let [code [:db/add eid attr value]]
-    (prn "code " code)
+    (log/info "code " code)
     code))
 
 ;;==========================================================================
@@ -530,7 +530,7 @@
                     (sort-by first) ; sort by tx time
                     (reverse ))
         ]
-    (prn " entity " eid " txhist " txhist)
+    (log/info " entity " eid " txhist " txhist)
     txhist))
 
 
@@ -545,7 +545,7 @@
                       (d/history (get-db))
                       eid attr v)
                       (sort-by first))]
-    (prn tx " set " eid " " attr " to " v)
+    (log/info tx " set " eid " " attr " to " v)
     tx))
 
 
@@ -563,7 +563,7 @@
                     (sort-by first)   ; sort by tx time
                     (reverse ))       ; reverse time
         ]
-    (prn "attr-val-tx " attr attrval " txhist " txhist " entity " txhist)
+    (log/info "attr-val-tx " attr attrval " txhist " txhist " entity " txhist)
     txhist))
 
 

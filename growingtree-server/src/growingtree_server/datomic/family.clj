@@ -476,7 +476,6 @@
 
 ; create activity, pull in all group persons as activity participate initially.
 ; details {:activity/person 1, :activity/title "a", :activity/email "b", :activity/url "c"}
-; 
 (defn create-activity
   "create activity from the submitted new thing form details from group add-activity"
   [details]

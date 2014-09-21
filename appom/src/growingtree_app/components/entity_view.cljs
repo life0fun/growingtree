@@ -487,6 +487,7 @@
         authors (map #(get % :person/title) (get entity :course/author))
         title (get value-map :title)
         content (:content value-map)
+        course-type (name (:type value-map))
         url (:url value-map)
         
         enroll-form-name (str "#enrollment-form-" thing-id)
@@ -505,7 +506,7 @@
           :enrollment/url (str "growingtree.com/enrollment/course/" thing-id)
         } ; peer add-thing :enrollment
        ]
-    (.log js/console "course thing value " (pr-str thing-id title authors))
+    (.log js/console "course thing value " (pr-str thing-id title authors url))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
         (thing-entry-thumbnail thing-type value-map)
@@ -514,7 +515,7 @@
           (thing-entry-titles (vector title))
           (thing-entry-subtitles (vector (str "  " content)
                                          (str "  " url)))
-          (thing-entry-taglines (vector (str " " type) (str "Offered by " authors)))
+          (thing-entry-taglines (vector (str course-type "  Offered by " authors)))
 
           [:ul.flat-list.buttons
             (thing-entry-action-button-li "lectures" (:lecture-class value-map)

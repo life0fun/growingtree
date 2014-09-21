@@ -50,6 +50,42 @@
 (declare leaf-thing-origin)
 
 
+; distinct-by a collect by the result of apply f to the tuple in the collection.
+; step fn to apply fn to head of coll step-by-step.
+; step hd with cons hd to the ret of its.
+(defn distinct-by
+  [f coll]
+  (let [step 
+          (fn step [[hd & xs] seen]
+            (if hd
+              (let [result (f hd)]
+                (if (contains? seen result)
+                  (step xs seen)  ; processing hd, skip it, 
+                  (lazy-seq (cons hd (step xs (conj seen result))))))
+              (empty coll)))
+
+        step1 (fn step1 [xs seen]
+                (lazy-seq
+                  ((fn [[x :as xs] seen]
+                    (when-let [s (seq xs)]
+                      (let [fx (f x)]
+                        (if (contains? seen fx) 
+                          (recur (rest s) seen)
+                          (cons x (step (rest s) (conj seen fx)))))))
+                 xs seen)))]
+    (step coll #{}))
+  )
+
+(defn distinct-by-loop
+  [f coll]
+  (loop [[hd & xs] coll seen #{} result (empty coll)]
+    (if hd
+      (let [fresult (f hd)]
+        (if (contains? seen fresult)
+          (recur xs seen result)
+          (recur xs (conj seen fresult) (conj result hd))))
+      result)))
+
 ; ============================================================================
 ; convert unix mills to Date object as the value to #inst attr.
 ; clj-time expect unix offset in mills, moment().unix() only get seconds.

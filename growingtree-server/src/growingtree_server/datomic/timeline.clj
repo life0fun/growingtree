@@ -15,7 +15,12 @@
   (:require [datomic.api :as api])
   (:require [growingtree-server.datomic.dbschema :as dbschema]
             [growingtree-server.datomic.dbconn :as dbconn :refer :all]
-            [growingtree-server.datomic.util :as util]))
+            [growingtree-server.datomic.util :as util]
+            [growingtree-server.datomic.family :as family]
+            [growingtree-server.datomic.course :as course]
+            [growingtree-server.datomic.assign :as assign]
+            [growingtree-server.datomic.comments :as comments]
+            ))
 
 
 ;
@@ -79,7 +84,6 @@
    :lecture/title :lecture/content :lecture/reference
    :question/title :question/content
    :assignment/title
-   :enrollment/title :enrollment/content
    :answer/title :answer/content
   ])
 
@@ -159,13 +163,31 @@
 ;;===========================================================================
 ; for each searched out entity, need get all nested props.
 ;;===========================================================================
+(defn populate-entity-outbound-ref
+  [entity]
+  (let [entity-type (entity-keyword entity)]
+    (case entity-type
+      :person (family/get-person-refed-entity entity)
+      :group (family/get-group-refed-entity entity)
+      :activity (family/get-activity-refed-entity entity)
+      :course (course/get-course-refed-entity entity)
+      :lecture (course/get-lecture-refed-entity entity)
+      :enrollment (course/get-person-enrollment-refed-entity entity)
+      :question (assign/get-question-refed-entity entity)
+      :assignment (assign/get-assignment-refed-entity entity)
+      :answer (assign/get-answer-refed-entity entity)
+      :comments (comments/get-comments-refed-entity entity)
+      :like (comments/get-like-refed-entity entity))
+  ))
+
 (defn search-result
   "convert search result [eid key text] to :search entity"
   [[eid searchkey text :as result]]
   (let [entity (get-entity eid)
+        entity-type (entity-keyword entity)
         result-map {:db/id (:db/id entity)
-                    :search/origin entity
-                    :search/type (name (entity-keyword entity))
+                    :search/origin (populate-entity-outbound-ref entity)
+                    :search/type (name entity-type)
                     :search/text text
                     :search/searchkey searchkey
                     :navpath [:all 0 :search (:db/id entity)]
@@ -185,6 +207,7 @@
   (let [searchkey (last qpath)
         ; map search fulltext attr to all fulltext attrs
         entities (->> (mapcat #(search-fulltext-attr % searchkey) fulltext-attrs)
+                      (util/distinct-by first)
                       (map #(search-result %)))
        ]
     (doseq [e entities]
