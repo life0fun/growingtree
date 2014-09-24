@@ -129,7 +129,7 @@
 (defn get-add-thing-msg
   [thing-type data]
   (let [msg [:add-thing {:add-thing thing-type
-                         :data data}]
+                         :data data}]  ; add thing details in :data slot.
        ]
     msg))
 

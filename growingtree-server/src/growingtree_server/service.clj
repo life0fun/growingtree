@@ -246,18 +246,19 @@
 
 ;;==================================================================================
 ; POST add-thing, request's :edn-params = postbody, :path-params /add/:thing
-; :edn-params {:thing-type :path :qpath :details {:title "aa", :content "", :type "math",
-; postbody = {:thing-type nil, :path nil, :qpath nil, :details {:lecture/content "c",..}
+; request is formed in cljs-ajax with :format :edn and param {:thign-type :path :post-data}
+; :edn-params {:thing-type :path :qpath :post-data {:title "aa", :content "", :type "math"}
 ; For add-thing, type is taken from /add/:thing => lecture.
+; postbody {:thing-type nil, :path nil, :qpath nil, :post-data {:lecture/content "c",..}
 ;;==================================================================================
 (defn add-thing
   "add a thing upon post request, request contains http post data"
   [{postbody :edn-params :as request}]   ; :path-params {:thing "group"}
-  (log/info "add-thing " postbody)
+  (log/info "add-thing " postbody)  ; for add-thing, :path and :qpath are nil.
   (let [;resp (bootstrap/json-print {:result msg-data})
         path (:path postbody)
         type (get-in request [:path-params :thing])  ; /api/:thing
-        added-things (peer/add-thing (keyword type) (:details postbody))
+        added-things (peer/add-thing (keyword type) (:post-data postbody))
         result {:status 200 :data (map #(dissoc % :db/id) added-things)}  ; data is [{:course/author ...} {}]
         ; jsonresp (bootstrap/json-response result)
         jsonresp (bootstrap/edn-response result)

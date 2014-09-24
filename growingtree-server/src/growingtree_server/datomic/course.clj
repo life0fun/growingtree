@@ -172,7 +172,8 @@
 (defn create-course
   "create a course with details "
   [details]
-  (let [author-id (:db/id (find-by :person/title (:author details)))
+  (let [author-name (or (:course/author details) (:author details))
+        author-id (:db/id (find-by :person/title author-name))
         entity (-> details
                    (select-keys (keys course-schema))
                    (assoc :course/author author-id)  ; replace input :course/author
@@ -299,7 +300,7 @@
     (log/info "get-person-enrollment-refed-entity " entity)
     (as-> entity e
       ((comp get-entity :db/id identity :enrollment/course) e)
-      (select-keys e course-keys))
+      (get-course-refed-entity e))
   ))
 
 

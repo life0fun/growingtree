@@ -60,7 +60,9 @@
             (if hd
               (let [result (f hd)]
                 (if (contains? seen result)
-                  (step xs seen)  ; processing hd, skip it, 
+                  ; skip current hd, conti step rest will ret a sub lazy-seq, 
+                  ; will be cons to prev lazy-seq in prev iteration.
+                  (step xs seen)  
                   (lazy-seq (cons hd (step xs (conj seen result))))))
               (empty coll)))
 
