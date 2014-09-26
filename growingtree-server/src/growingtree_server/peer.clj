@@ -133,6 +133,11 @@
   (let [enrollments (dda/find-enrollment qpath)]
     enrollments))
 
+(defmethod get-things
+  :progress
+  [type qpath details]
+  (let [progress (dda/find-progress qpath)]
+    progress))
 
 (defmethod get-things
   :group
@@ -354,3 +359,10 @@
        ]
     result))
 
+; create progress thing
+(defmethod add-thing
+  :progress
+  [type details]
+  (let [author (:author details)
+        result (dda/create-progress details)]
+    result))

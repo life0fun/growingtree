@@ -522,6 +522,8 @@
                                           (filter-things-onclick app entity :course :lecture))
             (thing-entry-action-button-li "add lecture" (:add-lecture-class value-map)
                                           (ui/toggle-hide-fn (str ".add-lecture-form")))
+            (thing-entry-action-button-li "progress" (:progress-class value-map)
+                                          (filter-things-onclick app entity :course :progress))
             (thing-entry-action-button-li "enrollments" (:enrollment-class value-map)
                                           (filter-things-onclick app entity :course :enrollment))
             (thing-entry-action-button-li "enroll" (:enroll-class value-map)

@@ -166,33 +166,7 @@
   ))
 
 
-(defschema like
-  (part app)
-  (fields
-    [title :string :fulltext :unique-value " the title of like "]
-    [origin :ref :one :indexed "the origin thing this like is to"]
-    [person :ref :many "person who like this thing"]
-    [url :string "url of the thing"]
-    [email :string :indexed "uniquely identifier"]
-    [wiki :string "wiki page of the thing"]
-  ))
-
-
-; comment tree, thingroot is the root of thing this comments tree.
-; origin is the direct parent this comment.
-(defschema comments
-  (part app)
-  (fields
-    [title :string :fulltext "the title of the comments"] 
-    [author :ref :one :indexed "the author of the commentss"]
-    [thingroot :ref :one :indexed "the thingroot id this comments made to"]
-    [origin :ref :one :indexed "the parent origin id this comment made to"]
-    [url :string "url of the thing"]
-    [email :string :indexed "uniquely identifier"]
-    [wiki :string "wiki page of the thing"]
-  ))
-
-
+; group activity, or user phone usage activity.
 (defschema activity
   (part app)
   (fields
@@ -339,6 +313,50 @@
     [wiki :string "wiki page of the thing"]
   ))
 
+; learning progress tracker. Each step in progress is a progress task.
+(defschema progress
+  (part app)
+  (fields
+    [title :string :fulltext " the name of progress"]
+    [author :ref :one :indexed " the author of the progress"]
+    [origin :ref :one :indexed " the course, thing that needs to be progressed"]
+    [tasks :ref :many "a list of tasks during progressing"]
+  ))
+
+; progress sub tasks, each task is one step in a progress
+(defschema progresstask
+  (part app)
+  (fields
+    [title :string :fulltext " the name of task"]
+    [origin :ref :one :indexed " the progress this task belongs to"]
+    [progression :string "the numeric index this task in the progression"]
+  ))
+
+(defschema like
+  (part app)
+  (fields
+    [title :string :fulltext :unique-value " the title of like "]
+    [origin :ref :one :indexed "the origin thing this like is to"]
+    [person :ref :many "person who like this thing"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
+  ))
+
+
+; comment tree, thingroot is the root of thing this comments tree.
+; origin is the direct parent this comment.
+(defschema comments
+  (part app)
+  (fields
+    [title :string :fulltext "the title of the comments"] 
+    [author :ref :one :indexed "the author of the commentss"]
+    [thingroot :ref :one :indexed "the thingroot id this comments made to"]
+    [origin :ref :one :indexed "the parent origin id this comment made to"]
+    [url :string "url of the thing"]
+    [email :string :indexed "uniquely identifier"]
+    [wiki :string "wiki page of the thing"]
+  ))
 
 ; (defn create-schema
 ;   "create schema using datomic-schema in db connection"

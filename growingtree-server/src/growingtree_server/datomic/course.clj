@@ -110,6 +110,7 @@
 (def course-schema (assoc (list-attr :course) :db/id :db.type/id))
 (def lecture-schema (assoc (list-attr :lecture) :db/id :db.type/id))
 (def enrollment-schema (assoc (list-attr :enrollment) :db/id :db.type/id))
+(def progress-schema (assoc (list-attr :progress) :db/id :db.type/id))
 
 
 ; course does not have lecture, use in-bound query from lecture to course.
@@ -345,4 +346,60 @@
       ]
     (log/info "create enrollment " enrolls " trans " trans)
     enrolls))
+
+
+;;===================================================================================
+; progress rules.
+; we have two rules share the same name :title. The :title rule will be true
+; if _either_ of the :title rule is true. this is logic OR.
+;;===================================================================================
+; rule set for get parent by. rule name is the parent thing type.
+(def get-progress-by
+  '[[(:all ?e ?val) [?e :progress/title]]   ; rule-name :all = thing-type.
+    [(:author ?e ?val) [?e :progress/author ?val]]
+    [(:title ?e ?val) [(fulltext $ :progress/title ?val) [[?e ?text]]]]
+    [(:title ?e ?val) [(fulltext $ :progresstask/title ?val) [[?t ?text]]]
+                      [?t :origin ?e]]
+    [(:course ?e ?val) [?e :progress/origin ?val]]
+  ])
+
+; one person enrollment contains one person one course entity.
+(defn get-progress-refed-entity
+  [entity]
+  (let [projkeys (keys (assoc (list-attr :progress) :db/id :db.type/id))]
+    (log/info "get-progress-refed-entity " entity)
+    (as-> entity e
+      (select-keys e projkeys)
+      (util/get-author-entity :progress/author e)
+      (util/get-ref-entity :progress/tasks e)
+      (util/add-upvote-attr e)
+    )
+  ))
+
+; for course, progress can be attendee of a course; for person, find courses he enrolled into.
+; for [:course 1 :progress], we should show attendee of the course
+; however, for [:child 1 :progress], we should show course, not attendee.
+(defn find-progress
+  "find all person that enrolls to the course by query path "
+  [qpath]
+  (log/info "find progress " qpath " entities: " (util/get-qpath-entities qpath get-progress-by))
+  (let [result (->> (util/get-qpath-entities qpath get-progress-by)
+                    (map get-progress-refed-entity)
+                    (map #(util/add-navpath % qpath)) )
+        ]
+    (doseq [e result]
+      (log/info "progress --> " e))
+    result))
+
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+; for now, all courses are created and lectured by person
+; using cond-> threading, the same as threading to anonymous (-> state (#(if true (inc %) %))
+(defn create-progress
+  "create a progress with details "
+  [details]
+  (log/info "create-progress " details  "schema " (keys progress-schema))
+  (let [course-id (:progress/origin details)]
+    details
+  ))
 

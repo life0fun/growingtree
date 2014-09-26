@@ -76,7 +76,7 @@
 
 ; nav types, in app state [:things] key for navbar use.
 (def nav-types [:parent :child :group
-                :course :lecture
+                :course :lecture :progress
                 :question :assignment
                 :activity :timeline])
 (def root-add-type #{:parent :group :course})
@@ -129,7 +129,7 @@
 (defn get-add-thing-msg
   [thing-type data]
   (let [msg [:add-thing {:add-thing thing-type
-                         :data data}]
+                         :data data}]  ; add thing details in :data slot.
        ]
     msg))
 

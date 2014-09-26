@@ -154,6 +154,7 @@
 
 ; ============================================================================
 ; get entities by qpath, formulate query rules from qpath
+; thing-type is rule name.
 ; qpath is [:all 0 :child] or [:parent 1 :child] or [:parent 1 :parent]
 ; when rule-name is :all, arg-val, which is eid, does not matter.
 ; for entity origin ref type to itself, e.g, comments can be made to comments,
@@ -164,7 +165,8 @@
   "get entities by arg-val and rule-name, rule-set, for each tuple, touch to realize
    all attrs called directly for comments comments case"
   [rule-name rule-set arg-val]  ; when rule-name is :all, arg-val no effect.
-  (let [rule (list rule-name '?e '?val)  ; rule-head specify which rule-body to pick
+  (let [;rule (list rule-name '?e '?val)  ; rule-name is thing-type, check whether rule is ON.
+        rule '(rule-name ?e ?val)
         q (conj '[:find ?e :in $ % ?val :where ] rule)
         eids (d/q q (get-db) rule-set arg-val)  ; normally, arg-val is thing-id
         ; touch entity to realize/materialize all attributes.
@@ -187,7 +189,7 @@
     (cond
       ; for comments of comments, query directly. (:comments 1 :comments)
       (and (= thing-type :comments) (= nxt-thing-type :comments))
-        (get-entities-by-rule thing-type rule-set eid)
+        (get-entities-by-rule thing-type rule-set eid) ; thing-type is rule name.
 
       ; head thing [:course 1 :course], however, comments can ref to comments.
       (= thing-type nxt-thing-type) [e]
@@ -201,7 +203,7 @@
       ; entity does not have nxt-thing-type, nxt-thing-type is inbound to entity from target [:course 1 :lectures]
       ; [:child 1 :assignment], :child is the rule-name of assignment rule-set for :assignment/person = :child
       :else
-        (get-entities-by-rule thing-type rule-set eid))))
+        (get-entities-by-rule thing-type rule-set eid))))  ; thing-type is rule name.
 
 
 ; find an attr of a thing, either find the attr by its name directly. If thing does not have

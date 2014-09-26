@@ -576,14 +576,17 @@
 (defn search-fulltext-attr
   [attr searchkey]
   (log/info "search fulltext attr " attr " keyword " searchkey)
-  (let [entities (->> (d/q '[:find ?e ?searchkey ?text
-                             :in $ ?attr ?searchkey
-                             :where [(fulltext $ ?attr ?searchkey) [[?e ?text]]]
-                            ]
-                            (get-db)
-                            attr
-                            searchkey)
-                      (sort-by first))
+  (let [entities 
+          (->> (d/q '[:find ?e ?searchkey ?text
+                      :in $ ?attr ?searchkey
+                      :where [  ; fulltext output to list of tuple(e, text)
+                        (fulltext $ ?attr ?searchkey) [[?e ?text]]
+                       ]
+                      ]
+                      (get-db)
+                      attr
+                      searchkey)
+                (sort-by first))
         ]
     entities))
 

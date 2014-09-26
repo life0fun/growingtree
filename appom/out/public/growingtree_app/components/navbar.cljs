@@ -23,7 +23,7 @@
         [:a.show_channel
           {:key type
            :on-click #(put! comm (mock-data/get-all-things-msg type {:author "rich-dad"}))
-           :class (str (name type) (when (:selected thing-listing) " active"))
+           :class (str "js-" (name type) (when (:selected thing-listing) " active"))
           }
           (:title thing-listing)]  ; nav type title, course, parent, lecture, etc.
         (if (some #{type} mock-data/root-add-type)
