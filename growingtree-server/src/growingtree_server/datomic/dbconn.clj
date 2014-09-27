@@ -169,7 +169,8 @@
     (submit-transact (dschema/build-schema d/tempid))))
 
 
-; get entity byd eid, be really careful of nil eid. XXX
+; get entity byd eid, be really careful of nil eid.
+; touch the entity to realize its attrs.
 (defn get-entity
   "ret an datomic EntityMap from eid"
   [eid]

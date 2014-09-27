@@ -329,7 +329,7 @@
   (fields
     [title :string :fulltext " the name of task"]
     [origin :ref :one :indexed " the progress this task belongs to"]
-    [progression :string "the numeric index this task in the progression"]
+    [step :string "the step this task in the progression"]
   ))
 
 (defschema like

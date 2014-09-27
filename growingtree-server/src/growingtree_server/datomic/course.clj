@@ -358,7 +358,7 @@
   '[[(:all ?e ?val) [?e :progress/title]]   ; rule-name :all = thing-type.
     [(:author ?e ?val) [?e :progress/author ?val]]
     [(:title ?e ?val) [(fulltext $ :progress/title ?val) [[?e ?text]]]]
-    [(:title ?e ?val) [(fulltext $ :progresstask/title ?val) [[?t ?text]]]
+    [(:title ?e ?val) [(fulltext $ :progresstask/title ?val) [[?t ?text]]] ; output to ?t.
                       [?t :origin ?e]]
     [(:course ?e ?val) [?e :progress/origin ?val]]
   ])
@@ -366,12 +366,12 @@
 ; one person enrollment contains one person one course entity.
 (defn get-progress-refed-entity
   [entity]
-  (let [projkeys (keys (assoc (list-attr :progress) :db/id :db.type/id))]
+  (let [projkeys (keys progress-schema)]
     (log/info "get-progress-refed-entity " entity)
     (as-> entity e
       (select-keys e projkeys)
       (util/get-author-entity :progress/author e)
-      (util/get-ref-entity :progress/tasks e)
+      (util/get-ref-entity :progress/progresstask e)  ; touch to get its attrs
       (util/add-upvote-attr e)
     )
   ))

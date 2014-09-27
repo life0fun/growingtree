@@ -165,9 +165,10 @@
   "get entities by arg-val and rule-name, rule-set, for each tuple, touch to realize
    all attrs called directly for comments comments case"
   [rule-name rule-set arg-val]  ; when rule-name is :all, arg-val no effect.
+  (log/info "get entities by rule " rule-name arg-val rule-set)
   (let [;rule (list rule-name '?e '?val)  ; rule-name is thing-type, check whether rule is ON.
-        rule '(rule-name ?e ?val)
-        q (conj '[:find ?e :in $ % ?val :where ] rule)
+        ; rule [rule-name '?e '?val]
+        q (conj '[:find ?e :in $ % ?val :where ] rule-name)
         eids (d/q q (get-db) rule-set arg-val)  ; normally, arg-val is thing-id
         ; touch entity to realize/materialize all attributes.
         entities (map (comp get-entity first) eids)
@@ -185,6 +186,7 @@
   (let [[thing-type eid nxt-thing-type] (take-last 3 qpath)  ; [:course 1 :comments 2 :comments]
         e (get-entity eid)   ; we have thing-id, get thing entity
         nxt-thing-val (leaf-thing-origin e thing-type nxt-thing-type)
+        rule [thing-type '?e '?val]  ; rule is rule-name=thing-type and rule-args
        ]
     (cond
       ; for comments of comments, query directly. (:comments 1 :comments)
@@ -203,7 +205,7 @@
       ; entity does not have nxt-thing-type, nxt-thing-type is inbound to entity from target [:course 1 :lectures]
       ; [:child 1 :assignment], :child is the rule-name of assignment rule-set for :assignment/person = :child
       :else
-        (get-entities-by-rule thing-type rule-set eid))))  ; thing-type is rule name.
+        (get-entities-by-rule rule rule-set eid))))  ; thing-type is rule name.
 
 
 ; find an attr of a thing, either find the attr by its name directly. If thing does not have
@@ -227,10 +229,11 @@
       )))
 
 
-; get the entitry for ref-ed attribute, like
+; get the entitry for ref-ed attribute. 
+; we touched the entity to realize all its attrs.
 (defn get-ref-entity
   [ref-attr entity]
-  (log/info "get-ref-entity " ref-attr entity)
+  ; (log/info "get-ref-entity " ref-attr entity)
   (let [ref-id (get-in entity [ref-attr :db/id])
         ref-e (dbconn/get-entity ref-id)]
     (log/info "get-ref-entity " ref-id ref-e)
