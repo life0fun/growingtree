@@ -165,7 +165,6 @@
   "get entities by arg-val and rule-name, rule-set, for each tuple, touch to realize
    all attrs called directly for comments comments case"
   [rule-name rule-set arg-val]  ; when rule-name is :all, arg-val no effect.
-  (log/info "get entities by rule " rule-name arg-val rule-set)
   (let [;rule (list rule-name '?e '?val)  ; rule-name is thing-type, check whether rule is ON.
         ; rule [rule-name '?e '?val]
         q (conj '[:find ?e :in $ % ?val :where ] rule-name)

@@ -161,9 +161,17 @@ start datomic transactor and lein repl connect to it.
       (d/delete-database uri)
       (d/create-database uri)         ;; see above command
 
+using console
+
+    bin/console -p 8088 colorcloud "datomic:sql://?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic"
+
 After colorcloud db created, start server.
 
-    lein run-dev
+    lein run-dev 
+or
+    lein repl
+    (watch)
+    (start)
 
 Port and resource path is defined in `service.clj`.
   
@@ -199,10 +207,6 @@ After creating datomic user and datomic db in mysql, we need to create colorclou
     % tx = Util.list(Util.list(":db.fn/retractEntity", "17592186045496"));
     % txr = conn.transact(tx).get();
 
-using console
-
-    bin/console -p 8088 colorcloud "datomic:sql://?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic"
-
 
 We define database scheme inside dbschema ns. DB schema shall only need to be created once. The function to create schema is defined inside `(service/create-schema)` and called from `(server/run-dev)`. Disable the call to service/create-schema after schema is created.
 
@@ -214,6 +218,9 @@ The hardwork is in dbconn ns.
         (submit-transact (dschema/build-parts d/tempid))
         ; turn all defschema macro statement into schema transaction
         (submit-transact (dschema/build-schema d/tempid))))
+
+
+To re-create database schema, add new schema in dbschema, and enable line `(service/create-schema)` in server.clj, then issue `lein run-dev` from command line.
 
 
 The data model in datomic is represented by entity. Everything is entity.

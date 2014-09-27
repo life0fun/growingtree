@@ -79,7 +79,7 @@
 (def assignment-type [:question :course])
 (def assignment-status [:pending :active :overdue :cancelled])
 (def digit-type [:call :sms :mms :app :browse :game :stream :download :lock :study])
-
+(def progress-task-status [:wip :quarter :half :majority :completed])
 
 ; person namespace, different types of person, parent, child, teacher
 (defschema person
@@ -329,6 +329,9 @@
   (fields
     [title :string :fulltext " the name of task"]
     [origin :ref :one :indexed " the progress this task belongs to"]
+    [start :long "starting time of the task"]
+    [end :long "due time"]
+    [status :keyword "progress-status keys, wip, quarter, half, completed"]
     [step :string "the step this task in the progression"]
   ))
 

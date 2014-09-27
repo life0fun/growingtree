@@ -162,6 +162,7 @@
 (defn create-schema
   "create schema with connection to db"
   []
+  (log/info "creating schema...")
   (do
     ; turn all defparts macro statement into schema transaction
     (submit-transact (dschema/build-parts d/tempid))
@@ -227,8 +228,8 @@
   "submit a transaction"
   [tx-data]  ; tx-data is a list of list/map, each map must have :db/id
   (let [
-        ft (d/transact (get-conn) tx-data)  ; ret future task
-        ; ft tx-data
+        ; ft (d/transact (get-conn) tx-data)  ; ret future task
+        ft tx-data
        ]
     (log/info "dbconn submit trans " tx-data ft)
     ft))

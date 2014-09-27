@@ -168,7 +168,6 @@ h6{font-size:11.9px}
 }
 
 
-
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   main-area sidebar and nav with transition transform 
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -799,6 +798,110 @@ h6{font-size:11.9px}
   .input-form {
     margin: 20px;
     float: left;
+  }
+}
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  progress tracker
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+.progress-task {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+
+  li {
+    list-style-type: none;
+    display: inline-block;
+
+    position: relative;
+    margin: 0;
+    padding: 0;
+
+    text-align: center;
+    line-height: 30px;
+    height: 30px;
+
+    background-color: #f0f0f0;
+
+    // for forward > arrow using border with huge width
+    &:before,
+    &:after {
+      content: "";
+      display: block;
+      width: 0px;
+      height: 0px;
+
+      position: absolute;
+      top: 0;
+      left: 0;
+
+      border: solid transparent;
+      border-left-color: #f0f0f0;
+      border-width: 15px;
+    }
+
+    // direct span child inside normal li
+    & > span {
+      display: block;
+
+      color: #999;
+      font-weight: bold;
+      text-transform: uppercase;
+
+      &:before{
+        z-index: 2;
+      }
+
+      &:after {
+        top: -5px;
+        z-index: 1;
+        border-left-color: white;
+        border-width: 20px;
+      }
+    }
+
+    // done li.done > span
+    &.done > span {
+      color: #666;
+      background-color: #ccc;
+    } 
+      
+    // adjacent select the li immediate next to done li.
+    &.done + li > span:before {
+      border-left-color: #ccc;
+    }
+
+    // li first child, not display
+    &:first-child > span:after,
+    &:first-child > span:before {
+      display: none;
+    }
+
+    // first and last child, display arrow
+    &:first-child i,
+    &:last-child i {
+      display: block;
+      height: 0;
+      width: 0;
+
+      position: absolute;
+      top: 0;
+      left: 0;
+
+      border: solid transparent;
+      border-left-color: white;
+      border-width: 15px;
+    }
+
+    // last child arrow
+    &:last-child i {
+      left: auto;
+      right: -15px;
+
+      border-left-color: transparent;
+      border-top-color: white;
+      border-bottom-color: white;
+    }
   }
 }
 

@@ -281,30 +281,82 @@
           } 
           text]]]]))
 
-;
+
+;- - - - ;- - - - ;- - - -;- - - -;- - - -;- - - -;- - - -;- - - -
+; progress subtask
+(defn progress-task
+  [task]
+  (let [title (:title task)
+        status (name (:status task))]
+    [:li.progress-task
+        [:span.progress-title
+          [:a {:href "#"}
+            title
+          ]]
+        [:span.progress-status
+          status ]]
+  ))
+
+; progress tracker, use list to show progress task.
+(defn progress-tracker
+  [entity]
+  (if-let [course-id (:origin entity)]
+    (list
+      [:ol.progress-tracker
+        (map progress-task (:tasks entity))
+      ]
+    )))
+
+;- - - - ;- - - - ;- - - -;- - - -;- - - -;- - - -;- - - -;- - - -
 ; child form at the bottom of thing entry
 ; input-map {:group/title {:id :type :text} :group/remart {:id :type :text}}
 ;
+; (defn thing-entry-child-form
+;   [form-id form-class input-map submit-text submit-fn]
+;   [:div.hide {:id form-id}
+;     [:form {:class form-class :style #js {:float "left;"}}
+;       (for [[fk fmap] input-map]
+;         (if (= "datetime" (:type fmap))
+;           [:div.datetime-picker.input-append
+;             [:input {:id (:id fmap) :type (:type fmap) :data-format "hh:mm:ss MM/dd/yyyy" :placeholder (:text fmap)}]
+;             [:span.add-on [:a {:href (str "javascript:NewCal('" (:id fmap) "','mmddyyyy', 'true');")}
+;                             [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
+;                             [:img {:src "cal.gif" :width "16" :height "16"}]]] 
+;           ]
+;           [:input {:id (:id fmap) :type (:type fmap) :placeholder (:text fmap)}]))
+;       [:button.btn.btn-primary.inline-form-btn  
+;         {:type "button" :id "submit" :on-click submit-fn}
+;       submit-text]
+;     ]]
+;   )
 (defn thing-entry-child-form
   [form-id form-class input-map submit-text submit-fn]
   [:div.hide {:id form-id}
     [:form {:class form-class :style #js {:float "left;"}}
       (for [[fk fmap] input-map]
-        (if (= "datetime" (:type fmap))
-          [:div.datetime-picker.input-append
-            [:input {:id (:id fmap) :type (:type fmap) :data-format "hh:mm:ss MM/dd/yyyy" :placeholder (:text fmap)}]
-            [:span.add-on [:a {:href (str "javascript:NewCal('" (:id fmap) "','mmddyyyy', 'true');")}
-                            [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
-                            [:img {:src "cal.gif" :width "16" :height "16"}]]] 
-          ]
-          [:input {:id (:id fmap) :type (:type fmap) :placeholder (:text fmap)}]))
+        (cond 
+          (= "datetime" (:type fmap))
+            [:div.datetime-picker.input-append
+              [:input {:id (:id fmap) :type (:type fmap) :data-format "hh:mm:ss MM/dd/yyyy" :placeholder (:text fmap)}]
+              [:span.add-on [:a {:href (str "javascript:NewCal('" (:id fmap) "','mmddyyyy', 'true');")}
+                              [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
+                              [:img {:src "cal.gif" :width "16" :height "16"}]]] 
+            ]
+          (= "select" (:type fmap))
+            (if-let [options (:select fmap)]
+              [:select {:id (:id fmap)}
+                (map (fn [v] [:option {:value v} (name v)]) options)
+              ])
+          :else
+            [:input {:id (:id fmap) :type (:type fmap) :placeholder (:text fmap)}]
+        ))
       [:button.btn.btn-primary.inline-form-btn  
         {:type "button" :id "submit" :on-click submit-fn}
       submit-text]
     ]]
   )
 
-
+;- - - - ;- - - - ;- - - -;- - - -;- - - -;- - - -;- - - -;- - - -
 ; slice thing list block view template.
 ; make child div unique with template child form id that includes thing-id
 (defmethod thing-entry
@@ -489,7 +541,9 @@
         content (:content value-map)
         course-type (name (:type value-map))
         url (:url value-map)
+        progress (:progress value-map)
         
+        ; enroll form
         enroll-form-name (str "#enrollment-form-" thing-id)
         enroll-form-input-map {
           :enrollment/person {:id (str "enroll-person-" thing-id) :type "text" :text "attendee"}
@@ -505,6 +559,24 @@
           :enrollment/email (str "rich-son@rich.com")
           :enrollment/url (str "growingtree.com/enrollment/course/" thing-id)
         } ; peer add-thing :enrollment
+
+        ; add progress form
+        progresstask-form-name (str "#progresstask-form-" thing-id)
+        progresstask-form-input-map {
+          :progresstask/title {:id (str "progresstask-title-" thing-id) :type "text" :text "task"}
+          :progresstask/author {:id (str "progresstask-author-" thing-id) :type "text" :text "author"}
+          :progresstask/status {:id (str "progresstask-status-" thing-id) :type "select" :select [:work-in-progress :quarter :half :majority :completed]}
+        }
+        progresstask-form-fields {
+          :progresstask/title (str "#" (get-in progresstask-form-input-map [:progresstask/title :id]))
+          :progresstask/author (str "#" (get-in progresstask-form-input-map [:progresstask/author :id]))
+          :progresstask/status (str "#" (get-in progresstask-form-input-map [:progresstask/status :id]))
+        }
+        progresstask-form-data {
+          :progresstask/origin {:progress/origin thing-id
+                                :progress/author "rich-son"
+                                :progress/title (str "progression of " title)}
+        }
        ]
     (.log js/console "course thing value " (pr-str thing-id title authors url))
     (list
@@ -517,17 +589,19 @@
                                          (str "  " url)))
           (thing-entry-taglines (vector (str course-type "  Offered by " authors)))
 
+          (progress-tracker progress)
+
           [:ul.flat-list.buttons
             (thing-entry-action-button-li "lectures" (:lecture-class value-map)
                                           (filter-things-onclick app entity :course :lecture))
             (thing-entry-action-button-li "add lecture" (:add-lecture-class value-map)
                                           (ui/toggle-hide-fn (str ".add-lecture-form")))
-            (thing-entry-action-button-li "progress" (:progress-class value-map)
-                                          (filter-things-onclick app entity :course :progress))
             (thing-entry-action-button-li "enrollments" (:enrollment-class value-map)
                                           (filter-things-onclick app entity :course :enrollment))
             (thing-entry-action-button-li "enroll" (:enroll-class value-map)
                                           (ui/toggle-hide-fn (str "#enrollment-form-" thing-id)))
+            (thing-entry-action-button-li "progress" (:progress-class value-map)
+                                          (ui/toggle-hide-fn (str "#progresstask-form-" thing-id)))
             (thing-entry-action-button-li "likes" (:like-class value-map)
                                           (filter-things-onclick app entity :course :like))
             (thing-entry-action-button-li "comments" (:comments-class value-map)
@@ -547,6 +621,15 @@
                                                     enroll-form-name
                                                     enroll-form-data
                                                     enroll-form-fields))
+            (thing-entry-child-form (subs progresstask-form-name 1)  ; form id
+                                    "progresstask-form"   ; form class
+                                    progresstask-form-input-map
+                                    "add progress task"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :progresstask  ; tab name
+                                                    progresstask-form-name
+                                                    progresstask-form-data
+                                                    progresstask-form-fields))
           ]
           [:div.clearleft]
       ]])))
