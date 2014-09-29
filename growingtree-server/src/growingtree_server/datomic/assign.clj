@@ -104,9 +104,9 @@
 (declare inc-question-popularity)
 (declare create-question-math)
 
-(declare get-question-refed-entity)
-(declare get-assignment-refed-entity)
-(declare get-answer-refed-entity)
+(declare populate-question-refed-entity)
+(declare populate-assignment-refed-entity)
+(declare populate-answer-refed-entity)
 
 
 ; schema attr-name value type map for question schema and assignment schema
@@ -172,7 +172,7 @@
   "find all question by query path "
   [qpath]
   (let [questions (->> (util/get-qpath-entities qpath get-question-by)
-                      (map get-question-refed-entity)
+                      (map populate-question-refed-entity)
                       (map #(util/add-navpath % qpath)) )
         ]
     (doseq [e questions]
@@ -180,7 +180,7 @@
     questions))
 
 
-(defn get-question-refed-entity
+(defn populate-question-refed-entity
   [entity]
   (let [projkeys (keys (dissoc question-schema :question/lecture))]
     (as-> entity e
@@ -225,7 +225,7 @@
   "find all assignment by query path "
   [qpath]
   (let [assignments (->> (util/get-qpath-entities qpath get-assignment-by)
-                      (map get-assignment-refed-entity)
+                      (map populate-assignment-refed-entity)
                       (map #(util/add-navpath % qpath) ))
         ]
     (doseq [e assignments]
@@ -234,14 +234,14 @@
 
 
 ; populate assingment refed outbound entity
-(defn get-assignment-refed-entity
+(defn populate-assignment-refed-entity
   [entity]
   (let [projkeys (keys assignment-schema)]
     (as-> entity e
       (select-keys e projkeys)
       (util/get-author-entity :assignment/author e)
       (util/get-person-entity :assignment/person e)
-      (util/get-ref-entity :assignment/origin e)
+      (util/assoc-refed-entity :assignment/origin e)
       (util/add-upvote-attr e)
       (util/add-numcomments-attr e))
   ))
@@ -306,7 +306,7 @@
   "find all answer by query path like [:assignment 17592186045430 :answer]"
   [qpath]
   (let [answers (->> (util/get-qpath-entities qpath get-answer-by)
-                    (map get-answer-refed-entity)
+                    (map populate-answer-refed-entity)
                     (map #(util/add-navpath % qpath) ))
         ]
     (doseq [e answers]
@@ -315,13 +315,13 @@
 
 
 ; populate answer refed outbound entity
-(defn get-answer-refed-entity
+(defn populate-answer-refed-entity
   [entity]
   (let [projkeys (keys answer-schema)]
     (as-> entity e
       (select-keys e projkeys)
       (util/get-author-entity :answer/author e)
-      (util/get-ref-entity :answer/origin e)
+      (util/assoc-refed-entity :answer/origin e)
       (util/add-upvote-attr e)
       (util/add-numcomments-attr e))
   ))

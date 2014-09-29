@@ -252,7 +252,6 @@
        ]
     result))
 
-
 ;; type:newthing {:action :newthing, :type "course", :title "", :content "", :author "rich"}
 (defmethod add-thing
   :course
@@ -361,8 +360,7 @@
 
 ; create progress thing
 (defmethod add-thing
-  :progress
+  :progresstask
   [type details]
-  (let [author (:author details)
-        result (dda/create-progress details)]
+  (let [result (dda/create-progress details)]
     result))

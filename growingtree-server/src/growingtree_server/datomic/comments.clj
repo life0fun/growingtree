@@ -96,8 +96,8 @@
 ; (d/q '[:find ?e :in $ ?x :where [?e :child/parent ?x]] db (:db/id p))
 
 (declare comments-of)
-(declare get-comments-refed-entity)
-(declare get-like-refed-entity)
+(declare populate-comments-refed-entity)
+(declare populate-like-refed-entity)
 
 
 ; schema attr-name value type map for parent schema and child schema
@@ -154,13 +154,13 @@
 ;;==============================================================
 ; for comments query, always
 ;;==============================================================
-(defn get-comments-refed-entity
+(defn populate-comments-refed-entity
   [entity]
   (let [projkeys (keys comments-schema)]
     (as-> entity e
       (select-keys e projkeys)
       (util/get-author-entity :comments/author e)
-      (util/get-ref-entity :comments/origin e)
+      (util/assoc-refed-entity :comments/origin e)
       (util/add-upvote-attr e)
       (util/ref->dbid e :comments/thingroot)
       (util/get-entity-attr-tx e))
@@ -171,7 +171,7 @@
   [navpath]
   (let [qpath (take-last 3 navpath)
         comments (->> (util/get-qpath-entities qpath get-comments-by)
-                      (map get-comments-refed-entity)
+                      (map populate-comments-refed-entity)
                       (map #(util/add-navpath % navpath)))
        ]
     comments))
@@ -226,7 +226,7 @@
   "find like by query path"
   [qpath]
   (let [likes (->> (util/get-qpath-entities qpath get-like-by)
-                  (map get-like-refed-entity)
+                  (map populate-like-refed-entity)
                   (map #(util/add-navpath % qpath) ))
        ]
     (doseq [e likes]
@@ -235,7 +235,7 @@
 
 
 ; populate like refed outbound entity
-(defn get-like-refed-entity
+(defn populate-like-refed-entity
   [entity]
   (let [projkeys (keys like-schema)]
     (as-> entity e

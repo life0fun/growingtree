@@ -119,9 +119,9 @@
 (declare upsert-family-parent-child)
 (declare add-to-family)
 
-(declare get-person-refed-entity)
-(declare get-group-refed-entity)
-(declare get-activity-refed-entity)
+(declare populate-person-refed-entity)
+(declare populate-group-refed-entity)
+(declare populate-activity-refed-entity)
 
 
 ; the global id, gened from unix epoch in milliseconds
@@ -199,7 +199,7 @@
 (def get-child-by
   '[[(:all ?e ?val) [?e :person/title] [?e :person/type :child]] ; all persons type is :child
     [(:child ?e ?val) [?e :person/type :child] [?e :db/id ?val] ]  ; filtered nav, head, get by itself
-    [(:parent ?e ?val) [?f :family/parent ?val] [?f :family/child ?e]]
+    [[:parent ?e ?val] [?f :family/parent ?val] [?f :family/child ?e]]
     [(:title ?e ?val) [?e :person/title ?val] [?e :person/type :child]]
     [(:lname ?e ?val) [?e :person/lname ?val] [?e :person/type :child]]
     [(:email ?e ?val) [?e :person/email ?val] [?e :person/type :child]]
@@ -250,7 +250,7 @@
   "find person by query path "
   [qpath]
   (let [entities (util/get-qpath-entities qpath get-person-by)
-        person (->> (map get-person-refed-entity entities)
+        person (->> (map populate-person-refed-entity entities)
                     (map #(util/add-navpath % qpath) ))
        ]
     (doseq [e person]
@@ -266,7 +266,7 @@
   "find parent by query path "
   [qpath]
   (let [entities (util/get-qpath-entities qpath get-parent-by)
-        parents (->> (map get-person-refed-entity entities)
+        parents (->> (map populate-person-refed-entity entities)
                      (map #(util/add-navpath % qpath) ))
        ]
     (doseq [e parents]
@@ -274,7 +274,7 @@
     parents))
 
 
-(defn get-person-refed-entity
+(defn populate-person-refed-entity
   [entity]
   (let [projkeys (keys person-schema)]
     (as-> entity e
@@ -304,7 +304,7 @@
   "find children by passed in query path"
   [qpath]
   (let [entities (util/get-qpath-entities qpath get-child-by)
-        children (->> (map get-person-refed-entity entities)
+        children (->> (map populate-person-refed-entity entities)
                       (map #(util/add-navpath % qpath) ))
        ]
     (doseq [e children]
@@ -367,7 +367,7 @@
   [qpath]
   (log/info "find-group " qpath)
   (let [entities (util/get-qpath-entities qpath get-group-by)
-        groups (->> (map get-group-refed-entity entities)
+        groups (->> (map populate-group-refed-entity entities)
                     (map #(util/add-navpath % qpath)))
        ]
     (doseq [e groups]
@@ -376,7 +376,7 @@
 
 
 ; get group refed entity
-(defn get-group-refed-entity
+(defn populate-group-refed-entity
   [entity]
   (let [projkeys (keys group-schema)]
     (as-> entity e
@@ -390,7 +390,7 @@
   "find all group members by query path"
   [qpath]
   (let [person (->> (:group/person (dbconn/get-entity (second qpath)))
-                    (map get-person-refed-entity)
+                    (map populate-person-refed-entity)
                     (map #(util/add-navpath % qpath) ))  ;: navpath [:all 0 :group 17592186045441]
        ]
     (doseq [e person]
@@ -506,7 +506,7 @@
   "find all activity from group by query path"
   [qpath]
   (let [entities (util/get-qpath-entities qpath get-activity-by)
-        activities (->> (map get-activity-refed-entity entities)
+        activities (->> (map populate-activity-refed-entity entities)
                         (map #(util/add-navpath % qpath) ))
         ]
     (doseq [e activities]
@@ -515,13 +515,13 @@
 
 
 ; given an entity, populate all its external refed attrs.
-(defn get-activity-refed-entity
+(defn populate-activity-refed-entity
   [entity]
   (let [projkeys (keys activity-schema)]
     (as-> entity e
       (select-keys e projkeys)
       (util/get-author-entity :activity/author e)
-      (util/get-ref-entity :activity/origin e)
+      (util/assoc-refed-entity :activity/origin e)
       (util/add-upvote-attr e) )
   ))
 
@@ -534,7 +534,7 @@
         person (or (:activity/person activity)
                    (map (comp dbconn/get-entity :db/id) 
                         (-> (:activity/origin activity) :db/id dbconn/get-entity :group/person)))
-        person (->> (map get-person-refed-entity person)
+        person (->> (map populate-person-refed-entity person)
                     (map #(util/add-navpath % qpath) ))
        ]
     (doseq [e person]

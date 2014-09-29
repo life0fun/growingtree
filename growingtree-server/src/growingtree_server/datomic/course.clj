@@ -101,16 +101,18 @@
 (declare create-lecture)
 (declare create-course-coding)
 
-(declare get-course-refed-entity)
-(declare get-lecture-refed-entity)
-(declare get-course-enrollment-refed-entity)
-(declare get-person-enrollment-refed-entity)
+(declare populate-course-refed-entity)
+(declare populate-lecture-refed-entity)
+(declare populate-course-enrollment-refed-entity)
+(declare populate-person-enrollment-refed-entity)
+(declare populate-progress-refed-entity)
 
 ; schema attr-name value type map for parent schema and child schema
 (def course-schema (assoc (list-attr :course) :db/id :db.type/id))
 (def lecture-schema (assoc (list-attr :lecture) :db/id :db.type/id))
 (def enrollment-schema (assoc (list-attr :enrollment) :db/id :db.type/id))
 (def progress-schema (assoc (list-attr :progress) :db/id :db.type/id))
+(def progresstask-schema (assoc (list-attr :progresstask) :db/id :db.type/id))
 
 
 ; course does not have lecture, use in-bound query from lecture to course.
@@ -145,11 +147,23 @@
   ])
 
 
-(defn get-course-refed-entity
+; given a course entity, populate progress entity that origin to the course.
+; assoc progress entity to pseudo :course/progress attr.
+(defn populate-course-progress
+  [entity]
+  (let [course-id (:db/id entity)
+        progress (->> (util/get-entities :progress/origin course-id)
+                      (map populate-progress-refed-entity))
+        ]
+    (assoc entity :course/progress progress)))
+
+
+(defn populate-course-refed-entity
   [entity]
   (let [projkeys (keys course-schema)]
       (as-> entity e
         (select-keys e projkeys)
+        (map populate-course-progress e)
         (util/get-author-entity :course/author e)
         (util/add-upvote-attr e)
         (util/add-numcomments-attr e))
@@ -161,7 +175,7 @@
   "find course by query path"
   [qpath]
   (let [courses (->> (util/get-qpath-entities qpath get-course-by)
-                     (map get-course-refed-entity)
+                     (map populate-course-refed-entity)
                      (map #(util/add-navpath % qpath) ))  ; :qpath ["all" 0 "course" 17592186045425],
         ]
     (doseq [e courses]
@@ -194,7 +208,7 @@
   "find lecture by query path "
   [qpath]
   (let [lectures (->> (util/get-qpath-entities qpath get-lecture-by)
-                      (map get-lecture-refed-entity)
+                      (map populate-lecture-refed-entity)
                       (map #(util/add-navpath % qpath) ))
         ]
     (doseq [e lectures]
@@ -202,7 +216,7 @@
     lectures))
 
 
-(defn get-lecture-refed-entity
+(defn populate-lecture-refed-entity
   [entity]
   (let [projkeys (keys lecture-schema)]
       (as-> entity e
@@ -216,7 +230,7 @@
 (defn get-lecture-ids-by-course-id
   "get lecture by course"
   [course-id]
-  (let [entities (dbconn/find-entities :lecture/course course-id)]
+  (let [entities (dbconn/find-eids :lecture/course course-id)]
     (log/info "get lecture by course id "(map first entities))
     (map first entities)))
 
@@ -269,11 +283,11 @@
   (log/info "find enrollment " qpath " entities: " (util/get-qpath-entities qpath get-enrollment-by))
   (let [result (if (#{:parent :child} (first qpath))
                 (->> (util/get-qpath-entities qpath get-enrollment-by)
-                     (map get-person-enrollment-refed-entity)
+                     (map populate-person-enrollment-refed-entity)
                      (map #(util/add-navpath % qpath) ))
                 (->> (util/get-qpath-entities qpath get-enrollment-by)
                      ; use mapcat to concat list of person in a enrollment group.
-                     (mapcat get-course-enrollment-refed-entity)
+                     (mapcat populate-course-enrollment-refed-entity)
                      (map #(util/add-navpath % qpath) )))
         ]
     (doseq [e result]
@@ -283,10 +297,10 @@
 
 ; course enrollments outbound refed entity contains a set of person,
 ; map rets a list, need to be mapcat-ed.
-(defn get-course-enrollment-refed-entity
+(defn populate-course-enrollment-refed-entity
   [entity]
   (let [person-keys (keys (assoc (list-attr :person) :db/id :db.type/id))]
-    (log/info "get-course-enrollment-refed-entity " entity)
+    (log/info "populate-course-enrollment-refed-entity " entity)
     (as-> entity e
       (:enrollment/person e)  ; enrollment person set -> e
       (filter identity e)     ; filter nil in person set
@@ -295,13 +309,13 @@
   ))
 
 ; one person enrollment contains one person one course entity.
-(defn get-person-enrollment-refed-entity
+(defn populate-person-enrollment-refed-entity
   [entity]
   (let [course-keys (keys (assoc (list-attr :course) :db/id :db.type/id))]
-    (log/info "get-person-enrollment-refed-entity " entity)
+    (log/info "populate-person-enrollment-refed-entity " entity)
     (as-> entity e
       ((comp get-entity :db/id identity :enrollment/course) e)
-      (get-course-refed-entity e))
+      (populate-course-refed-entity e))
   ))
 
 
@@ -349,7 +363,7 @@
 
 
 ;;===================================================================================
-; progress rules.
+; progress rule-set. Note progress always carry author-id filter.
 ; we have two rules share the same name :title. The :title rule will be true
 ; if _either_ of the :title rule is true. this is logic OR.
 ;;===================================================================================
@@ -357,21 +371,24 @@
 (def get-progress-by
   '[[(:all ?e ?val) [?e :progress/title]]   ; rule-name :all = thing-type.
     [(:author ?e ?val) [?e :progress/author ?val]]
-    [(:title ?e ?val) [(fulltext $ :progress/title ?val) [[?e ?text]]]]
-    [(:title ?e ?val) [(fulltext $ :progresstask/title ?val) [[?t ?text]]] ; output to ?t.
-                      [?t :origin ?e]]
-    [(:course ?e ?val) [?e :progress/origin ?val]]
+    [(:title ?e ?t ?aid) [(fulltext $ :progress/title ?t) [[?e ?text]]]
+                         [?e :progress/author ?aid]]
+    [(:title ?e ?t ?aid) [(fulltext $ :progresstask/title ?val) [[?t ?text]]]
+                         [?t :origin ?e]  ; output to ?t
+                         [?e :progress/author ?aid]]
+    [(:course ?e ?cid ?aid) [?e :progress/origin ?cid]
+                            [?e :progress/author ?aid]]
   ])
 
 ; one person enrollment contains one person one course entity.
-(defn get-progress-refed-entity
+(defn populate-progress-refed-entity
   [entity]
   (let [projkeys (keys progress-schema)]
-    (log/info "get-progress-refed-entity " entity)
+    (log/info "populate-progress-refed-entity " entity)
     (as-> entity e
       (select-keys e projkeys)
       (util/get-author-entity :progress/author e)
-      (util/get-ref-entity :progress/progresstask e)  ; touch to get its attrs
+      (util/assoc-refed-entity :progress/progresstask e)  ; touch to get its attrs
       (util/add-upvote-attr e)
     )
   ))
@@ -384,7 +401,7 @@
   [qpath]
   (log/info "find progress " qpath " entities: " (util/get-qpath-entities qpath get-progress-by))
   (let [result (->> (util/get-qpath-entities qpath get-progress-by)
-                    (map get-progress-refed-entity)
+                    (map populate-progress-refed-entity)
                     (map #(util/add-navpath % qpath)) )
         ]
     (doseq [e result]
@@ -393,13 +410,36 @@
 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-; for now, all courses are created and lectured by person
-; using cond-> threading, the same as threading to anonymous (-> state (#(if true (inc %) %))
+; {:progresstask/origin , :progresstask/title "review chapter 1", :progresstask/author "poor-daught", :progresstask/status "work-in-progress"},
+(defn upsert-progress
+  [progress task-id]
+  (let [author-id (:db/id (find-by :person/title (:progress/author progress)))
+        course-id (:progress/origin progress)
+        progress-id (or (dbconn/find-by :progress/origin course-id)
+                        (d/tempid :db.part/user))
+        progress (-> progress
+                    (assoc :progress/tasks task-id)
+                    (assoc :progress/author author-id)
+                    (assoc :db/id progress-id))
+       ]
+    (log/info "upsert-progress " progress)
+    progress))
+
+
 (defn create-progress
   "create a progress with details "
   [details]
   (log/info "create-progress " details  "schema " (keys progress-schema))
-  (let [course-id (:progress/origin details)]
-    details
+  (let [task-id (d/tempid :db.part/user)
+        
+        progress (as-> (:progresstask/origin details) p
+                       (upsert-progress p task-id))
+        progress-task (-> (dissoc details :progresstask/origin)
+                          (select-keys (keys progresstask-schema))
+                          (update-in [:progresstask/status] keyword)  ; keyword status
+                          (assoc :progresstask/origin (:db/id progress))
+                          (assoc :db/id task-id))
+        trans (submit-transact [progress progress-task])
+       ]
+    (log/info "create progress " progress " task " progress-task)
   ))
-

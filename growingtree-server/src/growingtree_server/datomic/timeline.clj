@@ -167,17 +167,17 @@
   [entity]
   (let [entity-type (entity-keyword entity)]
     (case entity-type
-      :person (family/get-person-refed-entity entity)
-      :group (family/get-group-refed-entity entity)
-      :activity (family/get-activity-refed-entity entity)
-      :course (course/get-course-refed-entity entity)
-      :lecture (course/get-lecture-refed-entity entity)
-      :enrollment (course/get-person-enrollment-refed-entity entity)
-      :question (assign/get-question-refed-entity entity)
-      :assignment (assign/get-assignment-refed-entity entity)
-      :answer (assign/get-answer-refed-entity entity)
-      :comments (comments/get-comments-refed-entity entity)
-      :like (comments/get-like-refed-entity entity))
+      :person (family/populate-person-refed-entity entity)
+      :group (family/populate-group-refed-entity entity)
+      :activity (family/populate-activity-refed-entity entity)
+      :course (course/populate-course-refed-entity entity)
+      :lecture (course/populate-lecture-refed-entity entity)
+      :enrollment (course/populate-person-enrollment-refed-entity entity)
+      :question (assign/populate-question-refed-entity entity)
+      :assignment (assign/populate-assignment-refed-entity entity)
+      :answer (assign/populate-answer-refed-entity entity)
+      :comments (comments/populate-comments-refed-entity entity)
+      :like (comments/populate-like-refed-entity entity))
   ))
 
 (defn search-result

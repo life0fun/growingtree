@@ -47,7 +47,7 @@
 
 
 ; forward declarations
-(declare leaf-thing-origin)
+(declare next-thing-by-origin)
 
 
 ; distinct-by a collect by the result of apply f to the tuple in the collection.
@@ -164,10 +164,13 @@
 (defn get-entities-by-rule
   "get entities by arg-val and rule-name, rule-set, for each tuple, touch to realize
    all attrs called directly for comments comments case"
-  [rule-name rule-set arg-val]  ; when rule-name is :all, arg-val no effect.
-  (let [;rule (list rule-name '?e '?val)  ; rule-name is thing-type, check whether rule is ON.
-        ; rule [rule-name '?e '?val]
-        q (conj '[:find ?e :in $ % ?val :where ] rule-name)
+  [rule rule-set arg-val]  ; when rule is :all, arg-val no effect.
+  (log/info "get-entities-by-rule " rule " " arg-val "rule-set " rule-set)
+  (let [; rule [rule '?e '?val]
+        ; q (conj '[:find ?e :in $ % :where ] rule)
+        rule-args (nnext rule)
+        q (-> (into '[:find ?e :in $ %] rule-args)  ; we need to conj rule-args
+              (conj :where rule))
         eids (d/q q (get-db) rule-set arg-val)  ; normally, arg-val is thing-id
         ; touch entity to realize/materialize all attributes.
         entities (map (comp get-entity first) eids)
@@ -184,13 +187,14 @@
   [qpath rule-set]
   (let [[thing-type eid nxt-thing-type] (take-last 3 qpath)  ; [:course 1 :comments 2 :comments]
         e (get-entity eid)   ; we have thing-id, get thing entity
-        nxt-thing-val (leaf-thing-origin e thing-type nxt-thing-type)
-        rule [thing-type '?e '?val]  ; rule is rule-name=thing-type and rule-args
+        nxt-thing-val (next-thing-by-origin e thing-type nxt-thing-type)
+        ; rule [thing-type '?e '?val]  ; rule is rule-name=thing-type and rule-args
+        rule (list thing-type '?e '?val)  ; rule is rule-name=thing-type and rule-args
        ]
     (cond
       ; for comments of comments, query directly. (:comments 1 :comments)
       (and (= thing-type :comments) (= nxt-thing-type :comments))
-        (get-entities-by-rule thing-type rule-set eid) ; thing-type is rule name.
+        (get-entities-by-rule rule rule-set eid) ; thing-type is rule name.
 
       ; head thing [:course 1 :course], however, comments can ref to comments.
       (= thing-type nxt-thing-type) [e]
@@ -207,9 +211,10 @@
         (get-entities-by-rule rule rule-set eid))))  ; thing-type is rule name.
 
 
-; find an attr of a thing, either find the attr by its name directly. If thing does not have
-; attr, try to find its origin ref, as attr could be repr-ed by origin.
-(defn leaf-thing-origin
+; find entity's thing-type/nxt-thing attr. If entity is leaf thing, find its thing-type/origin attr.
+; e.g, assignment/question is actually reprented by assignment/origin.
+; ret a vector of entities as the value is :ref :many.
+(defn next-thing-by-origin
   "ret a vector of entities of thing's attr, or the entity refred by origin
    origin :ref can be :one or :many, need to set? check"
   [e thing-type nxt-thing-type]
@@ -218,7 +223,7 @@
         origin-thing-val (->> (keyword (str (name thing-type) "/" (name :origin)))
                               (get e))
        ]
-    (log/info "leaf-thing-origin" thing-type nxt-thing-val " origin " origin-thing-val)
+    (log/info "next-thing-by-origin" thing-type nxt-thing-val " origin " origin-thing-val)
     (if nxt-thing-val
       (vector nxt-thing-val)  ; ret a list of matching entities
       ; origin :ref can be :one or :many, always ret a list.
@@ -227,16 +232,24 @@
         origin-thing-val)
       )))
 
-
+; ============================================================================
 ; get the entitry for ref-ed attribute. 
 ; we touched the entity to realize all its attrs.
-(defn get-ref-entity
+; assoc touched entity to the passed in entity.
+; ============================================================================
+(defn assoc-refed-entity
   [ref-attr entity]
-  ; (log/info "get-ref-entity " ref-attr entity)
+  ; (log/info "assoc-ref-entity " ref-attr entity)
   (let [ref-id (get-in entity [ref-attr :db/id])
         ref-e (dbconn/get-entity ref-id)]
-    (log/info "get-ref-entity " ref-id ref-e)
+    (log/info "assoc-ref-entity " ref-id ref-e)
     (assoc entity ref-attr ref-e)))
+
+
+(defn get-entities
+  [attr attr-val]
+  (let [entities (dbconn/find-entities attr attr-val)]
+    entities))
 
 
 ; ============================================================================
@@ -321,9 +334,9 @@
 ; ============================================================================
 (defn numcomments
   [thing-id]
-  (let [origin (->> (dbconn/find-entities :comments/origin thing-id)
+  (let [origin (->> (dbconn/find-eids :comments/origin thing-id)
                     (map first))
-        thingroot (->> (dbconn/find-entities :comments/thingroot thing-id)
+        thingroot (->> (dbconn/find-eids :comments/thingroot thing-id)
                         (map first))
         numcomments (count (distinct (concat origin thingroot)))
        ]

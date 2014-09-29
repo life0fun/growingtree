@@ -310,25 +310,6 @@
 ;- - - - ;- - - - ;- - - -;- - - -;- - - -;- - - -;- - - -;- - - -
 ; child form at the bottom of thing entry
 ; input-map {:group/title {:id :type :text} :group/remart {:id :type :text}}
-;
-; (defn thing-entry-child-form
-;   [form-id form-class input-map submit-text submit-fn]
-;   [:div.hide {:id form-id}
-;     [:form {:class form-class :style #js {:float "left;"}}
-;       (for [[fk fmap] input-map]
-;         (if (= "datetime" (:type fmap))
-;           [:div.datetime-picker.input-append
-;             [:input {:id (:id fmap) :type (:type fmap) :data-format "hh:mm:ss MM/dd/yyyy" :placeholder (:text fmap)}]
-;             [:span.add-on [:a {:href (str "javascript:NewCal('" (:id fmap) "','mmddyyyy', 'true');")}
-;                             [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
-;                             [:img {:src "cal.gif" :width "16" :height "16"}]]] 
-;           ]
-;           [:input {:id (:id fmap) :type (:type fmap) :placeholder (:text fmap)}]))
-;       [:button.btn.btn-primary.inline-form-btn  
-;         {:type "button" :id "submit" :on-click submit-fn}
-;       submit-text]
-;     ]]
-;   )
 (defn thing-entry-child-form
   [form-id form-class input-map submit-text submit-fn]
   [:div.hide {:id form-id}
@@ -576,8 +557,9 @@
           :progresstask/origin {:progress/origin thing-id
                                 :progress/author "rich-son"
                                 :progress/title (str "progression of " title)}
+          :progresstask/start (utils/to-epoch)
         }
-       ]
+      ]
     (.log js/console "course thing value " (pr-str thing-id title authors url))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}

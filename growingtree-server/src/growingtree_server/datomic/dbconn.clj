@@ -228,8 +228,8 @@
   "submit a transaction"
   [tx-data]  ; tx-data is a list of list/map, each map must have :db/id
   (let [
-        ; ft (d/transact (get-conn) tx-data)  ; ret future task
-        ft tx-data
+        ft (d/transact (get-conn) tx-data)  ; ret future task
+        ; ft tx-data
        ]
     (log/info "dbconn submit trans " tx-data ft)
     ft))
@@ -277,35 +277,12 @@
   "Returns the single entity returned by a query."
   [query db & args]
   (let [res (apply d/q query db args)]
-    ;(d/entity db (only res))))
     (d/entity db (first-entity res))))
-
-
-
-; find unique entity by attr and attr val. so caller make sure attr is unique
-(defn find-by
-  "Returns the unique entity identified by attr and val."
-  [attr attr-val]
-  (qe '[:find ?e :in $ ?attr ?val
-        :where [?e ?attr ?val]]
-      (get-db) attr attr-val))
-
-
-
-; find a list of entity by its attr and value
-(defn find-entities
-  "find entities by attr value, ret a list of matching tuples [[eid] [eid]]"
-  [attr attr-val]
-  (let [; quote ?e ?val to insert into query directly, as compare to in the argument list.
-        where (conj '[?e ] attr '?val)
-        q (conj '[:find ?e :in $ ?val :where ] where)
-        eid (d/q q (get-db) attr-val)]
-    eid))
 
 
 ; "qes result tuple " [17592186045499]
 (defn qes
-  "Returns the entities returned by a query, assuming that
+  "Return the entities returned by a query, assuming that
    all :find results are entity ids."
   [query db & args]
   (->> (apply d/q query db args)
@@ -321,13 +298,35 @@
        (mapv first)))
 
 
-; find all entity in the many ref attr field
-(defn find-many-by
-  "return a list of entities iden by attr and val"
+; find unique entity by attr and attr val. so caller make sure attr is unique
+(defn find-by
+  "Returns the unique entity identified by attr and val."
+  [attr attr-val]
+  (qe '[:find ?e 
+        :in $ ?attr ?val
+        :where [?e ?attr ?val]]
+      (get-db) attr attr-val))
+
+
+; ret a list of entities' ids 
+(defn find-eids
+  "find entities by attr value, ret a list of matching tuples [[eid] [eid]]"
+  [attr attr-val]
+  (let [; quote ?e ?val to insert into query directly, as compare to in the argument list.
+        where (conj '[?e ] attr '?val)
+        q (conj '[:find ?e :in $ ?val :where ] where)
+        eid (d/q q (get-db) attr-val)]
+    eid))
+
+
+; find and touch entitie by attr and its values
+(defn find-entities
+  "return a list of entities with touched attrs by attr and val"
   [attr val]
   ; the query is the same, switch many entity result processing
-  (qes '[:find ?e :in $ ?attr ?val
-        :where [?e ?attr ?val]]
+  (qes '[:find ?e 
+         :in $ ?attr ?val
+         :where [?e ?attr ?val]]
       (get-db) attr val))
 
 

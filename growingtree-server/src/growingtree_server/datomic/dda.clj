@@ -149,13 +149,6 @@
     e))
 
 
-; find all entities by specific attribute and vaule
-(defn find-entities
-  "find entities by specific attribute and value"
-  [attr val]
-  (dbconn/find-entities attr val))
-
-
 (defn find-entity-attr
   "find outbound refed entity of courrent entity"
   [eid ref-attr]
