@@ -151,10 +151,12 @@
 ; assoc progress entity to pseudo :course/progress attr.
 (defn populate-course-progress
   [entity]
+  (log/info "populate-course-progress " entity)
   (let [course-id (:db/id entity)
         progress (->> (util/get-entities :progress/origin course-id)
                       (map populate-progress-refed-entity))
         ]
+    (log/info "populate-course-progress " progress)
     (assoc entity :course/progress progress)))
 
 
@@ -163,7 +165,7 @@
   (let [projkeys (keys course-schema)]
       (as-> entity e
         (select-keys e projkeys)
-        (map populate-course-progress e)
+        (populate-course-progress e)
         (util/get-author-entity :course/author e)
         (util/add-upvote-attr e)
         (util/add-numcomments-attr e))
@@ -388,7 +390,7 @@
     (as-> entity e
       (select-keys e projkeys)
       (util/get-author-entity :progress/author e)
-      (util/assoc-refed-entity :progress/progresstask e)  ; touch to get its attrs
+      (util/assoc-refed-many-entities :progress/tasks e)  ; touch to get its attrs
       (util/add-upvote-attr e)
     )
   ))

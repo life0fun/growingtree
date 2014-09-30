@@ -165,7 +165,7 @@
   "get entities by arg-val and rule-name, rule-set, for each tuple, touch to realize
    all attrs called directly for comments comments case"
   [rule rule-set arg-val]  ; when rule is :all, arg-val no effect.
-  (log/info "get-entities-by-rule " rule " " arg-val "rule-set " rule-set)
+  (log/info "get-entities-by-rule " rule " " arg-val)
   (let [; rule [rule '?e '?val]
         ; q (conj '[:find ?e :in $ % :where ] rule)
         rule-args (nnext rule)
@@ -249,6 +249,7 @@
 (defn get-entities
   [attr attr-val]
   (let [entities (dbconn/find-entities attr attr-val)]
+    (log/info "util get-entities " entities)
     entities))
 
 
@@ -293,6 +294,16 @@
     (log/info "get author name " author-ids author-entities)
     (assoc entity attr (set author-entities))))
 
+(defn assoc-refed-many-entities
+  [attr entity]
+  (let [refed-ids (as-> (attr entity) eids 
+                      (if-not (set? eids) 
+                        (conj #{} eids)
+                        eids))
+        refed-entities (map #(dbconn/get-entity (:db/id %)) refed-ids)
+       ]
+    (log/info "get refed many entities " refed-ids refed-entities)
+    (assoc entity attr (set refed-entities))))
 
 ; get :thing-type/person entity in each thing-type
 ; :assign/person {:db/id 12345}

@@ -285,10 +285,12 @@
   "Return the entities returned by a query, assuming that
    all :find results are entity ids."
   [query db & args]
-  (->> (apply d/q query db args)
-       (mapv (fn [tuple]  ; tuple [id]
-                (log/info "qes result tuple " tuple)
-                (mapv (partial d/entity db) tuple)))))
+  (let [eids (apply d/q query db args)]
+    (log/info "qes eids " eids)
+    (->> eids
+         (mapv (fn [tuple]  ; tuple [id]
+                  (log/info "qes result tuple " tuple)
+                  (mapv (partial d/entity db) tuple))))))
 
 
 (defn qfs
@@ -308,7 +310,7 @@
       (get-db) attr attr-val))
 
 
-; ret a list of entities' ids 
+; ret a list of entities' ids in format [[eid] [eid]]
 (defn find-eids
   "find entities by attr value, ret a list of matching tuples [[eid] [eid]]"
   [attr attr-val]
@@ -320,14 +322,13 @@
 
 
 ; find and touch entitie by attr and its values
+; find-eids ret list of tuple [[eid] [eid] ...]
 (defn find-entities
   "return a list of entities with touched attrs by attr and val"
-  [attr val]
-  ; the query is the same, switch many entity result processing
-  (qes '[:find ?e 
-         :in $ ?attr ?val
-         :where [?e ?attr ?val]]
-      (get-db) attr val))
+  [attr attr-val]
+  ; need use first to extract eid from find-eids ret [[eid] [eid]]
+  (let [eids (find-eids attr attr-val)]
+    (map (comp get-entity first) eids)))
 
 
 ; (defn maybe
