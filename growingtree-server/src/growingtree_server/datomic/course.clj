@@ -166,7 +166,7 @@
       (as-> entity e
         (select-keys e projkeys)
         (populate-course-progress e)
-        (util/get-author-entity :course/author e)
+        (util/assoc-refed-many-entities :course/author e)
         (util/add-upvote-attr e)
         (util/add-numcomments-attr e))
   ))
@@ -223,7 +223,7 @@
   (let [projkeys (keys lecture-schema)]
       (as-> entity e
         (select-keys e projkeys)
-        (util/get-author-entity :lecture/author e)
+        (util/assoc-refed-many-entities :lecture/author e)
         (util/add-upvote-attr e)
         (util/add-numcomments-attr e))
   ))
@@ -389,7 +389,7 @@
     (log/info "populate-progress-refed-entity " entity)
     (as-> entity e
       (select-keys e projkeys)
-      (util/get-author-entity :progress/author e)
+      (util/assoc-refed-many-entities :progress/author e)
       (util/assoc-refed-many-entities :progress/tasks e)  ; touch to get its attrs
       (util/add-upvote-attr e)
     )

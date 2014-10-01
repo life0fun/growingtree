@@ -381,7 +381,7 @@
   (let [projkeys (keys group-schema)]
     (as-> entity e
       (select-keys e projkeys)
-      (util/get-author-entity :group/author e)
+      (util/assoc-refed-many-entities :group/author e)
       (util/add-upvote-attr e) )
   ))
 
@@ -520,7 +520,7 @@
   (let [projkeys (keys activity-schema)]
     (as-> entity e
       (select-keys e projkeys)
-      (util/get-author-entity :activity/author e)
+      (util/assoc-refed-many-entities :activity/author e)
       (util/assoc-refed-entity :activity/origin e)
       (util/add-upvote-attr e) )
   ))

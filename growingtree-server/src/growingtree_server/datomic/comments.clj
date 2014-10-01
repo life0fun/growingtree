@@ -159,7 +159,7 @@
   (let [projkeys (keys comments-schema)]
     (as-> entity e
       (select-keys e projkeys)
-      (util/get-author-entity :comments/author e)
+      (util/assoc-refed-many-entities :comments/author e)
       (util/assoc-refed-entity :comments/origin e)
       (util/add-upvote-attr e)
       (util/ref->dbid e :comments/thingroot)

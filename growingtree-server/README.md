@@ -173,7 +173,7 @@ or
     (watch)
     (start)
 
-Port and resource path is defined in `service.clj`.
+Port and resource path is defined in `service.clj` where bootstrap host/type/port.
   
     http://localhost:9090/dev.html
 

@@ -185,7 +185,7 @@
   (let [projkeys (keys (dissoc question-schema :question/lecture))]
     (as-> entity e
       (select-keys e projkeys)
-      (util/get-author-entity :question/author e)
+      (util/assoc-refed-many-entities :question/author e)
       (util/add-upvote-attr e)
       (util/add-numcomments-attr e))
   ))
@@ -239,7 +239,7 @@
   (let [projkeys (keys assignment-schema)]
     (as-> entity e
       (select-keys e projkeys)
-      (util/get-author-entity :assignment/author e)
+      (util/assoc-refed-many-entities :assignment/author e)
       (util/get-person-entity :assignment/person e)
       (util/assoc-refed-entity :assignment/origin e)
       (util/add-upvote-attr e)
@@ -320,7 +320,7 @@
   (let [projkeys (keys answer-schema)]
     (as-> entity e
       (select-keys e projkeys)
-      (util/get-author-entity :answer/author e)
+      (util/assoc-refed-many-entities :answer/author e)
       (util/assoc-refed-entity :answer/origin e)
       (util/add-upvote-attr e)
       (util/add-numcomments-attr e))
