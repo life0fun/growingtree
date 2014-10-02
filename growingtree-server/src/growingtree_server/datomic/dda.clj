@@ -268,8 +268,8 @@
 ; find a course
 (defn find-course
   "find course by subject, ret a list of course entity"
-  [qpath]
-  (course/find-course qpath))
+  [qpath details]
+  (course/find-course qpath details))
 
 
 ; create question to be assigned
@@ -299,8 +299,8 @@
 ; --------------------------------------------------------------------
 (defn find-progress
   "find progress for a course, or enrollment"
-  [qpath]
-  (course/find-progress qpath))
+  [qpath details]
+  (course/find-progress qpath details))
 
 
 (defn create-progress

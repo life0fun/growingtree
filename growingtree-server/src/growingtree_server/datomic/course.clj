@@ -100,6 +100,7 @@
 
 (declare create-lecture)
 (declare create-course-coding)
+(declare find-progress)
 
 (declare populate-course-refed-entity)
 (declare populate-lecture-refed-entity)
@@ -150,22 +151,19 @@
 ; given a course entity, populate progress entity that origin to the course.
 ; assoc progress entity to pseudo :course/progress attr.
 (defn populate-course-progress
-  [entity]
-  (log/info "populate-course-progress " entity)
+  [entity author]
   (let [course-id (:db/id entity)
-        progress (->> (util/get-entities :progress/origin course-id)
-                      (map populate-progress-refed-entity))
+        progress (find-progress :course course-id author)
         ]
-    (log/info "populate-course-progress " progress)
     (assoc entity :course/progress progress)))
 
 
 (defn populate-course-refed-entity
-  [entity]
+  [entity author]
   (let [projkeys (keys course-schema)]
       (as-> entity e
         (select-keys e projkeys)
-        (populate-course-progress e)
+        (populate-course-progress e author)
         (util/assoc-refed-many-entities :course/author e)
         (util/add-upvote-attr e)
         (util/add-numcomments-attr e))
@@ -173,11 +171,14 @@
 
 
 ; find a course, thread thru project keys, and fill :course/likes
+; details {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}}}
 (defn find-course
   "find course by query path"
-  [qpath]
-  (let [courses (->> (util/get-qpath-entities qpath get-course-by)
-                     (map populate-course-refed-entity)
+  [qpath details]
+  (let [author (get-in details [:data :author])
+        author "rich-son"
+        courses (->> (util/get-qpath-entities qpath get-course-by)
+                     (map #(populate-course-refed-entity % author) )
                      (map #(util/add-navpath % qpath) ))  ; :qpath ["all" 0 "course" 17592186045425],
         ]
     (doseq [e courses]
@@ -400,16 +401,26 @@
 ; however, for [:child 1 :progress], we should show course, not attendee.
 (defn find-progress
   "find all person that enrolls to the course by query path "
-  [qpath]
-  (log/info "find progress " qpath " entities: " (util/get-qpath-entities qpath get-progress-by))
-  (let [result (->> (util/get-qpath-entities qpath get-progress-by)
-                    (map populate-progress-refed-entity)
-                    (map #(util/add-navpath % qpath)) )
+  ([qpath details]
+    (log/info "find progress " qpath " details " details)
+    (let [[rule-name course-id _] qpath
+          author (get-in details [:data :author])]
+      (find-progress rule-name course-id author)))
+
+  ([rule-name course-id author]
+    (let [rule (list rule-name '?e '?cid '?aid)
+          author-id (if (= java.lang.String (class author))
+                      (:db/id (family/get-person-by-title author))
+                      author)
+          rule-args [17592186045484 17592186045427]  ; [course-id, author-id]
+          rule-args [course-id author-id]  ; [course-id, author-id]
+          result (->> (util/get-entities-by-rule rule get-progress-by rule-args)
+                    (map populate-progress-refed-entity))
         ]
     (doseq [e result]
       (log/info "progress --> " e))
     result))
-
+  )
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; {:progresstask/origin , :progresstask/title "review chapter 1", :progresstask/author "poor-daught", :progresstask/status "work-in-progress"},

@@ -210,10 +210,10 @@
 
 
 ;;==========================================================================
-; :find rets entity id, find all person's pid and name.
+; return person entity by person title.
 ;;==========================================================================
 (defn get-person-by-title
-  "get person by title"
+  "ret a person entity by person title"
   [title]
   (dbconn/find-by :person/title title))
 
@@ -401,8 +401,7 @@
 ; get group member by group title
 (defn get-group-members
   [group-title]
-  (let [;group (util/get-entities-by-rule :title get-group-by group-title)
-        group (dbconn/find-by :group/title group-title)
+  (let [group (dbconn/find-by :group/title group-title)
         person (:group/person group)
        ]
     (doseq [e person]

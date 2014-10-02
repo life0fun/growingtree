@@ -89,7 +89,7 @@
 (defmethod get-things
   :course
   [type qpath details]
-  (let [courses (dda/find-course qpath)]
+  (let [courses (dda/find-course qpath details)]
     courses))
 
 
@@ -136,7 +136,7 @@
 (defmethod get-things
   :progress
   [type qpath details]
-  (let [progress (dda/find-progress qpath)]
+  (let [progress (dda/find-progress qpath details)]
     progress))
 
 (defmethod get-things

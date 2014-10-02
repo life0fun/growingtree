@@ -164,14 +164,15 @@
 (defn get-entities-by-rule
   "get entities by arg-val and rule-name, rule-set, for each tuple, touch to realize
    all attrs called directly for comments comments case"
-  [rule rule-set arg-val]  ; when rule is :all, arg-val no effect.
-  (log/info "get-entities-by-rule " rule " " arg-val)
+  [rule rule-set arg-vals]  ; when rule is :all, arg-vals no effect.
+  (log/info "get-entities-by-rule " rule " " arg-vals)
   (let [; rule [rule '?e '?val]
         ; q (conj '[:find ?e :in $ % :where ] rule)
         rule-args (nnext rule)
         q (-> (into '[:find ?e :in $ %] rule-args)  ; we need to conj rule-args
               (conj :where rule))
-        eids (d/q q (get-db) rule-set arg-val)  ; normally, arg-val is thing-id
+        ; arg-vals is a list of arg values.
+        eids (apply d/q q (get-db) rule-set arg-vals)  ; normally, arg-vals is thing-id
         ; touch entity to realize/materialize all attributes.
         entities (map (comp get-entity first) eids)
        ]
@@ -188,13 +189,13 @@
   (let [[thing-type eid nxt-thing-type] (take-last 3 qpath)  ; [:course 1 :comments 2 :comments]
         e (get-entity eid)   ; we have thing-id, get thing entity
         nxt-thing-val (next-thing-by-origin e thing-type nxt-thing-type)
-        ; rule [thing-type '?e '?val]  ; rule is rule-name=thing-type and rule-args
-        rule (list thing-type '?e '?val)  ; rule is rule-name=thing-type and rule-args
+        rule [thing-type '?e '?val]  ; rule is rule-name=thing-type and rule-args
+        ; rule (list thing-type '?e '?val)  ; rule is rule-name=thing-type and rule-args
        ]
     (cond
       ; for comments of comments, query directly. (:comments 1 :comments)
       (and (= thing-type :comments) (= nxt-thing-type :comments))
-        (get-entities-by-rule rule rule-set eid) ; thing-type is rule name.
+        (get-entities-by-rule rule rule-set [eid]) ; thing-type is rule name.
 
       ; head thing [:course 1 :course], however, comments can ref to comments.
       (= thing-type nxt-thing-type) [e]
@@ -208,7 +209,7 @@
       ; entity does not have nxt-thing-type, nxt-thing-type is inbound to entity from target [:course 1 :lectures]
       ; [:child 1 :assignment], :child is the rule-name of assignment rule-set for :assignment/person = :child
       :else
-        (get-entities-by-rule rule rule-set eid))))  ; thing-type is rule name.
+        (get-entities-by-rule rule rule-set [eid]))))  ; thing-type is rule name.
 
 
 ; find entity's thing-type/nxt-thing attr. If entity is leaf thing, find its thing-type/origin attr.
