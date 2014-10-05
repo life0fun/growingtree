@@ -422,29 +422,36 @@
     result))
   )
 
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-; {:progresstask/origin , :progresstask/title "review chapter 1", :progresstask/author "poor-daught", :progresstask/status "work-in-progress"},
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; {:db/id , :progress/tasks #db/id[:db.part/user -1000000], :progress/origin , :progress/author 17592186045427, :progress/title "progression of flute 101"}}
+; when progress :db/id nil, populate all attrs. For update progress task, populate ONLY tasks id.
 (defn upsert-progress
   [progress task-id]
   (let [author-id (:db/id (find-by :person/title (:progress/author progress)))
         course-id (:progress/origin progress)
-        progress-id (or (dbconn/find-by :progress/origin course-id)
-                        (d/tempid :db.part/user))
-        progress (-> progress
-                    (assoc :progress/tasks task-id)
-                    (assoc :progress/author author-id)
-                    (assoc :db/id progress-id))
+        progress-id (:db/id progress)
+        ; populate only progress/tasks when inserting tasks.
+        progress (if progress-id
+                    (-> {:progress/tasks task-id}
+                        (assoc :db/id progress-id))
+                    ; populate all progress attrs when insert a new progress.
+                    (-> progress
+                      (assoc :progress/tasks task-id)
+                      (assoc :progress/author author-id)
+                      (assoc :db/id (d/tempid :db.part/user))))
        ]
     (log/info "upsert-progress " progress)
     progress))
 
 
+; {:progresstask/origin {:db/id nil ? :progress/origin 17592186045484, :progress/author "", :progress/title "progression of flute 101"}, 
+;  :progresstask/start 1412473718, :progresstask/title "Grade I", :progresstask/author "rich-son", :progresstask/status "half"}
 (defn create-progress
   "create a progress with details "
   [details]
   (log/info "create-progress " details  "schema " (keys progress-schema))
   (let [task-id (d/tempid :db.part/user)
-        
+        ; from progresstask/origin, we get the progress entity.
         progress (as-> (:progresstask/origin details) p
                        (upsert-progress p task-id))
         progress-task (-> (dissoc details :progresstask/origin)
@@ -452,7 +459,7 @@
                           (update-in [:progresstask/status] keyword)  ; keyword status
                           (assoc :progresstask/origin (:db/id progress))
                           (assoc :db/id task-id))
-        trans (submit-transact [progress progress-task])
+        trans (submit-transact [progress-task progress])
        ]
     (log/info "create progress " progress " task " progress-task)
   ))

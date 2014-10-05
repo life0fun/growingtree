@@ -170,7 +170,7 @@
         attrs (keys thing-data)
         value-map (reduce 
                     (fn [tot [k v]]
-                      (assoc tot (keyword (name k)) 
+                      (assoc tot (keyword (name k))  ; name of :course/title = title
                                   (if (utils/many? v)
                                     (string/join ", " v)
                                     v)))
@@ -283,27 +283,33 @@
 
 
 ;- - - - ;- - - - ;- - - -;- - - -;- - - -;- - - -;- - - -;- - - -
-; progress subtask
+; progress task fills each list item.
+; :progress/tasks #{{:progresstask/status :work-in-progress, :progress/title "progression of flute 101", :db/id 17592186045494}) 
 (defn progress-task
   [task]
-  (let [title (:title task)
-        status (name (:status task))]
+  (let [title (:progresstask/title task)
+        status (name (:progresstask/status task))]
     [:li.progress-task
         [:span.progress-title
           [:a {:href "#"}
             title
-          ]]
-        [:span.progress-status
-          status ]]
+          ]
+          [:div.progress-status
+            status ]
+        ]]
   ))
 
-; progress tracker, use list to show progress task.
+; progress tracker, its a ol list with progress tasks as list items.
+; {:progress/author #{{:person/title "rich-son"}, :progress/origin {:db/id 17592186045484}, 
+;  :progress/tasks #{{:progresstask/status :work-in-progress, :progress/title "progression of flute 101", :db/id 17592186045494}) 
 (defn progress-tracker
-  [entity]
-  (if-let [course-id (:origin entity)]
+  [progress]
+  (.log js/console (pr-str "progress tracker " progress))
+  (let [course-id (:origin progress)
+        progress-tasks (:progress/tasks progress)]  ; a set of progress tasks
     (list
       [:ol.progress-tracker
-        (map progress-task (:tasks entity))
+        (map progress-task progress-tasks)
       ]
     )))
 
@@ -522,7 +528,8 @@
         content (:content value-map)
         course-type (name (:type value-map))
         url (:url value-map)
-        progress (:progress value-map)
+        ; server returns a list of progress, one user only have one progress for one course.
+        progress (first (:progress value-map))
         
         ; enroll form
         enroll-form-name (str "#enrollment-form-" thing-id)
@@ -554,7 +561,8 @@
           :progresstask/status (str "#" (get-in progresstask-form-input-map [:progresstask/status :id]))
         }
         progresstask-form-data {
-          :progresstask/origin {:progress/origin thing-id
+          :progresstask/origin {:db/id (:db/id progress)     ; populate progress id when we have it.
+                                :progress/origin thing-id
                                 :progress/author "rich-son"
                                 :progress/title (str "progression of " title)}
           :progresstask/start (utils/to-epoch)

@@ -218,7 +218,8 @@
       (log/info a  (a e)))))
 
 ;==========================================================================
-; datomic transaction, all attr in entity must _not_ be nil.
+; datomic transaction, all attr in entity must *_not_* be nil.
+; XXX filter out nil attr. Transaction will fail when there is nil attr.
 ; transaction is an entity(map) data structure with :db/id point to the entity CRUD.
 ; each trans CRUD one specific fact about an entity, attribute, and value;
 ; [:db/add entity-id attribute value]  {:db/id entity-id attr1 val1 attr2 val2}
@@ -231,7 +232,7 @@
         ft (d/transact (get-conn) tx-data)  ; ret future task
         ; ft tx-data
        ]
-    (log/info "dbconn submit trans " tx-data ft)
+    (log/info "dbconn submit trans " tx-data " trans " ft)
     ft))
 
 

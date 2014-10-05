@@ -802,9 +802,9 @@ h6{font-size:11.9px}
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-  progress tracker
+  progress tracker is a ol with one li reprs one progress-task
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-.progress-task {
+.progress-tracker {
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -817,15 +817,15 @@ h6{font-size:11.9px}
     margin: 0;
     padding: 0;
 
-    text-align: center;
-    line-height: 30px;
-    height: 30px;
+    text-align: left;
+    //line-height: 30px;
+    //height: 30px;
 
     background-color: #f0f0f0;
 
     // for forward > arrow using border with huge width
-    &:before,
-    &:after {
+    & > span:after,
+    & > span:before {
       content: "";
       display: block;
       width: 0px;
@@ -845,6 +845,7 @@ h6{font-size:11.9px}
       display: block;
 
       color: #999;
+      font-size: 10px;
       font-weight: bold;
       text-transform: uppercase;
 
@@ -1617,7 +1618,7 @@ body.post-under-6h-old .gilded-comment-icon {
 }
 
 /*Link colors*/
-.tagline { color:#888; font-size:x-small; }                                                                                                                                       
+.tagline { color:#888; font-size:12px; }                                                                                                                                       
 .tagline a {color: #369; text-decoration: none; }
 .tagline .submitter { color: #0055df }
 .tagline .admin { color: #ff0011; }

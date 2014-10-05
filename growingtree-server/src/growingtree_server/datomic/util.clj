@@ -165,10 +165,8 @@
   "get entities by arg-val and rule-name, rule-set, for each tuple, touch to realize
    all attrs called directly for comments comments case"
   [rule rule-set arg-vals]  ; when rule is :all, arg-vals no effect.
-  (log/info "get-entities-by-rule " rule " " arg-vals)
-  (let [; rule [rule '?e '?val]
-        ; q (conj '[:find ?e :in $ % :where ] rule)
-        rule-args (nnext rule)
+  ; (log/info "get-entities-by-rule " rule " " arg-vals)
+  (let [rule-args (nnext rule)
         q (-> (into '[:find ?e :in $ %] rule-args)  ; we need to conj rule-args
               (conj :where rule))
         ; arg-vals is a list of arg values.
@@ -176,7 +174,7 @@
         ; touch entity to realize/materialize all attributes.
         entities (map (comp get-entity first) eids)
        ]
-    (log/info "get-entities-by-rule " entities)
+    ; (log/info "get-entities-by-rule " entities)
     entities))
 
 
