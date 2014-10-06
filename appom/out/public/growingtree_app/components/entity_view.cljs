@@ -294,8 +294,9 @@
           [:a {:href "#"}
             title
           ]
-          [:div.progress-status
-            status ]
+          [:div.meter
+            [:span {:style #js {:width "50%"}}]
+          ]
         ]]
   ))
 
