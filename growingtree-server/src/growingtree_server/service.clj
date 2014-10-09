@@ -42,7 +42,7 @@
 ; store subscribe user id map to SSE context in atom {}
 (def ^{:doc "Map of subscriber IDs to SSE contexts"} subscribers (atom {}))
 
-; create db schema thru peer.
+; create db schema by calling peer init-db.
 (defn create-schema []
   (peer/init-db))
 

@@ -113,7 +113,7 @@
 (def lecture-schema (assoc (list-attr :lecture) :db/id :db.type/id))
 (def enrollment-schema (assoc (list-attr :enrollment) :db/id :db.type/id))
 (def progress-schema (assoc (list-attr :progress) :db/id :db.type/id))
-(def progresstask-schema (assoc (list-attr :progresstask) :db/id :db.type/id))
+(def progressstep-schema (assoc (list-attr :progressstep) :db/id :db.type/id))
 
 
 ; course does not have lecture, use in-bound query from lecture to course.
@@ -376,7 +376,7 @@
     [(:author ?e ?val) [?e :progress/author ?val]]
     [(:title ?e ?t ?aid) [(fulltext $ :progress/title ?t) [[?e ?text]]]
                          [?e :progress/author ?aid]]
-    [(:title ?e ?t ?aid) [(fulltext $ :progresstask/title ?val) [[?t ?text]]]
+    [(:title ?e ?t ?aid) [(fulltext $ :progressstep/title ?val) [[?t ?text]]]
                          [?t :origin ?e]  ; output to ?t
                          [?e :progress/author ?aid]]
     [(:course ?e ?cid ?aid) [?e :progress/origin ?cid]
@@ -391,7 +391,7 @@
     (as-> entity e
       (select-keys e projkeys)
       (util/assoc-refed-many-entities :progress/author e)
-      (util/assoc-refed-many-entities :progress/tasks e)  ; touch to get its attrs
+      (util/assoc-refed-many-entities :progress/steps e)  ; touch to get its attrs
       (util/add-upvote-attr e)
     )
   ))
@@ -444,22 +444,23 @@
     progress))
 
 
-; {:progresstask/origin {:db/id nil ? :progress/origin 17592186045484, :progress/author "", :progress/title "progression of flute 101"}, 
-;  :progresstask/start 1412473718, :progresstask/title "Grade I", :progresstask/author "rich-son", :progresstask/status "half"}
+; {:progressstep/origin {:db/id nil ? :progress/origin 17592186045484, :progress/author "", :progress/title "progression of flute 101"}, 
+;  :progressstep/start 1412473718, :progressstep/title "Grade I", :progressstep/author "rich-son", :progressstep/status "half"}
 (defn create-progress
   "create a progress with details "
   [details]
   (log/info "create-progress " details  "schema " (keys progress-schema))
   (let [task-id (d/tempid :db.part/user)
-        ; from progresstask/origin, we get the progress entity.
-        progress (as-> (:progresstask/origin details) p
+        ; from progressstep/origin, we get the progress entity.
+        progress (as-> (:progressstep/origin details) p
                        (upsert-progress p task-id))
-        progress-task (-> (dissoc details :progresstask/origin)
-                          (select-keys (keys progresstask-schema))
-                          (update-in [:progresstask/status] keyword)  ; keyword status
-                          (assoc :progresstask/origin (:db/id progress))
+        progress-step (-> (dissoc details :progressstep/origin)
+                          (select-keys (keys progressstep-schema))
+                          (assoc :progressstep/origin (:db/id progress))
                           (assoc :db/id task-id))
-        trans (submit-transact [progress-task progress])
+        inc-rank [:inc-rank (:db/id progress-step) (:db/id progress)
+                             :progress/steps :progressstep/order]
+        trans (submit-transact [progress-step progress inc-rank])
        ]
-    (log/info "create progress " progress " task " progress-task)
+    (log/info "create progress " progress " task " progress-step)
   ))

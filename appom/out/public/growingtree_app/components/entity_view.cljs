@@ -283,34 +283,34 @@
 
 
 ;- - - - ;- - - - ;- - - -;- - - -;- - - -;- - - -;- - - -;- - - -
-; progress task fills each list item.
-; :progress/tasks #{{:progresstask/status :work-in-progress, :progress/title "progression of flute 101", :db/id 17592186045494}) 
-(defn progress-task
-  [task]
-  (let [title (:progresstask/title task)
-        status (name (:progresstask/status task))]
-    [:li.progress-task
+; progress steps fills each list item.
+; :progress/steps #{{:progressstep/status :work-in-progress, :progress/title "progression of flute 101", :db/id 17592186045494}) 
+(defn progress-step
+  [step]
+  (let [title (:progressstep/title step)
+        status (:progressstep/status step)]  ; status is string steps
+    [:li.progress-step
         [:span.progress-title
           [:a {:href "#"}
             title
           ]
           [:div.meter
-            [:span {:style #js {:width "50%"}}]
+            [:span {:style #js {:width (str status "%")}}]
           ]
         ]]
   ))
 
-; progress tracker, its a ol list with progress tasks as list items.
+; progress tracker, its a ol list with progress steps as list items.
 ; {:progress/author #{{:person/title "rich-son"}, :progress/origin {:db/id 17592186045484}, 
-;  :progress/tasks #{{:progresstask/status :work-in-progress, :progress/title "progression of flute 101", :db/id 17592186045494}) 
+;  :progress/steps #{{:progressstep/status "50", :progress/title "progression of flute 101", :db/id 17592186045494}) 
 (defn progress-tracker
   [progress]
   (.log js/console (pr-str "progress tracker " progress))
   (let [course-id (:origin progress)
-        progress-tasks (:progress/tasks progress)]  ; a set of progress tasks
+        progress-steps (:progress/steps progress)]  ; a set of progress steps
     (list
       [:ol.progress-tracker
-        (map progress-task progress-tasks)
+        (map progress-step progress-steps)
       ]
     )))
 
@@ -550,23 +550,23 @@
         } ; peer add-thing :enrollment
 
         ; add progress form
-        progresstask-form-name (str "#progresstask-form-" thing-id)
-        progresstask-form-input-map {
-          :progresstask/title {:id (str "progresstask-title-" thing-id) :type "text" :text "task"}
-          :progresstask/author {:id (str "progresstask-author-" thing-id) :type "text" :text "author"}
-          :progresstask/status {:id (str "progresstask-status-" thing-id) :type "select" :select [:work-in-progress :quarter :half :majority :completed]}
+        progressstep-form-name (str "#progressstep-form-" thing-id)
+        progressstep-form-input-map {
+          :progressstep/title {:id (str "progressstep-title-" thing-id) :type "text" :text "step"}
+          :progressstep/author {:id (str "progressstep-author-" thing-id) :type "text" :text "author"}
+          :progressstep/status {:id (str "progressstep-status-" thing-id) :type "select" :select ["25" "50" "75" "100"]}
         }
-        progresstask-form-fields {
-          :progresstask/title (str "#" (get-in progresstask-form-input-map [:progresstask/title :id]))
-          :progresstask/author (str "#" (get-in progresstask-form-input-map [:progresstask/author :id]))
-          :progresstask/status (str "#" (get-in progresstask-form-input-map [:progresstask/status :id]))
+        progressstep-form-fields {
+          :progressstep/title (str "#" (get-in progressstep-form-input-map [:progressstep/title :id]))
+          :progressstep/author (str "#" (get-in progressstep-form-input-map [:progressstep/author :id]))
+          :progressstep/status (str "#" (get-in progressstep-form-input-map [:progressstep/status :id]))
         }
-        progresstask-form-data {
-          :progresstask/origin {:db/id (:db/id progress)     ; populate progress id when we have it.
+        progressstep-form-data {
+          :progressstep/origin {:db/id (:db/id progress)     ; populate progress id when we have it.
                                 :progress/origin thing-id
                                 :progress/author "rich-son"
                                 :progress/title (str "progression of " title)}
-          :progresstask/start (utils/to-epoch)
+          :progressstep/start (utils/to-epoch)
         }
       ]
     (.log js/console "course thing value " (pr-str thing-id title authors url))
@@ -592,7 +592,7 @@
             (thing-entry-action-button-li "enroll" (:enroll-class value-map)
                                           (ui/toggle-hide-fn (str "#enrollment-form-" thing-id)))
             (thing-entry-action-button-li "add progress" (:progress-class value-map)
-                                          (ui/toggle-hide-fn (str "#progresstask-form-" thing-id)))
+                                          (ui/toggle-hide-fn (str "#progressstep-form-" thing-id)))
             (thing-entry-action-button-li "likes" (:like-class value-map)
                                           (filter-things-onclick app entity :course :like))
             (thing-entry-action-button-li "comments" (:comments-class value-map)
@@ -612,15 +612,15 @@
                                                     enroll-form-name
                                                     enroll-form-data
                                                     enroll-form-fields))
-            (thing-entry-child-form (subs progresstask-form-name 1)  ; form id
-                                    "progresstask-form"   ; form class
-                                    progresstask-form-input-map
-                                    "add progress task"        ; submit btn text
+            (thing-entry-child-form (subs progressstep-form-name 1)  ; form id
+                                    "progressstep-form"   ; form class
+                                    progressstep-form-input-map
+                                    "add progress step"        ; submit btn text
                                     (submit-form-fn app
-                                                    :progresstask  ; tab name
-                                                    progresstask-form-name
-                                                    progresstask-form-data
-                                                    progresstask-form-fields))
+                                                    :progressstep  ; tab name
+                                                    progressstep-form-name
+                                                    progressstep-form-data
+                                                    progressstep-form-fields))
           ]
           [:div.clearleft]
       ]])))

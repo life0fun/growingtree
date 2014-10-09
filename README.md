@@ -47,6 +47,7 @@ Repl
     bin/repl
     (require '[datomic.api :as d])
     (def uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
+
     (d/delete-database uri)
     (d/create-database uri)
 
@@ -79,6 +80,13 @@ To excise a specific entity, manufacture a new entity with a :db/excise attribut
     [{:db/id #db/id[db.part/user], :db/excise :event/user :db.excise/before #inst "2012"}]
     [{:db/id #db/id[db.part/user], :db/excise :event/user}]
 
+
+## Database Schema
+
+To re-create database schema, add new schema in dbschema.clj, and enable line 
+`(service/create-schema)` in `server.clj`, then issue `lein run-dev` from command line.
+
+The schema will be updated, and data wont be lost if schema modification is compatbile.
 
 ## Entity model
 

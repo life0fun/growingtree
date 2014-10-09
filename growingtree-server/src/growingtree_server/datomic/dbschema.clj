@@ -79,7 +79,6 @@
 (def assignment-type [:question :course])
 (def assignment-status [:pending :active :overdue :cancelled])
 (def digit-type [:call :sms :mms :app :browse :game :stream :download :lock :study])
-(def progress-task-status [:wip :quarter :half :majority :completed])
 
 ; person namespace, different types of person, parent, child, teacher
 (defschema person
@@ -320,20 +319,32 @@
     [title :string :fulltext " the name of progress"]
     [author :ref :one :indexed " the author of the progress"]
     [origin :ref :one :indexed " the course, thing that needs to be progressed"]
-    [tasks :ref :many "a list of tasks during progressing"]
+    [steps :ref :many "a list of tasks during progressing"]
   ))
 
-; progress sub tasks, each task is one step in a progress
-(defschema progresstask
+(defschema progressstep
   (part app)
   (fields
-    [title :string :fulltext " the name of task"]
-    [origin :ref :one :indexed " the progress this task belongs to"]
-    [start :long "starting time of the task"]
-    [end :long "due time"]
-    [status :keyword "progress-status keys, wip, quarter, half, completed"]
-    [step :string "the step this task in the progression"]
+    [title :string :fulltext " the name of step"]
+    [origin :ref :one :indexed " the progress this step belongs to"]
+    [start :long "starting time of the step"]
+    [end :long "the finished time of step"]
+    [status :string "percentage of progression in string format"]
+    [order :string "the order this step in the progression"]
   ))
+
+; Deprecated !!!
+; progress sub tasks, each task is one step in a progress
+; (defschema progresstask
+;   (part app)
+;   (fields
+;     [title :string :fulltext " the name of task"]
+;     [origin :ref :one :indexed " the progress this task belongs to"]
+;     [start :long "starting time of the task"]
+;     [end :long "due time"]
+;     [status :long "percentage of progression"]
+;     [step :string "the step this task in the progression"]
+;   ))
 
 (defschema like
   (part app)

@@ -162,12 +162,15 @@
 (defn create-schema
   "create schema with connection to db"
   []
-  (log/info "creating schema...")
+  (log/info "creating database schema...")
   (do
     ; turn all defparts macro statement into schema transaction
-    (submit-transact (dschema/build-parts d/tempid))
+    ; (submit-transact (dschema/build-parts d/tempid))
     ; turn all defschema macro statement into schema transaction
-    (submit-transact (dschema/build-schema d/tempid))))
+    ; (submit-transact (dschema/build-schema d/tempid))
+    ; submit database function, project root is the home directory.
+    (submit-transact (read-string (slurp "resources/growingtree/dbfn.dtm")))
+    ))
 
 
 ; get entity byd eid, be really careful of nil eid.
@@ -218,7 +221,7 @@
       (log/info a  (a e)))))
 
 ;==========================================================================
-; datomic transaction, all attr in entity must *_not_* be nil.
+; datomic transaction, all attr in entity must *_NOT_* be nil.
 ; XXX filter out nil attr. Transaction will fail when there is nil attr.
 ; transaction is an entity(map) data structure with :db/id point to the entity CRUD.
 ; each trans CRUD one specific fact about an entity, attribute, and value;
@@ -228,6 +231,7 @@
 (defn submit-transact
   "submit a transaction"
   [tx-data]  ; tx-data is a list of list/map, each map must have :db/id
+  (log/info "submit-transact " tx-data)
   (let [
         ft (d/transact (get-conn) tx-data)  ; ret future task
         ; ft tx-data

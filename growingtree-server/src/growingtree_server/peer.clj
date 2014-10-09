@@ -360,7 +360,7 @@
 
 ; create progress thing
 (defmethod add-thing
-  :progresstask
+  :progressstep
   [type details]
   (let [result (dda/create-progress details)]
     result))

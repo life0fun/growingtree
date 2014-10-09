@@ -1,0 +1,24 @@
+[
+  ;; database transaction fn.
+
+  ; inc-rank update current entity's rank-attr value by inc the max value 
+  ; of all entities from parent-id ref-attr.
+  { 
+    :db/id #db/id [:db.part/user]
+    :db/ident :inc-rank
+    :db/doc "auto inc rank of entity in the ref-many list"
+    :db/fn #db/fn {
+      :lang "clojure"
+      :params [db eid parent-id ref-attr rank-attr]
+      :code "(let [
+                rankv (->> (ref-attr (datomic.api/entity db parent-id))
+                        (map #(datomic.api/entity db %))
+                        (map #(or (rank-attr %) "0"))
+                        (reduce #(max %1 (read-string %2)) 0)
+                        (inc)
+                        (str))]
+              [[:db/add eid rank-attr rankv]])"
+    }
+  }
+
+]
