@@ -305,9 +305,9 @@
 ;  :progress/steps #{{:progressstep/status "50", :progress/title "progression of flute 101", :db/id 17592186045494}) 
 (defn progress-tracker
   [progress]
-  (.log js/console (pr-str "progress tracker " progress))
   (let [course-id (:origin progress)
         progress-steps (:progress/steps progress)]  ; a set of progress steps
+    (.log js/console (pr-str "progress tracker " progress " steps " progress-steps))
     (list
       [:ol.progress-tracker
         (map progress-step progress-steps)

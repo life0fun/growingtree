@@ -412,7 +412,7 @@
           author-id (if (= java.lang.String (class author))
                       (:db/id (family/get-person-by-title author))
                       author)
-          rule-args [17592186045484 17592186045427]  ; [course-id, author-id]
+          ; rule-args [17592186045484 17592186045427]  ; [course-id, author-id]
           rule-args [course-id author-id]  ; [course-id, author-id]
           result (->> (util/get-entities-by-rule rule get-progress-by rule-args)
                     (map populate-progress-refed-entity))

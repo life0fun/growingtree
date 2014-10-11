@@ -298,7 +298,10 @@
   (let [refed-ids (as-> (attr entity) eids 
                       (if-not (set? eids) 
                         (conj #{} eids)
-                        eids))
+                        eids)
+                      (remove nil? eids) ; remove nil steps.
+                    )
+
         refed-entities (map #(dbconn/get-entity (:db/id %)) refed-ids)
        ]
     (log/info "get refed many entities " refed-ids refed-entities)

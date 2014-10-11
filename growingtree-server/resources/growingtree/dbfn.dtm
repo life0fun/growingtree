@@ -11,11 +11,10 @@
       :lang "clojure"
       :params [db eid parent-id ref-attr rank-attr]
       :code "(let [rankv (->> (ref-attr (datomic.api/entity db parent-id))
-                        (map #(datomic.api/entity db %))
-                        (map #(or (rank-attr %) (str 0)))
-                        (reduce #(max %1 (read-string %2)) 0)
-                        (inc)
-                        (str))]
+                          (map #(or (rank-attr %) (str 0)))
+                          (reduce #(max %1 (read-string %2)) 0)
+                          (inc)
+                          (str))]
               [[:db/add eid rank-attr rankv]])"}
   }
 
