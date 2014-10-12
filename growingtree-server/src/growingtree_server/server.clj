@@ -9,6 +9,8 @@
   "The entry-point for 'lein run-dev'"
   [& args]
   (dev/init service/service #'service/routes)
+  (prn "run-dev args " args)
+  
   ; create db schema, enable this line and run lein run-dev to create schema.
   ; (service/create-schema)
   (apply dev/-main args)

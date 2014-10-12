@@ -82,6 +82,16 @@
 (def root-add-type #{:parent :group :course})
 
 
+; :login or sign up msg to be channeled to core for processing.
+; msg-type: login or signup
+(defn get-login-msg
+  [form-name data]
+  (let [msg-type (if (= form-name "login-form") :login :signup)
+        msg [msg-type {:body [msg-type [:login 0 msg-type]]
+                       :data data}]
+        ]
+    msg))
+
 ; get :all-things msg to be sent to control channel to trigger controls chan event for ajax.
 ; :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} false 
 (defn get-all-things-msg

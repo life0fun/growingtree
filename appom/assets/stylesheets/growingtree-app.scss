@@ -167,6 +167,89 @@ h6{font-size:11.9px}
   text-decoration: none;
 }
 
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  login form
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+#login-form, #signup-form {
+   border-top: 10px solid green;
+   padding: 1.25em 3.125em 3.125em;
+   @include box-shadow(gray 0 0.2em 1em);
+   background: rgba(255, 255, 255, 1);
+   position: relative;
+   z-index: 200;
+
+   input[type="text"],
+   input[type="password"] {
+      width: 95.75%;
+   }
+
+  h2 {
+    margin-left: 40px;
+  }
+}
+
+#login-form {
+  margin-top: 100px;
+   button {
+      margin-bottom: 1em;
+   }
+}
+
+#signup-form {
+   margin-top: 3em;
+
+   fieldset {
+      &.fieldset-accountType {
+         margin-bottom: 2em;
+      }
+
+      &.fieldset-radio {
+         margin-bottom: 0.25em;
+         display: inline-block;
+         margin-right: 3em;
+      }
+   }
+
+   p {
+      margin-bottom: 0.25em;
+   }
+}
+
+fieldset {
+   margin-bottom: 1.2em;
+
+   &.fieldset-password {
+      margin-bottom: 0;
+   }
+
+   &.fieldset-rememberMe {
+      margin: 0.25em 0 1.6em;
+   }
+
+   &.fieldset-checkbox,
+   &.fieldset-radio {
+      input[type="checkbox"],
+      input[type="radio"],
+      label {
+         display: inline-block;
+         vertical-align: middle;
+      }
+
+      input[type="checkbox"],
+      input[type="radio"], {
+         margin-top: 0;
+      }
+
+      label {
+         margin: 0 10px 0 0;
+         padding-left: 0.65em;
+      }
+   }
+
+   legend {
+      display: none;
+   }
+}
 
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   main-area sidebar and nav with transition transform 

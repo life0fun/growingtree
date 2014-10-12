@@ -3,6 +3,7 @@
             [clojure.string :as string]
             [dommy.core :as dommy]
             [growingtree-app.api.mock :as api]
+            [growingtree-app.components.login :as login]
             [growingtree-app.components.app :as app]
             [growingtree-app.controllers.controls :as controls]
             [growingtree-app.controllers.post-controls :as controls-post]
@@ -48,17 +49,19 @@
     (swap! history conj [channel record])))
 
 
-; app similar to mvc view fn where $el = target, and all event and render logic in function.
+; app similar to mvc view fn where $el = el, and all event and render logic in function.
 ; app component ref to global state for state monitoring and rendering 
-(defn main [target state]
+(defn main [el state]
   (let [comms (:comms @state)
         history (or history (atom []))]
     ; we need route ui click event to control chan, and process control chan inside main comp.
     (routes/define-routes! state (.getElementById js/document "history-container"))
 
     ; create app component, which in turn create all sub components, and start dom state updating. 
-    (om/root app/app state {:target target   ; target is app dom element, $el
-                            :opts {:comms comms}})
+    ; (om/root app/app state {:target el   ; must have :target slot point to app dom element, $el
+    ;                         :opts {:comms comms}})
+    (om/root login/login state {:target el   ; app dom element, $el
+                                :opts {:comms comms}})
     
     ;
     ; chan msg vec, [msg-type msg-data]. msg-data is nav path.
@@ -67,7 +70,7 @@
     ; :add-thing [:lecture {:lecture/type :math, :lecture/course 1, }]
     ; refer to global state :nav-path for msg-data format. conj msg-data to state nav-path prop.
     ;
-    (go (while true
+    (go (while true  ; looping channel msg.
       (alt!
         (:controls comms) 
           ([v]   ; [:all-things [:parent]], first is msg, rest is nav-path.
@@ -76,42 +79,34 @@
             (let [previous-state @state
                   msg-type (first v)
                   msg-data (last v)
-                  ; if refresh, msg-data is cursor to last nav-path, de-ref it and re-set msg-type.
-                  ; msg-data (cond
-                  ;           (= :refresh msg-type) @(last v)
-                  ;           :else (last v))
-                  ; msg-type (if (= :refresh msg-type)
-                  ;             (get-in msg-data [:body 0])
-                  ;             msg-type)
                  ]
               ; (.log js/console (pr-str "controls chan event: " msg-type msg-data (om/rendering?)))
               ; (update-history! history :controls v)
 
               ; first, control event just append msg-data to nav-path.
-              (swap! state (partial controls/control-event target msg-type msg-data))
+              (swap! state (partial controls/control-event el msg-type msg-data))
               ; second, for :add-thing or :get, post-controller take nav-path and ajax to back-end.
-              (controls-post/post-control-event! target msg-type msg-data previous-state @state)
+              (controls-post/post-control-event! el msg-type msg-data previous-state @state)
               ))
         ; server data from cljsajax, (put! api-ch [:api-data {data-path main-path :things-vec (vec things-vec)}])
         (:api comms)
           ([v]
             (when utils/logging-enabled? (mprint "API Verbose: " (pr-str v)))
-            ; [:api-data {:body [:all 0 :group], :things-vec [{:group/email "math-fans@groups.com", :group/ ]
             (let [previous-state @state
                   msg-type (first v)
                   msg-data (last v)
                   things-vec (:things-vec msg-data)]
               ; (.log js/console (pr-str "api chan event : type " msg-type " data " msg-data))
               ; api-event process api-data, api-success, and api-error.
-              (swap! state (partial api-con/api-event target msg-type msg-data))
+              (swap! state (partial api-con/api-event el msg-type msg-data))
               ; post-api-event do nothing for now.
-              (api-post/post-api-event! target msg-type msg-data previous-state @state)))
+              (api-post/post-api-event! el msg-type msg-data previous-state @state)))
         (async/timeout 30000) 
         (mprint (pr-str @history)))))
     ))
 
-; setup main component with app state
-(defn setup! []
+; called upon page onload, setup main component with app state
+(defn init-state! []
   (let [comms (:comms @app-state)]
     ; app-state is cursor to atom, pass to main as cursor to om/root
     (main (. js/document (getElementById "app")) app-state)
@@ -125,7 +120,8 @@
         (doseq [channel channels]
           (kandan-api/subscribe! kandan-client (str "/channels/" channel) (:api comms)))))))
 
-(set! (.-onload js/window) setup!)
+; upon page onload, setup init app state.
+(set! (.-onload js/window) init-state!)
 
 ;; Local dev tooling
 (defn ^:export send-async-message [ch-name message data]
