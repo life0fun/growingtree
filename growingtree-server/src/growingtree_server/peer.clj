@@ -73,6 +73,12 @@
 
 
 (defmethod get-things
+  :login
+  [type qpath details]
+  (let [login (get-user details)]
+    login))
+
+(defmethod get-things
   :parent
   [type qpath details]
   (let [parents (dda/find-parent qpath)]

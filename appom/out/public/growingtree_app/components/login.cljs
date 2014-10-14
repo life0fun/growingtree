@@ -17,9 +17,9 @@
   [app form-name base-data fields]
   (let [comm (get-in app [:comms :controls])]
     (fn [_]
-      (let [$form (sel1 (keyword form-name))
+      (let [$form (sel1 (str "#" form-name)) ; sel1 can take keyword, (sel1 :#foo) or string.
             data (reduce (fn [tot [attr fieldid]]
-                    ; (.log js/console (pr-str fieldid (dommy/value (sel1 fieldid))))
+                    (.log js/console (pr-str fieldid (dommy/value (sel1 fieldid))))
                     (assoc tot attr (dommy/value (sel1 fieldid))))
                     {}
                     fields)
@@ -44,10 +44,13 @@
       (or (:react-name opts) "login"))
     om/IRender
     (render [this]
-      (.log js/console (pr-str "login drawing"))
       (html/html
        (let [comm (get-in opts [:comms :controls])  ; comm chan is control
              settings (:settings app)
+             login-form-fields {
+              :login/name (str "#login-name")
+              :login/password (str "#login-password")
+             }
             ]
           [:div.center.span5
             [:form#login-form.login-name {:action "" :method "post"}
@@ -62,8 +65,8 @@
                 [:label.lable {:for "rememberMe-input"} "Remember Me"]
                 [:input.remembrMe-input {:id "rememberMe-input" :type "checkbox" :name "remember" :value: "1"}]]
               [:button.btn.btn-primary.btn-block
-                {:id "login-button" :type "submit"  :name "submit" ; if type :submit, will trigger re-load
-                :on-click submit-form-fn}
+                {:id "login-button" :type "button" ; if type :submit, will trigger re-load
+                :on-click (submit-form-fn app "login-form" {} login-form-fields)}
                 "Sign In"]
               [:p#signup-link [:a.option.active {:href "#"} "Create an account ?"]]
             ]
@@ -106,6 +109,6 @@
             ]
 
           [:br]
-          [:p.text-center.center "Copyright 2014 - GrowingTree"]
+          [:p.text-center.center "Copyright 2014 - 2015, GrowingTree Inc."]
         ]
       )))))

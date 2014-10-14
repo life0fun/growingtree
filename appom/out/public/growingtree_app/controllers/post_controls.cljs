@@ -41,6 +41,22 @@
   [target msg-type msg-data previous-state current-state]
   (.log js/console (pr-str "default post-control for: " msg-type)))
 
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+; post control event for navbar, last nav-path tuple.
+; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
+(defmethod post-control-event! 
+  :login
+  [target msg-type nav-path previous-state current-state]
+  (.log js/console (pr-str "post ajax :login nav-path " nav-path))
+  (utils/set-window-href! (routes/v1-all-things
+                            {:thing-type (name (get-in nav-path [:body 1 2]))}))
+  (cljsajax/cljs-ajax :request-things
+                      nav-path
+                      (get-in current-state [:comms :api]) ; ajax ret data to api-ch.
+                      nav-path)  ; nav-path as request :params :details
+    )
+
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; post control event for navbar, last nav-path tuple.
 ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}

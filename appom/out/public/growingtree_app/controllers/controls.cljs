@@ -26,6 +26,16 @@
   (-> state
     (update-in [:nav-path] conj msg-data)))
 
+; for login control,msg-data {:body [:login [:login 0 :login]]
+(defmethod control-event 
+  :login
+  [target msg-type msg-data state]
+  (let [cur-nav-type (get-in msg-data [:body 1 2])]
+    (.log js/console (pr-str "control event :login conj nav-path " msg-data))
+    (cond-> state
+      :else (update-in [:nav-path] conj msg-data)
+      )))
+
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; global state update for control event for navbar.
 ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
