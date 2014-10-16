@@ -221,6 +221,7 @@
 (defn find-user
   "find user by login credential, if type = :signup, create the new user"
   [details]
+  (log/info "find-user " details)
   (let [{:keys [type name pass email role]} details
         projkeys (keys person-schema)  ; must select-keys from datum entity attributes
         user (-> (dbconn/find-by :person/title name)
@@ -241,8 +242,7 @@
                     {:user person})
               )
        ]
-    (prn "find user " type name pass email role)
-    (prn " find-user --> " user)
+    (log/info " find-user --> " user)
     user))
 
 

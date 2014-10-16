@@ -49,10 +49,13 @@
 ;;===========================================================================
 ; get user, if signup, create a new one, other wise, validate existing one.
 ;;===========================================================================
+; details {:body [:login [:login 0 :login]], :data {:type :login, :name "rich-son", :pass "rich"}}
 (defn get-user
   [details]
-  (log/info "peer get-user details " details)
-  (dda/find-user details))
+  (log/info "get-user " details)
+  (let [user (dda/find-user details)]
+    (log/info "peer get-user details " details " user " user)
+    user))
 
 
 ;;===========================================================================
@@ -72,11 +75,11 @@
   (log/info "get-things default " type " qpath " qpath " details " details))
 
 
-(defmethod get-things
-  :login
-  [type qpath details]
-  (let [login (get-user details)]
-    login))
+; (defmethod get-things
+;   :login
+;   [type qpath details]
+;   (let [user (get-user details)]
+;     user))
 
 (defmethod get-things
   :parent

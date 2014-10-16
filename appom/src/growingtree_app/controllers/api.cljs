@@ -29,6 +29,7 @@
   [target msg-type msg-data state]  ; state is atom passed from swap! state
   (let [things-vec (:things-vec msg-data)
         nav-path (:nav-path msg-data)
+        ; msg (as-> (get-in ))
        ]
     (.log js/console (pr-str "api-data set :body things-vec " nav-path msg-data))
     (-> state
@@ -52,7 +53,7 @@
                 (mock-data/get-all-things-msg (get-in last-nav-path [:body 1 0]) {:author "rich-dad"})
                 [msg-type last-nav-path]))
        ]
-    (.log js/console (pr-str "api-success : re-direct with update-in to " msg))
+    (.log js/console (pr-str "api-success : re-direct by sending to comm msg " msg))
     (put! comm msg)
     (-> state   ; nullify state :body slot where thing-vec taken from in main_area things-list
       (assoc-in [:body] nil))

@@ -181,17 +181,18 @@
 ;;==================================================================================
 ; get login user, returned user has :error and :user and :error key
 ;;==================================================================================
+; postdata {:thing-type :login, :path [:login 0 :login], :qpath nil, 
+;           :post-data {:body [:login [:login 0 :login]], :data {:type :login, :name "rich-son", :pass "rich"}}}}
 (defn get-signup-login
   "get signup or login user info"
-  [{postdata :edn-params :as request}]  ; post data under :edn-params key :as request
-  (prn "get-signup-login " postdata)
-  (let [user (peer/get-user postdata)
+  [{postbody :edn-params :as request}]  ; post data under :edn-params key :as request
+  (log/info "get-signup-login " postbody)
+  (let [user (peer/get-user (get-in postbody [:post-data :data]))
         result (-> user
                    (assoc :status (if-not (:error user) 200 404)))
         jsonresp (bootstrap/json-response result)
        ]
-    (newline)
-    (println (str "service peer get-login-user " postdata " " result))
+    (log/info "service peer get-login-user " result)
     jsonresp))
 
 

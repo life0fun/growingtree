@@ -51,7 +51,7 @@
   (.log js/console (pr-str "post ajax :login nav-path " nav-path))
   (utils/set-window-href! (routes/v1-all-things
                             {:thing-type (name (get-in nav-path [:body 1 2]))}))
-  (cljsajax/cljs-ajax :request-things
+  (cljsajax/cljs-ajax :signup-login ;:request-things
                       nav-path
                       (get-in current-state [:comms :api]) ; ajax ret data to api-ch.
                       nav-path)  ; nav-path as request :params :details

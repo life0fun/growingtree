@@ -47,9 +47,11 @@
       (html/html
        (let [comm (get-in opts [:comms :controls])  ; comm chan is control
              settings (:settings app)
+
+             ; login map format must be align with family find-user
              login-form-fields {
-              :login/name (str "#login-name")
-              :login/password (str "#login-password")
+              :name (str "#login-name")
+              :pass (str "#login-password")
              }
             ]
           [:div.center.span5
@@ -66,7 +68,7 @@
                 [:input.remembrMe-input {:id "rememberMe-input" :type "checkbox" :name "remember" :value: "1"}]]
               [:button.btn.btn-primary.btn-block
                 {:id "login-button" :type "button" ; if type :submit, will trigger re-load
-                :on-click (submit-form-fn app "login-form" {} login-form-fields)}
+                :on-click (submit-form-fn app "login-form" {:type :login} login-form-fields)}
                 "Sign In"]
               [:p#signup-link [:a.option.active {:href "#"} "Create an account ?"]]
             ]
