@@ -16,7 +16,7 @@ goog.require('cljs.core.async');
 * cljs-ajax success handler, send back things-vec to api-ch
 */
 growingtree_app.api.cljsajax.handler = (function handler(command,nav_path,api_ch){return (function (response){var temp__4126__auto__ = response;if(cljs.core.truth_(temp__4126__auto__))
-{var result = temp__4126__auto__;var status = new cljs.core.Keyword(null,"status","status",-1997798413).cljs$core$IFn$_invoke$arity$1(result);var things_vec = new cljs.core.Keyword(null,"data","data",-232669377).cljs$core$IFn$_invoke$arity$1(result);var dbid = new cljs.core.Keyword("db","id","db/id",-1388397098).cljs$core$IFn$_invoke$arity$1(cljs.core.first.call(null,things_vec));console.log(cljs.core.pr_str.call(null,"cljsajax onSuccess: nav-path ",nav_path," thing-vec ",things_vec));
+{var result = temp__4126__auto__;var status = new cljs.core.Keyword(null,"status","status",-1997798413).cljs$core$IFn$_invoke$arity$1(result);var things_vec = new cljs.core.Keyword(null,"data","data",-232669377).cljs$core$IFn$_invoke$arity$1(result);console.log(cljs.core.pr_str.call(null,"cljsajax <<< : nav-path ",nav_path," thing-vec ",things_vec));
 if(cljs.core.truth_(new cljs.core.Keyword(null,"body","body",-2049205669).cljs$core$IFn$_invoke$arity$1(nav_path)))
 {return cljs.core.async.put_BANG_.call(null,api_ch,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"api-data","api-data",103234986),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"nav-path","nav-path",-444531376),nav_path,new cljs.core.Keyword(null,"things-vec","things-vec",-1363222375),cljs.core.vec.call(null,things_vec)], null)], null));
 } else

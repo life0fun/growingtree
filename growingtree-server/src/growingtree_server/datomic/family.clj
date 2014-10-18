@@ -217,7 +217,8 @@
   [title]
   (dbconn/find-by :person/title title))
 
-
+; this is for login use only, as in case error, we need to pop err back to
+; prompt user what error is, password err, account error, dup name ?
 (defn find-user
   "find user by login credential, if type = :signup, create the new user"
   [details]
@@ -227,10 +228,11 @@
         user (-> (dbconn/find-by :person/title name)
                  (select-keys projkeys)  ; select-keys ret {} on anything nil
              )
+        ; pop login error back to user.
         user (cond
-                (and (empty? user) (= :login type)) {:user details :error "invalid user or passowrd"}
-                (= :login type) {:user user :error nil}
-                (and (= :signup type) (not (empty? user))) {:user details :error "user already exist, try another user name."}
+                (and (empty? user) (= :login type)) {:data details :error "invalid user or passowrd"}
+                (= :login type) {:data user :error nil}
+                (and (= :signup type) (not (empty? user))) {:data details :error "user already exist, try another user name."}
                 :else
                   (let [person (clojure.set/rename-keys
                                   details
@@ -239,7 +241,7 @@
                     (if (= :parent (keyword role))
                           (create-parent person)
                           (create-child person))
-                    {:user person})
+                    {:data person})
               )
        ]
     (log/info " find-user --> " user)

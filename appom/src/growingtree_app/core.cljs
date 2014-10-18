@@ -51,17 +51,20 @@
 
 ; app similar to mvc view fn where $el = el, and all event and render logic in function.
 ; app component ref to global state for state monitoring and rendering 
-(defn main [el state]
+(defn main 
+  [state]
   (let [comms (:comms @state)
-        history (or history (atom []))]
+        history (or history (atom []))
+        app-el (.getElementById js/document "app")
+        login-el (.getElementById js/document "login")
+        hist-el (.getElementById js/document "history-container")
+       ]
     ; we need route ui click event to control chan, and process control chan inside main comp.
-    (routes/define-routes! state (.getElementById js/document "history-container"))
+    (routes/define-routes! state hist-el)
 
-    ; create app component, which in turn create all sub components, and start dom state updating. 
-    ; (om/root app/app state {:target el   ; must have :target slot point to app dom element, $el
-    ;                         :opts {:comms comms}})
-    (om/root login/login state {:target el   ; app dom element, $el
-                                :opts {:comms comms}})
+    ; create app component, which in turn create all sub components, and start dom state updating.
+    (om/root login/login state {:target login-el :opts {:comms comms}})
+    (om/root app/app state {:target app-el :opts {:comms comms}})
     
     ;
     ; chan msg vec, [msg-type msg-data]. msg-data is nav path.
@@ -72,34 +75,39 @@
     ;
     (go (while true  ; looping channel msg.
       (alt!
+        ; UI control event => state transition => swap nav-path state => ajax fetch data for new state.
         (:controls comms) 
           ([v]   ; [:all-things [:parent]], first is msg, rest is nav-path.
-            (when utils/logging-enabled? (mprint "Controls Verbose: " (pr-str v)))
-            ; each event [msg-type msg-data]
             (let [previous-state @state
                   msg-type (first v)
-                  msg-data (last v)
-                 ]
-              ; (update-history! history :controls v)
-
-              ; first, control event just append msg-data to nav-path.
-              (swap! state (partial controls/control-event el msg-type msg-data))
-              ; second, for :add-thing or :get, post-controller take nav-path and ajax to back-end.
-              (controls-post/post-control-event! el msg-type msg-data previous-state @state)
+                  msg-data (last v)]
+              ; msg-type set by api event, or by get-xxx-msg in UI events.
+              (if (= msg-type :logged-in)
+                (do
+                  (dommy/add-class! (sel1 :#login) "hide")
+                  (dommy/remove-class! (sel1 :#app) "hide")
+                )
+                (do
+                  ; first, control event just append msg-data to nav-path.
+                  (swap! state (partial controls/control-event app-el msg-type msg-data))
+                  ; second, for :add-thing or :get, post-controller take nav-path and ajax to back-end.
+                  (controls-post/post-control-event! app-el msg-type msg-data previous-state @state)
+                ))
               ))
-        ; server data from cljsajax, (put! api-ch [:api-data {data-path main-path :things-vec (vec things-vec)}])
+        ; cljs-ajax => api event => swap atom state with body data => trigger re-render.
+        ; (put! api-ch [:api-data {data-path main-path :things-vec (vec things-vec)}])
         (:api comms)
           ([v]
-            (when utils/logging-enabled? (mprint "API Verbose: " (pr-str v)))
             (let [previous-state @state
                   msg-type (first v)
                   msg-data (last v)
                   things-vec (:things-vec msg-data)]
               ; (.log js/console (pr-str "api chan event : type " msg-type " data " msg-data))
               ; api-event process api-data, api-success, and api-error.
-              (swap! state (partial api-con/api-event el msg-type msg-data))
+              (swap! state (partial api-con/api-event app-el msg-type msg-data))
               ; post-api-event do nothing for now.
-              (api-post/post-api-event! el msg-type msg-data previous-state @state)))
+              ; (api-post/post-api-event! el msg-type msg-data previous-state @state)
+              ))
         (async/timeout 30000) 
         (mprint (pr-str @history)))))
     ))
@@ -108,7 +116,7 @@
 (defn init-state! []
   (let [comms (:comms @app-state)]
     ; app-state is cursor to atom, pass to main as cursor to om/root
-    (main (. js/document (getElementById "app")) app-state)
+    (main app-state)
     (when (:restore-state? utils/initial-query-map)
       (put! (:controls comms) [:state-restored]))
     (when (:kandan-client? utils/initial-query-map)

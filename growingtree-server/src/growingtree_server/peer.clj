@@ -54,7 +54,7 @@
   [details]
   (log/info "get-user " details)
   (let [user (dda/find-user details)]
-    (log/info "peer get-user details " details " user " user)
+    (log/info "peer get-user result " user)
     user))
 
 

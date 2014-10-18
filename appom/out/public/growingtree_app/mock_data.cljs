@@ -196,6 +196,8 @@
      :left {}
      :right {}
      :bottom {}
+
+     ; nav-path is indicator of current state. updated upon state transition.
      :nav-path [{:title [] :body [:all 0 :parent] :data {}}]
      :error {}   ; error from ajax
      

@@ -38,6 +38,8 @@
 ; server always deliver list of things, parse to cljs.core.PersistentVector.
 ; nav-path {:body [:filter-things/:all-things [:course 1 :lecture]] :title ... :data {}}]
 ; for add, nav-path is {:add-thing :lecture :post-data {:lecture/name "ab", :lecture/remark "cd"}
+; json response {"thing-type" "login", "path" ["login" 0 "login"], "status" 200, ...}
+; edn response {:thing-type :lecture :path [:course 1 :lecture]}
 ;;==================================================================================
 (defn handler
   "cljs-ajax success handler, send back things-vec to api-ch"
@@ -49,10 +51,9 @@
               ]
       (let [;bodyjson body ;(.parse js/JSON body)
             status (:status result)
-            things-vec (:data result)  ; alway ret a list of things
-            dbid (:db/id (first things-vec))
+            things-vec (:data result)  ; alway ret a list of things, or single login user account
            ]
-        (.log js/console (pr-str "cljsajax onSuccess: nav-path " nav-path " thing-vec " things-vec))
+        (.log js/console (pr-str "cljsajax <<< : nav-path " nav-path " thing-vec " things-vec))
         (if (:body nav-path)  ; set only when query-path / nav-path is  valid
           (put! api-ch [:api-data {:nav-path nav-path :things-vec (vec things-vec)}])
           (put! api-ch [:api-success {:msg "in add-thing success, no query path, trigger re-direct"}])

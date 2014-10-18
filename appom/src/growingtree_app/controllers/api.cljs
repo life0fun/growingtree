@@ -20,6 +20,7 @@
 
 
 ; when query data available, api-data set ajax result/things-vec to state :body slot. trigger re-render.
+; api-data {:body [:login 0 :login]}, :thing-vec [[:person/lname "rich"]]
 ; api-data {:body [:all 0 :parent]}, :things-vec ({:person/url #{rich.com} ...}]
 ; api-data {:body [:course 1 :lecture], :things-vec [{:lecture/type :math, :lecture/numcomments 0, :lectu
 ; store into global state map with nav-path as map key and things-vec as value.
@@ -27,14 +28,22 @@
 (defmethod api-event
   :api-data
   [target msg-type msg-data state]  ; state is atom passed from swap! state
-  (let [things-vec (:things-vec msg-data)
+  (let [comm (get-in state [:comms :controls])
+        things-vec (:things-vec msg-data)
         nav-path (:nav-path msg-data)
-        ; msg (as-> (get-in ))
+        thing-type (get-in nav-path [:body 1 2])
        ]
-    (.log js/console (pr-str "api-data set :body things-vec " nav-path msg-data))
-    (-> state
-      (assoc-in [:body] things-vec))  ; api-data hard-code to set :body
-    ))
+    (.log js/console (pr-str "api-data set :body things-vec " nav-path thing-type msg-data))
+    (if (= :login thing-type)
+      (let [msg [:logged-in :login-user]]
+        (.log js/console (pr-str "nav-path " (last (get-in state [:nav-path]))))
+        ; set msg to display main page.
+        (put! comm msg)
+        (-> state  ; return updated state.
+          (assoc-in [:login-user] (into {} things-vec))
+          (update-in [:nav-path] conj {:title [] :body [:all 0 :parent] :data {}})))
+      (assoc-in state [:body] things-vec)  ; api-data hard-code to set :body
+      )))
 
 ; api-event add-thing success ajax. refresh after add means just re-direct url to nav-path that
 ; just before add-thing. This way we can switch to client side routing in the future.

@@ -13,6 +13,7 @@
 
 ; inline child input form submit handle, collect inputs data from fields and 
 ; merge with base data as form data for submission.
+; upon UI event, state transition. Current state is nav-path.
 (defn submit-form-fn
   [app form-name base-data fields]
   (let [comm (get-in app [:comms :controls])]
@@ -30,7 +31,7 @@
            ]
         (dommy/toggle-class! $form "hide")
         (.log js/console (pr-str form-name " data " form-data))
-        (put! comm (mock-data/get-login-msg form-name form-data))
+        (put! comm (mock-data/get-login-msg form-name form-data)) ; set nav-path upon click
       ))))
 
 ; called from core upon app start to create login modal.

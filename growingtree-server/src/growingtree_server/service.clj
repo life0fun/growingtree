@@ -189,11 +189,12 @@
   (log/info "get-signup-login " postbody)
   (let [user (peer/get-user (get-in postbody [:post-data :data]))
         result (-> user
-                   (assoc :status (if-not (:error user) 200 404)))
-        jsonresp (bootstrap/json-response result)
+                   (assoc :status (if-not (:error user) 200 404))
+                   (merge (select-keys postbody [:thing-type :path])))
+        endresp (bootstrap/edn-response result) 
        ]
     (log/info "service peer get-login-user " result)
-    jsonresp))
+    endresp))
 
 
 ;;==================================================================================
@@ -201,6 +202,8 @@
 ; postbody {:thing-type :path :qpath :post-data}
 ; :thing-type :group-members, :path [:group 1 :group-members],
 ; :post-data is nav-path, from get-filter-things-msg, {:body [:filter-things []] :data {}}
+; json response {"thing-type" "login", "path" ["login" 0 "login"], "status" 200, ...}
+; edn response {:thing-type :lecture :path [:course 1 :lecture]}
 ;;==================================================================================
 (defn get-things
   "get things by type, ret from peer a list of thing in a new line sep string"
@@ -212,10 +215,10 @@
         thing-type (:thing-type postbody)
         things (peer/get-things thing-type path (:post-data postbody))
         result {:status 200 :data things}
-        jsonresp (bootstrap/edn-response result)
+        ednresp (bootstrap/edn-response result)
        ]
       (log/info "service peer/get-things ret: " type thing-type path result)
-    jsonresp))
+    ednresp))
 
 
 ; postbody is cljs-ajax request map :params slot, {:thing-type :path :qpath :post-data}
