@@ -33,7 +33,7 @@
   (-> state
     (update-in [:nav-path] conj msg-data)))
 
-; for login control,msg-data {:body [:login [:login 0 :login]]
+; for login control, msg-data {:body [:login [:login 0 :login]]
 (defmethod transition 
   :login
   [target msg-type msg-data state]
@@ -124,7 +124,7 @@
         nav-path (:nav-path msg-data)
         last-nav-path (last (get-in state [:nav-path]))
         login-user (get-in state [:login-user])
-        
+        ; send :logged-in msg type to control channel.
         msg [:logged-in :login-user]
        ]
     (.log js/console (pr-str "login-state-transition last nav-path " last-nav-path))
@@ -158,22 +158,33 @@
       (assoc-in [:body] nil))
     ))
 
-; add-thing error from ajax, set to state error slot. msg-data has :nav-path and :error, nil :things-vec
+
+; 1. login error in family/find-user, {:data details :error {:status :status-text}}
+; 2. add-thing error from ajax, set to state error slot. msg-data has :nav-path and :error, nil :things-vec
 ; msg-data {:nav-path {:add-thing :activity :details {}} :error {:status :response :status-text ...}}
 (defmethod transition
   :api-error
   [target msg-type msg-data state]
-  (let [error (:error msg-data)
+  (.log js/console (pr-str "api-error " msg-type msg-data))
+  (let [comm (get-in state [:comms :controls])
+        ;{:body [:filter-things [:pareni 1 :child]], :data {:pid 1}}
+        nav-path (last (get-in state [:nav-path]))
+        thing-type (get-in nav-path [:body 0])
+        error (:error msg-data)
+        error-msg (get-in msg-data [:error :status-text])
         nav-path (:nav-path msg-data)
-        last-nav-path (last (drop-last (get-in state [:nav-path])))]
-    (.log js/console (pr-str "api-error set state [:error] " (get-in msg-data [:error :status-text])))
+        ]
+    (.log js/console (pr-str "api-error [:error] " nav-path error-msg msg-data))
     ; must ret valid state atom.
+    ; (when (= :login thing-type)
+    ;   (put! comm (mock-data/get-retry-login-msg)))
     (-> state
       (assoc-in [:error] msg-data))
     ))
 
-
-
+; "api-error [:error] " {:title [], :body [:all 0 :parent], :data {}} 
+; "invalid user or passowrd : rich-sons" 
+; {:path [:login 0 :login], :thing-type :login, :status 404, :error {:status-text "invalid user or passowrd : rich-sons", :status 404}, :data {:name "rich-sons", :type :login, :pass "r"}} states.cljs:176
 
 
 (defmethod transition :api-key-updated

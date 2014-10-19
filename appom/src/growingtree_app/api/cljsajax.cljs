@@ -51,13 +51,16 @@
               ]
       (let [;bodyjson body ;(.parse js/JSON body)
             status (:status result)
+            error (:error result)
             things-vec (:data result)  ; alway ret a list of things, or single login user account
            ]
-        (.log js/console (pr-str "cljsajax <<< : nav-path " nav-path " thing-vec " things-vec))
-        (if (:body nav-path)  ; set only when query-path / nav-path is  valid
-          (put! api-ch [:api-data {:nav-path nav-path :things-vec (vec things-vec)}])
-          (put! api-ch [:api-success {:msg "in add-thing success, no query path, trigger re-direct"}])
-          )
+        (.log js/console (pr-str "cljsajax <<< : " status error nav-path " thing-vec " things-vec))
+        (if-not (= status 200)
+          (put! api-ch [:api-error result]) 
+          (if (:body nav-path)  ; set only when query-path / nav-path is valid
+            (put! api-ch [:api-data {:nav-path nav-path :things-vec (vec things-vec)}])
+            (put! api-ch [:api-success {:msg "in add-thing success, no query path, trigger re-direct"}])
+            ))
       ))))
 
 (defn error-handler

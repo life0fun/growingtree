@@ -84,11 +84,19 @@
 
 ; :login or sign up msg to be channeled to core for processing.
 ; msg-type: login or signup
+; {:body [:login [:login 0 :login]], :data {:type :login, :name "rich-sonx", :pass "s"}}
 (defn get-login-msg
   [form-name data]
   (let [msg-type (if (= form-name "login-form") :login :signup)
         msg [msg-type {:body [msg-type [:login 0 msg-type]]
                        :data data}]
+        ]
+    msg))
+
+(defn get-retry-login-msg
+  []
+  (let [msg-type :login
+        msg [msg-type {:body [msg-type [:login 0 msg-type]] :data {}}]
         ]
     msg))
 
@@ -199,6 +207,7 @@
 
      ; nav-path is indicator of current state. updated upon state transition.
      :nav-path [{:title [] :body [:all 0 :parent] :data {}}]
+     ; :nav-path [{:title [] :body [:login [:login 0 :login]] :data {}}]
      :error {}   ; error from ajax
      
      ; XXXX do not use this, not reliable.

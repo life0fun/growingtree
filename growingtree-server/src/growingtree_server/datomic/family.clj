@@ -229,10 +229,12 @@
                  (select-keys projkeys)  ; select-keys ret {} on anything nil
              )
         ; pop login error back to user.
+        login-error {:status 404 :status-text (str "invalid user or passowrd : " name)}
+        exist-error {:status 409 :status-text (str "invalid user or passowrd : " name)}
         user (cond
-                (and (empty? user) (= :login type)) {:data details :error "invalid user or passowrd"}
+                (and (empty? user) (= :login type)) {:data details :error login-error}
                 (= :login type) {:data user :error nil}
-                (and (= :signup type) (not (empty? user))) {:data details :error "user already exist, try another user name."}
+                (and (= :signup type) (not (empty? user))) {:data details :error exist-error}
                 :else
                   (let [person (clojure.set/rename-keys
                                   details

@@ -19,6 +19,8 @@
       (dommy/toggle-class! f "hide"))))
 
 
+; sel1 can take keyword, (sel1 :#foo) or string.
+; div is str "#div-id"
 (defn hide-div
   [div]
   (let [f (sel1 (keyword div))]

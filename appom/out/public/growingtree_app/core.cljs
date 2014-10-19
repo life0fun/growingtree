@@ -50,6 +50,35 @@
     (swap! history conj [channel record])))
 
 
+; after login succeed, detach login and show app.
+(defn detach-login-show-app
+  []
+  (let [login-el (.getElementById js/document "login")]
+    ; div id selector with string #div-id
+    (ui/hide-div "#login")
+    (ui/show-div "#app")
+    (om/detach-root login-el)))
+
+
+; processing control event, transition state.
+(defn process-control-event
+  [el state msg-type msg-data]
+  (let [previous-state @state]
+    ; control event transition state, and indicate state by nav-path
+    (swap! state (partial states/transition el msg-type msg-data))
+    ; send request by msg type.
+    (requester/request el msg-type msg-data previous-state @state)))
+
+
+; processing api event, transition state.
+(defn process-api-event
+  [el state msg-type msg-data]
+  (let [previous-state @state]
+    ; post-api-event do nothing for now.
+    ; (api-post/post-api-event! el msg-type msg-data previous-state @state)
+    (swap! state (partial states/transition app-el msg-type msg-data))))
+
+
 ; app similar to mvc view fn where $el = el, and all event and render logic in function.
 ; app component ref to global state for state monitoring and rendering 
 (defn main 
@@ -84,28 +113,17 @@
                   msg-data (last v)]
               ; msg-type set by api event, or by get-xxx-msg in UI events.
               (if (= msg-type :logged-in)
-                (ui/show-app)
-                (do
-                  ; control event transition state, and indicate state by nav-path
-                  (swap! state (partial states/transition app-el msg-type msg-data))
-                  ; second, send request by msg type.
-                  (requester/request app-el msg-type msg-data previous-state @state)
-                ))
+                (detach-login-show-app)
+                (process-control-event app-el state msg-type msg-data))
               ))
-        ; cljs-ajax => api event => swap atom state with body data => trigger re-render.
-        ; (put! api-ch [:api-data {data-path main-path :things-vec (vec things-vec)}])
+        ; cljs-ajax => state transition => swap atom state with body data => trigger re-render.
         (:api comms)
           ([v]
             (let [previous-state @state
                   msg-type (first v)
-                  msg-data (last v)
-                  things-vec (:things-vec msg-data)]
-              ; (.log js/console (pr-str "api chan event : type " msg-type " data " msg-data))
-              ; api-event process api-data, api-success, and api-error.
-              (swap! state (partial states/transition app-el msg-type msg-data))
-              ; post-api-event do nothing for now.
-              ; (api-post/post-api-event! el msg-type msg-data previous-state @state)
-              ))
+                  msg-data (last v)]
+              (process-api-event app-el state msg-type msg-data))
+            )
         (async/timeout 30000) 
         (mprint (pr-str @history)))))
     ))

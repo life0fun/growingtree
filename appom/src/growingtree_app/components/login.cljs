@@ -4,6 +4,7 @@
             [dommy.core :as dommy]
             [sablono.core :as html :refer-macros [html]]
             [growingtree-app.routes :as routes]
+            [growingtree-app.ui :as ui]
             [growingtree-app.mock-data :as mock-data]
             [growingtree-app.utils :as utils])
   (:use-macros [dommy.macros :only [node sel sel1]]))
@@ -18,7 +19,7 @@
   [app form-name base-data fields]
   (let [comm (get-in app [:comms :controls])]
     (fn [_]
-      (let [$form (sel1 (str "#" form-name)) ; sel1 can take keyword, (sel1 :#foo) or string.
+      (let [;$form (sel1 (str "#" form-name)) 
             data (reduce (fn [tot [attr fieldid]]
                     (.log js/console (pr-str fieldid (dommy/value (sel1 fieldid))))
                     (assoc tot attr (dommy/value (sel1 fieldid))))
@@ -29,7 +30,8 @@
                           (utils/set-time :activity "start")
                           )
            ]
-        (dommy/toggle-class! $form "hide")
+        ; (dommy/toggle-class! $form "hide")
+        (ui/hide-div (str "#" form-name))
         (.log js/console (pr-str form-name " data " form-data))
         (put! comm (mock-data/get-login-msg form-name form-data)) ; set nav-path upon click
       ))))
@@ -45,6 +47,7 @@
       (or (:react-name opts) "login"))
     om/IRender
     (render [this]
+      (.log js/console " login rendering ")
       (html/html
        (let [comm (get-in opts [:comms :controls])  ; comm chan is control
              settings (:settings app)
