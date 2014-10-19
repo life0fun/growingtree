@@ -5,8 +5,8 @@
             [growingtree-app.api.mock :as api]
             [growingtree-app.components.login :as login]
             [growingtree-app.components.app :as app]
-            [growingtree-app.controllers.controls :as controls]
-            [growingtree-app.controllers.post-controls :as controls-post]
+            [growingtree-app.controllers.states :as states]
+            [growingtree-app.controllers.requester :as requester]
             [growingtree-app.controllers.api :as api-con]
             [growingtree-app.controllers.post-api :as api-post]
             [growingtree-app.datetime :as dt]
@@ -15,6 +15,7 @@
             [growingtree-app.routes :as routes]
             [growingtree-app.useful :as useful :refer [ffilter]]
             [growingtree-app.utils :as utils :refer [mprint]]
+            [growingtree-app.ui :as ui]
             [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true])
   (:require-macros [cljs.core.async.macros :as am :refer [go go-loop alt!]])
@@ -83,28 +84,21 @@
                   msg-data (last v)]
               ; msg-type set by api event, or by get-xxx-msg in UI events.
               (if (= msg-type :logged-in)
+                (ui/show-app)  ; show app div
                 (do
-                  (dommy/add-class! (sel1 :#login) "hide")
-                  (dommy/remove-class! (sel1 :#app) "hide")
-                )
-                (do
-                  ; first, control event just append msg-data to nav-path.
-                  (swap! state (partial controls/control-event app-el msg-type msg-data))
-                  ; second, for :add-thing or :get, post-controller take nav-path and ajax to back-end.
-                  (controls-post/post-control-event! app-el msg-type msg-data previous-state @state)
+                  ; control event transition state, and indicate state by nav-path
+                  (swap! state (partial states/transition app-el msg-type msg-data))
+                  ; send request by msg type.
+                  (requester/request app-el msg-type msg-data previous-state @state)
                 ))
               ))
-        ; cljs-ajax => api event => swap atom state with body data => trigger re-render.
-        ; (put! api-ch [:api-data {data-path main-path :things-vec (vec things-vec)}])
+        ; cljs-ajax => state transition => swap atom state with body data => trigger re-render.
         (:api comms)
           ([v]
             (let [previous-state @state
                   msg-type (first v)
-                  msg-data (last v)
-                  things-vec (:things-vec msg-data)]
-              ; (.log js/console (pr-str "api chan event : type " msg-type " data " msg-data))
-              ; api-event process api-data, api-success, and api-error.
-              (swap! state (partial api-con/api-event app-el msg-type msg-data))
+                  msg-data (last v)]
+              (swap! state (partial states/transition app-el msg-type msg-data))
               ; post-api-event do nothing for now.
               ; (api-post/post-api-event! el msg-type msg-data previous-state @state)
               ))

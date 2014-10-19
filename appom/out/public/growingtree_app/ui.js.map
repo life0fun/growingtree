@@ -2,18 +2,20 @@
  "file":
  "/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/ui.js",
  "sources":["ui.cljs"],
- "lineCount":58,
+ "lineCount":63,
  "mappings":
- "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",
+ "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",
  "names":
  ["growingtree-app.ui/toggle-hide-fn", "div", "_", "f", "js/document",
   "dommy.core/selector", "cljs.core/keyword",
   "dommy.core/toggle-class!", "growingtree-app.ui/hide-div",
-  "dommy.core/add-class!", "growingtree-app.ui/hide-all-forms",
-  "thing-id", "forms", "growingtree-app.ui/scroll-to-latest-message!",
-  "target", "thing-type", "dommy.template/->node-like",
-  "cljs.core/name", "activities", "and__3531__auto__",
-  "dommy.utils/->Array", "latest", "cljs.core/last",
+  "dommy.core/add-class!", "growingtree-app.ui/show-div",
+  "dommy.core/remove-class!", "growingtree-app.ui/hide-all-forms",
+  "thing-id", "forms", "growingtree-app.ui/show-app",
+  "growingtree-app.ui/scroll-to-latest-message!", "target",
+  "thing-type", "dommy.template/->node-like", "cljs.core/name",
+  "activities", "and__3531__auto__", "dommy.utils/->Array", "latest",
+  "cljs.core/last",
   "growingtree-app.ui/scroll-to-latest-message-when-appropriate!",
   "channel-id", "channel-el", "activities-els", "second-latest-el",
   "cljs.core/drop-last", "latest-el", "channel-view-bottom"]}

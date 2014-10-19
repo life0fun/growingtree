@@ -1,4 +1,4 @@
-(ns growingtree-app.controllers.post-controls
+(ns growingtree-app.controllers.requester
   (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
             [clojure.string :as string]
             [dommy.core :as dommy]
@@ -32,20 +32,20 @@
 ; {:body [:filter-things [:group 17592186045438 :activity]], :data {:pid 17592186045438}}
 ; Ajax request to get data using query path.
 ; previouse-state is NOT used.
-(defmulti post-control-event!
+(defmulti request
   (fn [target msg-type msg-data previous-state current-state] msg-type))
 
 ; nothing to do for default control event.
-(defmethod post-control-event! 
+(defmethod request 
   :default
   [target msg-type msg-data previous-state current-state]
-  (.log js/console (pr-str "default post-control for: " msg-type)))
+  (.log js/console (pr-str "request default msg-type for: " msg-type)))
 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; post control event for navbar, last nav-path tuple.
 ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
-(defmethod post-control-event! 
+(defmethod request 
   :login
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax :login nav-path " nav-path))
@@ -60,7 +60,7 @@
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; post control event for navbar, last nav-path tuple.
 ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
-(defmethod post-control-event! 
+(defmethod request 
   :all-things
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax :all-things nav-path " nav-path))
@@ -76,7 +76,7 @@
 ; comm chan post control event, called from core to process control event in comm chan.
 ; {:body [:filter-things [:group 17592186045438 :activity]], :data {:pid 17592186045438}}
 ; ajax request to get data using query path.
-(defmethod post-control-event! 
+(defmethod request 
   :filter-things
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax filter-things nav-path " nav-path))
@@ -93,7 +93,7 @@
   )
 
 ; nav-path is msg-data in get-search-msg, map of :body [] :data {}
-(defmethod post-control-event! 
+(defmethod request 
   :search-things
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax search-thing nav-path " nav-path));
@@ -110,7 +110,7 @@
 
 ; get-add-thing-msg defines msg-data as nav-path 
 ; {:add-thing :lecture :data {:lecture/course 1 :lecture/title ...}}
-(defmethod post-control-event! 
+(defmethod request 
   :add-thing
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax add-thing nav-path " nav-path)) ; [:lecture {:lecture/course ...}]
@@ -124,12 +124,12 @@
   )
 
 
-(defmethod post-control-event! 
+(defmethod request 
   :current-user-mentioned
   [target message args previous-state current-state]
   (mprint "notify current user they were mentioned"))
 
-(defmethod post-control-event! 
+(defmethod request 
   :playlist-entry-played
   [target message [order channel-id] previous-state current-state]
   (let [controls-ch (get-in current-state [:comms :controls])
@@ -137,7 +137,7 @@
         entry (ffilter #(= (:order %) order) (get-in current-state [:channels channel-id :player :playlist]))]
     (put! controls-ch [:audio-player-source-updated [(:src entry) channel-id]])))
 
-(defmethod post-control-event! :audio-player-source-updated
+(defmethod request :audio-player-source-updated
   [target message [src channel-id] previous-state current-state]
   (when (and (= channel-id (:selected-channel current-state))
              (= (get-in current-state [:channels (:selected-channel current-state) :player :state])
@@ -146,7 +146,7 @@
       (js/setTimeout #(.play player) 35))))
 
 
-(defmethod post-control-event! :user-message-submitted
+(defmethod request :user-message-submitted
   [target message args previous-state current-state]
   (let [channel (get-in current-state [:channels (:selected-channel current-state)])
         user-message (get-in previous-state [:settings :forms :user-message :value])
@@ -166,38 +166,38 @@
     (when (sendable-message? user-message)
       (api/send-user-message! api-key activity))))
 
-(defmethod post-control-event! :audio-player-started
+(defmethod request :audio-player-started
   [target message channel-id previous-state current-state]
   (let [player (sel1 target [(str ".audio-player.audio-" channel-id)])]
     (js/setTimeout #(.play player) 35)))
 
-(defmethod post-control-event! :audio-player-stopped
+(defmethod request :audio-player-stopped
   [target message channel-id previous-state current-state]
   (let [player (sel1 target [(str ".audio-player.audio-" channel-id)])]
     (js/setTimeout #(.pause player) 35)))
 
-(defmethod post-control-event! :audio-player-muted
+(defmethod request :audio-player-muted
   [target message args previous-state current-state]
   (let [players (sel target :.audio-player)]
     (js/setTimeout #(doseq [player players]
                       (set! (.-muted player) true)) 35)))
 
-(defmethod post-control-event! :audio-player-unmuted
+(defmethod request :audio-player-unmuted
   [target message args previous-state current-state]
   (let [players (sel target :.audio-player)]
     (js/setTimeout #(doseq [player players]
                       (set! (.-muted player) false)) 35)))
 
-(defmethod post-control-event! :current-user-mentioned
+(defmethod request :current-user-mentioned
   [target message [activity url] previous-state current-state]
   (let [player (sel1 target [(str ".audio-player.sfx.audio-" (:channel-id activity))])]
     (js/setTimeout #(.play player) 35)))
 
-(defmethod post-control-event! :user-logged-out
+(defmethod request :user-logged-out
   [target message [activity url] previous-state current-state]
   (mprint "Log the user out somehow"))
 
-(defmethod post-control-event! :search-field-focused
+(defmethod request :search-field-focused
   [target message [activity url] previous-state current-state]
   (when-let [search-field (sel1 [target :input.query])]
     ;; Really unpleasant, but handles the bug where the input field is rendered blank when re-focused
@@ -205,35 +205,35 @@
                  #(set! (.-value search-field) (get-in current-state [:settings :forms :search :value]))
                  20)))
 
-(defmethod post-control-event! :search-focus-key-pressed
+(defmethod request :search-focus-key-pressed
   [target message args previous-state current-state]
   (when-let [search-field (sel1 [target :input.query])]
     (.focus search-field)))
 
-(defmethod post-control-event! :search-form-blur-key-pressed
+(defmethod request :search-form-blur-key-pressed
   [target message args previous-state current-state]
   (when-let [message-field (sel1 [target :textarea.chat-input])]
     (.focus message-field)))
 
-(defmethod post-control-event! :user-message-blur-key-pressed
+(defmethod request :user-message-blur-key-pressed
   [target message args previous-state current-state]
   (when-let [search-field (sel1 [target :input.query])]
     (.focus search-field)))
 
-(defmethod post-control-event! :channel-destroyed
+(defmethod request :channel-destroyed
   [target message channel-id previous-state current-state]
   (api/destroy-channel! (get-in current-state [:comms :api]) channel-id))
 
-(defmethod post-control-event! :state-restored
+(defmethod request :state-restored
   [target message channel-id previous-state current-state]
   (when (empty? (.getItem js/localStorage "growingtree-app-state"))
     (print "No data available to load from localStorage")))
 
-(defmethod post-control-event! :state-persisted
+(defmethod request :state-persisted
   [target message channel-id previous-state current-state]
   (.setItem js/localStorage "growingtree-app-state" (pr-str (dissoc current-state :comms))))
 
-(defmethod post-control-event! :window-resized
+(defmethod request :window-resized
   [target message channel-id previous-state current-state]
   ;; Figure out re-layout code here
   )
