@@ -125,7 +125,7 @@
         last-nav-path (last (get-in state [:nav-path]))
         login-user (get-in state [:login-user])
         ; send :logged-in msg type to control channel.
-        msg [:logged-in :login-user]
+        msg [:login-success :login-user]
        ]
     (.log js/console (pr-str "login-state-transition last nav-path " last-nav-path))
     ; set msg to display main page.
@@ -176,8 +176,8 @@
         ]
     (.log js/console (pr-str "api-error [:error] " nav-path error-msg msg-data))
     ; must ret valid state atom.
-    ; (when (= :login thing-type)
-    ;   (put! comm (mock-data/get-retry-login-msg)))
+    (when (= :login thing-type)
+      (put! comm (mock-data/get-retry-login-msg error-msg)))
     (-> state
       (assoc-in [:error] msg-data))
     ))
@@ -186,6 +186,8 @@
 ; "invalid user or passowrd : rich-sons" 
 ; {:path [:login 0 :login], :thing-type :login, :status 404, :error {:status-text "invalid user or passowrd : rich-sons", :status 404}, :data {:name "rich-sons", :type :login, :pass "r"}} states.cljs:176
 
+; {:path [:login 0 :login], :thing-type :login, :status 404, 
+;  :error {:status-text "invalid user or passowrd : rich-sons", :status 404}, :data {:name "rich-sons", :type :login, :pass "s"}} 
 
 (defmethod transition :api-key-updated
   [target msg-type api-key state]

@@ -214,48 +214,52 @@ h6 {
 #login-form h2, #signup-form h2 {
   margin-left: 40px;
 }
+/* line 190, ../../assets/stylesheets/growingtree-app.scss */
+#login-form .error, #signup-form .error {
+  color: red;
+}
 
-/* line 191, ../../assets/stylesheets/growingtree-app.scss */
+/* line 195, ../../assets/stylesheets/growingtree-app.scss */
 #login-form {
   margin-top: 100px;
 }
-/* line 193, ../../assets/stylesheets/growingtree-app.scss */
+/* line 197, ../../assets/stylesheets/growingtree-app.scss */
 #login-form button {
   margin-bottom: 1em;
 }
 
-/* line 198, ../../assets/stylesheets/growingtree-app.scss */
+/* line 202, ../../assets/stylesheets/growingtree-app.scss */
 #signup-form {
   margin-top: 3em;
 }
-/* line 202, ../../assets/stylesheets/growingtree-app.scss */
+/* line 206, ../../assets/stylesheets/growingtree-app.scss */
 #signup-form fieldset.fieldset-accountType {
   margin-bottom: 2em;
 }
-/* line 206, ../../assets/stylesheets/growingtree-app.scss */
+/* line 210, ../../assets/stylesheets/growingtree-app.scss */
 #signup-form fieldset.fieldset-radio {
   margin-bottom: 0.25em;
   display: inline-block;
   margin-right: 3em;
 }
-/* line 213, ../../assets/stylesheets/growingtree-app.scss */
+/* line 217, ../../assets/stylesheets/growingtree-app.scss */
 #signup-form p {
   margin-bottom: 0.25em;
 }
 
-/* line 218, ../../assets/stylesheets/growingtree-app.scss */
+/* line 222, ../../assets/stylesheets/growingtree-app.scss */
 fieldset {
-  margin-bottom: 1.2em;
+  margin: 10px 0px;
 }
-/* line 221, ../../assets/stylesheets/growingtree-app.scss */
+/* line 225, ../../assets/stylesheets/growingtree-app.scss */
 fieldset.fieldset-password {
   margin-bottom: 0;
 }
-/* line 225, ../../assets/stylesheets/growingtree-app.scss */
+/* line 229, ../../assets/stylesheets/growingtree-app.scss */
 fieldset.fieldset-rememberMe {
   margin: 0.25em 0 1.6em;
 }
-/* line 233, ../../assets/stylesheets/growingtree-app.scss */
+/* line 237, ../../assets/stylesheets/growingtree-app.scss */
 fieldset.fieldset-checkbox input[type="checkbox"],
 fieldset.fieldset-checkbox input[type="radio"],
 fieldset.fieldset-checkbox label, fieldset.fieldset-radio input[type="checkbox"],
@@ -264,18 +268,18 @@ fieldset.fieldset-radio label {
   display: inline-block;
   vertical-align: middle;
 }
-/* line 239, ../../assets/stylesheets/growingtree-app.scss */
+/* line 243, ../../assets/stylesheets/growingtree-app.scss */
 fieldset.fieldset-checkbox input[type="checkbox"],
 fieldset.fieldset-checkbox input[type="radio"], fieldset.fieldset-radio input[type="checkbox"],
 fieldset.fieldset-radio input[type="radio"] {
   margin-top: 0;
 }
-/* line 243, ../../assets/stylesheets/growingtree-app.scss */
+/* line 247, ../../assets/stylesheets/growingtree-app.scss */
 fieldset.fieldset-checkbox label, fieldset.fieldset-radio label {
   margin: 0 10px 0 0;
   padding-left: 0.65em;
 }
-/* line 249, ../../assets/stylesheets/growingtree-app.scss */
+/* line 253, ../../assets/stylesheets/growingtree-app.scss */
 fieldset legend {
   display: none;
 }
@@ -285,12 +289,12 @@ fieldset legend {
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 /* main area, z-index overlap sidebar and nav.*/
 @media (min-width: 1024px) {
-  /* line 259, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 263, ../../assets/stylesheets/growingtree-app.scss */
   .main-area {
     box-shadow: none;
   }
 }
-/* line 264, ../../assets/stylesheets/growingtree-app.scss */
+/* line 268, ../../assets/stylesheets/growingtree-app.scss */
 .main-area {
   padding: 45px 10px 10px;
   /*background: #e6ebee url(./images/logo_app.png) repeat !important;*/
@@ -305,13 +309,13 @@ fieldset legend {
   transition-timing-function: ease;
 }
 @media (min-width: 768px) {
-  /* line 279, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 283, ../../assets/stylesheets/growingtree-app.scss */
   .main-area .nav-toggle {
     display: none !important;
   }
 }
 @media (min-width: 1024px) {
-  /* line 285, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 289, ../../assets/stylesheets/growingtree-app.scss */
   .main-area .sidebar-toggle {
     display: none !important;
     z-index: 9;
@@ -322,7 +326,7 @@ fieldset legend {
   nav side bar
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 /* apply left before min-width squeeze left and right edge*/
-/* line 297, ../../assets/stylesheets/growingtree-app.scss */
+/* line 301, ../../assets/stylesheets/growingtree-app.scss */
 .nav {
   padding: 45px 10px 10px;
   width: 230px;
@@ -338,7 +342,7 @@ fieldset legend {
 
 /* when wide, width is auto, override 230px*/
 @media (min-width: 768px) {
-  /* line 312, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 316, ../../assets/stylesheets/growingtree-app.scss */
   .nav {
     height: 35px;
     padding: 0 150px 0 0;
@@ -356,7 +360,7 @@ fieldset legend {
 ----------------------------------------------------*/
 /* search box css for min-width and max-width */
 @media (min-width: 768px) {
-  /* line 331, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 335, ../../assets/stylesheets/growingtree-app.scss */
   .nav .search {
     transition: width 0.25s ease;
     padding: 5px 10px;
@@ -364,7 +368,7 @@ fieldset legend {
     left: auto;
   }
 }
-/* line 340, ../../assets/stylesheets/growingtree-app.scss */
+/* line 344, ../../assets/stylesheets/growingtree-app.scss */
 .nav .search input.query {
   border-radius: 20px;
   background: #5d676b;
@@ -378,7 +382,7 @@ fieldset legend {
   margin: 0;
   padding: 2px 30px 2px 10px;
 }
-/* line 354, ../../assets/stylesheets/growingtree-app.scss */
+/* line 358, ../../assets/stylesheets/growingtree-app.scss */
 .nav .search input.submit {
   background: url("./images/search_icon.png") center no-repeat;
   border: none;
@@ -401,7 +405,7 @@ fieldset legend {
   box-shadow:0 1px 5px 0 #ccc;
   overflow:hidden
 }*/
-/* line 378, ../../assets/stylesheets/growingtree-app.scss */
+/* line 382, ../../assets/stylesheets/growingtree-app.scss */
 .nav ul.nav-ul {
   list-style: none;
   margin: 0;
@@ -411,48 +415,48 @@ fieldset legend {
   box-shadow: 0 1px 5px 0 #ccc;
   overflow: hidden;
 }
-/* line 388, ../../assets/stylesheets/growingtree-app.scss */
+/* line 392, ../../assets/stylesheets/growingtree-app.scss */
 .nav ul.nav-ul li {
   position: relative;
 }
-/* line 391, ../../assets/stylesheets/growingtree-app.scss */
+/* line 395, ../../assets/stylesheets/growingtree-app.scss */
 .nav ul.nav-ul li .close_channel {
   color: #aeb9bd;
 }
-/* line 395, ../../assets/stylesheets/growingtree-app.scss */
+/* line 399, ../../assets/stylesheets/growingtree-app.scss */
 .nav ul.nav-ul li #newthing-form {
   text-align: center;
 }
 
 @media (max-width: 767px) {
-  /* line 402, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 406, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul {
     max-height: 100%;
     overflow-y: auto;
     position: relative;
   }
-  /* line 407, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 411, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul li {
     border-bottom: 1px solid #dee6e8;
     line-height: 20px;
     margin-right: 1px;
   }
-  /* line 412, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 416, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul li :last-child {
     border-bottom: none;
   }
-  /* line 416, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 420, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul li a {
     color: #797d7f;
     display: inline-block;
     padding: 10px 30px 10px 10px;
   }
-  /* line 422, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 426, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul li .fa-plus-square, .nav ul.nav-ul li .fa-square {
     float: right;
     margin: 10px;
   }
-  /* line 427, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 431, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul li .close_channel {
     position: absolute;
     top: 10px;
@@ -461,7 +465,7 @@ fieldset legend {
   }
 }
 @media (min-width: 768px) {
-  /* line 437, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 441, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul {
     background: none;
     border-radius: 0;
@@ -472,7 +476,7 @@ fieldset legend {
     white-space: nowrap;
     overflow: hidden;
   }
-  /* line 447, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 451, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul li {
     background: url(./images/tabs/tab-inactive-middle.png) bottom repeat-x;
     color: #585d5f;
@@ -481,21 +485,21 @@ fieldset legend {
     height: 30px;
     display: inline-block;
   }
-  /* line 456, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 460, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul li .fa-plus-square, .nav ul.nav-ul li .fa-square {
     margin: 10px 0px 0px 15px;
   }
-  /* line 460, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 464, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul li:before {
     background: url(./images/tabs/tab-inactive-left.png) right bottom no-repeat;
     right: 100%;
   }
-  /* line 464, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 468, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul li:after {
     background: url(./images/tabs/tab-inactive-right.png) left bottom no-repeat;
     left: 100%;
   }
-  /* line 468, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 472, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul li:before, .nav ul.nav-ul li:after {
     content: "";
     width: 30px;
@@ -504,11 +508,11 @@ fieldset legend {
     height: 30px;
     display: inline-block;
   }
-  /* line 477, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 481, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul li .active:after, .nav ul.nav-ul li .button:after {
     background-image: url(./images/tabs/tab-active-right.png);
   }
-  /* line 480, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 484, ../../assets/stylesheets/growingtree-app.scss */
   .nav ul.nav-ul li .close_channel {
     width: auto;
     position: relative;
@@ -520,14 +524,14 @@ fieldset legend {
    sidebar and widget
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 @media (min-width: 1024px) {
-  /* line 491, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 495, ../../assets/stylesheets/growingtree-app.scss */
   .sidebar .header, .sidebar .nav .search, .nav .sidebar .search {
     top: auto;
     bottom: 100%;
     left: -1px;
   }
 }
-/* line 496, ../../assets/stylesheets/growingtree-app.scss */
+/* line 500, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar {
   padding: 45px 10px 10px;
   width: 230px;
@@ -537,11 +541,11 @@ fieldset legend {
   z-index: 0;
   right: 0;
 }
-/* line 506, ../../assets/stylesheets/growingtree-app.scss */
+/* line 510, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .header, .sidebar .sidebar .nav .search, .sidebar .nav .sidebar .search {
   z-index: 700;
 }
-/* line 510, ../../assets/stylesheets/growingtree-app.scss */
+/* line 514, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .user-header a.user-menu-toggle, .sidebar .user_list .user {
   line-height: 24px;
   padding: 4px 10px 5px;
@@ -549,29 +553,29 @@ fieldset legend {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* line 517, ../../assets/stylesheets/growingtree-app.scss */
+/* line 521, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .user-header a.user-menu-toggle img, .sidebar .user_list .user img {
   float: left;
   margin-right: 10px;
   width: 25px;
   height: auto;
 }
-/* line 525, ../../assets/stylesheets/growingtree-app.scss */
+/* line 529, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .header a, .sidebar .sidebar .nav .search a, .sidebar .nav .sidebar .search a {
   color: #fff;
   display: block;
   text-decoration: none;
 }
-/* line 528, ../../assets/stylesheets/growingtree-app.scss */
+/* line 532, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .user-header.open-menu ul.user-menu {
   height: 160px;
 }
-/* line 529, ../../assets/stylesheets/growingtree-app.scss */
+/* line 533, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .user-header a.user-menu-toggle .button {
   line-height: 24px;
   margin-left: 10px;
 }
-/* line 531, ../../assets/stylesheets/growingtree-app.scss */
+/* line 535, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .user-header ul.user-menu {
   height: 0;
   list-style: none;
@@ -580,22 +584,22 @@ fieldset legend {
   overflow: hidden;
   transition: height 0.25s ease-in;
 }
-/* line 536, ../../assets/stylesheets/growingtree-app.scss */
+/* line 540, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .user-header ul.user-menu li {
   background: #3f494b;
   line-height: 20px;
 }
-/* line 540, ../../assets/stylesheets/growingtree-app.scss */
+/* line 544, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .user-header ul.user-menu li a {
   padding: 10px;
 }
-/* line 546, ../../assets/stylesheets/growingtree-app.scss */
+/* line 550, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .widget {
   background: #f3f8f9;
   border: 1px solid #d0d5d8;
   margin-bottom: 15px;
 }
-/* line 551, ../../assets/stylesheets/growingtree-app.scss */
+/* line 555, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .widget .widget-header {
   background-image: -webkit-linear-gradient(#f3f8f9, #dbdfe0);
   background-image: linear-gradient(#f3f8f9, #dbdfe0);
@@ -606,11 +610,11 @@ fieldset legend {
   padding: 5px 10px;
   text-transform: uppercase;
 }
-/* line 562, ../../assets/stylesheets/growingtree-app.scss */
+/* line 566, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .widget .widget-content {
   background: #f3f8f9;
 }
-/* line 566, ../../assets/stylesheets/growingtree-app.scss */
+/* line 570, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .widget .widget-action-bar {
   background: #e9eff0;
   border-top: 1px solid #d2d8d8;
@@ -621,13 +625,13 @@ fieldset legend {
   min-height: 40px;
   text-align: center;
 }
-/* line 571, ../../assets/stylesheets/growingtree-app.scss */
+/* line 575, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .widget .widget-action-bar form {
   height: 100%;
   min-height: 100%;
   margin: 0;
 }
-/* line 574, ../../assets/stylesheets/growingtree-app.scss */
+/* line 578, ../../assets/stylesheets/growingtree-app.scss */
 .sidebar .widget .widget-action-bar form .dropzone {
   line-height: 40px;
   height: 100%;
@@ -638,20 +642,20 @@ fieldset legend {
 /*----------------------------------------------------
   sidebar notification, user list and file list
 ----------------------------------------------------*/
-/* line 585, ../../assets/stylesheets/growingtree-app.scss */
+/* line 589, ../../assets/stylesheets/growingtree-app.scss */
 .notifications_list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-/* line 586, ../../assets/stylesheets/growingtree-app.scss */
+/* line 590, ../../assets/stylesheets/growingtree-app.scss */
 .notifications_list .notification {
   margin: 0;
   padding: 0;
 }
 
-/* line 587, ../../assets/stylesheets/growingtree-app.scss */
+/* line 591, ../../assets/stylesheets/growingtree-app.scss */
 .notifications_list .notification label {
   display: block;
   line-height: 25px;
@@ -659,7 +663,7 @@ fieldset legend {
   position: relative;
 }
 
-/* line 588, ../../assets/stylesheets/growingtree-app.scss */
+/* line 592, ../../assets/stylesheets/growingtree-app.scss */
 .user_list {
   list-style: none;
   margin: 1px 1px 1px 0;
@@ -668,7 +672,7 @@ fieldset legend {
   overflow-y: auto;
 }
 
-/* line 589, ../../assets/stylesheets/growingtree-app.scss */
+/* line 593, ../../assets/stylesheets/growingtree-app.scss */
 .user_list::-webkit-scrollbar {
   background: transparent;
   border-radius: 4px;
@@ -676,13 +680,13 @@ fieldset legend {
   width: 8px;
 }
 
-/* line 590, ../../assets/stylesheets/growingtree-app.scss */
+/* line 594, ../../assets/stylesheets/growingtree-app.scss */
 .user_list::-webkit-scrollbar-thumb {
   background: #566569;
   border-radius: 4px;
 }
 
-/* line 591, ../../assets/stylesheets/growingtree-app.scss */
+/* line 595, ../../assets/stylesheets/growingtree-app.scss */
 .user_list .user {
   color: #585d5f;
   font-weight: bold;
@@ -691,7 +695,7 @@ fieldset legend {
   position: relative;
 }
 
-/* line 592, ../../assets/stylesheets/growingtree-app.scss */
+/* line 596, ../../assets/stylesheets/growingtree-app.scss */
 .user_list .user .badge {
   margin: 0;
   position: absolute;
@@ -699,12 +703,12 @@ fieldset legend {
   right: 10px;
 }
 
-/* line 594, ../../assets/stylesheets/growingtree-app.scss */
+/* line 598, ../../assets/stylesheets/growingtree-app.scss */
 #file {
   display: none;
 }
 
-/* line 595, ../../assets/stylesheets/growingtree-app.scss */
+/* line 599, ../../assets/stylesheets/growingtree-app.scss */
 .file_list {
   list-style: none;
   margin: 1px 1px 1px 0;
@@ -713,7 +717,7 @@ fieldset legend {
   overflow-y: auto;
 }
 
-/* line 596, ../../assets/stylesheets/growingtree-app.scss */
+/* line 600, ../../assets/stylesheets/growingtree-app.scss */
 .file_list::-webkit-scrollbar {
   background: transparent;
   border-radius: 4px;
@@ -721,34 +725,34 @@ fieldset legend {
   width: 8px;
 }
 
-/* line 597, ../../assets/stylesheets/growingtree-app.scss */
+/* line 601, ../../assets/stylesheets/growingtree-app.scss */
 .file_list::-webkit-scrollbar-thumb {
   background: #566569;
   border-radius: 4px;
 }
 
-/* line 598, ../../assets/stylesheets/growingtree-app.scss */
+/* line 602, ../../assets/stylesheets/growingtree-app.scss */
 .file_list .file_item {
   color: #585d5f;
   line-height: 25px;
   padding: 5px 10px;
 }
 
-/* line 599, ../../assets/stylesheets/growingtree-app.scss */
+/* line 603, ../../assets/stylesheets/growingtree-app.scss */
 .file_list .file_item img {
   width: 14px;
   height: 12px;
   margin-right: 10px;
 }
 
-/* line 600, ../../assets/stylesheets/growingtree-app.scss */
+/* line 604, ../../assets/stylesheets/growingtree-app.scss */
 .file_list .file_item a {
   text-decoration: none;
   font-weight: bold;
   color: #585d5f;
 }
 
-/* line 601, ../../assets/stylesheets/growingtree-app.scss */
+/* line 605, ../../assets/stylesheets/growingtree-app.scss */
 .file_list .file_item a:hover span {
   text-decoration: underline !important;
 }
@@ -756,23 +760,23 @@ fieldset legend {
 /*----------------------------------------------------
   slide left right css to translateX 
 ----------------------------------------------------*/
-/* line 608, ../../assets/stylesheets/growingtree-app.scss */
+/* line 612, ../../assets/stylesheets/growingtree-app.scss */
 .slide-right, .slide-left {
   overflow: hidden;
 }
 
 @media (min-width: 1024px) {
-  /* line 612, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 616, ../../assets/stylesheets/growingtree-app.scss */
   .sidebar + .main-area {
     margin-right: 230px;
   }
 
-  /* line 615, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 619, ../../assets/stylesheets/growingtree-app.scss */
   .sidebar ~ .nav {
     right: 230px;
   }
 }
-/* line 621, ../../assets/stylesheets/growingtree-app.scss */
+/* line 625, ../../assets/stylesheets/growingtree-app.scss */
 .slide-right .nav {
   width: 230px;
   position: absolute;
@@ -781,23 +785,23 @@ fieldset legend {
   bottom: 0;
   z-index: 0;
 }
-/* line 630, ../../assets/stylesheets/growingtree-app.scss */
+/* line 634, ../../assets/stylesheets/growingtree-app.scss */
 .slide-right .main-area, .slide-right .sidebar {
   transform: translateX(230px);
 }
 @media (min-width: 768px) {
-  /* line 635, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 639, ../../assets/stylesheets/growingtree-app.scss */
   .slide-right .main-area, .slide-right .sidebar {
     transform: none;
   }
 }
 
-/* line 642, ../../assets/stylesheets/growingtree-app.scss */
+/* line 646, ../../assets/stylesheets/growingtree-app.scss */
 .slide-left .main-area, .slide-left .nav {
   transform: translateX(-230px);
 }
 @media (min-width: 1024px) {
-  /* line 647, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 651, ../../assets/stylesheets/growingtree-app.scss */
   .slide-left .main-area, .slide-left .nav {
     transform: none;
   }
@@ -806,14 +810,14 @@ fieldset legend {
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   activity entry in the each thing node 
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-/* line 657, ../../assets/stylesheets/growingtree-app.scss */
+/* line 661, ../../assets/stylesheets/growingtree-app.scss */
 .filter-line {
   display: block;
   height: 2px;
   border-color: orange;
 }
 
-/* line 658, ../../assets/stylesheets/growingtree-app.scss */
+/* line 662, ../../assets/stylesheets/growingtree-app.scss */
 .thing {
   background: #fff;
   *zoom: 1;
@@ -821,41 +825,41 @@ fieldset legend {
   position: relative;
 }
 
-/* line 659, ../../assets/stylesheets/growingtree-app.scss */
+/* line 663, ../../assets/stylesheets/growingtree-app.scss */
 .thing:before, .thing:after {
   content: " ";
   display: table;
 }
 
-/* line 660, ../../assets/stylesheets/growingtree-app.scss */
+/* line 664, ../../assets/stylesheets/growingtree-app.scss */
 .thing:after {
   clear: both;
 }
 
-/* line 661, ../../assets/stylesheets/growingtree-app.scss */
+/* line 665, ../../assets/stylesheets/growingtree-app.scss */
 .thing:last-child {
   border-bottom: none;
 }
 
-/* line 662, ../../assets/stylesheets/growingtree-app.scss */
+/* line 666, ../../assets/stylesheets/growingtree-app.scss */
 .thing .readable {
   *zoom: 1;
   margin: 0 100px 0 30px;
   padding: 0 10px;
 }
 
-/* line 663, ../../assets/stylesheets/growingtree-app.scss */
+/* line 667, ../../assets/stylesheets/growingtree-app.scss */
 .thing .readable:before, .thing .readable:after {
   content: " ";
   display: table;
 }
 
-/* line 664, ../../assets/stylesheets/growingtree-app.scss */
+/* line 668, ../../assets/stylesheets/growingtree-app.scss */
 .thing .readable:after {
   clear: both;
 }
 
-/* line 665, ../../assets/stylesheets/growingtree-app.scss */
+/* line 669, ../../assets/stylesheets/growingtree-app.scss */
 .thing .readable .user {
   color: #aeb9bd;
   font-weight: bold;
@@ -865,14 +869,14 @@ fieldset legend {
   font-size: 14px;
 }
 
-/* line 666, ../../assets/stylesheets/growingtree-app.scss */
+/* line 670, ../../assets/stylesheets/growingtree-app.scss */
 .thing .readable .content {
   float: left;
   color: #797d7f;
   font-size: 14px;
 }
 
-/* line 667, ../../assets/stylesheets/growingtree-app.scss */
+/* line 671, ../../assets/stylesheets/growingtree-app.scss */
 .thing .image-preview, .thing .youtube-preview {
   background: #f3f8f9;
   border-radius: 4px;
@@ -881,30 +885,30 @@ fieldset legend {
   padding: 10px;
 }
 
-/* line 668, ../../assets/stylesheets/growingtree-app.scss */
+/* line 672, ../../assets/stylesheets/growingtree-app.scss */
 .thing .image-preview, .thing .readable .content .image-preview > *, .thing .youtube-preview, .thing .youtube-preview > * {
   max-width: 100%;
 }
 
-/* line 669, ../../assets/stylesheets/growingtree-app.scss */
+/* line 673, ../../assets/stylesheets/growingtree-app.scss */
 .thing .image-preview a, .thing .youtube-preview a {
   display: block;
 }
 
-/* line 670, ../../assets/stylesheets/growingtree-app.scss */
+/* line 674, ../../assets/stylesheets/growingtree-app.scss */
 .thing .image-preview .name, .thing .youtube-preview .name {
   color: #878d8f;
   font-weight: bold;
   margin-top: 5px;
 }
 
-/* line 671, ../../assets/stylesheets/growingtree-app.scss */
+/* line 675, ../../assets/stylesheets/growingtree-app.scss */
 .thing .readable .content img.image-embed {
   max-width: 100%;
   height: auto;
 }
 
-/* line 672, ../../assets/stylesheets/growingtree-app.scss */
+/* line 676, ../../assets/stylesheets/growingtree-app.scss */
 .thing .readable .content .color-preview {
   width: 15px;
   height: 15px;
@@ -915,7 +919,7 @@ fieldset legend {
   border: 1px solid gray;
 }
 
-/* line 673, ../../assets/stylesheets/growingtree-app.scss */
+/* line 677, ../../assets/stylesheets/growingtree-app.scss */
 .thing .readable .content .mention {
   border: 1px solid #bbb;
   background-color: #bcd3e8;
@@ -924,24 +928,24 @@ fieldset legend {
   border-radius: 5px;
 }
 
-/* line 674, ../../assets/stylesheets/growingtree-app.scss */
+/* line 678, ../../assets/stylesheets/growingtree-app.scss */
 .thing .readable .content .emoticon-embed {
   vertical-align: bottom;
 }
 
-/* line 675, ../../assets/stylesheets/growingtree-app.scss */
+/* line 679, ../../assets/stylesheets/growingtree-app.scss */
 .thing .readable .content .emoticon-embed.small {
   height: 20px;
   width: 20px;
 }
 
-/* line 676, ../../assets/stylesheets/growingtree-app.scss */
+/* line 680, ../../assets/stylesheets/growingtree-app.scss */
 .thing .readable .content .emoticon-embed.big {
   height: 40px;
   width: 40px;
 }
 
-/* line 677, ../../assets/stylesheets/growingtree-app.scss */
+/* line 681, ../../assets/stylesheets/growingtree-app.scss */
 .thing .posted_at {
   background: #f3f8f9;
   border-radius: 4px;
@@ -952,7 +956,7 @@ fieldset legend {
   padding: 4px;
 }
 
-/* line 678, ../../assets/stylesheets/growingtree-app.scss */
+/* line 682, ../../assets/stylesheets/growingtree-app.scss */
 .thing .avatar {
   display: block;
   float: left;
@@ -960,29 +964,29 @@ fieldset legend {
   width: 30px;
 }
 
-/* line 679, ../../assets/stylesheets/growingtree-app.scss */
+/* line 683, ../../assets/stylesheets/growingtree-app.scss */
 .thing.current_user {
   background-color: #f5f5f5;
 }
 
-/* line 680, ../../assets/stylesheets/growingtree-app.scss */
+/* line 684, ../../assets/stylesheets/growingtree-app.scss */
 .thing.current_user .posted_at {
   background: #bcd3e8;
   color: #6f7477;
 }
 
-/* line 681, ../../assets/stylesheets/growingtree-app.scss */
+/* line 685, ../../assets/stylesheets/growingtree-app.scss */
 .thing.mentioned_user {
   background-color: #e2ecf5;
 }
 
-/* line 682, ../../assets/stylesheets/growingtree-app.scss */
+/* line 686, ../../assets/stylesheets/growingtree-app.scss */
 .thing.mentioned_user .posted_at {
   background: #bcd3e8;
   color: #6f7477;
 }
 
-/* line 683, ../../assets/stylesheets/growingtree-app.scss */
+/* line 687, ../../assets/stylesheets/growingtree-app.scss */
 .pagination {
   font-size: 14px;
   line-height: 2em;
@@ -990,19 +994,19 @@ fieldset legend {
   text-align: center;
 }
 
-/* line 684, ../../assets/stylesheets/growingtree-app.scss */
+/* line 688, ../../assets/stylesheets/growingtree-app.scss */
 .pagination i {
   margin-right: 7px;
   vertical-align: middle;
 }
 
-/* line 685, ../../assets/stylesheets/growingtree-app.scss */
+/* line 689, ../../assets/stylesheets/growingtree-app.scss */
 .thing, .pagination {
   border-bottom: 1px solid #dee6e8;
   padding: 10px;
 }
 
-/* line 687, ../../assets/stylesheets/growingtree-app.scss */
+/* line 691, ../../assets/stylesheets/growingtree-app.scss */
 .flat-list {
   margin: 10px 0 0 0;
 }
@@ -1010,74 +1014,74 @@ fieldset legend {
 /** - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     new  thing forms 
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - **/
-/* line 695, ../../assets/stylesheets/growingtree-app.scss */
+/* line 699, ../../assets/stylesheets/growingtree-app.scss */
 .inline-form-btn {
   float: right;
 }
 
-/* line 700, ../../assets/stylesheets/growingtree-app.scss */
+/* line 704, ../../assets/stylesheets/growingtree-app.scss */
 .datetime-picker {
   display: inline-block;
   vertical-align: middle;
 }
 
 /* do not need to set individual ele, set the form. */
-/* line 706, ../../assets/stylesheets/growingtree-app.scss */
+/* line 710, ../../assets/stylesheets/growingtree-app.scss */
 .child-form, .assign-form {
   margin-left: 20px;
   margin-bottom: 10px;
   width: 300px;
 }
-/* line 711, ../../assets/stylesheets/growingtree-app.scss */
+/* line 715, ../../assets/stylesheets/growingtree-app.scss */
 .child-form div, .assign-form div {
   margin-bottom: 10px;
 }
-/* line 715, ../../assets/stylesheets/growingtree-app.scss */
+/* line 719, ../../assets/stylesheets/growingtree-app.scss */
 .child-form textarea, .assign-form textarea {
   margin-top: 10px;
   width: 300px;
   height: 60px;
 }
-/* line 721, ../../assets/stylesheets/growingtree-app.scss */
+/* line 725, ../../assets/stylesheets/growingtree-app.scss */
 .child-form input, .assign-form input {
   display: inline-block;
   vertical-align: middle;
   width: 300px;
 }
-/* line 728, ../../assets/stylesheets/growingtree-app.scss */
+/* line 732, ../../assets/stylesheets/growingtree-app.scss */
 .child-form .add-on, .assign-form .add-on {
   margin-left: -1px;
   background-color: #778899;
 }
-/* line 733, ../../assets/stylesheets/growingtree-app.scss */
+/* line 737, ../../assets/stylesheets/growingtree-app.scss */
 .child-form .assign-button, .assign-form .assign-button {
   margin-top: 10px;
 }
 
 /* add comments box s*/
-/* line 740, ../../assets/stylesheets/growingtree-app.scss */
+/* line 744, ../../assets/stylesheets/growingtree-app.scss */
 .add-comments-form textarea {
   margin-top: 10px;
   margin-bottom: 10px;
 }
-/* line 744, ../../assets/stylesheets/growingtree-app.scss */
+/* line 748, ../../assets/stylesheets/growingtree-app.scss */
 .add-comments-form .usertext-buttons {
   margin: 5px 5px 10px 0;
   text-align: left;
 }
 
 /* answer-form  and grade form */
-/* line 751, ../../assets/stylesheets/growingtree-app.scss */
+/* line 755, ../../assets/stylesheets/growingtree-app.scss */
 .answer-form {
   margin-left: 20px;
   margin-bottom: 10px;
   width: 300px;
 }
-/* line 756, ../../assets/stylesheets/growingtree-app.scss */
+/* line 760, ../../assets/stylesheets/growingtree-app.scss */
 .answer-form div {
   margin-bottom: 10px;
 }
-/* line 760, ../../assets/stylesheets/growingtree-app.scss */
+/* line 764, ../../assets/stylesheets/growingtree-app.scss */
 .answer-form textarea {
   margin-top: 10px;
   margin-left: 20px;
@@ -1085,60 +1089,60 @@ fieldset legend {
   width: 500px;
   height: 60px;
 }
-/* line 767, ../../assets/stylesheets/growingtree-app.scss */
+/* line 771, ../../assets/stylesheets/growingtree-app.scss */
 .answer-form .answer-button {
   margin: 5px 5px 10px 20px;
 }
 
-/* line 773, ../../assets/stylesheets/growingtree-app.scss */
+/* line 777, ../../assets/stylesheets/growingtree-app.scss */
 .grade-form input {
   margin-top: 10px;
   margin-left: 20px;
   margin-bottom: 10px;
   width: 300px;
 }
-/* line 779, ../../assets/stylesheets/growingtree-app.scss */
+/* line 783, ../../assets/stylesheets/growingtree-app.scss */
 .grade-form .grade-button {
   margin: 5px 5px 10px 20px;
 }
 
 /* enrollment form, do not need to set individual ele, set the form. */
-/* line 785, ../../assets/stylesheets/growingtree-app.scss */
+/* line 789, ../../assets/stylesheets/growingtree-app.scss */
 .enrollment-form {
   margin-left: 20px;
   margin-bottom: 10px;
   width: 300px;
 }
-/* line 790, ../../assets/stylesheets/growingtree-app.scss */
+/* line 794, ../../assets/stylesheets/growingtree-app.scss */
 .enrollment-form div {
   margin-bottom: 10px;
 }
-/* line 794, ../../assets/stylesheets/growingtree-app.scss */
+/* line 798, ../../assets/stylesheets/growingtree-app.scss */
 .enrollment-form textarea {
   margin-top: 10px;
   width: 300px;
   height: 60px;
 }
-/* line 799, ../../assets/stylesheets/growingtree-app.scss */
+/* line 803, ../../assets/stylesheets/growingtree-app.scss */
 .enrollment-form input {
   width: 300px;
 }
-/* line 803, ../../assets/stylesheets/growingtree-app.scss */
+/* line 807, ../../assets/stylesheets/growingtree-app.scss */
 .enrollment-form .add-on {
   margin-left: -1px;
   background-color: #778899;
 }
-/* line 807, ../../assets/stylesheets/growingtree-app.scss */
+/* line 811, ../../assets/stylesheets/growingtree-app.scss */
 .enrollment-form .enrollment-button {
   margin-top: 10px;
 }
 
 /* newthing-form  */
-/* line 813, ../../assets/stylesheets/growingtree-app.scss */
+/* line 817, ../../assets/stylesheets/growingtree-app.scss */
 .control-group {
   margin-left: 100px;
 }
-/* line 816, ../../assets/stylesheets/growingtree-app.scss */
+/* line 820, ../../assets/stylesheets/growingtree-app.scss */
 .control-group label {
   margin: 20px;
   display: inline-block;
@@ -1147,21 +1151,21 @@ fieldset legend {
   color: black;
   background-color: transparent;
 }
-/* line 830, ../../assets/stylesheets/growingtree-app.scss */
+/* line 834, ../../assets/stylesheets/growingtree-app.scss */
 .control-group .add-on {
   margin-left: -1px;
   background-color: #778899;
 }
 
-/* line 837, ../../assets/stylesheets/growingtree-app.scss */
+/* line 841, ../../assets/stylesheets/growingtree-app.scss */
 .form-horizontal .usertext-buttons {
   text-align: center;
 }
-/* line 841, ../../assets/stylesheets/growingtree-app.scss */
+/* line 845, ../../assets/stylesheets/growingtree-app.scss */
 .form-horizontal input {
   width: 300px;
 }
-/* line 844, ../../assets/stylesheets/growingtree-app.scss */
+/* line 848, ../../assets/stylesheets/growingtree-app.scss */
 .form-horizontal select {
   width: 300px;
 }
@@ -1170,7 +1174,7 @@ fieldset legend {
     nav new thing form, link and input
     css must be comform to bootstrap .navbar .nav  .active .a
 */
-/* line 853, ../../assets/stylesheets/growingtree-app.scss */
+/* line 857, ../../assets/stylesheets/growingtree-app.scss */
 .nav-newthing-dropdown a {
   padding: 10px 15px 10px;
   display: block;
@@ -1178,11 +1182,11 @@ fieldset legend {
   background-color: #e5e5e5;
 }
 
-/* line 860, ../../assets/stylesheets/growingtree-app.scss */
+/* line 864, ../../assets/stylesheets/growingtree-app.scss */
 .nav-newthing-form {
   margin: 10px 10px 5px 10px;
 }
-/* line 863, ../../assets/stylesheets/growingtree-app.scss */
+/* line 867, ../../assets/stylesheets/growingtree-app.scss */
 .nav-newthing-form label {
   vertical-align: baseline;
   margin: 10px 5px 5px 10px;
@@ -1190,18 +1194,18 @@ fieldset legend {
   font-size: 16px;
   color: #005580;
 }
-/* line 871, ../../assets/stylesheets/growingtree-app.scss */
+/* line 875, ../../assets/stylesheets/growingtree-app.scss */
 .nav-newthing-form .form-button {
   margin: 10px 5px 5px 10px;
   display: inline;
   font-size: 16px;
 }
 
-/* line 878, ../../assets/stylesheets/growingtree-app.scss */
+/* line 882, ../../assets/stylesheets/growingtree-app.scss */
 .child-form {
   margin: 20px;
 }
-/* line 881, ../../assets/stylesheets/growingtree-app.scss */
+/* line 885, ../../assets/stylesheets/growingtree-app.scss */
 .child-form .input-form {
   margin: 20px;
   float: left;
@@ -1210,13 +1214,13 @@ fieldset legend {
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   progress tracker is a ol with one li reprs one progress-task
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-/* line 890, ../../assets/stylesheets/growingtree-app.scss */
+/* line 894, ../../assets/stylesheets/growingtree-app.scss */
 .progress-tracker {
   margin: 10px -15px;
   padding: 0;
   overflow: hidden;
 }
-/* line 895, ../../assets/stylesheets/growingtree-app.scss */
+/* line 899, ../../assets/stylesheets/growingtree-app.scss */
 .progress-tracker li {
   list-style-type: none;
   display: inline-block;
@@ -1227,7 +1231,7 @@ fieldset legend {
   line-height: 15px;
   background-color: darkgray;
 }
-/* line 909, ../../assets/stylesheets/growingtree-app.scss */
+/* line 913, ../../assets/stylesheets/growingtree-app.scss */
 .progress-tracker li > span {
   display: inline-block;
   min-width: 100px;
@@ -1237,7 +1241,7 @@ fieldset legend {
   font-weight: bold;
   text-transform: uppercase;
 }
-/* line 922, ../../assets/stylesheets/growingtree-app.scss */
+/* line 926, ../../assets/stylesheets/growingtree-app.scss */
 .progress-tracker li > span:after, .progress-tracker li > span:before {
   content: "";
   display: block;
@@ -1250,31 +1254,31 @@ fieldset legend {
   border-left-color: darkgray;
   border-width: 15px;
 }
-/* line 938, ../../assets/stylesheets/growingtree-app.scss */
+/* line 942, ../../assets/stylesheets/growingtree-app.scss */
 .progress-tracker li > span:after {
   top: -5px;
   z-index: 1;
   border-left-color: white;
   border-width: 20px;
 }
-/* line 945, ../../assets/stylesheets/growingtree-app.scss */
+/* line 949, ../../assets/stylesheets/growingtree-app.scss */
 .progress-tracker li > span:before {
   z-index: 2;
 }
-/* line 950, ../../assets/stylesheets/growingtree-app.scss */
+/* line 954, ../../assets/stylesheets/growingtree-app.scss */
 .progress-tracker li.done > span {
   color: #666;
   background-color: #ccc;
 }
-/* line 956, ../../assets/stylesheets/growingtree-app.scss */
+/* line 960, ../../assets/stylesheets/growingtree-app.scss */
 .progress-tracker li.done + li > span:before {
   border-left-color: #ccc;
 }
-/* line 962, ../../assets/stylesheets/growingtree-app.scss */
+/* line 966, ../../assets/stylesheets/growingtree-app.scss */
 .progress-tracker li:first-child > span:after, .progress-tracker li:first-child > span:before {
   display: none;
 }
-/* line 968, ../../assets/stylesheets/growingtree-app.scss */
+/* line 972, ../../assets/stylesheets/growingtree-app.scss */
 .progress-tracker li:first-child i, .progress-tracker li:last-child i {
   display: block;
   height: 0;
@@ -1286,7 +1290,7 @@ fieldset legend {
   border-left-color: white;
   border-width: 15px;
 }
-/* line 983, ../../assets/stylesheets/growingtree-app.scss */
+/* line 987, ../../assets/stylesheets/growingtree-app.scss */
 .progress-tracker li:last-child i {
   left: auto;
   right: -15px;
@@ -1298,7 +1302,7 @@ fieldset legend {
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   progress status meter bar, css-tricks.com/css3-progress-bars
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-/* line 997, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1001, ../../assets/stylesheets/growingtree-app.scss */
 .meter {
   height: 15px;
   /* Can be anything */
@@ -1309,7 +1313,7 @@ fieldset legend {
   padding: 4px;
   shadow: inset 0 -1px 1px rgba(255, 255, 255, 0.3);
 }
-/* line 1007, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1011, ../../assets/stylesheets/growingtree-app.scss */
 .meter > span {
   display: block;
   height: 100%;
@@ -1328,7 +1332,7 @@ fieldset legend {
   position: relative;
   overflow: hidden;
 }
-/* line 1042, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1046, ../../assets/stylesheets/growingtree-app.scss */
 .meter > span:after {
   content: "";
   position: absolute;
@@ -1353,18 +1357,18 @@ fieldset legend {
 }
 
 @-webkit-keyframes meter-move {
-  /* line 1082, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 1086, ../../assets/stylesheets/growingtree-app.scss */
   0% {
     background-position: 0 0;
   }
 
-  /* line 1085, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 1089, ../../assets/stylesheets/growingtree-app.scss */
   100% {
     background-position: 50px 50px;
   }
 }
 
-/* line 1090, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1094, ../../assets/stylesheets/growingtree-app.scss */
 .meter-orange > span {
   background-color: #f1a165;
   background-image: -moz-linear-gradient(top, #f1a165, #f36d0a);
@@ -1372,7 +1376,7 @@ fieldset legend {
   background-image: -webkit-linear-gradient(#f1a165, #f36d0a);
 }
 
-/* line 1097, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1101, ../../assets/stylesheets/growingtree-app.scss */
 .meter-red > span {
   background-color: #f0a3a3;
   background-image: -moz-linear-gradient(top, #f0a3a3, #f42323);
@@ -1380,7 +1384,7 @@ fieldset legend {
   background-image: -webkit-linear-gradient(#f0a3a3, #f42323);
 }
 
-/* line 1104, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1108, ../../assets/stylesheets/growingtree-app.scss */
 .meter-nostripes > span > span, .meter-nostripes > span:after {
   -webkit-animation: none;
   background-image: none;
@@ -1389,7 +1393,7 @@ fieldset legend {
 /* -------------------------------------------------------------------------------
     Reddit UI stuff
 -------------------------------------------------------------------------------*/
-/* line 1112, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1116, ../../assets/stylesheets/growingtree-app.scss */
 .newbutton {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -1408,7 +1412,7 @@ fieldset legend {
   text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.1), 0px -1px 1px rgba(0, 0, 0, 0.4);
   background: none;
 }
-/* line 1126, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1130, ../../assets/stylesheets/growingtree-app.scss */
 .newbutton:active, .newbutton:hover, .newbutton[selected], .newbutton.expanded, .newbutton.active {
   -moz-border-image: url("/border-button-active.png") 8;
   -webkit-border-image: url("/border-button-active.png") 8;
@@ -1418,7 +1422,7 @@ fieldset legend {
   color: white;
 }
 
-/* line 1131, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1135, ../../assets/stylesheets/growingtree-app.scss */
 .button, .button:visited {
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
@@ -1450,7 +1454,7 @@ fieldset legend {
   box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.75), 0px 1px 1px rgba(255, 255, 255, 0.6), 0px -1px 1px rgba(0, 0, 0, 0.1);
 }
 
-/* line 1151, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1155, ../../assets/stylesheets/growingtree-app.scss */
 .button:active, .button[selected], .button.active,
 .button.upmod, .button.downmod {
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #7e8994), color-stop(100%, #80a2c4));
@@ -1461,12 +1465,12 @@ fieldset legend {
   background-color: #7f95ac;
 }
 
-/* line 1154, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1158, ../../assets/stylesheets/growingtree-app.scss */
 button.button {
   padding: 0 5px;
 }
 
-/* line 1157, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1161, ../../assets/stylesheets/growingtree-app.scss */
 .secondary_button {
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #abbbc9), color-stop(100%, #8393a3));
   background: -webkit-linear-gradient(top, #abbbc9, #8393a3);
@@ -1477,7 +1481,7 @@ button.button {
   border: 1px solid #626D78;
 }
 
-/* line 1161, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1165, ../../assets/stylesheets/growingtree-app.scss */
 .secondary_button:active, .second_button[selected], .second_button.active {
   background-color: #ABBBC9;
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #8393a3), color-stop(100%, #abbbc9));
@@ -1488,7 +1492,7 @@ button.button {
   background-color: #97a7b6;
 }
 
-/* line 1166, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1170, ../../assets/stylesheets/growingtree-app.scss */
 .small_button, .small_button:visited {
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
@@ -1519,7 +1523,7 @@ button.button {
   box-shadow: "0px 1px 1px rgba(255,255,255,.6), 0px -1px 1px rgba(0,0,0,.1) ";
 }
 
-/* line 1184, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1188, ../../assets/stylesheets/growingtree-app.scss */
 .small_button:active, .small_button[selected], .small_button.active {
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #7e8994), color-stop(100%, #80a2c4));
   background: -webkit-linear-gradient(top, #7e8994, #80a2c4);
@@ -1530,7 +1534,7 @@ button.button {
 }
 
 /* - - - - - -  Things - - - - - - - - - - */
-/* line 1190, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1194, ../../assets/stylesheets/growingtree-app.scss */
 .thing {
   padding: 10px 0 0 0;
   background-color: #fff;
@@ -1539,7 +1543,7 @@ button.button {
   border-radius: 2px;
 }
 
-/* line 1198, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1202, ../../assets/stylesheets/growingtree-app.scss */
 .thumbnail {
   float: left;
   font-size: 0;
@@ -1550,7 +1554,7 @@ button.button {
 }
 
 /*Arrows*/
-/* line 1209, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1213, ../../assets/stylesheets/growingtree-app.scss */
 .link .arrow, .comment .arrow, .message .arrow {
   width: 28px;
   height: 28px;
@@ -1584,27 +1588,27 @@ button.button {
       @include sprite($static + 'adowngray.gif');
   }*/
 }
-/* line 1229, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1233, ../../assets/stylesheets/growingtree-app.scss */
 .link .arrow.up, .comment .arrow.up, .message .arrow.up {
   background-image: url("/upvote.png");
   /*SPRITE*/
 }
-/* line 1232, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1236, ../../assets/stylesheets/growingtree-app.scss */
 .link .arrow.down, .comment .arrow.down, .message .arrow.down {
   background-image: url("/downvote.png");
   /*SPRITE*/
 }
-/* line 1236, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1240, ../../assets/stylesheets/growingtree-app.scss */
 .link .arrow.upmod, .comment .arrow.upmod, .message .arrow.upmod {
   background-image: url("/upvote-active.png");
   /*SPRITE*/
 }
-/* line 1239, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1243, ../../assets/stylesheets/growingtree-app.scss */
 .link .arrow.downmod, .comment .arrow.downmod, .message .arrow.downmod {
   background-image: url("/downvote-active.png");
   /*SPRITE*/
 }
-/* line 1259, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1263, ../../assets/stylesheets/growingtree-app.scss */
 .link .options_expando, .comment .options_expando, .message .options_expando {
   background: #213345;
   margin: 35px -5px -1px;
@@ -1618,7 +1622,7 @@ button.button {
   height: 60px;
   overflow: hidden;
 }
-/* line 1270, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1274, ../../assets/stylesheets/growingtree-app.scss */
 .link .options_expando a, .comment .options_expando a, .message .options_expando a {
   display: inline-block;
   color: white;
@@ -1635,12 +1639,12 @@ button.button {
   -o-transition: all 100ms ease-in;
   transition: all 100ms ease-in;
 }
-/* line 1282, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1286, ../../assets/stylesheets/growingtree-app.scss */
 .link .options_expando a:active, .comment .options_expando a:active, .message .options_expando a:active {
   background-color: #324c67;
   border-left: 1px solid #42668a;
 }
-/* line 1287, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1291, ../../assets/stylesheets/growingtree-app.scss */
 .link .options_expando a:hover, .comment .options_expando a:hover, .message .options_expando a:hover {
   background-color: #263340;
   -webkit-box-shadow: inset 0px 3px 8px rgba(0, 0, 0, 0.8);
@@ -1648,21 +1652,21 @@ button.button {
   box-shadow: inset 0px 3px 8px rgba(0, 0, 0, 0.8);
   border-left: 1px solid #42668a;
 }
-/* line 1293, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1297, ../../assets/stylesheets/growingtree-app.scss */
 .link .options_expando a:first-child, .comment .options_expando a:first-child, .message .options_expando a:first-child {
   border-left: none;
 }
-/* line 1296, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1300, ../../assets/stylesheets/growingtree-app.scss */
 .link .options_expando a:last-child, .comment .options_expando a:last-child, .message .options_expando a:last-child {
   border-right: none;
 }
-/* line 1301, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1305, ../../assets/stylesheets/growingtree-app.scss */
 .link .options_expando.expanded, .comment .options_expando.expanded, .message .options_expando.expanded {
   display: block;
 }
 
 /*Links*/
-/* line 1308, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1312, ../../assets/stylesheets/growingtree-app.scss */
 .link {
   min-height: 70px;
   border-bottom: 1px solid #999;
@@ -1677,36 +1681,36 @@ button.button {
   overflow: hidden;
 }
 
-/* line 1319, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1323, ../../assets/stylesheets/growingtree-app.scss */
 .link:first-child {
   border-top: none;
 }
 
-/* line 1322, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1326, ../../assets/stylesheets/growingtree-app.scss */
 .link:nth-child(odd) {
   background: rgba(206, 227, 248, 0.5);
 }
 
-/* line 1325, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1329, ../../assets/stylesheets/growingtree-app.scss */
 .link a {
   text-decoration: none;
   color: #517191;
   color: #369;
 }
 
-/* line 1330, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1334, ../../assets/stylesheets/growingtree-app.scss */
 .link .entry {
   margin: 0px 50px 3px 0px;
 }
 
-/* line 1336, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1340, ../../assets/stylesheets/growingtree-app.scss */
 .link > .entry .score,
 .link > .entry.likes .score.unvoted,
 .link > .entry.dislikes .score.unvoted {
   display: none;
 }
 
-/* line 1343, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1347, ../../assets/stylesheets/growingtree-app.scss */
 .link > .entry .score.unvoted,
 .link > .entry.likes .score.likes,
 .link > .entry.dislikes .score.dislikes {
@@ -1714,24 +1718,24 @@ button.button {
   font-weight: bold;
 }
 
-/* line 1347, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1351, ../../assets/stylesheets/growingtree-app.scss */
 .link > .entry.likes .score.likes {
   color: #E07A7A;
 }
 
-/* line 1350, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1354, ../../assets/stylesheets/growingtree-app.scss */
 .link > .entry.dislikes .score.dislikes {
   color: #7272D1;
 }
 
-/* line 1354, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1358, ../../assets/stylesheets/growingtree-app.scss */
 .link .flat-list {
   display: block;
   padding: 1px 0;
 }
 
 /* Voting stuff */
-/* line 1360, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1364, ../../assets/stylesheets/growingtree-app.scss */
 .link > .rank {
   float: left;
   margin-top: 15px;
@@ -1745,12 +1749,12 @@ button.button {
 }
 
 /* experimental */
-/* line 1372, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1376, ../../assets/stylesheets/growingtree-app.scss */
 .link .modcol {
   float: left;
 }
 
-/* line 1373, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1377, ../../assets/stylesheets/growingtree-app.scss */
 .link > .midcol {
   float: left;
   margin-left: 7px;
@@ -1761,17 +1765,17 @@ button.button {
   position: relative;
 }
 
-/* line 1386, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1390, ../../assets/stylesheets/growingtree-app.scss */
 .comment {
   position: relative;
 }
 
-/* line 1389, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1393, ../../assets/stylesheets/growingtree-app.scss */
 .comment > .entry > .tagline .score {
   display: none;
 }
 
-/* line 1394, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1398, ../../assets/stylesheets/growingtree-app.scss */
 .comment > .entry.unvoted > .tagline .score.unvoted,
 .comment > .entry.likes > .tagline .score.likes,
 .comment > .entry.dislikes > .tagline .score.dislikes {
@@ -1779,20 +1783,20 @@ button.button {
 }
 
 /** Vote up **/
-/* line 1399, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1403, ../../assets/stylesheets/growingtree-app.scss */
 .link > .midcol.likes > .score {
   color: #E07A7A;
 }
 
 /** Vote down **/
-/* line 1404, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1408, ../../assets/stylesheets/growingtree-app.scss */
 .link > .midcol.dislikes > .score {
   color: #7272D1;
 }
 
 /*Image*/
 /* Entry*/
-/* line 1417, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1421, ../../assets/stylesheets/growingtree-app.scss */
 .entry {
   overflow: hidden;
   margin-left: 3px;
@@ -1800,7 +1804,7 @@ button.button {
 }
 
 /* buttons on main link style */
-/* line 1423, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1427, ../../assets/stylesheets/growingtree-app.scss */
 .entry .buttons li {
   display: inline-block;
   border: none;
@@ -1808,42 +1812,42 @@ button.button {
   line-height: 1.6em;
 }
 
-/* line 1429, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1433, ../../assets/stylesheets/growingtree-app.scss */
 .entry .buttons li + li {
   padding-left: 4px;
 }
 
-/* line 1433, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1437, ../../assets/stylesheets/growingtree-app.scss */
 .entry .buttons li.stamp + li.stamp {
   margin-left: 4px;
 }
 
-/* line 1437, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1441, ../../assets/stylesheets/growingtree-app.scss */
 .entry .buttons li a {
   color: #888;
   font-size: 15px;
   padding: 0 1px;
 }
 
-/* line 1444, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1448, ../../assets/stylesheets/growingtree-app.scss */
 .entry .buttons li a.nonbutton {
   color: #369;
   font-weight: normal;
 }
 
-/* line 1449, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1453, ../../assets/stylesheets/growingtree-app.scss */
 .entry .buttons a:hover {
   text-decoration: underline;
 }
 
-/* line 1451, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1455, ../../assets/stylesheets/growingtree-app.scss */
 .entry .buttons .status-msg {
   display: none;
   margin-right: .5em;
 }
 
 /* Comment count */
-/* line 1458, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1462, ../../assets/stylesheets/growingtree-app.scss */
 .commentcount {
   float: right;
   margin: 5px;
@@ -1851,7 +1855,7 @@ button.button {
   text-align: right;
 }
 
-/* line 1464, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1468, ../../assets/stylesheets/growingtree-app.scss */
 .commentcount > .comments {
   border: 8px solid transparent;
   -moz-border-image: url("/border-button.png") 8;
@@ -1866,7 +1870,7 @@ button.button {
   text-decoration: none;
   text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.1), 0px -1px 1px rgba(0, 0, 0, 0.4);
 }
-/* line 1473, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1477, ../../assets/stylesheets/growingtree-app.scss */
 .commentcount > .comments:active, .commentcount > .comments:hover, .commentcount > .comments[selected], .commentcount > .comments.preloaded {
   -moz-border-image: url("/border-button-active.png") 8;
   -webkit-border-image: url("/border-button-active.png") 8;
@@ -1876,7 +1880,7 @@ button.button {
 }
 
 /* Comment styles */
-/* line 1478, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1482, ../../assets/stylesheets/growingtree-app.scss */
 .commentarea > h1 {
   color: #4c566c;
   font-size: 17px;
@@ -1887,13 +1891,13 @@ button.button {
   box-shadow: 0px 1px 1px rgba(255, 255, 255, 0.4);
 }
 
-/* line 1485, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1489, ../../assets/stylesheets/growingtree-app.scss */
 .commentarea > .menuarea {
   display: none;
   /*TODO: Make dropdown menu*/
 }
 
-/* line 1488, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1492, ../../assets/stylesheets/growingtree-app.scss */
 .commentarea > .main-form-title {
   color: #4c566c;
   font-size: 17px;
@@ -1901,7 +1905,7 @@ button.button {
   margin: 0 10px;
 }
 
-/* line 1494, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1498, ../../assets/stylesheets/growingtree-app.scss */
 .commentarea > .usertext {
   background: white;
   margin: 0 10px 5px;
@@ -1913,7 +1917,7 @@ button.button {
   border-radius: 8px;
 }
 
-/* line 1500, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1504, ../../assets/stylesheets/growingtree-app.scss */
 .commentarea > .usertext textarea {
   margin: 0;
   padding: 5px;
@@ -1931,25 +1935,25 @@ button.button {
   border-bottom: 1px solid #d9d9d9;
 }
 
-/* line 1511, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1515, ../../assets/stylesheets/growingtree-app.scss */
 .cancel,
 .save {
   float: right;
   padding: 0 5px !important;
 }
 
-/* line 1515, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1519, ../../assets/stylesheets/growingtree-app.scss */
 .save {
   margin-left: 5px;
 }
 
 /* Errors */
-/* line 1519, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1523, ../../assets/stylesheets/growingtree-app.scss */
 .error {
   color: red;
 }
 
-/* line 1522, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1526, ../../assets/stylesheets/growingtree-app.scss */
 .content > .error {
   color: rgba(255, 255, 255, 0.9);
   font-size: 25px;
@@ -1958,66 +1962,66 @@ button.button {
   text-shadow: rgba(0, 0, 0, 0.15) 0px -1px 0px;
 }
 
-/* line 1530, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1534, ../../assets/stylesheets/growingtree-app.scss */
 .help-toggle {
   float: left;
   margin-top: 3px;
 }
 
-/* line 1536, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1540, ../../assets/stylesheets/growingtree-app.scss */
 .bottom-area {
   padding: 5px;
 }
 
-/* line 1539, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1543, ../../assets/stylesheets/growingtree-app.scss */
 .markhelp-parent {
   display: none;
 }
 
-/* line 1542, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1546, ../../assets/stylesheets/growingtree-app.scss */
 .markhelp {
   width: 100%;
   border-collapse: collapse;
 }
 
-/* line 1548, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1552, ../../assets/stylesheets/growingtree-app.scss */
 .markhelp th {
   background: #d9d9d9;
 }
 
-/* line 1551, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1555, ../../assets/stylesheets/growingtree-app.scss */
 .markhelp th:first-child {
   -webkit-border-top-left-radius: 8px;
   -moz-border-radius-topleft: 8px;
   border-top-left-radius: 8px;
 }
 
-/* line 1556, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1560, ../../assets/stylesheets/growingtree-app.scss */
 .markhelp th:last-child {
   -webkit-border-top-right-radius: 8px;
   -moz-border-radius-topright: 8px;
   border-top-right-radius: 8px;
 }
 
-/* line 1561, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1565, ../../assets/stylesheets/growingtree-app.scss */
 .markhelp tr:nth-child(odd) td {
   background: rgba(0, 0, 100, 0.1);
 }
 
-/* line 1564, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1568, ../../assets/stylesheets/growingtree-app.scss */
 .markhelp td {
   border: 1px solid #d9d9d9;
   padding: 5px;
 }
 
-/* line 1568, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1572, ../../assets/stylesheets/growingtree-app.scss */
 .markhelp tr:last-child td:first-child {
   -webkit-border-bottom-left-radius: 8px;
   -moz-border-radius-bottomleft: 8px;
   border-bottom-left-radius: 8px;
 }
 
-/* line 1573, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1577, ../../assets/stylesheets/growingtree-app.scss */
 .markhelp tr:last-child td:last-child {
   -webkit-border-bottom-right-radius: 8px;
   -moz-border-radius-bottomright: 8px;
@@ -2025,7 +2029,7 @@ button.button {
 }
 
 /*Cloned comment reply */
-/* line 1579, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1583, ../../assets/stylesheets/growingtree-app.scss */
 .usertext textarea {
   margin: 0;
   padding: 5px;
@@ -2042,13 +2046,13 @@ button.button {
   box-sizing: border-box;
 }
 
-/* line 1587, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1591, ../../assets/stylesheets/growingtree-app.scss */
 .child form.usertext.cloneable {
   margin: 5px;
 }
 
 /**Actual comments*/
-/* line 1593, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1597, ../../assets/stylesheets/growingtree-app.scss */
 .comment {
   background: white;
   border: 1px solid #d9d9d9;
@@ -2060,20 +2064,20 @@ button.button {
   border-radius: 8px;
 }
 
-/* line 1599, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1603, ../../assets/stylesheets/growingtree-app.scss */
 .comment > .midcol {
   float: left;
   margin: 7px;
   overflow: hidden;
 }
 
-/* line 1604, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1608, ../../assets/stylesheets/growingtree-app.scss */
 .comment > .entry > .tagline {
   font-size: 11px;
   padding-bottom: 2px;
 }
 
-/* line 1609, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1613, ../../assets/stylesheets/growingtree-app.scss */
 .child .comment {
   margin: 4px;
   margin-top: 0px;
@@ -2081,7 +2085,7 @@ button.button {
   -moz-border-radius-topright: 0px;
 }
 
-/* line 1623, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1627, ../../assets/stylesheets/growingtree-app.scss */
 .comment.collapsed .child,
 .comment.collapsed .usertext,
 .comment.collapsed .midcol,
@@ -2091,33 +2095,33 @@ button.button {
   display: none;
 }
 
-/* line 1627, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1631, ../../assets/stylesheets/growingtree-app.scss */
 .comment.collapsed {
   font-style: italcs;
 }
 
-/* line 1631, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1635, ../../assets/stylesheets/growingtree-app.scss */
 .comment.collapsed .tagline {
   margin-left: 20px;
   font-style: italcs;
   color: #AAA;
 }
 
-/* line 1638, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1642, ../../assets/stylesheets/growingtree-app.scss */
 .comment .entry, .message .entry {
   margin-right: 50px;
 }
-/* line 1642, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1646, ../../assets/stylesheets/growingtree-app.scss */
 .comment .child .options_link, .message .child .options_link {
   top: 8px;
 }
-/* line 1646, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1650, ../../assets/stylesheets/growingtree-app.scss */
 .comment .options_expando, .message .options_expando {
   margin: 10px -50px 10px 0px;
 }
 
 /** comment gilding */
-/* line 1653, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1657, ../../assets/stylesheets/growingtree-app.scss */
 .gilded-comment-icon {
   position: relative;
   display: inline-block;
@@ -2128,7 +2132,7 @@ button.button {
   vertical-align: middle;
 }
 
-/* line 1663, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1667, ../../assets/stylesheets/growingtree-app.scss */
 .gilded-comment-icon:before {
   display: inline-block;
   content: '';
@@ -2141,18 +2145,18 @@ button.button {
   vertical-align: -3px;
 }
 
-/* line 1674, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1678, ../../assets/stylesheets/growingtree-app.scss */
 .user-gilded > .entry .gilded-comment-icon:before {
   width: 23px;
 }
 
-/* line 1678, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1682, ../../assets/stylesheets/growingtree-app.scss */
 body.post-under-6h-old .gilded-comment-icon {
   opacity: .55;
 }
 
 /** messages and inbox */
-/* line 1686, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1690, ../../assets/stylesheets/growingtree-app.scss */
 .message {
   background: white;
   position: relative;
@@ -2166,19 +2170,19 @@ body.post-under-6h-old .gilded-comment-icon {
   padding: 5px;
 }
 
-/* line 1694, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1698, ../../assets/stylesheets/growingtree-app.scss */
 .message > .midcol {
   float: left;
   margin: 10px;
   overflow: hidden;
 }
 
-/* line 1700, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1704, ../../assets/stylesheets/growingtree-app.scss */
 .message.unread {
   background-color: #FFFFAA;
 }
 
-/* line 1704, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1708, ../../assets/stylesheets/growingtree-app.scss */
 .message .correspondent {
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #cee3f8), color-stop(100%, #9ebedc));
   background: -webkit-linear-gradient(top, #cee3f8, #9ebedc);
@@ -2196,36 +2200,36 @@ body.post-under-6h-old .gilded-comment-icon {
   border-radius: 15px;
 }
 
-/* line 1711, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1715, ../../assets/stylesheets/growingtree-app.scss */
 .message .correspondent a {
   text-decoration: none;
 }
 
-/* line 1715, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1719, ../../assets/stylesheets/growingtree-app.scss */
 .message .message .subject {
   display: none;
 }
 
-/* line 1720, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1724, ../../assets/stylesheets/growingtree-app.scss */
 .message > .entry > .tagline {
   font-size: 11px;
   padding-bottom: 2px;
   margin-bottom: 2px;
 }
 
-/* line 1724, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1728, ../../assets/stylesheets/growingtree-app.scss */
 .message > .entry .usertext-body, .message > .entry .md {
   font-size: 11px;
   word-wrap: break-word;
 }
 
-/* line 1728, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1732, ../../assets/stylesheets/growingtree-app.scss */
 .message > .metabuttons {
   float: right;
   margin: 10px;
 }
 
-/* line 1733, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1737, ../../assets/stylesheets/growingtree-app.scss */
 .message .subject {
   font-weight: bold;
   font-size: 13px;
@@ -2234,18 +2238,18 @@ body.post-under-6h-old .gilded-comment-icon {
   overflow: hidden;
 }
 
-/* line 1740, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1744, ../../assets/stylesheets/growingtree-app.scss */
 .message .subject a {
   margin-left: 5px;
 }
 
-/* line 1743, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1747, ../../assets/stylesheets/growingtree-app.scss */
 .message .subject .correspondent a {
   margin-left: 0;
 }
 
 /* Compose */
-/* line 1749, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1753, ../../assets/stylesheets/growingtree-app.scss */
 #compose-message {
   background: white;
   border: 1px solid #d9d9d9;
@@ -2259,14 +2263,14 @@ body.post-under-6h-old .gilded-comment-icon {
   -moz-border-radius-bottomright: 8px;
 }
 
-/* line 1757, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1761, ../../assets/stylesheets/growingtree-app.scss */
 #compose-message label {
   display: block;
   font-size: 17px;
   font-weight: bold;
 }
 
-/* line 1762, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1766, ../../assets/stylesheets/growingtree-app.scss */
 #compose-message input[type="text"] {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -2282,24 +2286,24 @@ body.post-under-6h-old .gilded-comment-icon {
   width: 100%;
 }
 
-/* line 1770, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1774, ../../assets/stylesheets/growingtree-app.scss */
 #compose-message textarea {
   border-color: #757575;
   height: 200px;
 }
 
-/* line 1775, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1779, ../../assets/stylesheets/growingtree-app.scss */
 .comment > .entry .usertext-body {
   font-size: 11px;
   word-wrap: break-word;
 }
 
-/* line 1779, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1783, ../../assets/stylesheets/growingtree-app.scss */
 .comment > .entry .usertext-edit {
   margin-left: 42px;
 }
 
-/* line 1782, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1786, ../../assets/stylesheets/growingtree-app.scss */
 .comment > .metabuttons {
   float: right;
   margin: 10px;
@@ -2307,91 +2311,91 @@ body.post-under-6h-old .gilded-comment-icon {
 
 /*Child comment specific styles*/
 /*Reduce the bottom margin on the last child comment in a thread, to make viewing easier.*/
-/* line 1788, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1792, ../../assets/stylesheets/growingtree-app.scss */
 .child .comment {
   margin-right: -1px;
 }
 
-/* line 1791, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1795, ../../assets/stylesheets/growingtree-app.scss */
 .child .comment:last-child {
   margin-bottom: 2px;
 }
 
-/* line 1795, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1799, ../../assets/stylesheets/growingtree-app.scss */
 .comment > .morecomments {
   margin: 5px;
   text-align: right;
 }
 
-/* line 1802, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1806, ../../assets/stylesheets/growingtree-app.scss */
 .comment6 {
   margin-left: 250px;
 }
 
-/* line 1805, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1809, ../../assets/stylesheets/growingtree-app.scss */
 .comment5 {
   margin-left: 200px;
 }
 
-/* line 1808, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1812, ../../assets/stylesheets/growingtree-app.scss */
 .comment4 {
   margin-left: 150px;
 }
 
-/* line 1811, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1815, ../../assets/stylesheets/growingtree-app.scss */
 .comment3 {
   margin-left: 100px;
 }
 
-/* line 1814, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1818, ../../assets/stylesheets/growingtree-app.scss */
 .comment2 {
   margin-left: 50px;
 }
 
 /*Link colors*/
-/* line 1821, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1825, ../../assets/stylesheets/growingtree-app.scss */
 .tagline {
   color: #888;
   font-size: 12px;
 }
 
-/* line 1822, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1826, ../../assets/stylesheets/growingtree-app.scss */
 .tagline a {
   color: #369;
   text-decoration: none;
 }
 
-/* line 1823, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1827, ../../assets/stylesheets/growingtree-app.scss */
 .tagline .submitter {
   color: #0055df;
 }
 
-/* line 1824, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1828, ../../assets/stylesheets/growingtree-app.scss */
 .tagline .admin {
   color: #ff0011;
 }
 
-/* line 1825, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1829, ../../assets/stylesheets/growingtree-app.scss */
 .tagline .alum {
   color: #BE1337;
 }
 
-/* line 1826, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1830, ../../assets/stylesheets/growingtree-app.scss */
 .tagline a.author.admin {
   font-weight: bold;
 }
 
-/* line 1827, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1831, ../../assets/stylesheets/growingtree-app.scss */
 .tagline a:hover {
   text-decoration: underline;
 }
 
-/* line 1828, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1832, ../../assets/stylesheets/growingtree-app.scss */
 .tagline .edited-timestamp {
   cursor: default;
 }
 
-/* line 1830, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1834, ../../assets/stylesheets/growingtree-app.scss */
 .tagline .userattrs .cakeday {
   display: inline-block;
   text-indent: -9999px;
@@ -2402,33 +2406,33 @@ body.post-under-6h-old .gilded-comment-icon {
   vertical-align: middle;
 }
 
-/* line 1839, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1843, ../../assets/stylesheets/growingtree-app.scss */
 a.author {
   margin-right: 0.5em;
 }
 
-/* line 1840, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1844, ../../assets/stylesheets/growingtree-app.scss */
 .tagline .submitter {
   color: blue;
 }
 
-/* line 1843, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1847, ../../assets/stylesheets/growingtree-app.scss */
 .tagline .friend {
   color: orange;
   /*Why not orangered? Because orangered can look very red on a mobile*/
 }
 
-/* line 1846, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1850, ../../assets/stylesheets/growingtree-app.scss */
 .tagline .moderator {
   color: #282;
 }
 
-/* line 1849, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1853, ../../assets/stylesheets/growingtree-app.scss */
 .tagline .admin {
   color: #F01;
 }
 
-/* line 1853, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1857, ../../assets/stylesheets/growingtree-app.scss */
 .tagline .userattrs .cakeday {
   display: inline-block;
   text-indent: -9999px;
@@ -2441,25 +2445,25 @@ a.author {
 
 /*Loading spinner, yay CSS animation*/
 @-webkit-keyframes rotateThis {
-  /* line 1864, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 1868, ../../assets/stylesheets/growingtree-app.scss */
   from {
     -webkit-transform: scale(0.75) rotate(0deg);
   }
 
-  /* line 1865, ../../assets/stylesheets/growingtree-app.scss */
+  /* line 1869, ../../assets/stylesheets/growingtree-app.scss */
   to {
     -webkit-transform: scale(0.75) rotate(360deg);
   }
 }
 
-/* line 1867, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1871, ../../assets/stylesheets/growingtree-app.scss */
 .loading {
   width: 100%;
   background-color: white;
   text-align: center;
 }
 
-/* line 1868, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1872, ../../assets/stylesheets/growingtree-app.scss */
 .loading img {
   -webkit-animation-name: rotateThis;
   -webkit-animation-duration: .5s;
@@ -2467,7 +2471,7 @@ a.author {
   -webkit-animation-timing-function: linear;
 }
 
-/* line 1875, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1879, ../../assets/stylesheets/growingtree-app.scss */
 .throbber {
   display: none;
   margin: 0 2px;
@@ -2476,13 +2480,13 @@ a.author {
   height: 18px;
 }
 
-/* line 1882, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1886, ../../assets/stylesheets/growingtree-app.scss */
 .working .throbber {
   display: inline-block;
 }
 
 /* Login and Register */
-/* line 1885, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1889, ../../assets/stylesheets/growingtree-app.scss */
 #login_login, #login_reg {
   background: white;
   border: 1px solid #d9d9d9;
@@ -2496,26 +2500,26 @@ a.author {
   margin-right: auto;
 }
 
-/* line 1895, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1899, ../../assets/stylesheets/growingtree-app.scss */
 #login_login > div, #login_reg > div {
   padding: 10px;
 }
 
-/* line 1898, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1902, ../../assets/stylesheets/growingtree-app.scss */
 #login_login > div > ul, #login_reg > div > ul {
   list-style-type: none;
   padding: 0;
   margin: 0 0 10px;
 }
 
-/* line 1903, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1907, ../../assets/stylesheets/growingtree-app.scss */
 #login_login > div > ul li label, #login_reg > div > ul li label {
   display: block;
   font-size: 17px;
   font-weight: bold;
 }
 
-/* line 1908, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1912, ../../assets/stylesheets/growingtree-app.scss */
 #login_login input[type="text"], #login_login input[type="password"], #login_reg input[type="text"], #login_reg input[type="password"] {
   width: 100%;
   margin: 0 0 5px;
@@ -2533,25 +2537,25 @@ a.author {
   box-sizing: border-box;
 }
 
-/* line 1917, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1921, ../../assets/stylesheets/growingtree-app.scss */
 #login_login > div > ul li input[type="checkbox"] + label, #login_reg > div > ul li input[type="checkbox"] + label {
   display: inline;
 }
 
-/* line 1921, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1925, ../../assets/stylesheets/growingtree-app.scss */
 .user-form .submit * {
   vertical-align: middle;
 }
 
 /* toolbar specific stuf here */
-/* line 1926, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1930, ../../assets/stylesheets/growingtree-app.scss */
 body.toolbar {
   margin: 0px;
   padding: 0px;
   overflow: hidden;
 }
 
-/* line 1931, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1935, ../../assets/stylesheets/growingtree-app.scss */
 .toolbar-iframe {
   border: none;
   height: 100%;
@@ -2559,7 +2563,7 @@ body.toolbar {
   background: white;
 }
 
-/* line 1936, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1940, ../../assets/stylesheets/growingtree-app.scss */
 .frame-toolbar {
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, rgba(206, 227, 248, 0.9)), color-stop(100%, rgba(169, 196, 224, 0.9)));
   background: -webkit-linear-gradient(top, rgba(206, 227, 248, 0.9), rgba(169, 196, 224, 0.9));
@@ -2582,7 +2586,7 @@ body.toolbar {
   box-shadow: rgba(0, 0, 0, 0.15) 3px 3px 3px;
 }
 
-/* line 1948, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1952, ../../assets/stylesheets/growingtree-app.scss */
 .toolbar .entry .score {
   width: 100%;
   text-align: center;
@@ -2590,19 +2594,19 @@ body.toolbar {
   padding-top: 7px;
 }
 
-/* line 1957, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1961, ../../assets/stylesheets/growingtree-app.scss */
 .toolbar .entry.unvoted > .score.unvoted,
 .toolbar .entry.likes > .score.likes,
 .toolbar .entry.dislikes > .score.dislikes {
   display: block;
 }
 
-/* line 1961, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1965, ../../assets/stylesheets/growingtree-app.scss */
 .toolbar .arrows {
   float: left;
 }
 
-/* line 1964, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1968, ../../assets/stylesheets/growingtree-app.scss */
 .toolbar .entry {
   text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.4), 0px -1px 1px rgba(0, 0, 0, 0.1);
   font-weight: bold;
@@ -2610,7 +2614,7 @@ body.toolbar {
 }
 
 /*Close toolbar button*/
-/* line 1970, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1974, ../../assets/stylesheets/growingtree-app.scss */
 .toolbar .close {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -2641,12 +2645,12 @@ body.toolbar {
 }
 
 /* takdown page (sigh) */
-/* line 1989, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1993, ../../assets/stylesheets/growingtree-app.scss */
 .infobar.red img {
   float: left;
 }
 
-/* line 1993, ../../assets/stylesheets/growingtree-app.scss */
+/* line 1997, ../../assets/stylesheets/growingtree-app.scss */
 .infobar.red {
   border: 1px solid red;
   padding: 10px;
@@ -2654,18 +2658,18 @@ body.toolbar {
   background-color: #FFA177;
 }
 
-/* line 2000, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2004, ../../assets/stylesheets/growingtree-app.scss */
 .clear {
   clear: both;
 }
 
-/* line 2003, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2007, ../../assets/stylesheets/growingtree-app.scss */
 .clearleft {
   clear: left;
   height: 0px;
 }
 
-/* line 2008, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2012, ../../assets/stylesheets/growingtree-app.scss */
 .cover {
   position: fixed;
   left: 0px;
@@ -2677,7 +2681,7 @@ body.toolbar {
   z-index: 1000;
 }
 
-/* line 2019, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2023, ../../assets/stylesheets/growingtree-app.scss */
 .popup {
   position: absolute;
   top: 75px;
@@ -2699,7 +2703,7 @@ body.toolbar {
   max-width: 350px;
 }
 
-/* line 2036, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2040, ../../assets/stylesheets/growingtree-app.scss */
 .popup h1 {
   text-align: center;
   font-size: large;
@@ -2708,7 +2712,7 @@ body.toolbar {
 }
 
 /* Submit links */
-/* line 2044, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2048, ../../assets/stylesheets/growingtree-app.scss */
 #newlink {
   background: white;
   border: 1px solid #d9d9d9;
@@ -2719,13 +2723,13 @@ body.toolbar {
   -moz-border-radius-bottomright: 8px;
 }
 
-/* line 2051, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2055, ../../assets/stylesheets/growingtree-app.scss */
 #newlink .save {
   margin: 8px;
 }
 
 /** Tab switcher **/
-/* line 2055, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2059, ../../assets/stylesheets/growingtree-app.scss */
 #newlink .tabmenu {
   display: -webkit-box;
   display: -moz-box;
@@ -2735,7 +2739,7 @@ body.toolbar {
   padding: 0;
 }
 
-/* line 2063, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2067, ../../assets/stylesheets/growingtree-app.scss */
 #newlink .tabmenu li {
   display: block;
   webkit-box-flex: 1;
@@ -2749,7 +2753,7 @@ body.toolbar {
   position: relative;
 }
 
-/* line 2070, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2074, ../../assets/stylesheets/growingtree-app.scss */
 #newlink .tabmenu li a {
   width: 100%;
   height: 100%;
@@ -2764,7 +2768,7 @@ body.toolbar {
   font-weight: bold;
 }
 
-/* line 2080, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2084, ../../assets/stylesheets/growingtree-app.scss */
 #newlink .tabmenu li:first-child {
   -webkit-border-bottom-left-radius: 5px;
   -webkit-border-top-left-radius: 5px;
@@ -2772,7 +2776,7 @@ body.toolbar {
   -moz-border-radius-topleft: 5px;
 }
 
-/* line 2084, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2088, ../../assets/stylesheets/growingtree-app.scss */
 #newlink .tabmenu li:last-child {
   -webkit-border-bottom-right-radius: 5px;
   -webkit-border-top-right-radius: 5px;
@@ -2781,7 +2785,7 @@ body.toolbar {
   border-left-color: #cccccc;
 }
 
-/* line 2089, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2093, ../../assets/stylesheets/growingtree-app.scss */
 #newlink li.selected {
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #808080), color-stop(100%, #b3b3b3));
   background: -webkit-linear-gradient(top, #808080, #b3b3b3);
@@ -2791,35 +2795,35 @@ body.toolbar {
   background-color: #999999;
 }
 
-/* line 2092, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2096, ../../assets/stylesheets/growingtree-app.scss */
 #newlink li.selected a {
   text-shadow: rgba(0, 0, 0, 0.4) 0px -1px 1px;
   color: #f2f2f2;
 }
 
-/* line 2096, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2100, ../../assets/stylesheets/growingtree-app.scss */
 #newlink .spacer {
   margin-bottom: 5px;
 }
 
-/* line 2099, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2103, ../../assets/stylesheets/growingtree-app.scss */
 #newlink .infobar {
   margin: 5px;
 }
 
 /* Fields */
-/* line 2103, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2107, ../../assets/stylesheets/growingtree-app.scss */
 #newlink textarea, #newlink input[type="text"], #newlink input[type="url"] {
   border: 1px solid #999999;
 }
 
-/* line 2106, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2110, ../../assets/stylesheets/growingtree-app.scss */
 #newlink .roundfield {
   position: relative;
   padding: 0px 5px;
 }
 
-/* line 2110, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2114, ../../assets/stylesheets/growingtree-app.scss */
 #newlink .roundfield-content textarea {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -2833,7 +2837,7 @@ body.toolbar {
   border-radius: 5px;
 }
 
-/* line 2116, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2120, ../../assets/stylesheets/growingtree-app.scss */
 #newlink .roundfield-content input[type="text"], #newlink .roundfield-content input[type="url"] {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -2847,19 +2851,19 @@ body.toolbar {
   border-radius: 5px;
 }
 
-/* line 2122, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2126, ../../assets/stylesheets/growingtree-app.scss */
 #newlink .title {
   font-weight: bold;
 }
 
 /* Individual sections */
-/* line 2129, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2133, ../../assets/stylesheets/growingtree-app.scss */
 #url-field .button {
   float: right;
   margin-top: 5px;
 }
 
-/* line 2133, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2137, ../../assets/stylesheets/growingtree-app.scss */
 #url-field .title-status {
   background: #e6e6e6;
   border: 1px solid gray;
@@ -2868,7 +2872,7 @@ body.toolbar {
   display: inline-block;
 }
 
-/* line 2141, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2145, ../../assets/stylesheets/growingtree-app.scss */
 #suggested-reddits ul {
   background: #e6e6e6;
   border: 1px solid gray;
@@ -2880,12 +2884,12 @@ body.toolbar {
   border-radius: 8px;
 }
 
-/* line 2147, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2151, ../../assets/stylesheets/growingtree-app.scss */
 #suggested-reddits ul li {
   display: inline;
 }
 
-/* line 2150, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2154, ../../assets/stylesheets/growingtree-app.scss */
 #suggested-reddits ul li a {
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #becfe0), color-stop(100%, #81a3c5));
   background: -webkit-linear-gradient(top, #becfe0, #81a3c5);
@@ -2907,13 +2911,13 @@ body.toolbar {
 }
 
 /* Autocomplete */
-/* line 2161, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2165, ../../assets/stylesheets/growingtree-app.scss */
 #sr-autocomplete-area {
   position: relative;
   z-index: 50;
 }
 
-/* line 2166, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2170, ../../assets/stylesheets/growingtree-app.scss */
 #sr-drop-down {
   position: absolute;
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #e6e6e6), color-stop(100%, #bfbfbf));
@@ -2937,13 +2941,13 @@ body.toolbar {
   color: #333333;
 }
 
-/* line 2180, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2184, ../../assets/stylesheets/growingtree-app.scss */
 #sr-drop-down li {
   display: block;
   padding: 2px 5px;
 }
 
-/* line 2184, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2188, ../../assets/stylesheets/growingtree-app.scss */
 #sr-drop-down li:hover, #sr-drop-down li:active {
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #becfe0), color-stop(100%, #81a3c5));
   background: -webkit-linear-gradient(top, #becfe0, #81a3c5);
@@ -2956,7 +2960,7 @@ body.toolbar {
   -webkit-text-stroke: 1px solid #517090;
 }
 
-/* line 2190, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2194, ../../assets/stylesheets/growingtree-app.scss */
 #sr-drop-down li:last-child {
   -webkit-border-bottom-left-radius: 5px;
   -webkit-border-bottom-right-radius: 5px;
@@ -2965,76 +2969,76 @@ body.toolbar {
 }
 
 /* markdown */
-/* line 2196, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2200, ../../assets/stylesheets/growingtree-app.scss */
 .md {
   overflow: auto;
   font-size: small;
 }
 
-/* line 2197, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2201, ../../assets/stylesheets/growingtree-app.scss */
 .md p, .md h1 {
   margin: 5px 0;
 }
 
-/* line 2198, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2202, ../../assets/stylesheets/growingtree-app.scss */
 .md h1 {
   font-weight: bold;
   font-size: 100%;
 }
 
-/* line 2199, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2203, ../../assets/stylesheets/growingtree-app.scss */
 .md h2 {
   font-weight: bold;
   font-size: 100%;
 }
 
-/* line 2200, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2204, ../../assets/stylesheets/growingtree-app.scss */
 .md > * {
   margin-bottom: 0px;
 }
 
-/* line 2201, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2205, ../../assets/stylesheets/growingtree-app.scss */
 .md strong {
   font-weight: bold;
 }
 
-/* line 2202, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2206, ../../assets/stylesheets/growingtree-app.scss */
 .md em {
   font-style: italic;
 }
 
-/* line 2203, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2207, ../../assets/stylesheets/growingtree-app.scss */
 .md strong em {
   font-style: italic;
   font-weight: bold;
 }
 
-/* line 2204, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2208, ../../assets/stylesheets/growingtree-app.scss */
 .md img {
   display: none;
 }
 
-/* line 2205, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2209, ../../assets/stylesheets/growingtree-app.scss */
 .md ol, .md ul {
   margin: 10px 2em;
 }
 
-/* line 2206, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2210, ../../assets/stylesheets/growingtree-app.scss */
 .md ul {
   list-style: disc outside;
 }
 
-/* line 2207, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2211, ../../assets/stylesheets/growingtree-app.scss */
 .md ol {
   list-style: decimal outside;
 }
 
-/* line 2208, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2212, ../../assets/stylesheets/growingtree-app.scss */
 .md pre {
   margin: 10px;
 }
 
-/* line 2209, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2213, ../../assets/stylesheets/growingtree-app.scss */
 .md blockquote, .help blockquote {
   border-left: 2px solid #369;
   padding-left: 4px;
@@ -3042,29 +3046,29 @@ body.toolbar {
   margin-right: 15px;
 }
 
-/* line 2215, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2219, ../../assets/stylesheets/growingtree-app.scss */
 .md td, .md th {
   border: 1px solid #EEE;
   padding: 1px 3px;
 }
 
-/* line 2216, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2220, ../../assets/stylesheets/growingtree-app.scss */
 .md th {
   font-weight: bold;
 }
 
-/* line 2217, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2221, ../../assets/stylesheets/growingtree-app.scss */
 .md table {
   margin: 5px 10px;
 }
 
-/* line 2218, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2222, ../../assets/stylesheets/growingtree-app.scss */
 .md center {
   text-align: left;
 }
 
 /*Options popups*/
-/* line 2223, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2227, ../../assets/stylesheets/growingtree-app.scss */
 .options_link {
   font-size: x-small;
   clear: left;
@@ -3078,18 +3082,18 @@ body.toolbar {
   background-image: url("/options.png");
   /*SPRITE*/
 }
-/* line 2235, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2239, ../../assets/stylesheets/growingtree-app.scss */
 .options_link.active {
   background-image: url("/options-active.png");
   /*SPRITE*/
 }
 
-/* line 2240, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2244, ../../assets/stylesheets/growingtree-app.scss */
 .comment .options_link {
   top: 10px;
 }
 
-/* line 2245, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2249, ../../assets/stylesheets/growingtree-app.scss */
 .options_icons, .email-icon, .report-icon, .save-icon, .unsave-icon, .domain-icon, .edit-icon, .reply-icon, .permalink-icon, .collapse-icon, .context-icon, .parent-icon, .unread-icon, .hide-icon, .unhide-icon {
   display: block;
   width: 24px;
@@ -3099,85 +3103,85 @@ body.toolbar {
   margin-bottom: 5px;
 }
 
-/* line 2255, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2259, ../../assets/stylesheets/growingtree-app.scss */
 .email-icon {
   background-image: url("/email.png");
   /*SPRITE*/
 }
 
-/* line 2259, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2263, ../../assets/stylesheets/growingtree-app.scss */
 .report-icon {
   background-image: url("/report.png");
   /*SPRITE*/
 }
 
-/* line 2263, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2267, ../../assets/stylesheets/growingtree-app.scss */
 .save-icon {
   background-image: url("/save.png");
   /*SPRITE*/
 }
 
-/* line 2267, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2271, ../../assets/stylesheets/growingtree-app.scss */
 .unsave-icon {
   background-image: url("/unsave.png");
   /*SPRITE*/
 }
 
-/* line 2271, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2275, ../../assets/stylesheets/growingtree-app.scss */
 .domain-icon {
   background-image: url("/domain.png");
   /*SPRITE*/
 }
 
-/* line 2275, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2279, ../../assets/stylesheets/growingtree-app.scss */
 .edit-icon {
   background-image: url("/edit.png");
   /*SPRITE*/
 }
 
-/* line 2279, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2283, ../../assets/stylesheets/growingtree-app.scss */
 .reply-icon {
   background-image: url("/reply.png");
   /*SPRITE*/
 }
 
-/* line 2283, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2287, ../../assets/stylesheets/growingtree-app.scss */
 .permalink-icon {
   background-image: url("/permalink.png");
   /*SPRITE*/
 }
 
-/* line 2287, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2291, ../../assets/stylesheets/growingtree-app.scss */
 .collapse-icon {
   background-image: url("/collapse.png");
   /*SPRITE*/
 }
 
-/* line 2291, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2295, ../../assets/stylesheets/growingtree-app.scss */
 .context-icon {
   background-image: url("/context.png");
   /*SPRITE*/
 }
 
-/* line 2295, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2299, ../../assets/stylesheets/growingtree-app.scss */
 .parent-icon {
   background-image: url("/context.png");
   /*SPRITE*/
 }
 
-/* line 2299, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2303, ../../assets/stylesheets/growingtree-app.scss */
 .unread-icon {
   background-image: url("/unread.png");
   /*SPRITE*/
 }
 
-/* line 2303, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2307, ../../assets/stylesheets/growingtree-app.scss */
 .hide-icon {
   background-image: url("/hide.png");
   /*SPRITE*/
 }
 
-/* line 2307, ../../assets/stylesheets/growingtree-app.scss */
+/* line 2311, ../../assets/stylesheets/growingtree-app.scss */
 .unhide-icon {
   background-image: url("/unhide.png");
   /*SPRITE*/

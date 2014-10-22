@@ -186,6 +186,10 @@ h6{font-size:11.9px}
   h2 {
     margin-left: 40px;
   }
+
+  .error {
+    color: red;
+  }
 }
 
 #login-form {
@@ -216,7 +220,7 @@ h6{font-size:11.9px}
 }
 
 fieldset {
-   margin-bottom: 1.2em;
+   margin: 10px 0px;
 
    &.fieldset-password {
       margin-bottom: 0;

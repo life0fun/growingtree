@@ -30,8 +30,6 @@
                           (utils/set-time :activity "start")
                           )
            ]
-        ; (dommy/toggle-class! $form "hide")
-        (ui/hide-div (str "#" form-name))
         (.log js/console (pr-str form-name " data " form-data))
         (put! comm (mock-data/get-login-msg form-name form-data)) ; set nav-path upon click
       ))))
@@ -61,6 +59,7 @@
           [:div.center.span5
             [:form#login-form.login-name {:action "" :method "post"}
               [:h2 "Welcome to " [:span.app-name "GrowingTree"]]
+              [:span#login-error.error]
               [:fieldset
                 [:label.lable {:for "login-name"} "Username or Email"]
                 [:input.login-name {:id "login-name" :type "text" :placeholder "user name or email"}]]

@@ -60,8 +60,31 @@
     (om/detach-root login-el)))
 
 
+; - - - - - - - - - - - -  - - - - - -  - - - - - -  - - - - - -  - - - - - - 
+; process control event multi.
+; - - - - - - - - - - - -  - - - - - -  - - - - - -  - - - - - -  - - - - - - 
 ; processing control event, transition state.
-(defn process-control-event
+(defmulti process-control-event
+  (fn [app-el state msg-type msg-data] msg-type))
+
+
+; logged in, hide login div, detach render loop component.
+(defmethod process-control-event
+  :login-success
+  [el state msg-type msg-data]
+  (detach-login-show-app))
+
+
+; logged in, hide login div, detach render loop component.
+(defmethod process-control-event
+  :login-error
+  [el state msg-type msg-data]
+  (.log js/console (pr-str "login error " msg-data))
+  (ui/set-text "#login-error" msg-data))
+
+
+(defmethod process-control-event
+  :default
   [el state msg-type msg-data]
   (let [previous-state @state]
     ; control event transition state, and indicate state by nav-path
@@ -76,11 +99,13 @@
   (let [previous-state @state]
     ; post-api-event do nothing for now.
     ; (api-post/post-api-event! el msg-type msg-data previous-state @state)
-    (swap! state (partial states/transition app-el msg-type msg-data))))
+    (swap! state (partial states/transition el msg-type msg-data))))
 
 
-; app similar to mvc view fn where $el = el, and all event and render logic in function.
-; app component ref to global state for state monitoring and rendering 
+; - - - - - - - - - - - -  - - - - - -  - - - - - -  - - - - - -  - - - - - - 
+; app similar to mvc view fn where $el = el, and all event and render logic in 
+; function. app component ref to global state for state monitoring and rendering
+; - - - - - - - - - - - -  - - - - - -  - - - - - -  - - - - - -  - - - - - - 
 (defn main 
   [state]
   (let [comms (:comms @state)
@@ -111,10 +136,7 @@
             (let [previous-state @state
                   msg-type (first v)
                   msg-data (last v)]
-              ; msg-type set by api event, or by get-xxx-msg in UI events.
-              (if (= msg-type :logged-in)
-                (detach-login-show-app)
-                (process-control-event app-el state msg-type msg-data))
+              (process-control-event app-el state msg-type msg-data)
               ))
         ; cljs-ajax => state transition => swap atom state with body data => trigger re-render.
         (:api comms)

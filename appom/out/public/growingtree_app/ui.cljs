@@ -31,16 +31,18 @@
   (let [f (sel1 (keyword div))]
     (dommy/remove-class! f "hide")))
 
+
 (defn hide-all-forms
   [thing-id]
   (let [forms []]
     ))
 
-; div id selector with string #div-id
-(defn show-app
-  []
-  (hide-div "#login")
-  (show-div "#app"))
+; set text on span element.
+(defn set-text
+  [span text]
+  (let [el (sel1 (keyword span))]
+    (dommy/set-text! el text)))
+
 
 ; called from controller, after thing switch, get all thing-nodes
 (defn scroll-to-latest-message! 

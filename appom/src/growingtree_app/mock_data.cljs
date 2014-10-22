@@ -93,10 +93,11 @@
         ]
     msg))
 
+; send :login-error msg to ctrl channel. cause no
 (defn get-retry-login-msg
-  []
-  (let [msg-type :login
-        msg [msg-type {:body [msg-type [:login 0 msg-type]] :data {}}]
+  [error-msg]
+  (let [msg-type :login-error
+        msg [msg-type error-msg]
         ]
     msg))
 
@@ -206,8 +207,8 @@
      :bottom {}
 
      ; nav-path is indicator of current state. updated upon state transition.
-     :nav-path [{:title [] :body [:all 0 :parent] :data {}}]
-     ; :nav-path [{:title [] :body [:login [:login 0 :login]] :data {}}]
+     ; :nav-path [{:title [] :body [:all 0 :parent] :data {}}]
+     :nav-path [{:title [] :body [:login [:login 0 :login]] :data {}}]
      :error {}   ; error from ajax
      
      ; XXXX do not use this, not reliable.
