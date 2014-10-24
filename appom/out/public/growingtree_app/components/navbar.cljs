@@ -16,13 +16,15 @@
 
 ; ul list of things for each nav-type, :course {:type :title :thing-node}
 ; initial-state :things = {:course {:type ... :title ... :thing-nodes [{}]} :lecture {:type ...}} 
-(defn thing-nav [comm thing-listing]
-  (let [type (:type thing-listing)]
+(defn thing-nav 
+  [comm login-user thing-listing]
+  (let [type (:type thing-listing)
+        user-name (:person/title login-user)]
     [:li.protected 
       [:div.nav-channel
         [:a.show_channel
           {:key type
-           :on-click #(put! comm (mock-data/get-all-things-msg type {:author "rich-dad"}))
+           :on-click #(put! comm (mock-data/get-all-things-msg type {:author user-name}))
            :class (str "js-" (name type) (when (:selected thing-listing) " active"))
           }
           (:title thing-listing)]  ; nav type title, course, parent, lecture, etc.
@@ -41,7 +43,7 @@
 ; f can take a third argument if :opts is specified in m from (om/build f cursor opts)
 ; (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
 (defn navbar
-  [data owner opts] ; data is app state with 3 keys, :things, :channels, :settings
+  [state owner opts] ; state is app state with 3 keys, :things, :channels, :settings
   (reify
     om/IDisplayName
     (display-name [_]
@@ -50,7 +52,8 @@
     (render [this]
       (html/html
        (let [comm (get-in opts [:comms :controls])  ; comm chan is control
-             settings (:settings data)
+             settings (:settings state)
+             login-user (utils/get-login-user state)
              search-box "search-box"
             ]
           [:nav.nav {:class (when (get-in settings [:forms :search :focused]) "search-focus")}
@@ -70,5 +73,5 @@
 
           [:ul.nav-ul
             ; :things contains a map of things {:course {:title ... :thing-nodes [{} {}]} :lecture {} ...}
-            (map (partial thing-nav comm) (sort-by :order (vals (:things data))))
+            (map (partial thing-nav comm login-user) (sort-by :order (vals (:things state))))
           ]])))))

@@ -105,6 +105,15 @@
 
 
 ;- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; get state attrs
+;- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+(defn get-login-user
+  "get current login user from state, must be called in render phase."
+  [state]
+  (get-in state [:login-user])
+  )
+
+;- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; thing entity attrs
 ; ret the keyword for thing attr
 (defn thing-attr-keyword

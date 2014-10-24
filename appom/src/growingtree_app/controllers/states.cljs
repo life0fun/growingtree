@@ -23,7 +23,7 @@
 
 
 ; ===========================================================================
-; control channel event
+; state transition event, dispatch based on msg-type, update diff state slots. 
 ; ===========================================================================
 ; the default handling of evts from control chan is conj nav-path with msg-data
 (defmethod transition 
@@ -115,7 +115,8 @@
       )))
 
 
-; login state processing, update [:login-user] slot, not :body slot.
+; login state processing, 
+; set user to [:login-user] slot, not :body slot.
 ; thing-type (get-in nav-path [:body 1 2]) = must be :login
 (defn login-state-transition
   [target thing-type msg-data state]

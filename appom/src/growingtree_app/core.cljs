@@ -61,7 +61,7 @@
 
 
 ; - - - - - - - - - - - -  - - - - - -  - - - - - -  - - - - - -  - - - - - - 
-; process control event multi.
+; event drive state transition. Different msg-type updates diff state slots.
 ; - - - - - - - - - - - -  - - - - - -  - - - - - -  - - - - - -  - - - - - - 
 ; processing control event, transition state.
 (defmulti process-control-event
@@ -82,7 +82,7 @@
   (.log js/console (pr-str "login error " msg-data))
   (ui/set-text "#login-error" msg-data))
 
-
+; API event trigger state transition. different msg-types set diff state slots.
 (defmethod process-control-event
   :default
   [el state msg-type msg-data]
@@ -93,7 +93,7 @@
     (requester/request el msg-type msg-data previous-state @state)))
 
 
-; processing api event, transition state.
+; API event trigger state transition. different msg-types set diff state slots.
 (defn process-api-event
   [el state msg-type msg-data]
   (let [previous-state @state]
