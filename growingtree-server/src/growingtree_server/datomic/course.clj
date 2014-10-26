@@ -175,8 +175,7 @@
 (defn find-course
   "find course by query path"
   [qpath details]
-  (let [author (get-in details [:data :author])
-        author "rich-son"
+  (let [author (or (get-in details [:data :author]) "rich-son")
         courses (->> (util/get-qpath-entities qpath get-course-by)
                      (map #(populate-course-refed-entity % author) )
                      (map #(util/add-navpath % qpath) ))  ; :qpath ["all" 0 "course" 17592186045425],

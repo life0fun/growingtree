@@ -67,7 +67,7 @@
                               "ctrl+r"     restore-local-state!
                               ;"slash"      focus-search!
                               "esc"        blur-current-field!})]
-        (.log js/console (pr-str "app state change, render nav-path " login-user " path " nav-path))
+        (.log js/console (pr-str "app state change, render nav-path " (:person/title login-user) " path " nav-path))
         (html/html
           [:div
             {:className (str (when (get-in app [:settings :sidebar :right :open]) "slide-left ")
@@ -87,7 +87,8 @@
             (om/build keyq/KeyboardHandler app {:opts {:keymap keymap
                                                        :error-ch (get-in app [:comms :error])}})
 
-            (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
+            ; (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
+            (om/build navbar/navbar app {:opts {:comms (:comms opts)}})  ; pass entire app cursor
 
             ; pass selected-chan app state MapCursor to sidebar subcomponent in data map.
             (om/build sidebar/sidebar {:channel selected-channel

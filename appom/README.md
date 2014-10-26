@@ -44,8 +44,12 @@ OM component is defined by a function that takes component state data, and compo
     (defn sidebar [data owner opts] (reify ....))
     (defn navbar [data owner opts] (reify ...))
 
-App component creates sub components. Om components like React components take props. In Om components the props are actually a cursor into the app state. Cursors are conceptually related to functional lenses and zippers.
+App component creates sub components. om/root creates a Om component that attaches to a target DOM element, and reify the render IF that will render to the target DOM element. The UI interactions from the target DOM element got sent to core state transition logic to process 
+
+Om components like React components take props. In Om components the props are actually a cursor into the app state. Cursors are conceptually related to functional lenses and zippers.
 It just means that Om component props internally maintain path information to determine their location in the app state. You can interact with them with many of the standard Clojure APIs. 
+
+    (om/root app/app state {:target $el :opts {:comms comms}})
 
     (om/build sidebar/sidebar 
         {:channel (get-in app [:channels (:selected-channel app)])})
@@ -64,8 +68,13 @@ Global app state prop is passed to component as MapCursor to app state. To mutat
 
 Local component state is defined locally to component, component owner can set it state directly using set-state!.
 
+OM passes Local component state as argument (owner) to component function. Component function can set local state to it or get local state that it stored from it later. For example, user input text box, etc.
+
     (defn set-state! ([owner korks v] ...))
 
+You can also detach component function from dom target element, for example, login window.
+
+    (om/detach-root login-el)
 
 ## CSS and Animations
 
@@ -102,8 +111,7 @@ When slide btn clicked, add .slide class, transform translateX to right shift.
    The middle div contains upper span of user name and lower span of content. both float:left to align left.
 
 
-
-## Dommy selector
+## Dommy
 
 1. sel will is query selector all, while sel1 ret the first matching. (aget by-class 0)
 
