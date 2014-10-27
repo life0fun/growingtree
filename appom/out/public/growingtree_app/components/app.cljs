@@ -88,7 +88,7 @@
                                                        :error-ch (get-in app [:comms :error])}})
 
             ; (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
-            (om/build navbar/navbar app {:opts {:comms (:comms opts)}})
+            (om/build navbar/navbar app {:opts {:comms (:comms opts)}})  ; pass entire app cursor
 
             ; pass selected-chan app state MapCursor to sidebar subcomponent in data map.
             (om/build sidebar/sidebar {:channel selected-channel

@@ -90,10 +90,11 @@
         request {:handler (handler command nav-path api-ch)
                  :error-handler (error-handler command nav-path api-ch)
                  :format :edn    ; always use edn for clj programs internally.
+                 ; :edn-params on service side.
                  :params {:thing-type thing-type 
                           :path query-path 
                           :qpath (get nav-path :title)
-                          :post-data post-data}  ; post-data is nav-path for filter-things.
+                          :post-data post-data}  ; post-data is :body section + :data dict.
                  :headers {}
                 }
        ]

@@ -217,8 +217,9 @@
   [title]
   (dbconn/find-by :person/title title))
 
-; this is for login use only, as in case error, we need to pop err back to
+; this is for login/signup use only, as in case error, we need to pop err back to
 ; prompt user what error is, password err, account error, dup name ?
+; details {:type :signup, :role "parent", :name "a", :pass "c", :email "b"}}
 (defn find-user
   "find user by login credential, if type = :signup, create the new user"
   [details]
@@ -235,7 +236,7 @@
                 (and (empty? user) (= :login type)) {:data details :error login-error}
                 (= :login type) {:data user :error nil}
                 (and (= :signup type) (not (empty? user))) {:data details :error exist-error}
-                :else
+                :else   ; signup with empty found user, create the account.
                   (let [person (clojure.set/rename-keys
                                   details
                                   {:name :person/title
@@ -295,8 +296,7 @@
                    (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
-    (newline)
-    (prn "create parent trans " trans)
+    (log/info "create parent trans " trans)
     [entity]))
 
 

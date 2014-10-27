@@ -43,12 +43,26 @@
 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-; post control event for navbar, last nav-path tuple.
-; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
+; user click login, send :signup-login command ajax request 
+; ajax request hits /login end-point with nav-path in request params.
 (defmethod request 
   :login
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax :login nav-path " nav-path))
+  (utils/set-window-href! (routes/v1-all-things
+                            {:thing-type (name (get-in nav-path [:body 1 2]))}))
+  (cljsajax/cljs-ajax :signup-login  ;:request-things
+                      nav-path
+                      (get-in current-state [:comms :api]) ; ajax ret data to api-ch.
+                      nav-path)  ; nav-path as request :params :details
+    )
+
+; user signup, send :signup-login command to ajax reqeust.
+; nav-path {:body [:signup [:login 0 :signup]], :data {:type "parent", :name "a"}}
+(defmethod request
+  :signup
+  [target msg-type nav-path previous-state current-state]
+  (.log js/console (pr-str "post ajax :signup nav-path " nav-path))
   (utils/set-window-href! (routes/v1-all-things
                             {:thing-type (name (get-in nav-path [:body 1 2]))}))
   (cljsajax/cljs-ajax :signup-login ;:request-things

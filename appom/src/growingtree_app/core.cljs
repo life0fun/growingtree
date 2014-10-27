@@ -82,14 +82,15 @@
   (.log js/console (pr-str "login error " msg-data))
   (ui/set-text "#login-error" msg-data))
 
-; API event trigger state transition. different msg-types set diff state slots.
+; most control event falls into default case, where msg-type dispatch the update
+; to diff state key slots, and then send cljs requests to server.
 (defmethod process-control-event
   :default
   [el state msg-type msg-data]
   (let [previous-state @state]
     ; control event transition state, and indicate state by nav-path
     (swap! state (partial states/transition el msg-type msg-data))
-    ; send request by msg type.
+    ; send cljs request tby msg type.
     (requester/request el msg-type msg-data previous-state @state)))
 
 

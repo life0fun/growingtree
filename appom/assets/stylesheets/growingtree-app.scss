@@ -170,7 +170,7 @@ h6{font-size:11.9px}
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   login form
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-#login-form, #signup-form {
+#login-form {
    border-top: 10px solid green;
    padding: 1.25em 3.125em 3.125em;
    @include box-shadow(gray 0 0.2em 1em);
@@ -187,8 +187,18 @@ h6{font-size:11.9px}
     margin-left: 40px;
   }
 
+  label {
+    text-align: right;
+    display: inline-block;
+    margin-left: 20px; 
+  }
+
   .error {
     color: red;
+  }
+
+  #signup-button {
+    margin-top: 20px;
   }
 }
 

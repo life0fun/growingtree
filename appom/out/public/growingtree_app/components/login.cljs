@@ -21,7 +21,7 @@
     (fn [_]
       (let [;$form (sel1 (str "#" form-name)) 
             data (reduce (fn [tot [attr fieldid]]
-                    (.log js/console (pr-str fieldid (dommy/value (sel1 fieldid))))
+                    ; (.log js/console (pr-str fieldid (dommy/value (sel1 fieldid))))
                     (assoc tot attr (dommy/value (sel1 fieldid))))
                     {}
                     fields)
@@ -55,6 +55,13 @@
               :name (str "#login-name")
               :pass (str "#login-password")
              }
+             ; signup map format must be align with family find-user
+             signup-form-fields {
+              :role (str "#signup-type")
+              :name (str "#signup-name")
+              :pass (str "#signup-password")
+              :email (str "#signup-email")
+             }
             ]
           [:div.center.span5
             [:form#login-form.login-name {:action "" :method "post"}
@@ -73,46 +80,44 @@
                 {:id "login-button" :type "button" ; if type :submit, will trigger re-load
                 :on-click (submit-form-fn app "login-form" {:type :login} login-form-fields)}
                 "Sign In"]
-              [:p#signup-link [:a.option.active {:href "#"} "Create an account ?"]]
-            ]
+              [:p#signup-link [:a.option.active 
+                {:href "#"
+                 :on-click (fn [_] (ui/show-div "#signup-form"))
+                }
+                "Create an account ?"]]
 
-            [:form#signup-form.signup-form.hide {:action "" :method "post"}
-              [:h2 "Create an Account" [:span.app-name "GrowingTree"]]
-              [:fieldset.fieldset-accountType
-                [:legend "Account Type"]
-                [:p "What account type do you want to create ?"]
+              ; [:form#signup-form.signup-form.hide {:action "" :method "post"}
+              [:div#signup-form.hide
+                [:h3 "Create an Account"]
+                [:fieldset.fieldset-accountType
+                  [:legend "Account Type"]
+                  [:p "What account type do you want to create ?"]
+                  [:div
+                    [:select {:id "signup-type" :class "account-type"}
+                      [:option {:value "parent"} "Parent"]
+                      [:option {:value "child"} "Child"]
+                      [:option {:value "teacher"} "Teacher"]
+                    ]]
+                ]
 
-                [:fieldset.fieldset-ratio
-                  [:label.parent-type {:for "parent-type"} "Parent"]
-                  [:input#parent-type {:name "signup-role" :type "radio" :value "parent" :checked ""}]]
+                [:fieldset
+                  [:input.signup-name {:id "signup-name" :type "text" :placeholder "user name"}]]
 
-                [:fieldset.fieldset-ratio
-                  [:label.child-type {:for "child-type"} "Child"]
-                  [:input#child-type {:name "signup-role" :type "radio" :value "child" :checked ""}]]
+                [:fieldset
+                  [:input.signup-email {:id "signup-email" :type "text" :placeholder "email"}]]
 
-                [:fieldset.fieldset-ratio
-                  [:label.teacher-type {:for "teacher-type"} "teacher"]
-                  [:input#teacher-type {:name "signup-role" :type "radio" :value "teacher" :checked ""}]]
+                [:fieldset.fieldset-password
+                  [:input.signup-password {:id "signup-password" :placeholder "Password"}]]
+
+                [:fieldset.fieldset-password
+                  [:input.signup-password-rep {:id "signup-password-rep" :placeholder "Repeat Password"}]]
+
+                [:button.btn.btn-primary.btn-block
+                  {:id "signup-button" :type "button" ; if type :submit, will trigger re-direct and re-load
+                  :on-click (submit-form-fn app "signup-form" {:type :signup} signup-form-fields)}
+                  "Sign Up"]
               ]
-
-              [:fieldset
-                [:input.signup-name {:id "signup-name" :type "text" :placeholder "user name"}]]
-
-              [:fieldset
-                [:input.signup-email {:id "signup-email" :type "text" :placeholder "email"}]]
-
-              [:fieldset.fieldset-password
-                [:input.signup-password {:id "signup-password" :placeholder "Password"}]]
-
-              [:fieldset.fieldset-password
-                [:input.signup-password-rep {:id "signup-password-rep" :placeholder "Repeat Password"}]]
-
-              [:button.btn.btn-primary.btn-block
-                {:id "signup-button" :type "submit"  :name "submit" ; if type :submit, will trigger re-load
-                :on-click submit-form-fn}
-                "Sign Up"]
             ]
-
           [:br]
           [:p.text-center.center "Copyright 2014 - 2015, GrowingTree Inc."]
         ]

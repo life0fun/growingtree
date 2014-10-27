@@ -181,16 +181,18 @@
 ;;==================================================================================
 ; get login user, returned user has :error and :user and :error key
 ;;==================================================================================
-; postdata {:thing-type :login, :path [:login 0 :login], :qpath nil, 
-;           :post-data {:body [:login [:login 0 :login]], :data {:type :login, :name "rich-son", :pass "rich"}}}}
-(defn get-signup-login
+; params {:thing-type :login, :path [:login 0 :login], :qpath nil, 
+;          :post-data {:body [:login [:login 0 :login]], :data {:type :login, :name "rich-son", :pass "rich"}}}}
+; parems {:thing-type :signup, :path [:login 0 :signup], :qpath nil, 
+;          :post-data {:body [:signup [:login 0 :signup]], :data {:type "parent", :name "a", :pass "c", :email "b"}}}}
+(defn handle-signup-login
   "get signup or login user info"
-  [{postbody :edn-params :as request}]  ; post data under :edn-params key :as request
-  (log/info "get-signup-login " postbody)
-  (let [user (peer/get-user (get-in postbody [:post-data :data]))
+  [{params :edn-params :as request}]  ; params under :edn-params key :as request
+  (log/info "handle-signup-login " params)
+  (let [user (peer/get-user (get-in params [:post-data :data])) ; post-data has :body and :data
         result (-> user
                    (assoc :status (if-not (:error user) 200 404))
-                   (merge (select-keys postbody [:thing-type :path])))
+                   (merge (select-keys params [:thing-type :path])))
         endresp (bootstrap/edn-response result) 
        ]
     (log/info "service peer get-login-user " result)
@@ -207,13 +209,13 @@
 ;;==================================================================================
 (defn get-things
   "get things by type, ret from peer a list of thing in a new line sep string"
-  [{postbody :edn-params :as request}] ; post data under :edn-params key :as request
+  [{params :edn-params :as request}] ; post data under :edn-params key :as request
   ; path segment in req contains request params, /api/:thing, /api/:course
-  (log/info "get-things " postbody)
+  (log/info "get-things " params)
   (let [type (get-in request [:path-params :thing])  ; type is path param /api/:thing
-        path (:path postbody)   ; effect msg body, [:group 1 :group-members],
-        thing-type (:thing-type postbody)
-        things (peer/get-things thing-type path (:post-data postbody))
+        path (:path params)   ; effect msg body, [:group 1 :group-members],
+        thing-type (:thing-type params)
+        things (peer/get-things thing-type path (:post-data params))
         result {:status 200 :data things}
         ednresp (bootstrap/edn-response result)
        ]
@@ -221,14 +223,14 @@
     ednresp))
 
 
-; postbody is cljs-ajax request map :params slot, {:thing-type :path :qpath :post-data}
+; cljs-ajax request map :params slot, {:thing-type :path :qpath :post-data}
 ; post-data is nav-path, defined in get-search-msg, {:body [:search-things []] :data {}}
 (defn search-thing
   "search things based on keyword defined in request :params :path, or :post-data"
-  [{postbody :edn-params :as request}]   ; :path-params {:thing "group"}
-  (log/info "search-thing " (:post-data postbody) (get-in request [:path-params :thing]) postbody)
+  [{params :edn-params :as request}]   ; :path-params {:thing "group"}
+  (log/info "search-thing " (:post-data params) (get-in request [:path-params :thing]) params)
   (let [
-        post-data (:post-data postbody)
+        post-data (:post-data params)
         path (get-in post-data [:body 1]) 
         things (peer/get-things :search path post-data)
         result {:status 200 :data things}
@@ -249,20 +251,20 @@
 ;------------------------------------------------------------------------------------
 
 ;;==================================================================================
-; POST add-thing, request's :edn-params = postbody, :path-params /add/:thing
+; POST add-thing, request's :edn-params = params, :path-params /add/:thing
 ; request is formed in cljs-ajax with :format :edn and param {:thign-type :path :post-data}
 ; :edn-params {:thing-type :path :qpath :post-data {:title "aa", :content "", :type "math"}
 ; For add-thing, type is taken from /add/:thing => lecture.
-; postbody {:thing-type nil, :path nil, :qpath nil, :post-data {:lecture/content "c",..}
+; params {:thing-type nil, :path nil, :qpath nil, :post-data {:lecture/content "c",..}
 ;;==================================================================================
 (defn add-thing
   "add a thing upon post request, request contains http post data"
-  [{postbody :edn-params :as request}]   ; :path-params {:thing "group"}
-  (log/info "add-thing " postbody)  ; for add-thing, :path and :qpath are nil.
+  [{params :edn-params :as request}]   ; :path-params {:thing "group"}
+  (log/info "add-thing " params)  ; for add-thing, :path and :qpath are nil.
   (let [;resp (bootstrap/json-print {:result msg-data})
-        path (:path postbody)
+        path (:path params)
         type (get-in request [:path-params :thing])  ; /api/:thing
-        added-things (peer/add-thing (keyword type) (:post-data postbody))
+        added-things (peer/add-thing (keyword type) (:post-data params))
         result {:status 200 :data (map #(dissoc % :db/id) added-things)}  ; data is [{:course/author ...} {}]
         ; jsonresp (bootstrap/json-response result)
         jsonresp (bootstrap/edn-response result)
@@ -288,7 +290,7 @@
      ["/msgs" {:get subscribe :post publish}
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
      ["/about" {:get about-page}]
-     ["/login" {:post get-signup-login}]
+     ["/login" {:post handle-signup-login}]  ; post handler of signup-login
      ["/api/:thing" {:post get-things}]
      ["/add/:thing" {:post add-thing}]
      ["/search/:thing" {:post search-thing}]

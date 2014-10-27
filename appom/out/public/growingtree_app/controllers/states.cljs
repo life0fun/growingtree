@@ -43,6 +43,16 @@
       :else (update-in [:nav-path] conj msg-data)
       )))
 
+; for signup, {:body [:signup [:login 0 :signup]], :data {:type "parent", :name "a", :pass "d"}}
+(defmethod transition 
+  :signup
+  [target msg-type msg-data state]
+  (let [cur-nav-type (get-in msg-data [:body 1 2])]
+    (.log js/console (pr-str "control event :signup conj nav-path " msg-data))
+    (cond-> state
+      :else (update-in [:nav-path] conj msg-data)
+      )))
+
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; global state update for control event for navbar.
 ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
