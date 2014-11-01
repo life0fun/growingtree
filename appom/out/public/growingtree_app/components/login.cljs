@@ -45,7 +45,6 @@
       (or (:react-name opts) "login"))
     om/IRender
     (render [this]
-      (.log js/console " login rendering ")
       (html/html
        (let [comm (get-in opts [:comms :controls])  ; comm chan is control
              settings (:settings app)

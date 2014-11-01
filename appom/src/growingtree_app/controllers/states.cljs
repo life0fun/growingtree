@@ -119,26 +119,23 @@
         thing-type (get-in nav-path [:body 1 2])
        ]
     (.log js/console (pr-str "api-data set :body things-vec " nav-path thing-type msg-data))
-    (if (= :login thing-type)
+    (if (some #{thing-type} #{:login :signup})  ; in case of login or signup
       (login-state-transition target thing-type msg-data state) ; update :login-user slot.
       (assoc-in state [:body] things-vec)  ; api-data hard-code to set :body
       )))
 
 
-; login state processing, 
+; login state processing, come here when login or sign up success. 
 ; set user to [:login-user] slot, not :body slot.
 ; thing-type (get-in nav-path [:body 1 2]) = must be :login
 (defn login-state-transition
   [target thing-type msg-data state]
   (let [comm (get-in state [:comms :controls])
         things-vec (:things-vec msg-data)
-        nav-path (:nav-path msg-data)
-        last-nav-path (last (get-in state [:nav-path]))
-        login-user (get-in state [:login-user])
         ; send :logged-in msg type to control channel.
         msg [:login-success :login-user]
        ]
-    (.log js/console (pr-str "login-state-transition last nav-path " last-nav-path))
+    (.log js/console (pr-str "login-state-transition nav-path " (last (get-in state [:nav-path]))))
     ; set msg to display main page.
     (put! comm msg)
     (-> state  ; return updated state. :login-user stores current user

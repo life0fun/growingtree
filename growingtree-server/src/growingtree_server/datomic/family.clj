@@ -231,23 +231,28 @@
              )
         ; pop login error back to user.
         login-error {:status 404 :status-text (str "invalid user or passowrd : " name)}
-        exist-error {:status 409 :status-text (str "invalid user or passowrd : " name)}
+        exist-error {:status 409 :status-text (str "user already exists : " name)}
         user (cond
                 (and (empty? user) (= :login type)) {:data details :error login-error}
-                (= :login type) {:data user :error nil}
+                (= :login type) {:data user :error nil}  ; success login, ret user.
                 (and (= :signup type) (not (empty? user))) {:data details :error exist-error}
                 :else   ; signup with empty found user, create the account.
                   (let [person (clojure.set/rename-keys
                                   details
                                   {:name :person/title
-                                   :email :person/email})]
+                                   :lname :person/lname
+                                   :email :person/email
+                                   :phone :person/phone})]
                     (if (= :parent (keyword role))
-                          (create-parent person)
-                          (create-child person))
-                    {:data person})
+                      (create-parent person)
+                      (create-child person))
+                    ; after create the user, re-trieve.
+                    {:data  (-> (dbconn/find-by :person/title (:name details))
+                                (select-keys projkeys))
+                     :error nil})
               )
        ]
-    (log/info " find-user --> " user)
+    (log/info " find-user --> " user)  ; {:data user :error nil}
     user))
 
 
