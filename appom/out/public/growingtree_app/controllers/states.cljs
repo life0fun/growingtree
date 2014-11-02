@@ -184,7 +184,7 @@
         ]
     (.log js/console (pr-str "api-error [:error] " nav-path error-msg msg-data))
     ; must ret valid state atom.
-    (when (= :login thing-type)
+    (when (some #{thing-type} #{:login :signup})
       (put! comm (mock-data/get-retry-login-msg error-msg)))
     (-> state
       (assoc-in [:error] msg-data))
