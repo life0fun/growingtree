@@ -4,6 +4,278 @@
 		"selected_items":
 		[
 			[
+				"text-",
+				"text-align"
+			],
+			[
+				"margin",
+				"margin-right"
+			],
+			[
+				"inline",
+				"inline-block"
+			],
+			[
+				"margin-",
+				"margin-bottom"
+			],
+			[
+				"defm",
+				"defmethod"
+			],
+			[
+				"trans",
+				"transition"
+			],
+			[
+				"pass",
+				"password"
+			],
+			[
+				"pro",
+				"progress"
+			],
+			[
+				"find-",
+				"find-progress"
+			],
+			[
+				"get-",
+				"get-entity"
+			],
+			[
+				"pop",
+				"populate-progress-refed-entity"
+			],
+			[
+				"popu",
+				"populate"
+			],
+			[
+				"ass",
+				"assoc"
+			],
+			[
+				"p",
+				"progress"
+			],
+			[
+				"def",
+				"defschema"
+			],
+			[
+				"entity-",
+				"entity-type"
+			],
+			[
+				"get-li",
+				"get-like-refed-entity"
+			],
+			[
+				"get-com",
+				"get-comments-refed-entity"
+			],
+			[
+				"get-ans",
+				"get-answer-refed-entity"
+			],
+			[
+				"enti",
+				"entity"
+			],
+			[
+				"get-ass",
+				"get-assignment-refed-entity"
+			],
+			[
+				"get-question-",
+				"get-question-refed-entity"
+			],
+			[
+				"get-course",
+				"get-course-enrollment-refed-entity"
+			],
+			[
+				"get-per",
+				"get-person-enrollment-refed-entity"
+			],
+			[
+				"get-c",
+				"get-course-enrollment-refed-entity"
+			],
+			[
+				"en",
+				"enrollment"
+			],
+			[
+				"get-e",
+				"get-enrollment-by"
+			],
+			[
+				"get-l",
+				"get-lecture-refed-entity"
+			],
+			[
+				"get-co",
+				"get-course-refed-entity"
+			],
+			[
+				"ent",
+				"entities"
+			],
+			[
+				"entt",
+				"entities"
+			],
+			[
+				"get-ref",
+				"get-refed-entity"
+			],
+			[
+				"act",
+				"activity"
+			],
+			[
+				"add-ac",
+				"add-activity"
+			],
+			[
+				"activi",
+				"activities"
+			],
+			[
+				"ans",
+				"answer"
+			],
+			[
+				"assig",
+				"assignto"
+			],
+			[
+				"date",
+				"datetime"
+			],
+			[
+				"pri",
+				"priority"
+			],
+			[
+				"assi",
+				"assignments"
+			],
+			[
+				"enro",
+				"enrollment"
+			],
+			[
+				"enr",
+				"enrollment"
+			],
+			[
+				"vert",
+				"vertical-align"
+			],
+			[
+				"inl",
+				"inline-block"
+			],
+			[
+				"enroll",
+				"enrollment"
+			],
+			[
+				"enrol",
+				"enrollment"
+			],
+			[
+				"data",
+				"data"
+			],
+			[
+				"newthing",
+				"newthing-form"
+			],
+			[
+				"add-qu",
+				"add-question-form"
+			],
+			[
+				"add-le",
+				"add-lecture-form"
+			],
+			[
+				"add-child",
+				"add-child-form"
+			],
+			[
+				"z",
+				"z-index"
+			],
+			[
+				"ac",
+				"activity"
+			],
+			[
+				"activity-st",
+				"activity-start-id"
+			],
+			[
+				"join-group",
+				"join-group-form-name"
+			],
+			[
+				"add-g",
+				"add-group-form-name"
+			],
+			[
+				"title",
+				"title"
+			],
+			[
+				"com",
+				"comments"
+			],
+			[
+				"an",
+				"answer"
+			],
+			[
+				"get-en",
+				"get-entities-by-rule"
+			],
+			[
+				"cljs-time",
+				"cljs-time-format"
+			],
+			[
+				"as",
+				"assignment"
+			],
+			[
+				"assing",
+				"assignment"
+			],
+			[
+				"assign",
+				"assignment"
+			],
+			[
+				"diff",
+				"difficulty"
+			],
+			[
+				"key",
+				"keyword"
+			],
+			[
+				"enroll-f",
+				"enroll-form-fields"
+			],
+			[
+				"enroll-for",
+				"enroll-form-data"
+			],
+			[
 				"curre",
 				"currentTarget"
 			],
@@ -184,10 +456,6 @@
 				"placementContext"
 			],
 			[
-				"pro",
-				"prototype"
-			],
-			[
 				"script",
 				"scriptNode"
 			],
@@ -246,68 +514,56 @@
 			[
 				"board",
 				"board-component"
-			],
-			[
-				"dots-ga",
-				"dots-game-container"
-			],
-			[
-				"initial",
-				"initialize"
-			],
-			[
-				"tim",
-				"timestamp"
-			],
-			[
-				"ti",
-				"timestamp"
-			],
-			[
-				"Recomme",
-				"RecommendationsView"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "appom/src/growingtree_app/components/main_area.cljs",
-			"settings":
-			{
-				"buffer_size": 5911,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "appom/src/growingtree_app/components/navbar.cljs",
-			"settings":
-			{
-				"buffer_size": 2542,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "appom/src/growingtree_app/components/newthing_form.cljs",
-			"settings":
-			{
-				"buffer_size": 14759,
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "appom/src/growingtree_app/core.cljs",
 			"settings":
 			{
-				"buffer_size": 5818,
+				"buffer_size": 7558,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "appom/assets/stylesheets/growingtree-app.scss",
+			"file": "appom/src/growingtree_app/controllers/states.cljs",
 			"settings":
 			{
-				"buffer_size": 48793,
+				"buffer_size": 16966,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "appom/src/growingtree_app/components/app.cljs",
+			"settings":
+			{
+				"buffer_size": 7382,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "appom/src/growingtree_app/components/main_area.cljs",
+			"settings":
+			{
+				"buffer_size": 10332,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "appom/src/growingtree_app/components/entity_view.cljs",
+			"settings":
+			{
+				"buffer_size": 56116,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "growingtree-server/src/growingtree_server/datomic/family.clj",
+			"settings":
+			{
+				"buffer_size": 23524,
 				"line_ending": "Unix"
 			}
 		},
@@ -315,7 +571,71 @@
 			"file": "growingtree-server/src/growingtree_server/datomic/course.clj",
 			"settings":
 			{
-				"buffer_size": 13931,
+				"buffer_size": 21437,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "appom/src/growingtree_app/components/newthing_form.cljs",
+			"settings":
+			{
+				"buffer_size": 23118,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "appom/src/growingtree_app/mock_data.cljs",
+			"settings":
+			{
+				"buffer_size": 9690,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "appom/src/growingtree_app/ui.cljs",
+			"settings":
+			{
+				"buffer_size": 2206,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "appom/src/growingtree_app/api/cljsajax.cljs",
+			"settings":
+			{
+				"buffer_size": 5958,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "growingtree-server/src/growingtree_server/peer.clj",
+			"settings":
+			{
+				"buffer_size": 9473,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "growingtree-server/src/growingtree_server/datomic/dbconn.clj",
+			"settings":
+			{
+				"buffer_size": 22137,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "growingtree-server/src/growingtree_server/datomic/dbschema.clj",
+			"settings":
+			{
+				"buffer_size": 15386,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "\n\n(defn get [chan ]\n  (let [cb (fn [result]\n              (go (>! chan result)))]\n    (http/get url cb))\n\n(let [asyncfn (fn [result]\n        (go >! chan result))]\n  let [result (future (http/get url)))\n      (go (>! chan result))\n(go \n  (>! chan (http/get url)))\n\n\n\n\n{:line 415, \"find-progress \" 17592186045484, \" author \" 17592186045453}\n{:line 425, \" find-progress rule-args \" [17592186045421 17592186045427]}\n{:line 425, \" find-progress rule-args \" [17592186045484 17592186045427]}\n\n\n",
+			"settings":
+			{
+				"buffer_size": 487,
 				"line_ending": "Unix"
 			}
 		}
@@ -354,136 +674,151 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
+	"expanded_folders":
+	[
+		"/Users/hyan2/dev/clj/growingtree",
+		"/Users/hyan2/dev/clj/growingtree/appom",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets",
+		"/Users/hyan2/dev/clj/growingtree/appom/src",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/api",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/controllers",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic"
+	],
 	"file_history":
 	[
-		"/Users/hyan2/dev/clj/growingtree/appom/config.rb",
-		"/Users/hyan2/dev/clj/growingtree/appom/assets/javascripts/moment.min.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/2ada8afe91308140791cde4c47612a13007ce561/growingtree-app.scssc",
-		"/app/workspace-atlas/atlas-prod/search/src/main/webapp/search/views/Search/js/search.js",
-		"/app/workspace-atlas/atlas-prod/search/src/main/java/com/walmart/atlas/search/views/Search/SearchPage.hbs",
-		"/app/workspace-atlas/atlas-prod/homepage/src/main/webapp/gen/homepage/views/Homepage/Homepage.css",
-		"/app/workspace-atlas/atlas-prod/homepage/src/main/java/com/walmart/atlas/homepage/views/Homepage/Homepage.hbs",
-		"/app/workspace-atlas/atlas-prod/search/src/main/webapp/search/views/Search/js/views/search.js",
-		"/app/workspace-atlas/atlas-prod/atlas-core/src/main/java/com/walmart/atlas/global/views/product/ProductTile.hbs",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/templates/RecentlyViewedTile.hbs",
-		"/Users/hyan2/dev/pushcurl.py",
-		"/app/workspace-atlas/atlas-prod/atlas-core/src/main/java/com/walmart/atlas/global/views/reviews/partials/product-reviews.hbs",
-		"/app/workspace-atlas/atlas-prod/frontend/js/common/product/views/quick-look-view.js",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/js/backbone/views/product-view.js",
-		"/app/workspace-atlas/atlas-prod/atlas-core/src/main/java/com/walmart/atlas/global/views/modules/P13NRecommendation/P13NRecommendation.styl",
-		"/usr/local/apache-tomcat-7.0.52/conf/server.xml",
-		"/app/workspace-atlas/atlas-prod/product/src/test/webapp/product/views/Product/js/recently-viewed/rvi-module.spec.js",
-		"/app/workspace-atlas/atlas-prod/frontend/js/common/reviews/views/review-view.js",
-		"/app/workspace-atlas/atlas-prod/frontend/test/js/spec/common/product/libs/analytics.spec.js",
-		"/app/workspace-atlas/atlas-prod/atlas-core/src/main/java/com/walmart/atlas/core/services/irs/IRSToSimpleProduct.java",
-		"/app/workspace-atlas/atlas-prod/frontend/test/js/spec/common/recommendations/recentlyviewed.spec.js",
-		"/app/workspace-atlas/atlas-prod/frontend/js/common/recommendations/recentlyviewed.js",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/templates/reviews/CustomerReviewsSection.hbs",
-		"/tmp/subl stdin a6GD7D.txt",
-		"/app/workspace-atlas/atlas-prod/product/src/test/webapp/product/views/Product/js/analytics.spec.js",
-		"/app/workspace-atlas/atlas-prod/frontend/test/js/spec/common/analytics.spec.js",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/js/recently-viewed/rvi-module.js",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/templates/Product.hbs",
-		"/app/workspace-atlas/atlas-prod/atlas-core/src/main/java/com/walmart/atlas/global/views/modules/P13NRecommendation/P13NRecentlyViewed.hbs",
-		"/app/workspace-atlas/atlas-prod/frontend/js/common/recommendations/recommendations.js",
-		"/app/workspace-atlas/atlas-prod/frontend/test/js/spec/common/product/views/quick-look-view.spec.js",
-		"/app/workspace-atlas/atlas-prod/product/src/test/webapp/product/views/Product/js/backbone/libs/item-header.spec.js",
-		"/app/workspace-atlas/atlas-prod/product/src/test/webapp/product/views/Product/js/backbone/libs/persistent-nav.spec.js",
-		"/app/workspace-atlas/atlas/frontend/js/common/recommendations/recommendations.js",
-		"/app/workspace-atlas/atlas/frontend/js/common/recommendations/views/recommendations.js",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/js/backbone/views/reviews-view.js",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/js/backbone/libs/persistent-nav.js",
-		"/app/workspace-atlas/atlas-prod/frontend/js/common/product/libs/accordion.js",
-		"/app/workspace-atlas/atlas-prod/frontend/js/common/product/templates/quick-look.hbs",
-		"/Users/hyan2/dev/tmp/000524617,default,pd.html",
-		"/app/workspace-atlas/atlas-prod/atlas-core/src/main/java/com/walmart/atlas/global/views/modules/P13NRecentlyViewed/P13NRecentlyViewed.hbs",
-		"/app/workspace-atlas/atlas-prod/product/src/main/java/com/walmart/atlas/product/views/RecentlyViewed/RecentlyViewedView.java",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/templates/RecentlyViewed.hbs",
-		"/app/workspace-sts/irs/ws-configuration/src/main/resources/environmentConfig/prod/quartz.properties",
-		"/app/workspace-sts/irs/ws-configuration/src/main/resources/environmentConfig/prod/irs.properties",
-		"/app/workspace-sts/irs/ws-configuration/src/main/resources/environmentConfig/prod/cache.properties",
-		"/app/workspace-atlas/atlas-prod/atlas-core/src/main/java/com/walmart/atlas/global/views/modules/P13NRecentlyViewed/P13NRecentlyViewedRec.styl",
-		"/app/workspace-atlas/atlas-prod/frontend/js/common/product/views/ql-cta-out-of-stock-view.js",
-		"/app/workspace-atlas/atlas-prod/atlas-core/src/main/java/com/walmart/atlas/global/views/modules/P13NRecentlyViewed/P13NRecentlyViewedTile.hbs",
-		"/app/workspace-atlas/atlas-prod/atlas-core/src/main/java/com/walmart/atlas/global/views/modules/P13NRecentlyViewedRec/P13NRecentlyViewedRec.hbs",
-		"/app/workspace-atlas/atlas/frontend/js/common/product/analytics.js",
-		"/app/workspace-atlas/atlas-prod/product/src/test/webapp/product/views/Product/js/backbone/views/marketplace-summary-view.spec.js",
-		"/app/workspace-atlas/atlas/product/src/main/webapp/product/views/Product/js/backbone/views/product-view.js",
-		"/app/workspace-atlas/atlas-prod/frontend/js/common/product/libs/item-header.js",
-		"/app/workspace-atlas/atlas/frontend/js/common/product/views/quick-look-view.js",
-		"/app/workspace-atlas/atlas-prod/frontend/js/common/product/views/quick-look-modal-view.js",
-		"/app/workspace-atlas/atlas/frontend/js-dist-atlas/reviews/submit-review.js",
-		"/app/workspace-atlas/atlas/frontend/js-dist-atlas/product-tmpl/choice/accordion-review-summary.hbs",
-		"/app/workspace-atlas/atlas/frontend/js-dist-atlas/product-tmpl/reviews/ReviewSummary.hbs",
-		"/app/workspace-atlas/irs-ui/application/controllers/REVIEW",
-		"/app/workspace-atlas/atlas/reviews/reviews.gradle",
-		"/app/workspace-atlas/atlas/frontend/js-dist-atlas/lists/lists/registry-exists-modal-view.js",
-		"/app/workspace-atlas/atlas/frontend/js/require-entry.js",
-		"/app/workspace-atlas/rvi.md",
-		"/app/workspace-atlas/atlas/frontend/templates/reviews/review-product.hbs",
-		"/app/workspace-atlas/atlas/frontend/js/common/reviews/models/review-ratings.js",
-		"/app/workspace-atlas/atlas/frontend/js/common/reviews/views/submit-review-ratings-view.js",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/js/product.js",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/js/groupings/quicklook/quicklook-btv.js",
-		"/app/workspace-atlas/atlas-prod/frontend/js/common/product/analytics.js",
-		"/app/workspace-atlas/atlas/frontend/js/common/analytics.js",
-		"/app/workspace-atlas/atlas-beacon.md",
-		"/app/workspace-atlas/atlas/frontend/js/common/analytica/action-name-resolver.js",
-		"/app/workspace-atlas/atlas-prod/product/src/test/webapp/product/views/Product/js/backbone/views/buying-options-view.spec.js",
-		"/app/workspace-atlas/atlas/product/product.gradle",
-		"/app/workspace-sts/irs/pmd-custom-ruleset.xml",
-		"/app/workspace-atlas/irs-ui/package.json",
-		"/app/workspace-atlas/atlas/frontend/js-dist-atlas/product/product.js",
-		"/app/workspace-atlas/irs-ui/config/production.js",
-		"/app/workspace-atlas/atlas-prod/product/product.gradle",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/prod-dfw/irs-webmgmt.properties",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/prod-dal/irs-webmgmt.properties",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/prod-dfw/cacheaas.properties",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/prod-dal/cacheaas.properties",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/dev-cdc/cacheaas.properties",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-manifest/src/main/resources/prod-dfw/manifest.xml",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-manifest/src/main/resources/prod-dal/manifest.xml",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/prod-dal/app-logging.properties",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/prod-dfw/app-logging.properties",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/stg-sdc/cacheaas.properties",
-		"/app/workspace-atlas/atlas-prod/frontend/test/js/spec/product/groupings/buy-together/quicklook-btv.spec.js",
-		"/app/workspace-atlas/atlas/frontend/test/js/spec/product/groupings/buy-together/quicklook-btv.spec.js",
-		"/app/workspace-atlas/atlas-prod/frontend/js-dist-atlas/product/groupings/quicklook/quicklook-btv.js",
-		"/app/workspace-atlas/atlas/frontend/js-dist-atlas/product/groupings/quicklook/quicklook-btv.js",
-		"/app/workspace-atlas/atlas/frontend/js-dist-atlas/product-tmpl/groupings/QuickLookBTVSelect.hbs",
-		"/app/workspace-atlas/atlas/frontend/styles/product/quicklook.styl",
-		"/app/workspace-atlas/atlas/lists/src/main/java/com/walmart/atlas/lists/utils/QueryUtils.java",
-		"/app/workspace-atlas/irs-ui/node_modules/promised-io/querystring.js",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/service.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/login.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/family.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/controllers/requester.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/server.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/routes.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/navbar.cljs",
 		"/Users/hyan2/dev/clj/growingtree/appom/assets/stylesheets/growingtree-app.scss",
-		"/Users/hyan2/dev/Algorithm/loop_comprehensive.py",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/js/backbone/product.js",
-		"/app/workspace-sts/irs-webmgmt/webmgmt/src/main/java/com/walmart/sitep13n/irs/webmgmt/helper/HadoopUtil.java",
-		"/app/workspace-sts/irs-webmgmt/webmgmt/src/main/java/com/walmart/sitep13n/irs/webmgmt/helper/OracleUtil.java",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-manifest/src/main/resources/stg-sdc/manifest.xml",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/qa-cdc/irs-webmgmt.properties",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/stg-cdc/irs-webmgmt.properties",
-		"/app/workspace-atlas/atlas/frontend/test/js/spec/common/recommendations/recommendations.spec.js",
-		"/app/workspace-atlas/atlas/frontend/test/js/spec/common/lists/add-to-registry/add-to-registry.spec.js",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/js/groupings/buy-together/analytics.js",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/stg-cdc/cacheaas.properties",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/stg-cdc/app-logging.properties",
-		"/app/workspace-atlas/atlas/frontend/test/js/spec/common/lists/add-to-registry/views/add-to-registry.spec.js",
-		"/app/workspace-atlas/atlas-prod/product/src/main/webapp/product/views/Product/js/groupings/analytics.js",
-		"/app/workspace-atlas/irs-ui/node_modules/grunt-contrib-nodeunit/node_modules/nodeunit/lib/track.js",
-		"/app/workspace-atlas/atlas/frontend/js-dist-atlas/product-tmpl/TrackListing.hbs",
-		"/app/workspace-atlas/atlas/frontend/js/common/recommendations/tracker.js",
-		"/app/workspace-atlas/atlas/frontend/bower_components/jquery/src/traversing.js",
-		"/app/workspace-atlas/irs-ui/node_modules/grunt-text-replace/tasks/text-replace.js",
-		"/app/workspace-atlas/atlas/tomcat-users.xml",
-		"/app/workspace-sts/irs-webmgmt/webmgmt/src/main/java/com/walmart/sitep13n/irs/webmgmt/helper/CouchbaseUtil.java",
-		"/app/workspace-sts/irs-webmgmt/webmgmt-configuration/src/main/resources/environmentConfig/qa-cdc/cacheaas.properties",
-		"/app/workspace-atlas/atlas/frontend/js-dist-atlas/product/backbone/views/product-view.js",
-		"/app/workspace-atlas/atlas/frontend/styles/base/product-tiles.styl",
-		"/app/workspace-atlas/atlas/product/src/main/java/com/walmart/atlas/product/pages/ProductConstants.java",
-		"/app/workspace-atlas/atlas-prod/frontend/js-dist-atlas/product/backbone/views/product-view.js",
-		"/app/workspace-atlas/atlas-prod/frontend/js-dist-atlas/product/recently-viewed/rvi-module.js",
-		"/app/workspace-atlas/atlas/frontend/test/js/spec/product/recently-viewed/rvi-module.spec.js",
-		"/app/workspace-atlas/atlas/frontend/js-dist-atlas/product/recently-viewed/rvi-module.js"
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/growingtree/dbfn.dtm",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/mock_data.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/utils.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/README.md",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/util.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/ui.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/main_area.cljs",
+		"/Users/hyan2/dev/clj/growingtree/README.md",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/controllers/post_api.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/controllers/post_controls.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/ui.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/ui.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/growingtree_app/ui.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/growingtree_app/ui.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/ui.js.map",
+		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/growingtree_app/ui.js.map",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/ui/idgenerator.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/goog/ui/idgenerator.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/events/listenable.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/math/coordinate.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/app.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/peer.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/controllers/api.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/controllers/controls.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets/dev.html",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/dda.clj",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/.sass-cache/e625724f5387dae690c3010059acac9464759cdc/_inline-block.scssc",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/bootstrap-datetimepicker.min.css",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/debug/error.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/core.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/config/logback.xml",
+		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/ab4f4dd43221e7c58af84459cffbcec5cf3bd165/_filter.scssc",
+		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/a4bf69faa73bc3421ad8bfcdab3cbd66c36e490f/_tag-cloud.scssc",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/tools/public/.compass-compile-modified",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets/stylesheets/.sass-cache/e625724f5387dae690c3010059acac9464759cdc/_background-origin.scssc",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/config/sql-transactor-template.properties",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/assets/stylesheets/growingtree-app-hackday.scss",
+		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/e1fd97f69e69374d482e5872668a0ce56498825b/_inline-block-list.scssc",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/templates/growingtree-app.html",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/object/object.js",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/assign.clj",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/src/growingtree_app/html_templates.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/crypt/hash.js",
+		"/Users/hyan2/dev/finder_testing_automation/vzw/meta/test_fn.sh",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/src/growingtree_app/entity_view.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/12aeb83f4a3ed83ca3dd8fbe9f111f28e2353d61/_vertical_rhythm.scssc",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/growingtree/seattle-schema.dtm",
+		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/e73855c0ffc15fae3c0f6ed8cb82ab2a5bb05cde/_scaffolding.scssc",
+		"/Users/hyan2/dev/clj/growingtree/appom/project.clj",
+		"/Users/hyan2/dev/clj/clojure-idiom/graph.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree-app.css",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/comments.clj",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/timeline.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/array/array.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/components/main_area.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/public/generated-js/out/growingtree_app/rendering.js",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/public/generated-js/out/io/pedestal/app/net/repl_client.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/README.md",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/i18n/timezone.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/api/cljsajax.cljs",
+		"/Users/hyan2/dev/clj/clojure-idiom/java-proxy.clj",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/course.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/ab4f4dd43221e7c58af84459cffbcec5cf3bd165/_user-interface.scssc",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/routes.js.map",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/public/generated-js/out/io/pedestal/app/render/push.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/sidebar.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/dbconn.clj",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/pedestal.css",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/entity_view.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/debug/entrypointregistry.js",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/logs/growingtree-app-2014-05-03.0.log",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/generated-js/out/goog/debug/error.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/newthing_form.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/api/mock.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/ab4f4dd43221e7c58af84459cffbcec5cf3bd165/_images.scssc",
+		"/Users/hyan2/dev/clj/growingtree/appom/config.rb",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/generated-js/out/io/pedestal/app/render.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/net/wrapperxmlhttpfactory.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/structs/queue.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets/javascripts/jquery.tagsinput.js",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/templates/newthing.html",
+		"/app/workspace-atlas/atlas/atlas-core/src/main/resources/com/walmart/atlas/global/layouts/base.hbs",
+		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/bbeb2d8dc101656a564e0603c6bf7c46920c2fc1/_sprite-img.scssc",
+		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/goog/debug/error.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/sablono/util.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/sablono/util.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/commands.js.map",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/dbschema.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/commands.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/templates/thing.html",
+		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/goog/object/object.js",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/tools/public/index.html",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/components/app.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets/javascripts/bootstrap.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/test-cljs/omchaya/test.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/test-cljs/omchaya/components/navbar.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/sablono/util.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/sablono/util.js",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/src/growingtree_app/util.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/dommy/utils.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets-omchaya/fonts/FontAwesome.otf",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets-omchaya/fonts/fontawesome-webfont.svg",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/src/growingtree_app/newthing_form.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/growingtree-app-dev.html",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets/stylesheets/.sass-cache/e625724f5387dae690c3010059acac9464759cdc/_opacity.scssc",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets/javascripts/pedestal/js/api.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets/javascripts/jquery-min.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets/javascripts/datetimepicker.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/resources/private/js/unit-test.js",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/uberdoc.html",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/templates/application.html",
+		"/Users/hyan2/dev/clj/growingtree/appom/resources/private/js/omchaya/components/audio_player.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets-omchaya/audio/threetone-alert.wav",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/cljs/core/async/impl/dispatch.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/generated-js/out/io/pedestal/app/util/console_log.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/pom.xml",
+		"/Users/hyan2/dev/clj/growingtree/appom/test-cljs/vendor/console-polyfill.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/target/stale/extract-native.dependencies",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets/stylesheets/pedestal.css",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets-omchaya/css/style.css"
 	],
 	"find":
 	{
@@ -502,134 +837,134 @@
 		"case_sensitive": false,
 		"find_history":
 		[
-			"thing-nav",
-			"RviModule",
-			"RviModue",
-			"recen",
-			"onWriteReviewClick",
-			"onSeeAllClick",
-			"analytics",
-			"Analytics",
-			"onReviewAnchor",
-			"onWriteReview",
-			"_createReviewSubviews",
-			"trigger",
-			"events",
-			"onRatingClick",
-			"onWriteReview",
-			"onReviewAnchor",
-			"new reviewview",
-			"Analytics",
-			"onReviewSelect",
-			"renderOneRecentItem",
-			"setCurrentRvi",
-			"this",
-			"currentRvi",
-			"js-recently-viewed-items",
-			"js-recently-viewed-it",
-			"js-rec-rvi-module",
-			"js",
-			"js-clear-list",
-			"21311918",
-			"productId",
-			"onRviClick",
-			"renderRviRecommendation",
-			"viewList",
-			"js",
-			"clearfix",
-			"this",
-			"server",
-			"context",
-			"onRviClick",
-			"currentRvi",
-			"window.conso",
-			"window.con",
-			"tile",
-			"js-tile",
-			"current",
-			"after",
-			"tab",
-			"current",
-			"content",
-			"false",
-			"window.console.log",
-			"onReviewAnchor",
-			"js-product-review",
-			"onPageClick",
-			"return false",
-			"html",
-			"onReviewAnchor",
-			"getFetchPageUrl",
-			"getFetchApiUrl",
-			"el:",
-			"el",
-			"fetchReviewsContent",
-			"write",
-			"rendered",
-			"_createReviewSubviews",
-			"onRatingClick",
-			"_setupElements",
-			"onReviewAnchor",
-			"onWriteReview",
-			"compile",
-			"window.console.log",
-			"window.console",
-			"titleCharLimit",
-			"getRviRecommendation",
-			"window",
-			"window.console",
-			"link",
-			"window.con",
-			"non-item-page",
-			"non-rec-rvi",
-			"clear-list",
-			"clear",
-			"22899847",
-			"2699421",
-			"16531397",
-			"22899847",
-			"21311918",
-			"recommendationsListView",
-			"product-id",
+			"find-progress",
+			"populate-course-refed-entity",
+			"populate-person-enrollment-course",
+			"populate-course-refed-entity",
+			"find-progress",
+			"populate-person-enrollment-course",
+			"populate-course-enrollment-person",
+			"populate-course-refed-entity",
+			"person",
+			"populate-enrollment-person",
+			"populate-enrollment-course",
+			"populate-course-enrollment-refed-entity",
+			"populate-person-enrollment-refed-entity",
+			"refed",
+			"enrollment",
+			"populate-course-refed-entity",
+			"update-navbar-selected",
+			"process-api-event",
+			"nav-path",
+			"login-user",
+			"submit-transact",
+			"prn",
+			"type",
+			"postbody",
+			"handle-signup-login",
+			"get-signup-login",
+			"login",
+			"process-control-event",
+			"password",
+			"pass",
+			"submit",
+			"submit-tr",
+			"Reading",
+			"reading",
+			"Science",
+			"science",
+			"Math",
+			"login",
+			"populate-course-refed-entity",
 			"data",
-			"view",
-			"err",
-			"console",
-			"window.console",
-			"9873",
-			"itemAnalytics",
-			"false",
-			"rviSpy",
-			"self",
-			"onrviclick",
-			"onRviClick",
-			"true",
-			"called",
-			"onRviClick",
-			"onrviclick",
-			"spyTrack",
-			"this",
-			"spy",
-			"renderOneRecentItem",
-			"stub",
-			"rvi-list",
-			"product-id",
-			"getRviRecommendation",
-			"rviRecommendation",
-			"server",
-			"sinon.test",
-			"renderOneRviRecommendation",
-			"list",
-			"visible",
-			"777",
-			"333",
-			"createResponse",
-			"js-rec-rvi-module",
-			"tem-page",
-			"rviModule",
-			"RviModule",
-			"rviModule",
-			"RviModule"
+			"login-state-transition",
+			"process-api-event",
+			"filter-things-onclick",
+			"populate-course-progress",
+			"login",
+			"defn",
+			"nav-path",
+			"utils",
+			"$form",
+			"data",
+			"last",
+			"last-nav-path",
+			"defn",
+			"nav-path",
+			"transition",
+			"api-event",
+			"control",
+			"controls-post",
+			"post-control",
+			"post-control-event!",
+			"controls-post",
+			"post-controls",
+			"post-control-event!",
+			"post-controls",
+			"state-transition",
+			"controls",
+			"state-event",
+			"control-event",
+			"controls",
+			"main",
+			"thing-entry-action-button-li",
+			"sel",
+			"dommy",
+			"nav-path",
+			"app",
+			"jsonresp",
+			"json",
+			"jsonresp",
+			"user",
+			"get-si",
+			"onSuccess",
+			"user",
+			"postdata",
+			"get-signup-login",
+			"println",
+			"prn",
+			"get-signup-login",
+			"login",
+			"get-things",
+			"login",
+			"find-user",
+			"get-user",
+			"parents",
+			"parent",
+			"submit-form-fn",
+			"submit-fn",
+			"join-group-form-input-map",
+			"remark",
+			"title",
+			"group",
+			"filter-things-onclick",
+			"submit-fn",
+			"button",
+			"submit-form-fn",
+			"target",
+			"filter-things-onclick",
+			"target",
+			"opts",
+			"target",
+			"app",
+			"data",
+			"navbar",
+			"setup!",
+			"setup",
+			"login",
+			"name",
+			"login",
+			"child",
+			"Child",
+			"child",
+			"parent",
+			"Parent",
+			"rich",
+			"password",
+			"Password",
+			"text",
+			"name",
+			"search"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -642,7 +977,7 @@
 		"show_context": true,
 		"use_buffer2": true,
 		"whole_word": false,
-		"wrap": false
+		"wrap": true
 	},
 	"folders":
 	[
@@ -654,24 +989,37 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 6,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "appom/src/growingtree_app/components/main_area.cljs",
+					"file": "appom/src/growingtree_app/core.cljs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5911,
+						"buffer_size": 7558,
 						"regions":
 						{
+							"bookmarks":
+							{
+								"flags": 144,
+								"icon": "bookmark",
+								"regions":
+								[
+									[
+										5700,
+										5700
+									]
+								],
+								"scope": "bookmarks"
+							}
 						},
 						"selection":
 						[
 							[
-								658,
-								658
+								2991,
+								2991
 							]
 						],
 						"settings":
@@ -679,90 +1027,140 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
 								"bh_unmatched_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
+								"bh_unmatched_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
 								"bh_angle_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
 								"bh_square_close",
+								"bh_square_content",
 								"bh_regex",
 								"bh_regex_center",
 								"bh_regex_open",
 								"bh_regex_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close"
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
 							],
-							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
+							"history_list_is_closing": true,
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true,
 							"vintage":
 							{
+								"_vintageous_glue_until_normal_mode": false,
 								"action": null,
 								"action_count": "",
 								"capture_register": false,
 								"mode": "mode_normal",
 								"motion": null,
 								"motion_count": "",
+								"normal_insert_count": "1",
 								"partial_sequence": "",
 								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"sequence",
+										{
+											"commands":
+											[
+												[
+													"insert",
+													{
+														"characters": "ii"
+													}
+												],
+												[
+													"left_delete",
+													null
+												],
+												[
+													"left_delete",
+													null
+												]
+											]
+										}
+									],
+									"mode_insert",
+									null
+								],
 								"sequence": "",
-								"xpos": 0
+								"xpos": 14
 							}
 						},
-						"translation.x": 0.0,
+						"translation.x": 42.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "appom/src/growingtree_app/components/navbar.cljs",
+					"file": "appom/src/growingtree_app/controllers/states.cljs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2542,
+						"buffer_size": 16966,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								956,
-								956
+								2784,
+								2806
+							],
+							[
+								3289,
+								3311
+							],
+							[
+								16492,
+								16514
 							]
 						],
 						"settings":
@@ -770,50 +1168,281 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
 								"bh_unmatched_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
+								"bh_unmatched_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
 								"bh_angle_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
 								"bh_square_close",
+								"bh_square_content",
 								"bh_regex",
 								"bh_regex_center",
 								"bh_regex_open",
 								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"insert",
+										{
+											"characters": " "
+										}
+									],
+									null,
+									null
+								],
+								"sequence": "",
+								"xpos": 27
+							}
+						},
+						"translation.x": 14.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "appom/src/growingtree_app/components/app.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7382,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2871,
+								2871
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
 								"bh_tag",
 								"bh_tag_center",
 								"bh_tag_open",
-								"bh_tag_close"
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"sequence": "",
+								"xpos": 42
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 411.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "appom/src/growingtree_app/components/main_area.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10332,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8108,
+								8108
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content"
 							],
 							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
 							"tab_size": 2,
@@ -831,31 +1460,44 @@
 								"partial_sequence": "",
 								"register": "\"",
 								"sequence": "",
-								"xpos": 37
+								"xpos": 28
 							}
 						},
-						"translation.x": 138.0,
-						"translation.y": 99.0,
+						"translation.x": 0.0,
+						"translation.y": 2632.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 11,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "appom/src/growingtree_app/components/newthing_form.cljs",
+					"buffer": 4,
+					"file": "appom/src/growingtree_app/components/entity_view.cljs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 14759,
+						"buffer_size": 56116,
 						"regions":
 						{
+							"bookmarks":
+							{
+								"flags": 144,
+								"icon": "bookmark",
+								"regions":
+								[
+									[
+										23935,
+										23935
+									]
+								],
+								"scope": "bookmarks"
+							}
 						},
 						"selection":
 						[
 							[
-								11622,
-								11622
+								2361,
+								2361
 							]
 						],
 						"settings":
@@ -863,90 +1505,261 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
 								"bh_unmatched_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
+								"bh_unmatched_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
 								"bh_angle_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
 								"bh_square_close",
+								"bh_square_content",
 								"bh_regex",
 								"bh_regex_center",
 								"bh_regex_open",
 								"bh_regex_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close"
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
 							],
-							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
+							"history_list_is_closing": true,
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true,
 							"vintage":
 							{
+								"_vintageous_glue_until_normal_mode": false,
+								"_vintageous_gluing_sequence": false,
+								"_vintageous_non_interactive": false,
 								"action": null,
 								"action_count": "",
 								"capture_register": false,
 								"mode": "mode_normal",
 								"motion": null,
 								"motion_count": "",
+								"normal_insert_count": "1",
 								"partial_sequence": "",
 								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"sequence",
+										{
+											"commands":
+											[
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"move",
+													{
+														"by": "characters",
+														"forward": false
+													}
+												],
+												[
+													"insert",
+													{
+														"characters": "sho-"
+													}
+												],
+												[
+													"left_delete",
+													null
+												],
+												[
+													"insert",
+													{
+														"characters": "w-"
+													}
+												],
+												[
+													"left_delete",
+													null
+												],
+												[
+													"left_delete",
+													null
+												],
+												[
+													"left_delete",
+													null
+												],
+												[
+													"left_delete",
+													null
+												],
+												[
+													"left_delete",
+													null
+												]
+											]
+										}
+									],
+									"mode_insert",
+									null
+								],
 								"sequence": "",
-								"xpos": 13
+								"xpos": 33
 							}
 						},
-						"translation.x": 0.0,
-						"translation.y": 506.0,
+						"translation.x": 17.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "appom/src/growingtree_app/core.cljs",
+					"buffer": 5,
+					"file": "growingtree-server/src/growingtree_server/datomic/family.clj",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5818,
+						"buffer_size": 23524,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								10084,
+								10084
 							]
 						],
 						"settings":
@@ -954,96 +1767,227 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
 								"bh_unmatched_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
+								"bh_unmatched_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
 								"bh_angle_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
 								"bh_square_close",
+								"bh_square_content",
 								"bh_regex",
 								"bh_regex_center",
 								"bh_regex_open",
 								"bh_regex_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close"
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
 							],
-							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
+							"history_list_is_closing": true,
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true,
 							"vintage":
 							{
+								"_vintageous_glue_until_normal_mode": true,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_insert",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"sequence": "",
+								"xpos": 63
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 3597.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "growingtree-server/src/growingtree_server/datomic/course.clj",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 21437,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								17933,
+								17933
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"highlight_line": false,
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
 								"action": null,
 								"action_count": "",
 								"capture_register": false,
 								"mode": "mode_normal",
 								"motion": null,
 								"motion_count": "",
+								"normal_insert_count": "1",
 								"partial_sequence": "",
 								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"_enter_normal_mode",
+										{
+											"mode": "mode_normal"
+										}
+									],
+									"mode_insert",
+									null
+								],
 								"sequence": "",
-								"xpos": 0
+								"xpos": 44
 							}
 						},
 						"translation.x": 0.0,
-						"translation.y": 636.0,
+						"translation.y": 6547.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
 					"type": "text"
 				}
 			]
 		},
 		{
-			"selected": 1,
+			"selected": 5,
 			"sheets":
 			[
 				{
-					"buffer": 4,
-					"file": "appom/assets/stylesheets/growingtree-app.scss",
+					"buffer": 7,
+					"file": "appom/src/growingtree_app/components/newthing_form.cljs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 48793,
+						"buffer_size": 23118,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								8789,
-								8789
+								7867,
+								7873
 							]
 						],
 						"settings":
@@ -1051,90 +1995,116 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
 								"bh_angle_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
 								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
 								"bh_regex",
 								"bh_regex_center",
 								"bh_regex_open",
 								"bh_regex_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close"
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content"
 							],
-							"syntax": "Packages/CSS/CSS.tmLanguage",
+							"history_list_is_closing": true,
+							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true,
 							"vintage":
 							{
+								"_vintageous_glue_until_normal_mode": false,
 								"action": null,
 								"action_count": "",
 								"capture_register": false,
 								"mode": "mode_visual",
 								"motion": null,
 								"motion_count": "",
+								"normal_insert_count": "1",
 								"partial_sequence": "",
 								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"insert_snippet",
+										{
+											"contents": "($0)"
+										}
+									],
+									null,
+									null
+								],
 								"sequence": "",
-								"xpos": 0
+								"xpos": 28
 							}
 						},
-						"translation.x": 1.0,
-						"translation.y": 6620.0,
+						"translation.x": 0.0,
+						"translation.y": 563.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 12,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
-					"file": "growingtree-server/src/growingtree_server/datomic/course.clj",
+					"buffer": 8,
+					"file": "appom/src/growingtree_app/mock_data.cljs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 13931,
+						"buffer_size": 9690,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								3924,
+								3924
 							]
 						],
 						"settings":
@@ -1142,50 +2112,420 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
 								"bh_curly_close",
+								"bh_curly_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
 								"bh_double_quote",
 								"bh_double_quote_center",
 								"bh_double_quote_open",
 								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
 								"bh_angle",
 								"bh_angle_center",
 								"bh_angle_open",
 								"bh_angle_close",
+								"bh_angle_content",
 								"bh_single_quote",
 								"bh_single_quote_center",
 								"bh_single_quote_open",
 								"bh_single_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
 								"bh_regex",
 								"bh_regex_center",
 								"bh_regex_open",
 								"bh_regex_close",
+								"bh_regex_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content"
+							],
+							"history_list_is_closing": true,
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": true,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_insert",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"insert",
+										{
+											"characters": " no"
+										}
+									],
+									null,
+									null
+								],
+								"sequence": "",
+								"xpos": 49
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 14,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "appom/src/growingtree_app/ui.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2206,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								536,
+								536
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
 								"bh_tag",
 								"bh_tag_center",
 								"bh_tag_open",
-								"bh_tag_close"
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content"
+							],
+							"history_list_is_closing": true,
+							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"left_delete",
+										null
+									],
+									null,
+									null
+								],
+								"sequence": "",
+								"xpos": 38
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 13,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "appom/src/growingtree_app/api/cljsajax.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5958,
+						"regions":
+						{
+							"mark":
+							{
+								"flags": 144,
+								"icon": "dot",
+								"regions":
+								[
+									[
+										2797,
+										2826
+									]
+								],
+								"scope": "mark"
+							}
+						},
+						"selection":
+						[
+							[
+								2814,
+								2820
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"left_delete",
+										null
+									],
+									null,
+									null
+								],
+								"sequence": "",
+								"xpos": 35
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 573.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "growingtree-server/src/growingtree_server/peer.clj",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9473,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2088,
+								2088
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
 							],
 							"syntax": "Packages/Clojure/Clojure.tmLanguage",
 							"tab_size": 2,
@@ -1201,6 +2541,340 @@
 								"partial_sequence": "",
 								"register": "\"",
 								"sequence": "",
+								"xpos": 14
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "growingtree-server/src/growingtree_server/datomic/dbconn.clj",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 22137,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								9639,
+								9639
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"",
+										null
+									],
+									"mode_insert",
+									null
+								],
+								"sequence": "",
+								"xpos": 14
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 3742.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "growingtree-server/src/growingtree_server/datomic/dbschema.clj",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 15386,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								13553,
+								13553
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"highlight_line": false,
+							"history_list_is_closing": true,
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"sequence": "",
+								"xpos": 1
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 1399.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 14,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 487,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								412,
+								412
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"auto_name": "",
+							"bh_regions":
+							[
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": true,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_insert",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"left_delete",
+										null
+									],
+									null,
+									null
+								],
+								"sequence": "",
 								"xpos": 0
 							}
 						},
@@ -1208,7 +2882,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -1242,7 +2916,7 @@
 		"cols":
 		[
 			0.0,
-			0.458931649533,
+			0.552927903197,
 			1.0
 		],
 		"rows":
@@ -1272,12 +2946,448 @@
 		"selected_items":
 		[
 			[
-				"cours",
+				"course",
 				"growingtree-server/src/growingtree_server/datomic/course.clj"
+			],
+			[
+				"login",
+				"appom/src/growingtree_app/components/login.cljs"
+			],
+			[
+				"famil",
+				"growingtree-server/src/growingtree_server/datomic/family.clj"
+			],
+			[
+				"fami",
+				"growingtree-server/src/growingtree_server/datomic/family.clj"
+			],
+			[
+				"pee",
+				"growingtree-server/src/growingtree_server/peer.clj"
+			],
+			[
+				"service",
+				"growingtree-server/src/growingtree_server/service.clj"
+			],
+			[
+				"cljs",
+				"appom/src/growingtree_app/api/cljsajax.cljs"
+			],
+			[
+				"request",
+				"appom/src/growingtree_app/controllers/requester.cljs"
+			],
+			[
+				"newthin",
+				"appom/src/growingtree_app/components/newthing_form.cljs"
+			],
+			[
+				"gro",
+				"appom/assets/stylesheets/growingtree-app.scss"
+			],
+			[
+				"logi",
+				"appom/src/growingtree_app/components/login.cljs"
 			],
 			[
 				"main",
 				"appom/src/growingtree_app/components/main_area.cljs"
+			],
+			[
+				"util",
+				"growingtree-server/src/growingtree_server/datomic/util.clj"
+			],
+			[
+				"nav",
+				"appom/src/growingtree_app/components/navbar.cljs"
+			],
+			[
+				"app",
+				"appom/src/growingtree_app/components/app.cljs"
+			],
+			[
+				"ui",
+				"appom/src/growingtree_app/ui.cljs"
+			],
+			[
+				"moc",
+				"appom/src/growingtree_app/mock_data.cljs"
+			],
+			[
+				"post",
+				"appom/src/growingtree_app/controllers/post_controls.cljs"
+			],
+			[
+				"dev",
+				"appom/assets/dev.html"
+			],
+			[
+				"api",
+				"appom/src/growingtree_app/controllers/api.cljs"
+			],
+			[
+				"api.",
+				"appom/src/growingtree_app/controllers/api.cljs"
+			],
+			[
+				"ser",
+				"growingtree-server/src/growingtree_server/service.clj"
+			],
+			[
+				"core",
+				"appom/src/growingtree_app/core.cljs"
+			],
+			[
+				"dda",
+				"growingtree-server/src/growingtree_server/datomic/dda.clj"
+			],
+			[
+				"clj",
+				"appom/src/growingtree_app/api/cljsajax.cljs"
+			],
+			[
+				"fam",
+				"growingtree-server/src/growingtree_server/datomic/family.clj"
+			],
+			[
+				"peer",
+				"growingtree-server/src/growingtree_server/peer.clj"
+			],
+			[
+				"servi",
+				"growingtree-server/src/growingtree_server/service.clj"
+			],
+			[
+				"controls",
+				"appom/src/growingtree_app/controllers/post_controls.cljs"
+			],
+			[
+				"post_c",
+				"appom/src/growingtree_app/controllers/post_controls.cljs"
+			],
+			[
+				"contro",
+				"appom/src/growingtree_app/controllers/controls.cljs"
+			],
+			[
+				"ent",
+				"appom/src/growingtree_app/components/entity_view.cljs"
+			],
+			[
+				"gr",
+				"appom/assets/stylesheets/growingtree-app.scss"
+			],
+			[
+				"mock_",
+				"appom/src/growingtree_app/mock_data.cljs"
+			],
+			[
+				"dev.",
+				"appom/assets/dev.html"
+			],
+			[
+				"serv",
+				"growingtree-server/src/growingtree_server/server.clj"
+			],
+			[
+				"dbf",
+				"growingtree-server/resources/growingtree/dbfn.dtm"
+			],
+			[
+				"schema",
+				"growingtree-server/src/growingtree_server/datomic/dbschema.clj"
+			],
+			[
+				"server",
+				"growingtree-server/src/growingtree_server/server.clj"
+			],
+			[
+				"serve",
+				"growingtree-server/src/growingtree_server/server.clj"
+			],
+			[
+				"grow",
+				"appom/assets/stylesheets/growingtree-app.scss"
+			],
+			[
+				"comments",
+				"growingtree-server/src/growingtree_server/datomic/comments.clj"
+			],
+			[
+				"assig",
+				"growingtree-server/src/growingtree_server/datomic/assign.clj"
+			],
+			[
+				"com",
+				"growingtree-server/src/growingtree_server/datomic/comments.clj"
+			],
+			[
+				"ass",
+				"growingtree-server/src/growingtree_server/datomic/assign.clj"
+			],
+			[
+				"timeline",
+				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
+			],
+			[
+				"commen",
+				"growingtree-server/src/growingtree_server/datomic/comments.clj"
+			],
+			[
+				"assign",
+				"growingtree-server/src/growingtree_server/datomic/assign.clj"
+			],
+			[
+				"cour",
+				"growingtree-server/src/growingtree_server/datomic/course.clj"
+			],
+			[
+				"new",
+				"appom/src/growingtree_app/components/newthing_form.cljs"
+			],
+			[
+				"assi",
+				"growingtree-server/src/growingtree_server/datomic/assign.clj"
+			],
+			[
+				"time",
+				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
+			],
+			[
+				"tim",
+				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
+			],
+			[
+				"dbco",
+				"growingtree-server/src/growingtree_server/datomic/dbconn.clj"
+			],
+			[
+				"uit",
+				"growingtree-server/src/growingtree_server/datomic/util.clj"
+			],
+			[
+				"dbc",
+				"growingtree-server/src/growingtree_server/datomic/dbconn.clj"
+			],
+			[
+				"cou",
+				"growingtree-server/src/growingtree_server/datomic/course.clj"
+			],
+			[
+				"side",
+				"appom/src/growingtree_app/components/sidebar.cljs"
+			],
+			[
+				"timeli",
+				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
+			],
+			[
+				"dd",
+				"growingtree-server/src/growingtree_server/datomic/dda.clj"
+			],
+			[
+				"servic",
+				"growingtree-server/src/growingtree_server/service.clj"
+			],
+			[
+				"enti",
+				"appom/src/growingtree_app/components/entity_view.cljs"
+			],
+			[
+				"growi",
+				"appom/assets/stylesheets/growingtree-app.scss"
+			],
+			[
+				"entit",
+				"appom/src/growingtree_app/components/entity_view.cljs"
+			],
+			[
+				"family",
+				"growingtree-server/src/growingtree_server/datomic/family.clj"
+			],
+			[
+				"route",
+				"appom/src/growingtree_app/routes.cljs"
+			],
+			[
+				"newthing",
+				"appom/src/growingtree_app/components/newthing_form.cljs"
+			],
+			[
+				"family.clj",
+				"growingtree-server/src/growingtree_server/datomic/family.clj"
+			],
+			[
+				"course.clj",
+				"growingtree-server/src/growingtree_server/datomic/course.clj"
+			],
+			[
+				"comment",
+				"growingtree-server/src/growingtree_server/datomic/comments.clj"
+			],
+			[
+				"mock",
+				"appom/src/growingtree_app/mock_data.cljs"
+			],
+			[
+				"navb",
+				"appom/src/growingtree_app/components/navbar.cljs"
+			],
+			[
+				"newt",
+				"appom/src/growingtree_app/components/newthing_form.cljs"
+			],
+			[
+				"contr",
+				"appom/src/growingtree_app/controllers/controls.cljs"
+			],
+			[
+				"dbcon",
+				"growingtree-server/src/growingtree_server/datomic/dbconn.clj"
+			],
+			[
+				"sidebar",
+				"appom/src/growingtree_app/components/sidebar.cljs"
+			],
+			[
+				"control",
+				"appom/src/growingtree_app/controllers/controls.cljs"
+			],
+			[
+				"",
+				"appom/src/growingtree_app/core.cljs"
+			],
+			[
+				"fa",
+				"growingtree-server/src/growingtree_server/datomic/family.clj"
+			],
+			[
+				"ut",
+				"growingtree-server/src/growingtree_server/datomic/util.clj"
+			],
+			[
+				"f",
+				"growingtree-server/src/growingtree_server/datomic/family.clj"
+			],
+			[
+				"pe",
+				"growingtree-server/src/growingtree_server/peer.clj"
+			],
+			[
+				"db",
+				"growingtree-server/src/growingtree_server/datomic/dbschema.clj"
+			],
+			[
+				"dbs",
+				"growingtree-server/src/growingtree_server/datomic/dbschema.clj"
+			],
+			[
+				"app.",
+				"appom/src/growingtree_app/components/app.cljs"
+			],
+			[
+				"pos",
+				"appom/src/growingtree_app/controllers/post_controls.cljs"
+			],
+			[
+				"mai",
+				"appom/src/growingtree_app/components/main_area.cljs"
+			],
+			[
+				"timelin",
+				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
+			],
+			[
+				"timel",
+				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
+			],
+			[
+				"post_a",
+				"appom/src/growingtree_app/controllers/post_api.cljs"
+			],
+			[
+				"mo",
+				"appom/src/growingtree_app/mock_data.cljs"
+			],
+			[
+				"con",
+				"appom/src/growingtree_app/controllers/controls.cljs"
+			],
+			[
+				"cor",
+				"appom/src/growingtree_app/core.cljs"
+			],
+			[
+				"dbsc",
+				"growingtree-server/src/growingtree_server/datomic/dbschema.clj"
+			],
+			[
+				"en",
+				"appom/src/growingtree_app/components/entity_view.cljs"
+			],
+			[
+				"e",
+				"appom/src/growingtree_app/components/entity_view.cljs"
+			],
+			[
+				"newth",
+				"appom/src/growingtree_app/components/newthing_form.cljs"
+			],
+			[
+				"srvice",
+				"growingtree-server/src/growingtree_server/service.clj"
+			],
+			[
+				"ma",
+				"appom/src/growingtree_app/components/main_area.cljs"
+			],
+			[
+				"newthign_",
+				"appom/src/growingtree_app/components/newthing_form.cljs"
+			],
+			[
+				"utils",
+				"appom/src/growingtree_app/utils.cljs"
+			],
+			[
+				"newthing_",
+				"appom/src/growingtree_app/components/newthing_form.cljs"
+			],
+			[
+				"cont",
+				"appom/src/growingtree_app/controllers/controls.cljs"
+			],
+			[
+				"entt",
+				"appom/src/growingtree_app/components/entity_view.cljs"
+			],
+			[
+				"ajax",
+				"appom/src/growingtree_app/api/cljsajax.cljs"
+			],
+			[
+				"datetimep",
+				"appom/assets/javascripts/datetimepicker.js"
+			],
+			[
+				"rout",
+				"appom/src/growingtree_app/routes.cljs"
+			],
+			[
+				"ajaxcl",
+				"appom/src/growingtree_app/api/cljsajax.cljs"
+			],
+			[
+				"cljsad",
+				"appom/out/public/cljs/core/async/impl/dispatch.cljs"
+			],
+			[
+				"po",
+				"appom/src/growingtree_app/controllers/post_controls.cljs"
+			],
+			[
+				"cours",
+				"growingtree-server/src/growingtree_server/datomic/course.clj"
 			],
 			[
 				"growingtree",
@@ -1346,50 +3456,6 @@
 			[
 				"deplo",
 				"workspace-atlas/atlas/bin/deploy.sh"
-			],
-			[
-				"grunt",
-				"workspace-atlas/atlas/frontend/Gruntfile.js"
-			],
-			[
-				"depl",
-				"workspace-atlas/atlas/bin/deploy.sh"
-			],
-			[
-				"fer",
-				"workspace-atlas/ferris.md"
-			],
-			[
-				"go",
-				"atlas/frontend/GO"
-			],
-			[
-				"ver",
-				"atlas/VERIFY_CODEBASE"
-			],
-			[
-				"exclu",
-				"atlas/frontend/test/coverage-excludes.js"
-			],
-			[
-				"add-to-registry.sp",
-				"atlas/frontend/test/js/spec/common/lists/add-to-registry/add-to-registry.spec.js"
-			],
-			[
-				"grun",
-				"atlas/frontend/Gruntfile.js"
-			],
-			[
-				"verify",
-				"atlas/VERIFY_CODEBASE"
-			],
-			[
-				"tracker",
-				"atlas/frontend/js/common/recommendations/tracker.js"
-			],
-			[
-				"carousle",
-				"atlas/frontend/js/common/carousel.js"
 			]
 		],
 		"width": 0.0
@@ -1410,17 +3476,20 @@
 		],
 		"width": 0.0
 	},
+	"selected_group": 0,
 	"settings":
 	{
+		"_vintageous_reset_during_init": true,
 		"vintage":
 		{
+			"_cmdline_cd": "/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components"
 		}
 	},
 	"show_minimap": false,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": true,
-	"side_bar_width": 225.0,
+	"side_bar_visible": false,
+	"side_bar_width": 200.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

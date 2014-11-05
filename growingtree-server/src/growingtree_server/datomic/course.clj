@@ -104,8 +104,8 @@
 
 (declare populate-course-refed-entity)
 (declare populate-lecture-refed-entity)
-(declare populate-course-enrollment-refed-entity)
-(declare populate-person-enrollment-refed-entity)
+(declare populate-person-enrollment-course)
+(declare populate-course-enrollment-person)
 (declare populate-progress-refed-entity)
 
 ; schema attr-name value type map for parent schema and child schema
@@ -158,8 +158,9 @@
     (assoc entity :course/progress progress)))
 
 
+; need author (login-user name) or long author-id for populating course progress related to author.
 (defn populate-course-refed-entity
-  [entity author]
+  [entity author]  ; can be user-name or user-id, test by class author is string or long.
   (let [projkeys (keys course-schema)]
       (as-> entity e
         (select-keys e projkeys)
@@ -283,13 +284,15 @@
   "find all person that enrolls to the course by query path "
   [qpath]
   (log/info "find enrollment " qpath " entities: " (util/get-qpath-entities qpath get-enrollment-by))
-  (let [result (if (#{:parent :child} (first qpath))
+  (let [user-id (second qpath)  ; [child 1 enrollment]
+        result (if (some #{(first qpath)} #{:parent :child})
                 (->> (util/get-qpath-entities qpath get-enrollment-by)
-                     (map populate-person-enrollment-refed-entity)
-                     (map #(util/add-navpath % qpath) ))
+                     (map (partial populate-person-enrollment-course user-id))
+                     (map #(util/add-navpath % qpath) )
+                     )
                 (->> (util/get-qpath-entities qpath get-enrollment-by)
                      ; use mapcat to concat list of person in a enrollment group.
-                     (mapcat populate-course-enrollment-refed-entity)
+                     (mapcat populate-course-enrollment-person)
                      (map #(util/add-navpath % qpath) )))
         ]
     (doseq [e result]
@@ -299,25 +302,26 @@
 
 ; course enrollments outbound refed entity contains a set of person,
 ; map rets a list, need to be mapcat-ed.
-(defn populate-course-enrollment-refed-entity
+; {:enrollment/person #{{:db/id 17592186045453}}, :enrollment/title "love flute", ... }
+(defn populate-course-enrollment-person
   [entity]
   (let [person-keys (keys (assoc (list-attr :person) :db/id :db.type/id))]
-    (log/info "populate-course-enrollment-refed-entity " entity)
+    (log/info "populate enrollment person entity " entity)
     (as-> entity e
       (:enrollment/person e)  ; enrollment person set -> e
       (filter identity e)     ; filter nil in person set
-      (map (comp get-entity :db/id) e)  ; person id to person entity 
+      (map (comp get-entity :db/id) e)  ; person id to person entity, result assigned to e.
       (map #(select-keys % person-keys) e))  ; 
   ))
 
 ; one person enrollment contains one person one course entity.
-(defn populate-person-enrollment-refed-entity
-  [entity]
+; entity {:enrollment/person #{{:db/id 17592186045427}}, :enrollment/title "love math",}
+(defn populate-person-enrollment-course
+  [user-id entity]
   (let [course-keys (keys (assoc (list-attr :course) :db/id :db.type/id))]
-    (log/info "populate-person-enrollment-refed-entity " entity)
     (as-> entity e
-      ((comp get-entity :db/id identity :enrollment/course) e)
-      (populate-course-refed-entity e))
+      ((comp get-entity :db/id :enrollment/course) e)
+      (populate-course-refed-entity e user-id))
   ))
 
 
@@ -406,6 +410,7 @@
           author (get-in details [:data :author])]
       (find-progress rule-name course-id author)))
 
+  ; if author is name string, get its db/id, otherwise, author is long author-id.
   ([rule-name course-id author]
     (let [rule (list rule-name '?e '?cid '?aid)
           author-id (if (= java.lang.String (class author))
@@ -416,6 +421,7 @@
           result (->> (util/get-entities-by-rule rule get-progress-by rule-args)
                     (map populate-progress-refed-entity))
         ]
+    (log/info " find-progress rule-args " rule-args)
     (doseq [e result]
       (log/info "progress --> " e))
     result))
