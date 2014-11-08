@@ -427,6 +427,7 @@
     result))
   )
 
+
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; {:db/id , :progress/tasks #db/id[:db.part/user -1000000], :progress/origin , :progress/author 17592186045427, :progress/title "progression of flute 101"}}
 ; when progress :db/id nil, populate all attrs. For update progress task, populate ONLY tasks id.
@@ -449,6 +450,8 @@
     progress))
 
 
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; automatically enroll the user to the course when it try to create a progress on the course.
 ; {:progressstep/origin {:db/id nil ? :progress/origin 17592186045484, :progress/author "", :progress/title "progression of flute 101"}, 
 ;  :progressstep/start 1412473718, :progressstep/title "Grade I", :progressstep/author "rich-son", :progressstep/status "half"}
 (defn create-progress
@@ -457,8 +460,8 @@
   (log/info "create-progress " details  "schema " (keys progress-schema))
   (let [task-id (d/tempid :db.part/user)
         ; from progressstep/origin, we get the progress entity.
-        progress (as-> (:progressstep/origin details) p
-                       (upsert-progress p task-id))
+        progress (as-> (:progressstep/origin details) prog
+                       (upsert-progress prog task-id))
         progress-step (-> (dissoc details :progressstep/origin)
                           (select-keys (keys progressstep-schema))
                           (assoc :progressstep/origin (:db/id progress))

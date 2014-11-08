@@ -107,6 +107,7 @@
 ;- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; get state attrs
 ;- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; {:person/lname "poor", :person/url #{"poor.com/poor-son"}, :db/id 17592186045450, :person/title "poor-son", :person/email #{"poor-son@poor.com"}}
 (defn get-login-user
   "get current login user from state, must be called in render phase."
   [state]

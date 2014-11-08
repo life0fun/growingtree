@@ -515,6 +515,7 @@
   :course
   [app thing-type entity override]
   (let [
+        login-user (get-in app [:login-user])
         comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
         
@@ -535,7 +536,7 @@
         ; enroll form
         enroll-form-name (str "#enrollment-form-" thing-id)
         enroll-form-input-map {
-          :enrollment/person {:id (str "enroll-person-" thing-id) :type "text" :text "attendee"}
+          :enrollment/person {:id (str "enroll-person-" thing-id) :type "text" :text (:person/title login-user)}
           :enrollment/title {:id (str "enroll-title-" thing-id) :type "text" :text "remarks"}
         }
         enroll-form-fields {
@@ -552,8 +553,8 @@
         ; add progress form
         progressstep-form-name (str "#progressstep-form-" thing-id)
         progressstep-form-input-map {
-          :progressstep/title {:id (str "progressstep-title-" thing-id) :type "text" :text "step"}
-          :progressstep/author {:id (str "progressstep-author-" thing-id) :type "text" :text "author"}
+          :progressstep/title {:id (str "progressstep-title-" thing-id) :type "text" :text "progress"}
+          :progressstep/author {:id (str "progressstep-author-" thing-id) :type "text" :text (:person/title login-user)}
           :progressstep/status {:id (str "progressstep-status-" thing-id) :type "select" :select ["25" "50" "75" "100"]}
         }
         progressstep-form-fields {
