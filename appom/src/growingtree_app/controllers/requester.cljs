@@ -49,8 +49,7 @@
   :login
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax :login nav-path " nav-path))
-  (utils/set-window-href! (routes/v1-all-things
-                            {:thing-type (name (get-in nav-path [:body 1 2]))}))
+  (routes/set-window-href! "login" (routes/v1-all-things-route nav-path))
   (cljsajax/cljs-ajax :signup-login  ;:request-things
                       nav-path
                       (get-in current-state [:comms :api]) ; ajax ret data to api-ch.
@@ -63,8 +62,7 @@
   :signup
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax :signup nav-path " nav-path))
-  (utils/set-window-href! (routes/v1-all-things
-                            {:thing-type (name (get-in nav-path [:body 1 2]))}))
+  (routes/set-window-href! "signup" (routes/v1-all-things-route nav-path))
   (cljsajax/cljs-ajax :signup-login ;:request-things
                       nav-path
                       (get-in current-state [:comms :api]) ; ajax ret data to api-ch.
@@ -78,8 +76,7 @@
   :all-things
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax :all-things nav-path " nav-path))
-  (utils/set-window-href! (routes/v1-all-things
-                            {:thing-type (name (get-in nav-path [:body 1 2]))}))
+  (routes/set-window-href! "signup" (routes/v1-all-things-route nav-path))
   (cljsajax/cljs-ajax :request-things
                       nav-path
                       (get-in current-state [:comms :api]) ; ajax ret data to api-ch.
@@ -95,11 +92,11 @@
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax filter-things nav-path " nav-path))
   ; update secretary router match to action.
-  (utils/set-window-href! (routes/v1-filter-things 
-                            {:parent (name (get-in nav-path [:body 1 0]))
-                             :id (get-in nav-path [:body 1 1])
-                             :filtered (name (get-in nav-path [:body 1 2]))
-                            }))
+  (routes/set-window-href! "filter" (routes/v1-filter-things-route nav-path))
+                            ; {:parent (name (get-in nav-path [:body 1 0]))
+                            ;  :id (get-in nav-path [:body 1 1])
+                            ;  :filtered (name (get-in nav-path [:body 1 2]))
+                            ; }))
   (cljsajax/cljs-ajax :request-things
                       nav-path
                       (get-in current-state [:comms :api])  ; ajax ret data to api-ch.
@@ -112,7 +109,7 @@
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax search-thing nav-path " nav-path));
   ; ; update secretary router match to action.
-  (utils/set-window-href! (routes/v1-all-things
+  (routes/set-window-href! "search" (routes/v1-all-things
                             {:thing-type (name (get-in nav-path [:body 1 0]))
                              :key (get-in nav-path [:body 1 1])}))
   (cljsajax/cljs-ajax :search-things
@@ -129,7 +126,7 @@
   [target msg-type nav-path previous-state current-state]
   (.log js/console (pr-str "post ajax add-thing nav-path " nav-path)) ; [:lecture {:lecture/course ...}]
   ; ; update secretary router match to action.
-  (utils/set-window-href! (routes/v1-all-things
+  (routes/set-window-href! "add" (routes/v1-all-things
                             {:thing-type (name (get nav-path :add-thing))}))
   (cljsajax/cljs-ajax :add-thing
                       nav-path

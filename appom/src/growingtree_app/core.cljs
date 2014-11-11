@@ -115,6 +115,7 @@
         login-el (.getElementById js/document "login")
         hist-el (.getElementById js/document "history-container")
        ]
+
     ; we need route ui click event to control chan, and process control chan inside main comp.
     (routes/define-routes! state hist-el)
 

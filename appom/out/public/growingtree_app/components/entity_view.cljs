@@ -536,7 +536,7 @@
         ; enroll form
         enroll-form-name (str "#enrollment-form-" thing-id)
         enroll-form-input-map {
-          :enrollment/person {:id (str "enroll-person-" thing-id) :type "text" :text "attendee"}
+          :enrollment/person {:id (str "enroll-person-" thing-id) :type "text" :text (:person/title login-user)}
           :enrollment/title {:id (str "enroll-title-" thing-id) :type "text" :text "remarks"}
         }
         enroll-form-fields {

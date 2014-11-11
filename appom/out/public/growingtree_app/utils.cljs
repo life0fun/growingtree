@@ -77,12 +77,9 @@
    {:src
     (email->gravatar-url email)}])
 
-; window history pushState path
-(defn set-window-href! 
-  [path]
-  (js/window.history.pushState #js {}, "", path))
 
 
+; issue ajax call to url with method.
 (defn ajax 
   [url method data-string success & [error headers]]
   (let [request (XhrIo.)
