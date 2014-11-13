@@ -37,9 +37,10 @@
 
 (defn current-user [comm user]
   [:a.user-menu-toggle
-   {:href "#"
-    :on-click (comp (constantly false)
-                    #(put! comm [:user-menu-toggled]))}
+    {
+      :on-click (comp (constantly false)
+                    #(put! comm [:user-menu-toggled]))
+    }
    (utils/gravatar-for (:email user))
    [:i.icon-angle.button.right {:style #js {:height "inherit"}}]
    (:full-name user)])
@@ -109,9 +110,9 @@
                       last)]
     [:li.file_item {:key (:src media)}
      [:a
-      {:href "#"
-       :on-click (constantly false)
-       :target "_blank"}
+      {:on-click (constantly false)
+       :target "_blank"
+      }
       [:img {:src (str "/images/" (get icon-map extension "file") "_icon.png")}]
       [:span (:name media)]]]))
 
@@ -180,54 +181,50 @@
     om/IRender
     (render [this]
       (html/html
-       (let [comm (get-in opts [:comms :controls])
+        (let [comm (get-in opts [:comms :controls])
              channel (:channel data)    ; the selected channel from click
              settings (:settings data)
              search-filter (:search-filter data)]
-         (.log js/console "rendering sidebar with selected channel " (:id channel))
-         [:aside.sidebar
-          [:div.header.user-header {:class (when (get-in settings [:menus :user-menu :open]) "open-menu")}
-           (current-user comm (get-in opts [:users (:current-user-email opts)]))
-           [:ul.user-menu
-            [:li]
-            [:li [:a {:href "#"
-                      :on-click #(put! comm [:settings-opened])} "Edit Account"]]
-            [:li
-             [:a
-              {:rel "nofollow",
-               :href "#"
-               :on-click #(put! comm [:user-logged-out])}
-              "Logout"]]
-            [:li [:a {:href "#"
-                      :on-click #(put! comm [:help-opened])} "Help"]]
-            [:li [:a {:href "#"
-                      :on-click #(put! comm [:about-opened])} "About growingtree-app"]]]]
-          [:div.widgets
-           (om/build widget
-                     {:content-data {:channel-users-emails (:users channel)
-                                     :search-filter search-filter}
-                      :content-opts opts}
-                     {:opts {:title "People"
-                             :icon "images/people_icon.png"
-                             :content-comp people-widget}})
-           (om/build widget
-                     {:content-data {:player        (:player channel)
-                                     :search-filter search-filter}
-                      :content-opts opts
-                      :action-data {:player (:player channel)}
-                      :action-opts opts}
-                     {:opts {:title "Playlist"
-                             :icon "images/video_icon.png"
-                             :content-comp playlist-widget}})
-                             ;:action-comp playlist-action-widget}})
-           (om/build widget
-                     {:content-data {:search-filter search-filter
-                                     :media       (:media channel)
-                                     :channel-id  (:id channel)}
-                      :content-opts {:comm comm}
-                      :action-data {:channel-id (:id channel)}}
-                     {:opts {:title "My Media"
-                             :icon "images/media_icon.png"
-                             :content-comp media-widget}})]
-                             ;:action-comp media-action-widget}})]
+          (.log js/console "rendering sidebar with selected channel " (:id channel))
+          [:aside.sidebar
+            [:div.header.user-header {:class (when (get-in settings [:menus :user-menu :open]) "open-menu")}
+              (current-user comm (get-in opts [:users (:current-user-email opts)]))
+              [:ul.user-menu
+                [:li]
+                [:li [:a {:on-click #(put! comm [:settings-opened])} "Edit Account"]]
+                [:li
+                  [:a
+                    {:rel "nofollow",
+                     :on-click #(put! comm [:user-logged-out])}
+                    "Logout"]]
+                [:li [:a {:on-click #(put! comm [:help-opened])} "Help"]]
+                [:li [:a {:on-click #(put! comm [:about-opened])} "About growingtree-app"]]]]
+              [:div.widgets
+                (om/build widget
+                         {:content-data {:channel-users-emails (:users channel)
+                                         :search-filter search-filter}
+                          :content-opts opts}
+                         {:opts {:title "People"
+                                 :icon "images/people_icon.png"
+                                 :content-comp people-widget}})
+                (om/build widget
+                         {:content-data {:player        (:player channel)
+                                         :search-filter search-filter}
+                          :content-opts opts
+                          :action-data {:player (:player channel)}
+                          :action-opts opts}
+                         {:opts {:title "Playlist"
+                                 :icon "images/video_icon.png"
+                                 :content-comp playlist-widget}})
+                                 ;:action-comp playlist-action-widget}})
+                (om/build widget
+                         {:content-data {:search-filter search-filter
+                                         :media       (:media channel)
+                                         :channel-id  (:id channel)}
+                          :content-opts {:comm comm}
+                          :action-data {:channel-id (:id channel)}}
+                         {:opts {:title "My Media"
+                                 :icon "images/media_icon.png"
+                                 :content-comp media-widget}})]
+                                 ;:action-comp media-action-widget}})]
            ])))))

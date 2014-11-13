@@ -45,10 +45,10 @@
       [:article.main-area
         [:header.header
           [:a.nav-toggle.button.left 
-            {:href "#" :on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
+            {:on-click #(put! comm [:left-sidebar-toggled])} [:i.fa.fa-comments]]
           [:a.sidebar-toggle.button.right 
-            {:href "#" :on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
-          [:a.logo {:href "#" :on-click (constantly false)}
+            {:on-click #(put! comm [:right-sidebar-toggled])} [:i.fa.fa-bars]]
+          [:a.logo {:on-click (constantly false)}
             [:img {:src "logo_thumb.png" :height "35" :title "growingtree-app"}]]]
         [:div#content
             (main-content app nav-path search-filter opts)
@@ -83,7 +83,6 @@
 (defmethod main-content 
   :all-things
   [app nav-path search-filter opts]
-  (.log js/console  (pr-str "main content nav-path body :all-things " nav-path))
   (let [thing-type (get-in nav-path [:body 1 2])]
     (list-things app thing-type nav-path search-filter opts))
   )
@@ -106,7 +105,6 @@
                   pid (merge (entity-view/actionkey-class pid add-thing " "))
                   pid (merge (entity-view/actionkey-class pid join-thing " ")))
        ]
-    (.log js/console "main-content showing filter-things " (pr-str pid thing-type))
     [:div
       (when pid (thing-entry app topview override))
       (when pid [:hr.filter-line {:size 4}])
@@ -135,7 +133,6 @@
         pid (get-in nav-path [:data :pid])
         override (if pid (entity-view/actionkey-class pid thing-type "hide") {})
        ]
-    (.log js/console "main-content newthing-form with pid " pid (pr-str thing-type override))
     [:div
       (when pid (thing-entry app title override))
       (when pid [:hr {:size 4}])

@@ -31,9 +31,9 @@
  
 (defn push-state!
   ([state title]
-     (.pushState js/history state title))
+    (.pushState js/history state title))
   ([state title path]
-     (.pushState js/history state title path)))
+    (.pushState js/history state title path)))
  
 (defn current-state
   "Returns current JS value of history.state"

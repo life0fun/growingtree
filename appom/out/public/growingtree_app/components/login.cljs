@@ -80,7 +80,7 @@
                 :on-click (submit-form-fn app "login-form" {:type :login} login-form-fields)}
                 "Sign In"]
               [:p#signup-link [:a.option.active 
-                {:href "#"
+                {
                  :on-click (fn [_] (ui/show-div "#signup-form"))
                 }
                 "Create an account ?"]]

@@ -10,7 +10,9 @@
   (:import [goog Uri History]
            [goog.net Jsonp]))
 
-(secretary/set-config! :prefix "#")
+
+; only when html5 history not support
+; (secretary/set-config! :prefix "#")
 
 
 (defn listen-once-for-app!
@@ -42,10 +44,11 @@
                         #(put! controls-ch [:all-things (vector thing-type)])))
 
 
-; 
+; swap path into js/history using push-state. 
 (defn set-window-href!
   [title path]
-  (swap! growingtree-history/state growingtree-history/push-state! title path))
+  (swap! growingtree-history/state growingtree-history/push-state! "" path)
+  )
 
 ;
 ; goog.events/listen on el upon event type, put events into chann.
@@ -91,7 +94,9 @@
     ; go async execute body of processing of navigation event from chan, secretary dispatch.
     ; (goog.events/listen history-el goog.history.EventType.NAVIGATE, #(sec/dispatch! (.-token %)))
     (go (while true
-      (let [token (.-token (<! navigation))]
+      (let [token (.-token (<! navigation))
+            url (growingtree-history/current-state)]
+        (.log js/console (pr-str "dispatch goog.history navigation token " token " url " url))
         (secretary/dispatch! token))))
 
     ; now hook any click event, push state 

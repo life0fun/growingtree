@@ -239,7 +239,7 @@
       [:div.score.unvoted (:upvote value-map)]
       [:div.arrow.down {:role "button" :arial-label "downvote"}]]
       
-    [:a.thumbnail {:href "#"}
+    [:a.thumbnail
       [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
   ))
       
@@ -247,13 +247,13 @@
 (defn thing-entry-titles
   [titles]
   (for [t titles]
-    [:p.title [:a.title {:href "#"} t]]))
+    [:p.title [:a.title {:on-click #()} t]]))
 
 (defn thing-entry-clickable-titles
   [title click-fn]
   [:p.title "to   " 
     [:a.title 
-      {:href "#"
+      {
        :on-click click-fn
       }
     (str "   " title)
@@ -276,8 +276,7 @@
     [:li.share
       [:div {:class classname}
         [:span.toggle [:a.option.active 
-          {:href "#"
-           :on-click on-click-fn
+          {:on-click on-click-fn
           } 
           text]]]]))
 
@@ -291,7 +290,7 @@
         status (:progressstep/status step)]  ; status is string steps
     [:li.progress-step
         [:span.progress-title
-          [:a {:href "#"}
+          [:a
             title
           ]
           [:div.meter
