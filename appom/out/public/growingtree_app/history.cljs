@@ -15,7 +15,8 @@
 ;
 
 
-(defn back! [] (.back js/history))
+(defn back! []
+  (.back js/history))
  
 (defn forward! [] (.forward js/history))
  
@@ -23,16 +24,18 @@
  
 (defn replace-state!
   ([state]
-     (replace-state! state (.-title js/document)))
+    (replace-state! state (.-title js/document)))
   ([state title]
-     (.replaceState js/history state title))
+    (.replaceState js/history state title))
   ([state title path]
-     (.replaceState js/history state title path)))
+    (.log js/console (pr-str "replace state " title path))
+    (.replaceState js/history state title path)))
  
 (defn push-state!
   ([state title]
     (.pushState js/history state title))
   ([state title path]
+    (.log js/console (pr-str "push-state " title path))
     (.pushState js/history state title path)))
  
 (defn current-state

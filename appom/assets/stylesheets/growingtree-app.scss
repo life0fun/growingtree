@@ -50,8 +50,11 @@ a {
 a:visited {
     color: #4F565B;
 }
+a:hover {
+  text-decoration:underline;
+}
 textarea {
-    font-family: inherit;
+  font-family: inherit;
 }
 /*Preloading*/
 #preload {
@@ -1335,11 +1338,6 @@ button.button {
 }
 .link:nth-child(odd) {
     background: rgba(206, 227, 248, .5);
-}
-.link a { 
-    text-decoration: none;
-    color: #517191;
-    color: #369;
 }
 .link .entry { 
     margin: 0px 50px 3px 0px; 

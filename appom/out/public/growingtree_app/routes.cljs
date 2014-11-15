@@ -1,5 +1,6 @@
 (ns growingtree-app.routes
   (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
+            [dommy.core :as dommy]
             [goog.events :as events]
             [goog.history.EventType :as EventType]
             [secretary.core :as secretary :include-macros true :refer [defroute]]
@@ -59,6 +60,14 @@
     out))
 
 
+; listen on window onpopstate event, when user hit back on browser
+(defn onpopstate
+  [e]
+  (let [cur (growingtree-history/current-state)]
+    (.log js/console (pr-str "window onpopstate " cur (.-state e)))
+    ))
+
+
 ; listen NAVIGATE event in goog.History, match url to sectrary router matcher, invoke dispatcher.
 ; secretary client side named route matcher match url and dispatch ui click event to control chan. 
 (defn define-routes! 
@@ -86,10 +95,13 @@
     )
   ;; This triggers the dispatch on the above routes, when a deep link URL is provided.
   (let [history (goog.History. false nil history-el)
-        navigation (listen history goog.history.EventType/NAVIGATE)  ; navigation event chan.
+        navigation (listen history goog.history.EventType/POPSTATE)  ; navigation event chan.
        ] 
     (doto history
       (.setEnabled true))
+
+    ; listen on window onpopstate when user hit back on browser.
+    (dommy/listen! js/window :popstate onpopstate)
 
     ; go async execute body of processing of navigation event from chan, secretary dispatch.
     ; (goog.events/listen history-el goog.history.EventType.NAVIGATE, #(sec/dispatch! (.-token %)))
@@ -110,7 +122,6 @@
     ;         (.preventDefault e)
     ;         ))))
     ))
-
 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

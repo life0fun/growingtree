@@ -110,10 +110,10 @@ var temp__4126__auto__ = cljs.core.seq.call(null,s__11627__$1);if(temp__4126__au
 {var s__11627__$2 = temp__4126__auto__;if(cljs.core.chunked_seq_QMARK_.call(null,s__11627__$2))
 {var c__4266__auto__ = cljs.core.chunk_first.call(null,s__11627__$2);var size__4267__auto__ = cljs.core.count.call(null,c__4266__auto__);var b__11629 = cljs.core.chunk_buffer.call(null,size__4267__auto__);if((function (){var i__11628 = (0);while(true){
 if((i__11628 < size__4267__auto__))
-{var t = cljs.core._nth.call(null,c__4266__auto__,i__11628);cljs.core.chunk_append.call(null,b__11629,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p.title","p.title",-1265013094),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"a.title","a.title",828429783),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"on-click","on-click",1632826543),((function (i__11628,t,c__4266__auto__,size__4267__auto__,b__11629,s__11627__$2,temp__4126__auto__){
-return (function (){return cljs.core.List.EMPTY;
+{var t = cljs.core._nth.call(null,c__4266__auto__,i__11628);cljs.core.chunk_append.call(null,b__11629,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"a.title","a.title",828429783),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"on-click","on-click",1632826543),((function (i__11628,t,c__4266__auto__,size__4267__auto__,b__11629,s__11627__$2,temp__4126__auto__){
+return (function (_){return console.log("title clicked");
 });})(i__11628,t,c__4266__auto__,size__4267__auto__,b__11629,s__11627__$2,temp__4126__auto__))
-], null),t], null)], null));
+], null),t], null));
 {
 var G__11630 = (i__11628 + (1));
 i__11628 = G__11630;
@@ -130,10 +130,10 @@ break;
 {return cljs.core.chunk_cons.call(null,cljs.core.chunk.call(null,b__11629),null);
 }
 } else
-{var t = cljs.core.first.call(null,s__11627__$2);return cljs.core.cons.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"p.title","p.title",-1265013094),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"a.title","a.title",828429783),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"on-click","on-click",1632826543),((function (t,s__11627__$2,temp__4126__auto__){
-return (function (){return cljs.core.List.EMPTY;
+{var t = cljs.core.first.call(null,s__11627__$2);return cljs.core.cons.call(null,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"a.title","a.title",828429783),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"on-click","on-click",1632826543),((function (t,s__11627__$2,temp__4126__auto__){
+return (function (_){return console.log("title clicked");
 });})(t,s__11627__$2,temp__4126__auto__))
-], null),t], null)], null),iter__11626.call(null,cljs.core.rest.call(null,s__11627__$2)));
+], null),t], null),iter__11626.call(null,cljs.core.rest.call(null,s__11627__$2)));
 }
 } else
 {return null;

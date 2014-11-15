@@ -247,7 +247,11 @@
 (defn thing-entry-titles
   [titles]
   (for [t titles]
-    [:p.title [:a.title {:on-click #()} t]]))
+    [:a.title
+      {:on-click (fn [_]
+        (.log js/console "title clicked"))
+      }
+      t]))
 
 (defn thing-entry-clickable-titles
   [title click-fn]
@@ -276,8 +280,7 @@
     [:li.share
       [:div {:class classname}
         [:span.toggle [:a.option.active 
-          {:on-click on-click-fn
-          } 
+          {:on-click on-click-fn} 
           text]]]]))
 
 
@@ -290,9 +293,7 @@
         status (:progressstep/status step)]  ; status is string steps
     [:li.progress-step
         [:span.progress-title
-          [:a
-            title
-          ]
+          [:a title ]
           [:div.meter
             [:span {:style #js {:width (str status "%")}}]
           ]
