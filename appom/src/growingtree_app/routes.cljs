@@ -12,6 +12,9 @@
            [goog.net Jsonp]))
 
 
+; https://github.com/clojure/clojurescript/wiki/Differences-from-Clojure
+; ClojureScript regular expression support is that of JavaScript
+
 ; only when html5 history not support
 ; (secretary/set-config! :prefix "#")
 
@@ -61,10 +64,13 @@
 
 
 ; listen on window onpopstate event, when user hit back on browser
+; ClojureScript regular expression support is that of JavaScript
 (defn onpopstate
   [e]
-  (let [cur (growingtree-history/current-state)]
-    (.log js/console (pr-str "window onpopstate " cur (.-state e)))
+  (let [location (.toString (.-location js/window))
+        url (last (re-find  #"https?://.*?/(.*)" location))
+        ]
+    (.log js/console (pr-str "window onpopstate " url))
     ))
 
 
