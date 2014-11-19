@@ -2,6 +2,7 @@
   (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
             [cljs.reader :as reader]
             [growingtree-app.mock-data :as mock-data]
+            [growingtree-app.routes :as routes]
             [growingtree-app.utils :as utils :refer [mprint]]))
 
 (enable-console-print!)

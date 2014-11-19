@@ -23,8 +23,7 @@ var replace_state_BANG___1 = (function (state){return replace_state_BANG_.call(n
 });
 var replace_state_BANG___2 = (function (state,title){return history.replaceState(state,title);
 });
-var replace_state_BANG___3 = (function (state,title,path){console.log(cljs.core.pr_str.call(null,"replace state ",title,path));
-return history.replaceState(state,title,path);
+var replace_state_BANG___3 = (function (state,title,path){return history.replaceState(state,title,path);
 });
 replace_state_BANG_ = function(state,title,path){
 switch(arguments.length){
@@ -47,8 +46,7 @@ growingtree_app.history.push_state_BANG_ = (function() {
 var push_state_BANG_ = null;
 var push_state_BANG___2 = (function (state,title){return history.pushState(state,title);
 });
-var push_state_BANG___3 = (function (state,title,path){console.log(cljs.core.pr_str.call(null,"push-state ",title,path));
-return history.pushState(state,title,path);
+var push_state_BANG___3 = (function (state,title,path){return history.pushState(state,title,path);
 });
 push_state_BANG_ = function(state,title,path){
 switch(arguments.length){

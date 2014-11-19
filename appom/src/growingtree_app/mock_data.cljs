@@ -85,7 +85,7 @@
 ; :login or sign up msg to be channeled to core for processing.
 ; msg-type: login or signup
 ; {:body [:login [:login 0 :login]], :data {:type :login, :name "rich-sonx", :pass "s"}}
-(defn get-login-msg
+(defn login-msg-nav-path
   [form-name data]
   (let [msg-type (if (= form-name "login-form") :login :signup)
         msg [msg-type {:body [msg-type [:login 0 msg-type]]
@@ -94,7 +94,7 @@
     msg))
 
 ; send :login-error msg to ctrl channel. cause no
-(defn get-retry-login-msg
+(defn retry-login-msg-nav-path
   [error-msg]
   (let [msg-type :login-error
         msg [msg-type error-msg]
@@ -103,7 +103,7 @@
 
 ; get :all-things msg to be sent to control channel to trigger controls chan event for ajax.
 ; :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} false 
-(defn get-all-things-msg
+(defn all-things-msg-nav-path
   [thing-type data]
   (let [msg [:all-things {:body [:all-things [:all 0 thing-type]]
                           :data data}]
@@ -112,8 +112,9 @@
 
 
 ; get :filter-things msg to be sent to control channel to trigger controls chan event ajax. 
+; has msg-type and msg-data part. msg-data is nav-path map.
 ; :filter-things {:body [:filter-things [:parent 1 :child]], :data {:pid 1}}
-(defn get-filter-things-msg
+(defn filter-things-msg-nav-path
   [parent-type parent-id filtered-type data]
   (let [msg [:filter-things 
               {:body [:filter-things [parent-type parent-id filtered-type]]
@@ -122,9 +123,9 @@
     msg))
 
 
-; get :search-thing msg to be sent to control channle to trigger ajax
+; get :search-thing msg-type and msg-data as nav-path to sent to transition state.
 ; msg-type is :search-things, msg data is map of :body [] and :data {}
-(defn get-search-msg
+(defn search-msg-nav-path
   [thing-type search]
   (let [msg [:search-things {:body [:search-things [thing-type 0 search]]
                              :data {:thing-type thing-type :searchkey search}}]
@@ -132,9 +133,9 @@
     msg))
 
 
-; get :newthing-form msg to be sent to control channel to trigger controls chan event ajax. 
+; get :newthing-form msg-type and msg-data as nav-path to sent to transition state.
 ; :newthing-form {:body [:newthing-form [:group :add-group]], :data {:pid nil}}
-(defn get-newthing-form-msg
+(defn newthing-form-msg-nav-path
   [thing-type]
   (let [newthing-path (vector thing-type (keyword (str "add-" (name thing-type))))
         newthing-data {:body [:newthing-form newthing-path] 
@@ -143,9 +144,9 @@
     msg))
 
 
-; get :add-thing msg to be sent to control channel to trigger controls chan event ajax. 
+; get :add-thing msg-type with msg-data as nav-path to sent to transite state.
 ; {:add-thing :add-group, :data {:group/title "a", :group/type :math, :group/author "poor-dad", :group/url "c", :group/email "d", :group/wiki "e"}} 
-(defn get-add-thing-msg
+(defn add-thing-msg-nav-path
   [thing-type data]
   (let [msg [:add-thing {:add-thing thing-type
                          :data data}]  ; add thing details in :data slot.

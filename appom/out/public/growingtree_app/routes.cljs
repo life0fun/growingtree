@@ -63,6 +63,16 @@
     out))
 
 
+; get current url from window location, and strip off http://domain/ part.
+(defn window-location
+  []
+  (let [location (.toString (.-location js/window))
+        url (last (re-find #"https?://.*?/(.*)" location))
+       ]
+    (.log js/console (pr-str "window location " url))
+    url))
+
+
 ; listen on window onpopstate event, when user hit back on browser
 ; ClojureScript regular expression support is that of JavaScript
 (defn onpopstate

@@ -2,6 +2,7 @@
   (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
             [cljs.reader :as reader]
             [growingtree-app.mock-data :as mock-data]
+            [growingtree-app.routes :as routes]
             [growingtree-app.utils :as utils :refer [mprint]]))
 
 (enable-console-print!)
@@ -117,11 +118,15 @@
         things-vec (:things-vec msg-data)
         nav-path (:nav-path msg-data)
         thing-type (get-in nav-path [:body 1 2])
+        url (routes/window-location)
        ]
-    (.log js/console (pr-str "api-data set :body things-vec " nav-path thing-type msg-data))
+    (.log js/console (pr-str "api-data set things-vec " nav-path thing-type msg-data))
     (if (some #{thing-type} #{:login :signup})  ; in case of login or signup
       (login-state-transition target thing-type msg-data state) ; update :login-user slot.
-      (assoc-in state [:body] things-vec)  ; api-data hard-code to set :body
+      ; store thing-vec in body, as well as under url
+      (do
+        (assoc-in state [:body] things-vec)  ; api-data hard-code to set :body
+        (assoc-in state url things-vec))
       )))
 
 
@@ -185,7 +190,7 @@
     (.log js/console (pr-str "api-error [:error] " nav-path error-msg msg-data))
     ; must ret valid state atom.
     (when (some #{thing-type} #{:login :signup})
-      (put! comm (mock-data/get-retry-login-msg error-msg)))
+      (put! comm (mock-data/retry-login-msg-nav-path error-msg)))
     (-> state
       (assoc-in [:error] msg-data))
     ))
