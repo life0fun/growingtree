@@ -2,6 +2,7 @@
   (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
             [clojure.string :as string]
             [dommy.core :as dommy]
+            [growingtree-app.mock-data :as mock-data]
             [growingtree-app.components.newthing-form :as newthing-form]
             [growingtree-app.components.entity-view :as entity-view]
             [growingtree-app.datetime :as dt]
@@ -83,7 +84,7 @@
 (defmethod main-content 
   :all-things
   [app nav-path search-filter opts]
-  (let [thing-type (get-in nav-path [:body 1 2])]
+  (let [thing-type (mock-data/get-nav-path-nxt-thing-type nav-path)]
     (list-things app thing-type nav-path search-filter opts))
   )
 
@@ -95,7 +96,7 @@
   :filter-things
   [app nav-path search-filter opts]
   (let [comm (get-in app [:comms :controls])
-        thing-type (get-in nav-path [:body 1 2]) ; newthing type is last last
+        thing-type (mock-data/get-nav-path-nxt-thing-type nav-path) ; newthing type is last last
         add-thing (keyword (str "add-" (name thing-type)))
         join-thing (keyword (str "join-" (name thing-type)))
         topview (get-in app [:top])  ; topview ref app state :top, updated at filter-things-onclick
@@ -117,7 +118,7 @@
 (defmethod main-content 
   :search-things
   [app nav-path search-filter opts]
-  (let [thing-type (get-in nav-path [:body 1 2])]
+  (let [thing-type (mock-data/get-nav-path-nxt-thing-type nav-path)]
     (list-things app :search nav-path search-filter opts))
   )
 
@@ -205,7 +206,7 @@
 (defn add-thing-forms
   [app nav-path search-filter opts]
   (let [comm (get-in app [:comms :controls])
-        thing-type (get-in nav-path [:body 1 2]) ; newthing type is last last
+        thing-type (mock-data/get-nav-path-nxt-thing-type nav-path) ; newthing type is last last
         topview (get-in app [:top])  ; topview get from :top slot
         pid (get-in nav-path [:data :pid])
        ]

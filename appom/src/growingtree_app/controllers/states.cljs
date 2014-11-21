@@ -16,7 +16,8 @@
 
 
 ; state transition upon control event process msg from control chan.
-; just conj msg-data to global state nav-path. msg-data is nav-path, 
+; conj msg-data, which is nav-path, to global state nav-path.
+; need to return state as called from swap.
 ; {:body [:filter-things [:group 1 :activity]], :data {:pid 1}}
 ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
 (defmulti transition
@@ -38,7 +39,7 @@
 (defmethod transition 
   :login
   [target msg-type msg-data state]
-  (let [cur-nav-type (get-in msg-data [:body 1 2])]
+  (let [cur-nav-type (mock-data/get-nav-path-nxt-thing-type msg-data)]
     (.log js/console (pr-str "control event :login conj nav-path " msg-data))
     (cond-> state
       :else (update-in [:nav-path] conj msg-data)
@@ -48,7 +49,7 @@
 (defmethod transition 
   :signup
   [target msg-type msg-data state]
-  (let [cur-nav-type (get-in msg-data [:body 1 2])]
+  (let [cur-nav-type (mock-data/get-nav-path-nxt-thing-type msg-data)]
     (.log js/console (pr-str "control event :signup conj nav-path " msg-data))
     (cond-> state
       :else (update-in [:nav-path] conj msg-data)
@@ -57,31 +58,47 @@
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; global state update for control event for navbar.
 ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
+; {:body [:filter-things [:group 1 :activity]], :data {:pid 1}}
+(defn conj-nav-path
+  [msg-type msg-data state]
+  (let [cur-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
+        nxt-nav-type (mock-data/get-nav-path-nxt-thing-type msg-data)
+       ]
+    (.log js/console (pr-str "control event conj [:nav-path] " msg-data))
+    ; just update both navbar and nav-path.
+    (cond-> state
+      :else (update-navbar-selected cur-nav-type nxt-nav-type)
+      :else (update-in [:nav-path] conj msg-data)
+      )))
+
+
 (defmethod transition 
   :all-things
   [target msg-type msg-data state]
-  (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
-        cur-nav-type (get-in msg-data [:body 1 2])
-       ]
-    (.log js/console (pr-str "control event :all-things : conj nav-path " msg-data))
-    ;(.log js/console (pr-str "all-things event : state things " state))
-    (cond-> state
-      :else (update-navbar-selected last-nav-type cur-nav-type)
-      :else (update-in [:nav-path] conj msg-data)
-      )))
+  (conj-nav-path msg-type msg-data state))
+
 
 ;{:body [:filter-things [:group 1 :activity]], :data {:pid 1}}
 (defmethod transition 
   :filter-things
   [target msg-type msg-data state]
-  (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
-        cur-nav-type (get-in msg-data [:body 1 2])
-       ] 
-    (.log js/console (pr-str "control event :filter-things conj nav-path " msg-data))
-    (cond-> state
-      :else (update-navbar-selected last-nav-type cur-nav-type)
-      :else (update-in [:nav-path] conj msg-data)
-      )))
+  (conj-nav-path msg-type msg-data state))
+
+
+; state transition upon popstate, get url-data url data and store into body
+(defmethod transition
+  :popstate
+  [target msg-type msg-data state]  ; state is atom passed from swap! state
+  (let [url (:url msg-data)
+        things-vec (get-in state [:url-data url])
+        nav-path (mock-data/create-nav-path-from-url url)
+       ]
+    (.log js/console (pr-str "popstate " url nav-path things-vec))
+    (-> state
+      (update-in [:nav-path] conj nav-path)
+      (assoc-in [:body] things-vec))  ; api-data hard-code to set :body
+    ))
+
 
 ; add-thing msg-data = [:add-thing [:course {}]], append to :nav-path
 ; :add-thing, post control chan to cljs ajax to back-end.
@@ -103,9 +120,9 @@
 
 
 ; ===========================================================================
-; api channel event
+; api channel event, store ajax result data from server to state slots.
 ; ===========================================================================
-; when query data available, api-data set ajax result/things-vec to state :body slot. trigger re-render.
+; api-data set ajax result/things-vec to state :body slot. trigger re-render.
 ; api-data {:body [:login 0 :login]}, :thing-vec [[:person/lname "rich"]]
 ; api-data {:body [:all 0 :parent]}, :things-vec ({:person/url #{rich.com} ...}]
 ; api-data {:body [:course 1 :lecture], :things-vec [{:lecture/type :math, :lecture/numcomments 0, :lectu
@@ -117,16 +134,16 @@
   (let [comm (get-in state [:comms :controls])
         things-vec (:things-vec msg-data)
         nav-path (:nav-path msg-data)
-        thing-type (get-in nav-path [:body 1 2])
+        thing-type (mock-data/get-nav-path-nxt-thing-type nav-path)
         url (routes/window-location)
        ]
-    (.log js/console (pr-str "api-data set things-vec " nav-path thing-type msg-data))
+    (.log js/console (pr-str "api-data set things-vec " url nav-path msg-data))
     (if (some #{thing-type} #{:login :signup})  ; in case of login or signup
       (login-state-transition target thing-type msg-data state) ; update :login-user slot.
       ; store thing-vec in body, as well as under url
-      (do
-        (assoc-in state [:body] things-vec)  ; api-data hard-code to set :body
-        (assoc-in state url things-vec))
+      (-> state
+        (assoc-in [:url-data url] things-vec)
+        (assoc-in [:body] things-vec))  ; api-data hard-code to set :body
       )))
 
 

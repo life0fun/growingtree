@@ -70,7 +70,7 @@ var filter_things_onclick__4 = (function (app,entity,parent_type,filtered_type){
 var filter_things_onclick__5 = (function (app,entity,parent_type,filtered_type,options){var comm = cljs.core.get_in.call(null,app,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"comms","comms",460172477),new cljs.core.Keyword(null,"controls","controls",1340701452)], null));var parent_id = new cljs.core.Keyword("db","id","db/id",-1388397098).cljs$core$IFn$_invoke$arity$1(entity);return ((function (comm,parent_id){
 return (function (_){growingtree_app.ui.hide_all_forms.call(null,parent_id);
 om.core.update_BANG_.call(null,app,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"top","top",-1856271961)], null),entity);
-return cljs.core.async.put_BANG_.call(null,comm,growingtree_app.mock_data.get_filter_things_msg.call(null,parent_type,parent_id,filtered_type,options));
+return cljs.core.async.put_BANG_.call(null,comm,growingtree_app.mock_data.filter_things_msg_nav_path.call(null,parent_type,parent_id,filtered_type,options));
 });
 ;})(comm,parent_id))
 });
@@ -94,7 +94,7 @@ return (function (tot,p__11620){var vec__11621 = p__11620;var attr = cljs.core.n
 });})($form,comm))
 ,cljs.core.PersistentArrayMap.EMPTY,fields);var form_data = growingtree_app.utils.set_time.call(null,growingtree_app.utils.set_time.call(null,cljs.core.merge.call(null,base_data,data),new cljs.core.Keyword(null,"assignment","assignment",1330426519),"end"),new cljs.core.Keyword(null,"activity","activity",-1179221455),"start");dommy.core.toggle_class_BANG_.call(null,$form,"hide");
 console.log(cljs.core.pr_str.call(null,form_name," data ",form_data));
-return cljs.core.async.put_BANG_.call(null,comm,growingtree_app.mock_data.get_add_thing_msg.call(null,add_thing_type,form_data));
+return cljs.core.async.put_BANG_.call(null,comm,growingtree_app.mock_data.add_thing_msg_nav_path.call(null,add_thing_type,form_data));
 });
 ;})(comm))
 });

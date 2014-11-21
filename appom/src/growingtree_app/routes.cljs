@@ -4,6 +4,7 @@
             [goog.events :as events]
             [goog.history.EventType :as EventType]
             [secretary.core :as secretary :include-macros true :refer [defroute]]
+            [growingtree-app.mock-data :as mock-data]
             [growingtree-app.history :as growingtree-history]
             [growingtree-app.utils :as utils])
   (:require-macros [cljs.core.async.macros :as am :refer [go go-loop alt!]])
@@ -76,13 +77,13 @@
 ; listen on window onpopstate event, when user hit back on browser
 ; ClojureScript regular expression support is that of JavaScript
 (defn onpopstate
-  [e]
+  [comm e]
   (let [location (.toString (.-location js/window))
         url (last (re-find  #"https?://.*?/(.*)" location))
         ]
     (.log js/console (pr-str "window onpopstate " url))
+    (put! comm (mock-data/popstate-msg url))
     ))
-
 
 ; listen NAVIGATE event in goog.History, match url to sectrary router matcher, invoke dispatcher.
 ; secretary client side named route matcher match url and dispatch ui click event to control chan. 
@@ -115,9 +116,6 @@
        ] 
     (doto history
       (.setEnabled true))
-
-    ; listen on window onpopstate when user hit back on browser.
-    (dommy/listen! js/window :popstate onpopstate)
 
     ; go async execute body of processing of navigation event from chan, secretary dispatch.
     ; (goog.events/listen history-el goog.history.EventType.NAVIGATE, #(sec/dispatch! (.-token %)))

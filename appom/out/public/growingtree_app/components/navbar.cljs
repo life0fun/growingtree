@@ -24,13 +24,13 @@
       [:div.nav-channel
         [:a.show_channel
           {:key type
-           :on-click #(put! comm (mock-data/get-all-things-msg type {:author user-name}))
+           :on-click #(put! comm (mock-data/all-things-msg-nav-path type {:author user-name}))
            :class (str "js-" (name type) (when (:selected thing-listing) " active"))
           }
           (:title thing-listing)]  ; nav type title, course, parent, lecture, etc.
         (if (some #{type} mock-data/root-add-type)
           [:i.fa.fa-plus-square
-            {:on-click #(put! comm (mock-data/get-newthing-form-msg type))}]
+            {:on-click #(put! comm (mock-data/newthing-form-msg-nav-path type))}]
           [:i.fa.fa-square]
         )
         (when (:loading thing-listing)
@@ -67,7 +67,7 @@
                             :on-click
                               (fn [_]
                                 (let [search (dommy/value (sel1 (str "#" search-box)))]  ; id with # prefix
-                                  (put! comm (mock-data/get-search-msg :all-things search))))
+                                  (put! comm (mock-data/search-msg-nav-path :all-things search))))
                            }]
           ]
 

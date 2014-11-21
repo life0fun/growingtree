@@ -1,5 +1,7 @@
 (ns growingtree-app.mock-data
-  (:require [growingtree-app.utils :as utils]))
+  (:require 
+    [clojure.string :as string]
+    [growingtree-app.utils :as utils]))
 
 
 (def users
@@ -82,10 +84,18 @@
 (def root-add-type #{:parent :group :course})
 
 
+; nav-path 
+; :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} 
+(defn get-nav-path-nxt-thing-type
+  [nav-path]
+  (let [nxt-thing-type (get-in nav-path [:body 1 2])]
+    nxt-thing-type))
+
+
 ; :login or sign up msg to be channeled to core for processing.
 ; msg-type: login or signup
 ; {:body [:login [:login 0 :login]], :data {:type :login, :name "rich-sonx", :pass "s"}}
-(defn get-login-msg
+(defn login-msg-nav-path
   [form-name data]
   (let [msg-type (if (= form-name "login-form") :login :signup)
         msg [msg-type {:body [msg-type [:login 0 msg-type]]
@@ -94,16 +104,34 @@
     msg))
 
 ; send :login-error msg to ctrl channel. cause no
-(defn get-retry-login-msg
+(defn retry-login-msg-nav-path
   [error-msg]
   (let [msg-type :login-error
         msg [msg-type error-msg]
         ]
     msg))
 
+
+; create nav-path from url
+; v1/course => [:all-things [:all 0 :lecture]], :data {:author "rich-dad"}]
+; v1/course/17592186045421/lecture, :filter-things {:body [:filter-things [:course 1 :lecture]], :data {:pid 1}}
+(defn create-nav-path-from-url
+  [url]
+  (let [[_ head pid filtered] (string/split url #"/")
+        msg-type (if filtered :filter-things :all-things)
+        nav-path (case msg-type
+                    :all-things
+                      {:body [msg-type [:all 0 head]]}
+                    :filter-things
+                      {:body [msg-type [head pid filtered]]
+                       :data {:pid pid}})
+       ]
+    [msg-type nav-path]
+  ))
+
 ; get :all-things msg to be sent to control channel to trigger controls chan event for ajax.
 ; :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} false 
-(defn get-all-things-msg
+(defn all-things-msg-nav-path
   [thing-type data]
   (let [msg [:all-things {:body [:all-things [:all 0 thing-type]]
                           :data data}]
@@ -112,8 +140,9 @@
 
 
 ; get :filter-things msg to be sent to control channel to trigger controls chan event ajax. 
+; has msg-type and msg-data part. msg-data is nav-path map.
 ; :filter-things {:body [:filter-things [:parent 1 :child]], :data {:pid 1}}
-(defn get-filter-things-msg
+(defn filter-things-msg-nav-path
   [parent-type parent-id filtered-type data]
   (let [msg [:filter-things 
               {:body [:filter-things [parent-type parent-id filtered-type]]
@@ -122,9 +151,18 @@
     msg))
 
 
-; get :search-thing msg to be sent to control channle to trigger ajax
+; get popstate msg to sent to control channel to trigger state transition.
+; msg-type :popstate msg-data is url
+; :filter-things {:body [:filter-things [:parent 1 :child]], :data {:pid 1}}
+(defn popstate-msg
+  [url]
+  (let [msg [:popstate {:url url}]
+       ]
+    msg))
+
+; get :search-thing msg-type and msg-data as nav-path to sent to transition state.
 ; msg-type is :search-things, msg data is map of :body [] and :data {}
-(defn get-search-msg
+(defn search-msg-nav-path
   [thing-type search]
   (let [msg [:search-things {:body [:search-things [thing-type 0 search]]
                              :data {:thing-type thing-type :searchkey search}}]
@@ -132,9 +170,9 @@
     msg))
 
 
-; get :newthing-form msg to be sent to control channel to trigger controls chan event ajax. 
+; get :newthing-form msg-type and msg-data as nav-path to sent to transition state.
 ; :newthing-form {:body [:newthing-form [:group :add-group]], :data {:pid nil}}
-(defn get-newthing-form-msg
+(defn newthing-form-msg-nav-path
   [thing-type]
   (let [newthing-path (vector thing-type (keyword (str "add-" (name thing-type))))
         newthing-data {:body [:newthing-form newthing-path] 
@@ -143,9 +181,9 @@
     msg))
 
 
-; get :add-thing msg to be sent to control channel to trigger controls chan event ajax. 
+; get :add-thing msg-type with msg-data as nav-path to sent to transite state.
 ; {:add-thing :add-group, :data {:group/title "a", :group/type :math, :group/author "poor-dad", :group/url "c", :group/email "d", :group/wiki "e"}} 
-(defn get-add-thing-msg
+(defn add-thing-msg-nav-path
   [thing-type data]
   (let [msg [:add-thing {:add-thing thing-type
                          :data data}]  ; add thing details in :data slot.
@@ -211,11 +249,9 @@
      :nav-path [{:title [] :body [:login [:login 0 :login]] :data {}}]
      :error {}   ; error from ajax
      
-     ; XXXX do not use this, not reliable.
-     ; store api-eivent data, updated from api/api-event
-     ; nav-path as key, [:assignment 1 :answer] 
+     ; url as key, "v1/course/17592186045421/lecture"
      ; things-vec value, [{:db/id 1, :answer/author #{{:person/url #{rich-son.com}..}]
-     :nav-path-things {}
+     :url-data {}
 
      ; things is things category for navbar and sidebar, nav-types
      ; [:parent :child :course :lecture :question :assignment]

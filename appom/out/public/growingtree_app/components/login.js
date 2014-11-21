@@ -23,7 +23,7 @@ return (function (_){var data = cljs.core.reduce.call(null,((function (comm){
 return (function (tot,p__11839){var vec__11840 = p__11839;var attr = cljs.core.nth.call(null,vec__11840,(0),null);var fieldid = cljs.core.nth.call(null,vec__11840,(1),null);return cljs.core.assoc.call(null,tot,attr,dommy.core.value.call(null,document.querySelector(dommy.core.selector.call(null,fieldid))));
 });})(comm))
 ,cljs.core.PersistentArrayMap.EMPTY,fields);var form_data = growingtree_app.utils.set_time.call(null,growingtree_app.utils.set_time.call(null,cljs.core.merge.call(null,base_data,data),new cljs.core.Keyword(null,"assignment","assignment",1330426519),"end"),new cljs.core.Keyword(null,"activity","activity",-1179221455),"start");console.log(cljs.core.pr_str.call(null,form_name," data ",form_data));
-return cljs.core.async.put_BANG_.call(null,comm,growingtree_app.mock_data.get_login_msg.call(null,form_name,form_data));
+return cljs.core.async.put_BANG_.call(null,comm,growingtree_app.mock_data.login_msg_nav_path.call(null,form_name,form_data));
 });
 ;})(comm))
 });

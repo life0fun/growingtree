@@ -82,8 +82,8 @@
   (.log js/console (pr-str "login error " msg-data))
   (ui/set-text "#login-error" msg-data))
 
-; most control event falls into default case, where msg-type dispatch the update
-; to diff state key slots, and then send cljs requests to server.
+; most control event falls into default case, dispathc msg-type to transition
+; state, and send cljs ajax requests to get data from server.
 (defmethod process-control-event
   :default
   [el state msg-type msg-data]
@@ -94,7 +94,18 @@
     (requester/request el msg-type msg-data previous-state @state)))
 
 
-; API event trigger state transition. different msg-types set diff state slots.
+; when user hit back, handle popstate. msg-type is popstate, msg-data is url
+(defmethod process-control-event
+  :popstate
+  [el state msg-type msg-data]
+  (let [previous-state @state]
+    ; control event transition state, and indicate state by nav-path
+    (swap! state (partial states/transition el msg-type msg-data))
+    ))
+
+
+; API event means data arrived, store data in state and transition state. 
+; different msg-types set diff slots in state.
 (defn process-api-event
   [el state msg-type msg-data]
   (let [previous-state @state]
@@ -116,8 +127,10 @@
         hist-el (.getElementById js/document "history-container")
        ]
 
-    ; we need route ui click event to control chan, and process control chan inside main comp.
+    ; define client side route for url
     (routes/define-routes! state hist-el)
+    ; listen on window onpopstate when user hit back on browser.
+    (dommy/listen! js/window :popstate (partial routes/onpopstate (:controls comms)))
 
     ; create app component, which in turn create all sub components, and start dom state updating.
     (om/root login/login state {:target login-el :opts {:comms comms}})
@@ -137,7 +150,7 @@
           ([v]   ; [:all-things [:parent]], first is msg, rest is nav-path.
             (let [previous-state @state
                   msg-type (first v)
-                  msg-data (last v)]
+                  msg-data (last v)]  ; msg-data, is the last of msg in chan, is nav-path.
               (process-control-event app-el state msg-type msg-data)
               ))
         ; cljs-ajax => state transition => swap atom state with body data => trigger re-render.

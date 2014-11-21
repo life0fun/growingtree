@@ -193,7 +193,7 @@
         ; persist entity into state :top slot. will trigger re-render.
         (ui/hide-all-forms parent-id)
         (om/update! app [:top] entity) 
-        (put! comm (mock-data/get-filter-things-msg parent-type parent-id filtered-type options)))
+        (put! comm (mock-data/filter-things-msg-nav-path parent-type parent-id filtered-type options)))
       )
     )
   )
@@ -218,7 +218,7 @@
            ]
         (dommy/toggle-class! $form "hide")
         (.log js/console (pr-str form-name " data " form-data))
-        (put! comm (mock-data/get-add-thing-msg add-thing-type form-data))
+        (put! comm (mock-data/add-thing-msg-nav-path add-thing-type form-data))
       ))))
 
 ;;=============================================================================

@@ -31,7 +31,7 @@
                           )
            ]
         (.log js/console (pr-str form-name " data " form-data))
-        (put! comm (mock-data/get-login-msg form-name form-data)) ; set nav-path upon click
+        (put! comm (mock-data/login-msg-nav-path form-name form-data)) ; set nav-path upon click
       ))))
 
 ; called from core upon app start to create login modal.
