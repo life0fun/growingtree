@@ -115,7 +115,7 @@
 ; create nav-path from url
 ; v1/course => [:all-things [:all 0 :lecture]], :data {:author "rich-dad"}]
 ; v1/course/17592186045421/lecture, :filter-things {:body [:filter-things [:course 1 :lecture]], :data {:pid 1}}
-(defn create-nav-path-from-url
+(defn generate-nav-path-from-url
   [url]
   (let [[_ head pid filtered] (string/split url #"/")
         msg-type (if filtered :filter-things :all-things)
@@ -126,7 +126,7 @@
                       {:body [msg-type [head pid filtered]]
                        :data {:pid pid}})
        ]
-    [msg-type nav-path]
+    nav-path
   ))
 
 ; get :all-things msg to be sent to control channel to trigger controls chan event for ajax.
@@ -156,8 +156,7 @@
 ; :filter-things {:body [:filter-things [:parent 1 :child]], :data {:pid 1}}
 (defn popstate-msg
   [url]
-  (let [msg [:popstate {:url url}]
-       ]
+  (let [msg [:popstate {:url url}]]
     msg))
 
 ; get :search-thing msg-type and msg-data as nav-path to sent to transition state.
@@ -243,6 +242,8 @@
      :left {}
      :right {}
      :bottom {}
+
+     :login-user {}  ; set in login state transition upon login success.
 
      ; nav-path is indicator of current state. updated upon state transition.
      ; :nav-path [{:title [] :body [:all 0 :parent] :data {}}]

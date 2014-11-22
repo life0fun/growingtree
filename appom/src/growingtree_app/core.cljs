@@ -134,6 +134,7 @@
 
     ; create app component, which in turn create all sub components, and start dom state updating.
     (om/root login/login state {:target login-el :opts {:comms comms}})
+    ; pass state to root hence any change in state will triger IRender.
     (om/root app/app state {:target app-el :opts {:comms comms}})
     
     ;

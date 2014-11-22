@@ -91,7 +91,7 @@
   [target msg-type msg-data state]  ; state is atom passed from swap! state
   (let [url (:url msg-data)
         things-vec (get-in state [:url-data url])
-        nav-path (mock-data/create-nav-path-from-url url)
+        nav-path (mock-data/generate-nav-path-from-url url)
        ]
     (.log js/console (pr-str "popstate " url nav-path things-vec))
     (-> state
