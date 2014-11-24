@@ -68,20 +68,16 @@
 (defn window-location
   []
   (let [location (.toString (.-location js/window))
-        url (last (re-find #"https?://.*?/(.*)" location))
+        url (last (re-find #"https?://.*?/v\d+/(.*)" location))
        ]
     (.log js/console (pr-str "window location " url))
     url))
-
 
 ; listen on window onpopstate event, when user hit back on browser
 ; ClojureScript regular expression support is that of JavaScript
 (defn onpopstate
   [comm e]
-  (let [location (.toString (.-location js/window))
-        url (last (re-find  #"https?://.*?/(.*)" location))
-        ]
-    (.log js/console (pr-str "window onpopstate " url))
+  (let [url (window-location)]
     (put! comm (mock-data/popstate-msg url))
     ))
 

@@ -17,6 +17,7 @@
 
             [growingtree-app.utils :as utils :refer [mprint]]
             [growingtree-app.mock-data :as mock-data]
+            [growingtree-app.routes :as routes]
             [growingtree-app.ui :as ui])
   (:require-macros [cljs.core.async.macros :as am :refer [go alt!]])
   (:use-macros [dommy.macros :only [node sel sel1]]))
@@ -190,10 +191,18 @@
     (let [comm (get-in app [:comms :controls])
           parent-id (:db/id entity)]
       (fn [_]
-        ; persist entity into state :top slot. will trigger re-render.
-        (ui/hide-all-forms parent-id)
-        (om/update! app [:top] entity) 
-        (put! comm (mock-data/filter-things-msg-nav-path parent-type parent-id filtered-type options)))
+        (let [topurl (as-> (routes/window-location) url
+                        (string/split url #"/")
+                        (last url)
+                        (str url "/" parent-id))
+             ]
+          ; course/17592186045421/lecture/17592186045423
+          (.log js/console (pr-str "filter thing click topurl " topurl))
+          (ui/hide-all-forms parent-id)
+          (om/update! app [:top] entity)
+          (om/update! app [:url-data topurl] entity)
+          (put! comm (mock-data/filter-things-msg-nav-path parent-type parent-id filtered-type options)))
+        )
       )
     )
   )

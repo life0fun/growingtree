@@ -3,6 +3,7 @@
             [clojure.string :as string]
             [dommy.core :as dommy]
             [growingtree-app.mock-data :as mock-data]
+            [growingtree-app.routes :as routes]
             [growingtree-app.components.newthing-form :as newthing-form]
             [growingtree-app.components.entity-view :as entity-view]
             [growingtree-app.datetime :as dt]
@@ -91,21 +92,29 @@
 ; show filter things, entered from thing-nav-actionkey. click handler set pid so we show clicked
 ; thing on top section, and filtered things in content section.
 ; we toggle nav key inside top thing based on which nav key is clicked.
-; :filter-things {:body [:filter-things [:course 1 :lecture]], :data {:pid 1}} 
+; :filter-things {:body [:filter-things [:course 1 :lecture]], :data {:pid 1}}
+; url "v1/course/17592186045421/lecture"
 (defmethod main-content 
   :filter-things
   [app nav-path search-filter opts]
   (let [comm (get-in app [:comms :controls])
         thing-type (mock-data/get-nav-path-nxt-thing-type nav-path) ; newthing type is last last
+        pid (get-in nav-path [:data :pid])
+        topurl (as-> (routes/window-location) url 
+                     (string/split url #"/") 
+                     (drop-last url)
+                     (string/join "/" url))
+        ; topview (get-in app [:top])  ; topview ref app state :top, updated at filter-things-onclick
+        topview (get-in app [:url-data topurl])
+
         add-thing (keyword (str "add-" (name thing-type)))
         join-thing (keyword (str "join-" (name thing-type)))
-        topview (get-in app [:top])  ; topview ref app state :top, updated at filter-things-onclick
-        pid (get-in nav-path [:data :pid])
         override (cond-> {}
                   pid (merge (entity-view/actionkey-class pid thing-type "hide"))
                   pid (merge (entity-view/actionkey-class pid add-thing " "))
                   pid (merge (entity-view/actionkey-class pid join-thing " ")))
        ]
+    (.log js/console (pr-str "filter things " nav-path topurl topview))
     [:div
       (when pid (thing-entry app topview override))
       (when pid [:hr.filter-line {:size 4}])
@@ -140,31 +149,6 @@
       (newthing-form/add-form thing-type comm nav-path)
     ]))
 
-; XXX deprecates !
-; after adding new thing, refresh the last nav-path.
-; we are in render state, so last nav path is a cursor to state. when core go thread processing
-; nav path cursor, it needs to de-ref.
-; {:body [:all-things [:all 0 :question]]} data {:body [:all-things [:all 0 :question]]}
-; (defmethod main-content 
-;   :refresh
-;   [app nav-path search-filter opts]
-;   (let [comm (get-in app [:comms :controls])
-;         last-nav-path (last (drop-last (get-in app [:nav-path])))
-;         msg-type (get-in last-nav-path [:body 0])
-;         thing-type (get nav-path :add-thing)
-;         ; nav-path {:body [:all-things [:all 0 thing-type]]}
-;         error (get-in (get-in app [:error]) [:error :status-text])
-;         error (get-in app [:error])
-;        ]
-;     (.log js/console (pr-str "main content add-thing trigger refresh " last-nav-path nav-path))
-;     (if-not error
-;       ; (list-things app thing-type last-nav-path search-filter opts)
-;       (main-content app last-nav-path search-filter opts)
-;       (do 
-;         (.log js/console (pr-str "add-thing error " msg-type last-nav-path error))
-;         (put! comm [:refresh last-nav-path])  ; re-dicrect by append last-nav-path to nav-path.
-;         ))
-;     ))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; main content listing things render things from app state :body slot, 
@@ -205,11 +189,7 @@
 ; toggle hide upon add-lecture click
 (defn add-thing-forms
   [app nav-path search-filter opts]
-  (let [comm (get-in app [:comms :controls])
-        thing-type (mock-data/get-nav-path-nxt-thing-type nav-path) ; newthing type is last last
-        topview (get-in app [:top])  ; topview get from :top slot
-        pid (get-in nav-path [:data :pid])
-       ]
+  (let [comm (get-in app [:comms :controls])]
     ; I have to set hide explicitly
     (when (sel1 :.add-child-form)
       (dommy/add-class! (sel1 :.add-child-form) "hide"))

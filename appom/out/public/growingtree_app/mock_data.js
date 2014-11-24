@@ -3,6 +3,8 @@ goog.provide('growingtree_app.mock_data');
 goog.require('cljs.core');
 goog.require('growingtree_app.utils');
 goog.require('growingtree_app.utils');
+goog.require('cljs.reader');
+goog.require('cljs.reader');
 goog.require('clojure.string');
 goog.require('clojure.string');
 growingtree_app.mock_data.users = new cljs.core.PersistentArrayMap(null, 4, ["rich-dad@rich.com",new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"full-name","full-name",408178550),"Rich dad",new cljs.core.Keyword(null,"email","email",1415816706),"rich-dad@rich.com",new cljs.core.Keyword(null,"username","username",1605666410),"Rich dad"], null),"rich-mom@rich.com",new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"full-name","full-name",408178550),"Rich mom",new cljs.core.Keyword(null,"email","email",1415816706),"rich-mom@rich.com",new cljs.core.Keyword(null,"username","username",1605666410),"Rich mom"], null),"rich-daughter@rich.com",new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"full-name","full-name",408178550),"Rich daughter",new cljs.core.Keyword(null,"email","email",1415816706),"rich-daughter@rich.com",new cljs.core.Keyword(null,"username","username",1605666410),"Rich daughter"], null),"rich-son@rich.com",new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"full-name","full-name",408178550),"Rich son",new cljs.core.Keyword(null,"email","email",1415816706),"rich-son@rich.com",new cljs.core.Keyword(null,"username","username",1605666410),"Rich son"], null)], null);
@@ -41,13 +43,14 @@ growingtree_app.mock_data.login_msg_nav_path = (function login_msg_nav_path(form
 });
 growingtree_app.mock_data.retry_login_msg_nav_path = (function retry_login_msg_nav_path(error_msg){var msg_type = new cljs.core.Keyword(null,"login-error","login-error",-1290265439);var msg = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [msg_type,error_msg], null);return msg;
 });
-growingtree_app.mock_data.generate_nav_path_from_url = (function generate_nav_path_from_url(url){var vec__12037 = clojure.string.split.call(null,url,/\//);var _ = cljs.core.nth.call(null,vec__12037,(0),null);var head = cljs.core.nth.call(null,vec__12037,(1),null);var pid = cljs.core.nth.call(null,vec__12037,(2),null);var filtered = cljs.core.nth.call(null,vec__12037,(3),null);var msg_type = (cljs.core.truth_(filtered)?new cljs.core.Keyword(null,"filter-things","filter-things",-1018039660):new cljs.core.Keyword(null,"all-things","all-things",1825895767));var nav_path = (function (){var G__12038 = (((msg_type instanceof cljs.core.Keyword))?msg_type.fqn:null);switch (G__12038) {
+growingtree_app.mock_data.generate_nav_path_from_url = (function generate_nav_path_from_url(url){console.log(cljs.core.pr_str.call(null,"gen nav-path ",url));
+var vec__12037 = clojure.string.split.call(null,url,/\//);var head = cljs.core.nth.call(null,vec__12037,(0),null);var pid = cljs.core.nth.call(null,vec__12037,(1),null);var filtered = cljs.core.nth.call(null,vec__12037,(2),null);var head__$1 = cljs.core.keyword.call(null,head);var pid__$1 = (cljs.core.truth_(pid)?cljs.reader.read_string.call(null,pid):null);var filtered__$1 = (cljs.core.truth_(filtered)?cljs.core.keyword.call(null,filtered):null);var msg_type = (cljs.core.truth_(filtered__$1)?new cljs.core.Keyword(null,"filter-things","filter-things",-1018039660):new cljs.core.Keyword(null,"all-things","all-things",1825895767));var nav_path = (function (){var G__12038 = (((msg_type instanceof cljs.core.Keyword))?msg_type.fqn:null);switch (G__12038) {
 case "filter-things":
-return new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"body","body",-2049205669),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [msg_type,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [head,pid,filtered], null)], null),new cljs.core.Keyword(null,"data","data",-232669377),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"pid","pid",1018387698),pid], null)], null);
+return new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"body","body",-2049205669),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [msg_type,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [head__$1,pid__$1,filtered__$1], null)], null),new cljs.core.Keyword(null,"data","data",-232669377),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"pid","pid",1018387698),pid__$1], null)], null);
 
 break;
 case "all-things":
-return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"body","body",-2049205669),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [msg_type,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"all","all",892129742),(0),head], null)], null)], null);
+return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"body","body",-2049205669),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [msg_type,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"all","all",892129742),(0),head__$1], null)], null)], null);
 
 break;
 default:

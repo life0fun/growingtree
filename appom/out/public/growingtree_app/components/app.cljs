@@ -28,7 +28,7 @@
             body (:body (last nav-path))]
         ; (.log js/console (pr-str " update if nav-path has body to show. next-props " (last nav-path)))
         ; re-render only when we have body slot in nav path to render.
-        (.log js/console (pr-str "app IShouldUpdate " nav-path))
+        ; (.log js/console (pr-str "app IShouldUpdate " nav-path))
         (if body true false)))
     ; render fn 
     om/IRender

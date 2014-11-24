@@ -1,6 +1,7 @@
 (ns growingtree-app.mock-data
   (:require 
     [clojure.string :as string]
+    [cljs.reader :as reader]
     [growingtree-app.utils :as utils]))
 
 
@@ -117,7 +118,11 @@
 ; v1/course/17592186045421/lecture, :filter-things {:body [:filter-things [:course 1 :lecture]], :data {:pid 1}}
 (defn generate-nav-path-from-url
   [url]
-  (let [[_ head pid filtered] (string/split url #"/")
+  (.log js/console (pr-str "gen nav-path " url))
+  (let [[head pid filtered] (string/split url #"/")
+        head (keyword head)
+        pid (when pid (reader/read-string pid))
+        filtered (when filtered (keyword filtered))
         msg-type (if filtered :filter-things :all-things)
         nav-path (case msg-type
                     :all-things
