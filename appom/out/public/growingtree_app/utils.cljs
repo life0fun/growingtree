@@ -123,9 +123,10 @@
 (defn thing-ident
   "get thing type of the entity, the namespace, or ident of entity. remove :db/id"
   [entity]
-  (let [e (dissoc entity :db/id)  ; remove :db/id
-        ident (keyword (namespace (ffirst e)))]
-    ident))
+  (when entity
+    (let [e (dissoc entity :db/id)  ; remove :db/id
+          ident (keyword (namespace (ffirst e)))]
+      ident)))
 
 
 ; for enum attr, update thing-val map from string val to keyword.

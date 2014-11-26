@@ -1049,9 +1049,9 @@
 
           [:ul.flat-list.buttons
             (thing-entry-action-button-li "group members" (:group-members-class value-map)
-                                          (filter-things-onclick app entity :groups :group-members))
+                                          (filter-things-onclick app entity :group :group-members))
             (thing-entry-action-button-li "comments" (:comments-class value-map)
-                                          (filter-things-onclick app entity :groups :comments))
+                                          (filter-things-onclick app entity :group :comments))
             (thing-entry-action-button-li "join-group" (:groups-class value-map)
                                           (ui/toggle-hide-fn (str "#join-group-form-" thing-id)))
             (thing-entry-action-button-li "activities" (:activity-class value-map)
