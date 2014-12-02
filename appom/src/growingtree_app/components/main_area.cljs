@@ -100,12 +100,13 @@
   (let [comm (get-in app [:comms :controls])
         thing-type (mock-data/get-nav-path-nxt-thing-type nav-path) ; newthing type is last last
         pid (get-in nav-path [:data :pid])
-        topurl (as-> (routes/window-location) url 
+        top-url (as-> (routes/window-location) url 
                      (string/split url #"/") 
                      (drop-last url)
                      (string/join "/" url))
-        ; topview (get-in app [:top])  ; topview ref app state :top, updated at filter-things-onclick
-        topview (get-in app [:url-data topurl])
+        top-eid (or pid (second (string/split top-url #"/")))
+        ; top-entity ref app state :top section, set at filter-things-onclick
+        top-entity (get-in app [:url-data top-eid])
 
         add-thing (keyword (str "add-" (name thing-type)))
         join-thing (keyword (str "join-" (name thing-type)))
@@ -114,9 +115,10 @@
                   pid (merge (entity-view/actionkey-class pid add-thing " "))
                   pid (merge (entity-view/actionkey-class pid join-thing " ")))
        ]
-    (.log js/console (pr-str "filter things " nav-path topurl topview))
+    (.log js/console (pr-str "filter things " nav-path top-url top-entity))
     [:div
-      (when pid (thing-entry app topview override))
+      ; show clicked thing entry on top section. top thing data set in filter-things-onclick.
+      (when pid (thing-entry app top-entity override))
       (when pid [:hr.filter-line {:size 4}])
       (add-thing-forms app nav-path search-filter opts)
       ; datomic peer query to get list of things by nav-path
@@ -177,7 +179,7 @@
             things ])
     ))
 
-; main-area list-things, for each thing entry, get view based on thing-type.
+; list each entry of thing with data, get view based on thing-type.
 (defn thing-entry
   [app thing-data override]
   (let [thing-type (utils/thing-ident thing-data)]

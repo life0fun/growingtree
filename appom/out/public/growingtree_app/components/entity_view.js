@@ -70,11 +70,11 @@ var filter_things_onclick = null;
 var filter_things_onclick__4 = (function (app,entity,parent_type,filtered_type){return filter_things_onclick.call(null,app,entity,parent_type,filtered_type,cljs.core.PersistentArrayMap.EMPTY);
 });
 var filter_things_onclick__5 = (function (app,entity,parent_type,filtered_type,options){var comm = cljs.core.get_in.call(null,app,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"comms","comms",460172477),new cljs.core.Keyword(null,"controls","controls",1340701452)], null));var parent_id = new cljs.core.Keyword("db","id","db/id",-1388397098).cljs$core$IFn$_invoke$arity$1(entity);return ((function (comm,parent_id){
-return (function (_){var topurl = (function (){var url = growingtree_app.routes.window_location.call(null);var url__$1 = clojure.string.split.call(null,url,/\//);var url__$2 = cljs.core.last.call(null,url__$1);var url__$3 = (''+cljs.core.str.cljs$core$IFn$_invoke$arity$1(url__$2)+"/"+cljs.core.str.cljs$core$IFn$_invoke$arity$1(parent_id));return url__$3;
-})();console.log(cljs.core.pr_str.call(null,"filter thing click topurl ",topurl));
+return (function (_){var top_url = (function (){var url = growingtree_app.routes.window_location.call(null);var url__$1 = clojure.string.split.call(null,url,/\//);var url__$2 = cljs.core.last.call(null,url__$1);var url__$3 = (''+cljs.core.str.cljs$core$IFn$_invoke$arity$1(url__$2)+"/"+cljs.core.str.cljs$core$IFn$_invoke$arity$1(parent_id));return url__$3;
+})();var top_eid = parent_id;console.log(cljs.core.pr_str.call(null,"filter thing click top-url ",top_url,top_eid));
 growingtree_app.ui.hide_all_forms.call(null,parent_id);
 om.core.update_BANG_.call(null,app,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"top","top",-1856271961)], null),entity);
-om.core.update_BANG_.call(null,app,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"url-data","url-data",-1539425798),topurl], null),entity);
+om.core.update_BANG_.call(null,app,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"url-data","url-data",-1539425798),top_eid], null),entity);
 return cljs.core.async.put_BANG_.call(null,comm,growingtree_app.mock_data.filter_things_msg_nav_path.call(null,parent_type,parent_id,filtered_type,options));
 });
 ;})(comm,parent_id))

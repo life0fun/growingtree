@@ -191,16 +191,18 @@
     (let [comm (get-in app [:comms :controls])
           parent-id (:db/id entity)]
       (fn [_]
-        (let [topurl (as-> (routes/window-location) url
+        (let [; deprecate, use top entity id instead. no need full url.
+              top-url (as-> (routes/window-location) url
                         (string/split url #"/")
                         (last url)
                         (str url "/" parent-id))
+              top-eid parent-id
              ]
           ; course/17592186045421/lecture/17592186045423
-          (.log js/console (pr-str "filter thing click topurl " topurl))
+          (.log js/console (pr-str "filter thing click top-url " top-url top-eid))
           (ui/hide-all-forms parent-id)
           (om/update! app [:top] entity)
-          (om/update! app [:url-data topurl] entity)
+          (om/update! app [:url-data top-eid] entity)
           (put! comm (mock-data/filter-things-msg-nav-path parent-type parent-id filtered-type options)))
         )
       )

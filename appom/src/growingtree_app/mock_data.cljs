@@ -79,7 +79,7 @@
 
 ; nav types, in app state [:things] key for navbar use.
 (def nav-types [:parent :child :group
-                :course :lecture :progress
+                :course :lecture :enrollment
                 :question :assignment
                 :activity :timeline])
 (def root-add-type #{:parent :group :course})

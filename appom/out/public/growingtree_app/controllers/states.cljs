@@ -7,9 +7,11 @@
 
 (enable-console-print!)
 
+; ------------------------------------------------------------------------------
 ; UI event triggers state transition.
 ; Control chan event processing. update global state with event data from control chan.
 ; XXX App state updated triggers IRender on app component, cascade to sidebar and main.
+; ------------------------------------------------------------------------------
 
 (declare login-state-transition)
 (declare update-navbar-selected)
