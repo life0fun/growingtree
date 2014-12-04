@@ -384,68 +384,67 @@ fieldset {
 }
 
 /* nav ul and li, styles for max-width and min-width */
-/*.sidebar .widget, .nav ul.nav-ul, .admin, 
-#content, .activities,.approval,.suspended,.devise {
-  background:#fff;
-  border-radius:4px;
-  box-shadow:0 1px 5px 0 #ccc;
-  overflow:hidden
-}*/
+.nav {
+  ul.nav-ul {
+    list-style: none;
+    margin-left: 0px;
+    padding: 0;
 
-.nav ul.nav-ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+    background:#fff;
+    border-radius:4px;
+    box-shadow:0 1px 5px 0 #ccc;
+    overflow:hidden;
 
-  background:#fff;
-  border-radius:4px;
-  box-shadow:0 1px 5px 0 #ccc;
-  overflow:hidden;
+    li {
+      position: relative;    // set relative position context for inner elements.
+      
+      .close_channel {
+        color:#aeb9bd
+      }
 
-  li {
-    position: relative;    // set relative position context for inner elements.
-    
-    .close_channel {
-      color:#aeb9bd
+      #newthing-form {
+        text-align:center
+      }
     }
-
-    #newthing-form {
-      text-align:center
-    }
+  }
+  .my-nav {
+    margin-top: 40px;
   }
 }
 
 @media (max-width: 767px) {
-  .nav ul.nav-ul {
-    max-height: 100%;
-    overflow-y: auto;
-    position: relative;
+  .nav {
+    ul.nav-ul {
+      max-height: 100%;
+      overflow-y: auto;
+      position: relative;
 
-    li {
-      border-bottom:1px solid #dee6e8;
-      line-height:20px;
-      margin-right:1px;
+      li {
+        border-bottom:1px solid #dee6e8;
+        line-height:20px;
+        margin-right:1px;
 
-      :last-child {
-        border-bottom:none;
-      }
+        :last-child {
+          border-bottom:none;
+        }
 
-      a {
-        color:#797d7f;
-        display:inline-block;
-        padding:10px 30px 10px 10px
-      }
+        a {
+          color:#797d7f;
+          display:inline-block;
+          padding:10px 30px 10px 10px
+        }
 
-      .fa-plus-square, .fa-square {
-        float: right;
-        margin: 10px;
-      }
+        .fa-plus-square, .fa-square {
+          float: right;
+          margin: 10px;
+        }
 
-      .close_channel {
-        position:absolute;
-        top:10px;
-        right:10px;
-        bottom:10px
+        .close_channel {
+          position:absolute;
+          top:10px;
+          right:10px;
+          bottom:10px
+        }
       }
     }
   }

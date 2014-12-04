@@ -118,8 +118,8 @@
     (.log js/console (pr-str "filter things " nav-path top-url top-entity))
     [:div
       ; show clicked thing entry on top section. top thing data set in filter-things-onclick.
-      (when pid (thing-entry app top-entity override))
-      (when pid [:hr.filter-line {:size 4}])
+      (when top-entity (thing-entry app top-entity override))
+      (when top-entity [:hr.filter-line {:size 4}])
       (add-thing-forms app nav-path search-filter opts)
       ; datomic peer query to get list of things by nav-path
       (list-things app thing-type nav-path search-filter opts)

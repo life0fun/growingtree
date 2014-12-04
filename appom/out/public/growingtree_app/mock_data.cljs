@@ -81,7 +81,10 @@
 (def nav-types [:parent :child :group
                 :course :lecture :enrollment
                 :question :assignment
-                :activity :timeline])
+                :activity])
+(def my-nav-types [:group :enrollment 
+                   :question :assignment
+                   :activity :timeline])
 (def root-add-type #{:parent :group :course})
 
 
@@ -143,10 +146,17 @@
         ]
     msg))
 
+(defn my-things-msg-nav-path
+  [thing-type user-type data]
+  (let [msg [:all-things {:body [:all-things [:all 0 thing-type]]
+                          :data data}]
+        ]
+    msg))
 
 ; get :filter-things msg to be sent to control channel to trigger controls chan event ajax. 
 ; has msg-type and msg-data part. msg-data is nav-path map.
 ; :filter-things {:body [:filter-things [:parent 1 :child]], :data {:pid 1}}
+; :pid is used as a filter for thing/xxx/next-thing.
 (defn filter-things-msg-nav-path
   [parent-type parent-id filtered-type data]
   (let [msg [:filter-things 
@@ -229,6 +239,13 @@
                                  #(random-thing (utils/safe-sel (name type)) type))))}
   )
 
+(defn my-thing-listing [idx type]
+  {:type type
+   :title (str "My " (name type))
+   :order idx
+   :selected false }
+  )
+
 ; dep inj global comm channels into app state.
 ; identity makes rand chan as val of :id key, channels = {:id (random-chan 1 (random-title))}
 (defn initial-state [comms]
@@ -237,12 +254,13 @@
         thing-listing (map-indexed thing-listing nav-types)
         ; things is map {:thing-type {:type :title :thing-nodes}}
         things (into {} (map (juxt :type identity) thing-listing))
+        my-things (->> (map-indexed my-thing-listing my-nav-types)
+                      (map (juxt :type identity))
+                      (into {}))
        ]
 
     ;nav-path segment is a map contains query filters for things in body.
-    {; store entity that to be displayed in variouse sections.
-     ; :title {}   ; store entity to show in 
-     :top {}     ; top section of main area.
+    {:top {}     ; top section of main area.
      :body {}    ; set in api-event, main area thing-list read.
      :left {}
      :right {}
@@ -264,9 +282,12 @@
      :things (as-> things ts
                    (update-in ts [:parent] assoc :selected true))
 
-    
-     :audio {:volume 100
-             :muted true}
+     :my-things my-things
+     
+     ; :controls and :api chans, core def app-state 
+     :comms comms
+
+     ;; no used
      :windows {:window-inspector {:open false}}
      :settings {:message-limit 50
                 :forms {:search {:focused false}
@@ -285,4 +306,4 @@
                      (update-in ch ["1"] assoc :selected true))
      :users users
      :current-user-email "rich-dad@rich.com"
-     :comms comms}))
+     }))

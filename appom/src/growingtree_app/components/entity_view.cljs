@@ -268,9 +268,7 @@
   [title click-fn]
   [:p.title "to   " 
     [:a.title 
-      {
-       :on-click click-fn
-      }
+      {:on-click click-fn}
     (str "   " title)
     ]])
 
@@ -361,6 +359,7 @@
 (defmethod thing-entry
   :default
   [app thing-type entity override]
+  (.log js/console (pr-str "thing-entry " thing-type entity))
   (let [thing-id (:db/id entity)
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
@@ -847,6 +846,12 @@
           ]
           [:div.clearleft]
       ]])))
+
+(defmethod thing-entry
+  :enrollment
+  [app thing-type entity override]
+  (.log js/console (pr-str "enrollment entry" entity))
+  )
 
 ; Answer thing-entry view, datum entity contains thing data value
 (defmethod thing-entry

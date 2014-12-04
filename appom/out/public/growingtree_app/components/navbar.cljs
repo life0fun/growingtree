@@ -16,15 +16,16 @@
 
 ; ul list of things for each nav-type, :course {:type :title :thing-node}
 ; initial-state :things = {:course {:type ... :title ... :thing-nodes [{}]} :lecture {:type ...}} 
-(defn thing-nav 
+(defn- thing-nav 
   [comm login-user thing-listing]
   (let [type (:type thing-listing)
-        user-name (:person/title login-user)]
+        user-name (:person/title login-user)
+        login-id (:db/id login-user)]
     [:li.protected 
       [:div.nav-channel
         [:a.show_channel
           {:key type
-           :on-click #(put! comm (mock-data/all-things-msg-nav-path type {:author user-name}))
+           :on-click #(put! comm (mock-data/all-things-msg-nav-path type {:pid login-id}))
            :class (str "js-" (name type) (when (:selected thing-listing) " active"))
           }
           (:title thing-listing)]  ; nav type title, course, parent, lecture, etc.
@@ -37,6 +38,29 @@
           [:i.icon-spinner.icon-spin])
       ]]))
 
+
+(defn- my-thing-nav 
+  [comm login-user thing-listing]
+  (let [thing-type (:type thing-listing)
+        user-name (:person/title login-user)
+        user-type (:person/type login-user)  ; use for [:child 1 :assignment]
+        login-id (:db/id login-user)]
+    [:li.protected 
+      [:div.nav-channel
+        [:a.show_channel
+          {:key type
+           :on-click #(put! comm (mock-data/filter-things-msg-nav-path user-type login-id thing-type {:pid login-id}))
+           :class (str "js-" (name thing-type) (when (:selected thing-listing) " active"))
+          }
+          (:title thing-listing)]  ; nav type title, course, parent, lecture, etc.
+        (if (some #{type} mock-data/root-add-type)
+          [:i.fa.fa-plus-square
+            {:on-click #(put! comm (mock-data/newthing-form-msg-nav-path thing-type))}]
+          [:i.fa.fa-square]
+        )
+        (when (:loading thing-listing)
+          [:i.icon-spinner.icon-spin])
+      ]]))
 
 ; called from core, where data is MapCursor to app state, with select-keys #{:things :channels :settings}
 ; navbar must take 2 args, cursor and and the backing Om component referred to as the owner. 
@@ -55,23 +79,28 @@
              settings (:settings state)
              login-user (utils/get-login-user state)
              search-box "search-box"
+             search-box-div (sel1 (str "#" search-box))
+
+             things (vals (:things state))
+             my-things (vals (:my-things state))
             ]
           [:nav.nav {:class (when (get-in settings [:forms :search :focused]) "search-focus")}
             [:form.search {:action "/search" :method "get" :on-submit (constantly false)}
-            [:input.query {:id search-box :name "query" :type "text"
-                           ; :on-focus  #(put! comm [:search-form-focused])
-                           ; :on-blur   #(put! comm [:search-form-blurred])
-                           ; :on-key-up #(put! comm [:search-form-updated (.. % -target -value)])
-                          }]
-            [:input.submit {:value "Search" :type "submit"
-                            :on-click
-                              (fn [_]
-                                (let [search (dommy/value (sel1 (str "#" search-box)))]  ; id with # prefix
-                                  (put! comm (mock-data/search-msg-nav-path :all-things search))))
-                           }]
-          ]
+              [:input.query {:id search-box :name "query" :type "text"}]
+              [:input.submit 
+                {:value "Search" :type "submit"
+                 :on-click (fn [_]
+                              (let [search-key (dommy/value search-box-div)]  ; id with # prefix
+                                  (put! comm (mock-data/search-msg-nav-path :all-things search-key))))
+                }]
+            ]
 
-          [:ul.nav-ul
             ; :things contains a map of things {:course {:title ... :thing-nodes [{} {}]} :lecture {} ...}
-            (map (partial thing-nav comm login-user) (sort-by :order (vals (:things state))))
-          ]])))))
+            [:ul.nav-ul
+              (map (partial thing-nav comm login-user) (sort-by :order things))
+            ]
+
+            [:ul.nav-ul.my-nav
+              (map (partial my-thing-nav comm login-user) (sort-by :order my-things))
+            ]
+          ])))))
