@@ -94,12 +94,10 @@
                                   (put! comm (mock-data/search-msg-nav-path :all-things search-key))))
                 }]
             ]
-
             ; :things contains a map of things {:course {:title ... :thing-nodes [{} {}]} :lecture {} ...}
             [:ul.nav-ul
               (map (partial thing-nav comm login-user) (sort-by :order things))
             ]
-
             [:ul.nav-ul.my-nav
               (map (partial my-thing-nav comm login-user) (sort-by :order my-things))
             ]
