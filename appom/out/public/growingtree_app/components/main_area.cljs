@@ -81,7 +81,7 @@
   )
 
 ; for all-things, including {:body [:all-things [:all 0 :timeline]]
-; {:body [:all-things [:all 0 :lecture]], :data {:author "rich-dad"}} 
+; {:body [:all-things [:all 0 :lecture]], :data {:pid login-id}} 
 (defmethod main-content 
   :all-things
   [app nav-path search-filter opts]
@@ -114,6 +114,7 @@
                   pid (merge (entity-view/actionkey-class pid thing-type "hide"))
                   pid (merge (entity-view/actionkey-class pid add-thing " "))
                   pid (merge (entity-view/actionkey-class pid join-thing " ")))
+        opts (assoc opts :author pid)
        ]
     (.log js/console (pr-str "filter things " nav-path top-url top-entity))
     [:div
@@ -141,14 +142,14 @@
   [app nav-path search-filter]
   (let [comm (get-in app [:comms :controls])
         thing-type (get-in nav-path [:body 1 1]) ; newthing type is last last
-        title (get-in app [:title])
-        pid (get-in nav-path [:data :pid])
-        override (if pid (entity-view/actionkey-class pid thing-type "hide") {})
+        login-id (get-in nav-path [:data :pid])
+        ; override (if pid (entity-view/actionkey-class pid thing-type "hide") {})
+        opts {:author login-id}
        ]
+    (.log js/console (pr-str "newthing-form " nav-path opts))
     [:div
-      (when pid (thing-entry app title override))
-      (when pid [:hr {:size 4}])
-      (newthing-form/add-form thing-type comm nav-path)
+      (when login-id [:hr {:size 4}])
+      (newthing-form/add-form thing-type comm nav-path opts)
     ]))
 
 
@@ -200,14 +201,15 @@
     (when (sel1 :.add-question-form)
       (dommy/add-class! (sel1 :.add-question-form) "hide"))
     [:div.forms
-      (newthing-form/add-form :add-child comm nav-path)
-      (newthing-form/add-form :add-lecture comm nav-path)
-      (newthing-form/add-form :add-question comm nav-path)
+      (newthing-form/add-form :add-child comm nav-path opts)
+      (newthing-form/add-form :add-lecture comm nav-path opts)
+      (newthing-form/add-form :add-question comm nav-path opts)
     ]))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; chatbox, deprecated.
-(defn chatbox [comm opts]
+(defn chatbox 
+  [comm opts]
   [:div.chatbox [:textarea.chat-input
                   (merge
                     {:on-focus #(put! comm [:user-message-focused])

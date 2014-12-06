@@ -138,7 +138,7 @@
   ))
 
 ; get :all-things msg to be sent to control channel to trigger controls chan event for ajax.
-; :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} false 
+; :all-things {:body [:all-things [:all 0 :course]], :data {:pid login-id}} false 
 (defn all-things-msg-nav-path
   [thing-type data]
   (let [msg [:all-things {:body [:all-things [:all 0 thing-type]]
@@ -146,12 +146,6 @@
         ]
     msg))
 
-(defn my-things-msg-nav-path
-  [thing-type user-type data]
-  (let [msg [:all-things {:body [:all-things [:all 0 thing-type]]
-                          :data data}]
-        ]
-    msg))
 
 ; get :filter-things msg to be sent to control channel to trigger controls chan event ajax. 
 ; has msg-type and msg-data part. msg-data is nav-path map.
@@ -185,12 +179,12 @@
 
 
 ; get :newthing-form msg-type and msg-data as nav-path to sent to transition state.
-; :newthing-form {:body [:newthing-form [:group :add-group]], :data {:pid nil}}
+; :newthing-form {:body [:newthing-form [:group :add-group]], :data {:pid login-id}}
 (defn newthing-form-msg-nav-path
-  [thing-type]
+  [thing-type options]
   (let [newthing-path (vector thing-type (keyword (str "add-" (name thing-type))))
         newthing-data {:body [:newthing-form newthing-path] 
-                       :data {:pid nil}}
+                       :data options}
         msg [:newthing-form newthing-data]]
     msg))
 

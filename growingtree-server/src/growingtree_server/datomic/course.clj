@@ -148,7 +148,8 @@
   ])
 
 
-; given a course entity, populate progress entity that origin to the course.
+; populate author's progress that origin to the course.
+; author can be author-id or author-title, diff by class author java.lang.String.
 ; assoc progress entity to pseudo :course/progress attr.
 (defn populate-course-progress
   [entity author]
@@ -158,7 +159,8 @@
     (assoc entity :course/progress progress)))
 
 
-; need author (login-user name) or long author-id for populating course progress related to author.
+; populate author's progress on this course.
+; author can be author-id or author-title, diff by class author java.lang.String.
 (defn populate-course-refed-entity
   [entity author]  ; can be user-name or user-id, test by class author is string or long.
   (let [projkeys (keys course-schema)]
@@ -172,13 +174,14 @@
 
 
 ; find a course, thread thru project keys, and fill :course/likes
-; details {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}}}
+; nav-path {:body [:all-things [:all 0 :course]], :data {:pid 1234}}}
 (defn find-course
   "find course by query path"
-  [qpath details]
-  (let [author (or (get-in details [:data :author]) "rich-son")
+  [qpath nav-path]
+  (log/info "find-course " qpath " nav-path " nav-path)
+  (let [login-id (get-in nav-path [:data :pid])
         courses (->> (util/get-qpath-entities qpath get-course-by)
-                     (map #(populate-course-refed-entity % author) )
+                     (map #(populate-course-refed-entity % login-id) )
                      (map #(util/add-navpath % qpath) ))  ; :qpath ["all" 0 "course" 17592186045425],
         ]
     (doseq [e courses]
@@ -399,15 +402,16 @@
     )
   ))
 
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; for course, progress can be attendee of a course; for person, find courses he enrolled into.
 ; for [:course 1 :progress], we should show attendee of the course
 ; however, for [:child 1 :progress], we should show course, not attendee.
 (defn find-progress
   "find all person that enrolls to the course by query path "
-  ([qpath details]
-    (log/info "find progress " qpath " details " details)
+  ([qpath nav-path]
+    (log/info "find progress " qpath " nav-path " nav-path)
     (let [[rule-name course-id _] qpath
-          author (get-in details [:data :author])]
+          author (get-in nav-path [:data :pid])]
       (find-progress rule-name course-id author)))
 
   ; if author is name string, get its db/id, otherwise, author is long author-id.

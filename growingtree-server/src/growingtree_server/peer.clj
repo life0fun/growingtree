@@ -59,143 +59,144 @@
 
 
 ;;===========================================================================
-;; get all things multi method, return data is thing-vec. [{tuple1} {tuple2}]
+; service  (peer/get-things thing-type path (:post-data params))
 ; qpath is the :path in request body, and real :path and :qpath in details dict.
-;; (defmulti name docstring? attr-map? dispatch-fn & options)
+; params-nav-path is nav-path, from get-filter-things-msg, {:body [:filter-things []] :data {}}
+; return data is thing-vec. [{tuple1} {tuple2}]
 ;;===========================================================================
 ; defmulti needs a name and a dispatch fn, which rets value for dispatching
 (defmulti get-things
-  (fn [thing-type qpath details]
+  (fn [thing-type qpath nav-path]
     thing-type))
 
 
 (defmethod get-things
   :default
-  [type qpath details]
-  (log/info "get-things default " type " qpath " qpath " details " details))
+  [type qpath nav-path]
+  (log/info "get-things default " type " qpath " qpath " nav-path " nav-path))
 
 
 ; (defmethod get-things
 ;   :login
-;   [type qpath details]
-;   (let [user (get-user details)]
+;   [type qpath nav-path]
+;   (let [user (get-user nav-path)]
 ;     user))
 
 (defmethod get-things
   :parent
-  [type qpath details]
+  [type qpath nav-path]
   (let [parents (dda/find-parent qpath)]
     parents))
 
 
 (defmethod get-things
   :child
-  [type qpath details]
+  [type qpath nav-path]
   (let [children (dda/find-child qpath)]
     children))
 
 
 (defmethod get-things
   :course
-  [type qpath details]
-  (let [courses (dda/find-course qpath details)]
+  [type qpath nav-path]
+  (let [courses (dda/find-course qpath nav-path)]
     courses))
 
 
 (defmethod get-things
   :lecture
-  [type qpath details]
+  [type qpath nav-path]
   (let [lectures (dda/find-lecture qpath)]
     lectures))
 
 
 (defmethod get-things
   :question
-  [type qpath details]
+  [type qpath nav-path]
   (let [questions (dda/find-question qpath)]
     questions))
 
 
 (defmethod get-things
   :assignment
-  [type qpath details]
+  [type qpath nav-path]
   (let [assignments (dda/find-assignment qpath)]
     assignments))
 
 
 (defmethod get-things
   :answer
-  [type qpath details]
+  [type qpath nav-path]
   (let [answers (dda/find-answer qpath)]
     answers))
 
 (defmethod get-things
   :comments
-  [type qpath details]
+  [type qpath nav-path]
   (let [comments (dda/find-comments qpath)]
     comments))
 
 
 (defmethod get-things
   :enrollment
-  [type qpath details]
+  [type qpath nav-path]
   (let [enrollments (dda/find-enrollment qpath)]
     enrollments))
 
 (defmethod get-things
   :progress
-  [type qpath details]
-  (let [progress (dda/find-progress qpath details)]
+  [type qpath nav-path]
+  (let [progress (dda/find-progress qpath nav-path)]
     progress))
 
 (defmethod get-things
   :group
-  [type qpath details]
+  [type qpath nav-path]
   (let [groups (dda/find-group qpath)]
     groups))
 
 
 (defmethod get-things
   :group-members
-  [type qpath details]
+  [type qpath nav-path]
   (let [members (dda/find-group-members qpath)]
     members))
 
 
 (defmethod get-things
   :activity
-  [type qpath details]
+  [type qpath nav-path]
   (let [activities (dda/find-activity qpath)]
     activities))
 
 (defmethod get-things
   :activity-members
-  [type qpath details]
+  [type qpath nav-path]
   (let [members (dda/find-activity-members qpath)]
     members))
 
 
 (defmethod get-things
   :like
-  [type qpath details]
+  [type qpath nav-path]
   (let [likes (dda/find-like qpath)]
     likes))
 
 
-; qpath is [:all 0 :timeline] for request all, and :qpath inside details dict.
+; qpath is [:all 0 :timeline] for request all, and :qpath inside nav-path dict.
 ; :path [:all 0 :timeline]
-; :details {:path [:all 0 :timeline], :qpath [], :author "rich-dad"}}}]
+; :nav-path {:path [:all 0 :timeline], :qpath [], :author "rich-dad"}}}]
 (defmethod get-things
   :timeline
-  [type qpath details]
-  (let [timeline (dda/find-timeline qpath details)]
+  [type qpath nav-path]
+  (let [timeline (dda/find-timeline qpath nav-path)]
     timeline))
 
 
 (defmethod get-things
   :search
-  [type qpath details]
-  (let [search (dda/search qpath details)]
+  [type qpath nav-path]
+  (let [search (dda/search qpath nav-path)]
     search))
 
 
@@ -203,19 +204,19 @@
 ; qpath [:lecture 17592186045430 :title]
 (defmethod get-things
   :title
-  [type qpath details]
+  [type qpath nav-path]
   (let [thing-id (second (reverse qpath))
         entity (dda/find-entity-by-id thing-id qpath)]
     (log/info "peer get title --> " qpath entity)
     [entity]))
 
 
-; get thing details by field, get author
+; get thing nav-path by field, get author
 ; qpath [:author 17592186045430 :author]
 ; entity's :navpath [:person 17592186045419 :person 17592186045419]
 (defmethod get-things
   :author
-  [type qpath details]
+  [type qpath nav-path]
   (let [thing-id (second (reverse qpath))
         ref-ids (dda/find-entity-attr thing-id "author")
         entities (map #(dda/find-entity-by-id % [:person % :person]) ref-ids)

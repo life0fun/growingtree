@@ -17,19 +17,19 @@
 ; last-nav-path the cursor to last segment of global nav-path. passed in main_area, 
 ; {:body [:newthing-form [:parent :add-child]], :data {:pid 17592186045419} }
 (defmulti add-form 
-  (fn [thing-type comm last-nav-path] 
+  (fn [thing-type comm last-nav-path options] 
     thing-type))
 
 (defmethod add-form 
   :default
-  [thing-type comm last-nav-path]
+  [thing-type comm last-nav-path options]
   (.log js/console "add-form " (pr-str thing-type) " defaults "))
 
 
 ; encapsulate view and submit fn together.
 (defmethod add-form 
   :add-parent
-  [thing-type comm last-nav-path]
+  [thing-type comm last-nav-path options]
   (let [child-id (get-in last-nav-path [:data :pid])
         submit-fn 
           (fn [e]
@@ -97,7 +97,7 @@
 ; :newthing-form {:title :title, :body [:newthing-form [:parent :add-child]], :data {:pid 1}} 
 (defmethod add-form 
   :add-child
-  [thing-type comm last-nav-path]
+  [thing-type comm last-nav-path options]
   (let [parent-id (get-in last-nav-path [:data :pid])
         submit-fn 
           (fn [e]
@@ -163,7 +163,7 @@
 ; add course collect data field from form.
 (defmethod add-form 
   :add-course
-  [thing-type comm last-nav-path]
+  [thing-type comm last-nav-path options]
   (let [submit-fn 
           (fn [e]
             (let [input-fields {:course/title ".course-title"
@@ -178,7 +178,8 @@
                                      (assoc tot k (dommy/value (sel1 clz))))
                                    {}
                                    input-fields)
-                            (assoc :author "rich-dad")
+                            ; (assoc :author "rich-dad")
+                            (assoc :author (:author options))
                             (utils/update-enum :course "type" false))
                   ]
               (.log js/console "add-course form " (pr-str data))
@@ -231,7 +232,7 @@
 ; put into comm msg-type :add-thing msg-data as nav-path as {:add-thing add-thing-type :details form-data}
 (defmethod add-form 
   :add-lecture
-  [thing-type comm last-nav-path]
+  [thing-type comm last-nav-path options]
   (let [course-id (get-in last-nav-path [:data :pid])
         submit-fn 
           (fn [e]
@@ -326,7 +327,7 @@
 ; add question form
 (defmethod add-form 
   :add-question
-  [thing-type comm last-nav-path]
+  [thing-type comm last-nav-path options]
   (let [course-id (get-in last-nav-path [:data :pid])
         submit-fn 
           (fn [e]
@@ -405,7 +406,7 @@
 ; add group form
 (defmethod add-form 
   :add-group
-  [thing-type comm last-nav-path]
+  [thing-type comm last-nav-path options]
   (let [submit-fn 
           (fn [e]
             (let [input-fields {:group/title ".group-title"

@@ -20,7 +20,8 @@
   [comm login-user thing-listing]
   (let [type (:type thing-listing)
         user-name (:person/title login-user)
-        login-id (:db/id login-user)]
+        login-id (:db/id login-user)
+        options {:pid login-id}]
     [:li.protected 
       [:div.nav-channel
         [:a.show_channel
@@ -31,7 +32,7 @@
           (:title thing-listing)]  ; nav type title, course, parent, lecture, etc.
         (if (some #{type} mock-data/root-add-type)
           [:i.fa.fa-plus-square
-            {:on-click #(put! comm (mock-data/newthing-form-msg-nav-path type))}]
+            {:on-click #(put! comm (mock-data/newthing-form-msg-nav-path type options))}]
           [:i.fa.fa-square]
         )
         (when (:loading thing-listing)
@@ -44,7 +45,8 @@
   (let [thing-type (:type thing-listing)
         user-name (:person/title login-user)
         user-type (:person/type login-user)  ; use for [:child 1 :assignment]
-        login-id (:db/id login-user)]
+        login-id (:db/id login-user)
+        options {:pid login-id}]
     [:li.protected 
       [:div.nav-channel
         [:a.show_channel
@@ -55,7 +57,7 @@
           (:title thing-listing)]  ; nav type title, course, parent, lecture, etc.
         (if (some #{type} mock-data/root-add-type)
           [:i.fa.fa-plus-square
-            {:on-click #(put! comm (mock-data/newthing-form-msg-nav-path thing-type))}]
+            {:on-click #(put! comm (mock-data/newthing-form-msg-nav-path thing-type options))}]
           [:i.fa.fa-square]
         )
         (when (:loading thing-listing)

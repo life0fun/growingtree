@@ -114,7 +114,7 @@
 (defn person-attr-tx
   "find all transaction entities that refto user"
   [author-id author author-attr]
-  ; (prn "person-attr-tx " author-id author attr)
+  (log/info "person-attr-tx " author-id author author-attr)
   (let [txhist (->> (dbconn/attr-val-tx author-attr author-id)  ; find all trans entity set attr to val
                     (map #(tx-timeline %))   ; format to :timeline/attr
                     (map #(assoc-in % [:timeline/author] author))
@@ -128,17 +128,15 @@
 
 ; ============================================================================
 ; find all entities that has author/person attributes with value to the user.
-; :details {:body [:all-things [:all 0 :timeline]], :data {:author "rich-dad"}}
-; when clicking from thing-view [:parent 17592186045419 :timeline] or 
-; when click from navbar [:all 0 :timeline] with :author key in :data :details
+; qpath [:child 17592186045427 :timeline]
+; nav-path {:body [:filter-things [:child 17592186045427 :timeline]], :data {:pid 17592186045427}}}
+; when clicking from thing-view [:parent 17592186045419 :timeline]
 ; XXX list all transactions for all users.
 (defn find-timeline
-  "find timeline of a user"
-  [qpath details]
-  (log/info "find-timeline " qpath " details " details)
-  (let [author (get-in details [:data :author])
-        author-id (:db/id (find-by :person/title author))
-        user-id (if-not (= :all (first qpath)) (second qpath) author-id)
+  "find timeline of a user with qpath has user id"
+  [qpath nav-path]
+  (log/info "find-timeline " qpath " nav-path " nav-path)
+  (let [user-id (get-in nav-path [:data :pid])
         user (:person/title (dbconn/get-entity user-id))
         timelines (->> (mapcat #(person-attr-tx user-id user %)
                                person-attrs)
