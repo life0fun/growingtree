@@ -49,7 +49,7 @@
                   ]
               (.log js/console (pr-str "add-parent form " data))
               ; first is msg type, nav-path [:type :filter segment]
-              (put! comm (mock-data/get-add-thing-msg :parent data))))]
+              (put! comm (mock-data/add-thing-msg-nav-path :parent data))))]
     (list
       [:div.add-parent-form  ; hide first.
         [:form.form-horizontal
@@ -88,7 +88,7 @@
               "OK"]
             [:button.btn 
               {:id "cancel" :type "button"
-               :on-click #(put! comm (mock-data/get-all-things-msg :parent {}))
+               :on-click #(put! comm (mock-data/all-things-msg-nav-path :parent {}))
               } 
             "Cancel"]]
         ]])))
@@ -117,7 +117,7 @@
                   ]
               (.log js/console (pr-str "add-child form " data))
               ; first is msg type, nav-path [:type :filter segment]
-              (put! comm (mock-data/get-add-thing-msg :child data))))]
+              (put! comm (mock-data/add-thing-msg-nav-path :child data))))]
     (list
       [:div.add-child-form.hide  ; hide first.
         [:form.form-horizontal
@@ -182,9 +182,9 @@
                             (assoc :author (:author options))
                             (utils/update-enum :course "type" false))
                   ]
-              (.log js/console "add-course form " (pr-str data))
+              (.log js/console "add-course form " (pr-str data options))
               ; first is msg type, last is nav-path filter segment.
-              (put! comm (mock-data/get-add-thing-msg :course data))))]
+              (put! comm (mock-data/add-thing-msg-nav-path :course data))))]
     (list
       [:div.create-form
         [:form.form-horizontal 
@@ -257,7 +257,7 @@
                   ]
               (.log js/console "add-lecture form " (pr-str data))
               ; first is msg type, last is nav-path, {:add-thing add-thing-type :details form-data} 
-              (put! comm (mock-data/get-add-thing-msg :lecture data))))]
+              (put! comm (mock-data/add-thing-msg-nav-path :lecture data))))]
     (list
       [:div.add-lecture-form.hide  ; hide first.
         [:form.form-horizontal 
@@ -350,8 +350,9 @@
                   ]
               (.log js/console "add-question form " (pr-str data))
               ; first is msg type, last is nav-path, {:add-thing add-thing-type :details form-data}
-              (put! comm (mock-data/get-add-thing-msg :question data))))
-            f (sel1 (keyword (str ".add-question-form")))]
+              (put! comm (mock-data/add-thing-msg-nav-path :question data))))
+        f (sel1 (keyword (str ".add-question-form")))
+       ]
     (when f (dommy/add-class! f "hide"))
     (list
       [:div.add-question-form.hide  ; hide first.
@@ -424,7 +425,7 @@
                   ]
               (.log js/console "add-group form " (pr-str data))
               ; first is msg type, last is nav-path filter segment.
-              (put! comm (mock-data/get-add-thing-msg :add-group data))))
+              (put! comm (mock-data/add-thing-msg-nav-path :add-group data))))
         ]
     (list
       [:div.create-form

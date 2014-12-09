@@ -160,6 +160,7 @@
             (let [previous-state @state
                   msg-type (first v)
                   msg-data (last v)]
+              (.log js/console (pr-str "api msg " v))
               (process-api-event app-el state msg-type msg-data))
             )
         (async/timeout 30000) 

@@ -119,7 +119,7 @@
   )
 
 
-; get-add-thing-msg defines msg-data as nav-path 
+; add-thing-msg-nav-path defines msg-data as nav-path 
 ; {:add-thing :lecture :data {:lecture/course 1 :lecture/title ...}}
 (defmethod request 
   :add-thing

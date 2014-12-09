@@ -3,7 +3,7 @@
   (:import [java.io FileReader]
            [java.net URI]
            [java.util Map Map$Entry List ArrayList Collection Iterator HashMap])
-  (:require [clojure.string :as str]
+  (:require [clojure.string :as string]
             [clojure.set :as set]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
@@ -193,8 +193,11 @@
 (defn create-course
   "create a course with details "
   [details]
-  (let [author-name (or (:course/author details) (:author details))
-        author-id (:db/id (find-by :person/title author-name))
+  (log/info "create course " details)
+  (let [author-name (:course/author details)
+        author-id (if (string/blank? author-name)
+                      (:author details)
+                      (:db/id (find-by :person/title author-name)))
         entity (-> details
                    (select-keys (keys course-schema))
                    (assoc :course/author author-id)  ; replace input :course/author
@@ -202,7 +205,7 @@
                    (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
-    (log/info "create course entity " (:author details) author-id entity)
+    (log/info "create course entity " author-id entity)
     [entity]))
 
 

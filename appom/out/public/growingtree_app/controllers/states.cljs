@@ -177,11 +177,12 @@
   (let [comm (get-in state [:comms :controls])
         ;{:body [:filter-things [:pareni 1 :child]], :data {:pid 1}} 
         last-nav-path (last (drop-last (get-in state [:nav-path])))  ; url before :add-thing
+        added-thing-type (get-in last-nav-path [:body 1 0])
         ; when api success, replace {:body [:newthing-form [:course :add-course]]} with [:all-things [:all 0 :thing-type]] 
         msg (as-> (get-in last-nav-path [:body 0]) msg-type 
               (if (= :newthing-form msg-type)
                 ; refer to thing-nav in navbar for creating nav-path for :all-things
-                (mock-data/get-all-things-msg (get-in last-nav-path [:body 1 0]) {:author "rich-dad"})
+                (mock-data/all-things-msg-nav-path added-thing-type {:pid (utils/get-login-id state)})
                 [msg-type last-nav-path]))
        ]
     (.log js/console (pr-str "api-success : re-direct by sending to comm msg " msg))

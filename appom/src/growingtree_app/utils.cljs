@@ -111,6 +111,11 @@
   (get-in state [:login-user])
   )
 
+(defn get-login-id
+  "get current login user id"
+  [state]
+  (:db/id (get-login-user state)))
+
 ;- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; thing entity attrs
 ; ret the keyword for thing attr
