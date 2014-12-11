@@ -178,7 +178,6 @@
                                      (assoc tot k (dommy/value (sel1 clz))))
                                    {}
                                    input-fields)
-                            ; (assoc :author "rich-dad")
                             (assoc :author (:author options))
                             (utils/update-enum :course "type" false))
                   ]
@@ -249,7 +248,7 @@
                                      (assoc tot k (dommy/value (sel1 clz))))
                                    {}
                                    input-fields)
-                            (assoc :author "rich-dad")  ; XXX hard code author here
+                            (assoc :author (:author options))
                             (assoc :lecture/course (get-in @last-nav-path [:data :pid]))
                             (utils/update-enum :lecture "type" false)
                             (utils/update-time :lecture "start")
@@ -343,7 +342,7 @@
                                      (assoc tot k (dommy/value (sel1 clz))))
                                    {}
                                    input-fields)
-                            (assoc :author "rich-dad")
+                            (assoc :author (:author options))
                             (assoc :question/origin (get-in @last-nav-path [:data :pid]))
                             (utils/update-enum :question "type" false) ; always false
                             )
@@ -421,6 +420,7 @@
                                      (assoc tot k (dommy/value (sel1 clz))))
                                    {}
                                    input-fields)
+                            (assoc :author (:author options))
                             (utils/update-enum :group "type" false)) ; always false
                   ]
               (.log js/console "add-group form " (pr-str data))

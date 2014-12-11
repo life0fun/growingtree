@@ -3,7 +3,7 @@
   (:import [java.io FileReader]
            [java.net URI]
            [java.util Map Map$Entry List ArrayList Collection Iterator HashMap])
-  (:require [clojure.string :as str]
+  (:require [clojure.string :as string]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.data.json :as json]
@@ -422,9 +422,11 @@
 (defn add-group
   "add group from the submitted new thing form details from parent add-group"
   [details]
-  (let [author-id (if (clojure.string/blank? (:group/author details))
-                      (:db/id (find-by :person/title (:group/person details)))   ; no author, the first one joining is the author
-                      (:db/id (find-by :person/title (:group/author details))))
+  (log/info "add-group " details)
+  (let [author-name (:group/author details)
+        author-id (if (string/blank? author-name)
+                      (:author details)
+                      (:db/id (find-by :person/title author-name)))
         group-id (if (:db/id details)
                       (:db/id details)
                       (find-by :group/title (:group/title details)))
