@@ -114,7 +114,7 @@
                   pid (merge (entity-view/actionkey-class pid thing-type "hide"))
                   pid (merge (entity-view/actionkey-class pid add-thing " "))
                   pid (merge (entity-view/actionkey-class pid join-thing " ")))
-        opts (assoc opts :author pid)
+        opts (assoc opts :author pid :login-user (utils/get-login-user app))
        ]
     (.log js/console (pr-str "filter things " nav-path top-url top-entity))
     [:div
@@ -144,7 +144,7 @@
         thing-type (get-in nav-path [:body 1 1]) ; newthing type is last last
         login-id (get-in nav-path [:data :pid])
         ; override (if pid (entity-view/actionkey-class pid thing-type "hide") {})
-        opts {:author login-id}
+        opts {:author login-id :login-user (utils/get-login-user app)}
        ]
     (.log js/console (pr-str "newthing-form " nav-path opts))
     [:div

@@ -248,7 +248,10 @@
 (defn create-lecture
   "create a lecture with details "
   [details]
-  (let [author-id (:db/id (find-by :person/title (:author details)))
+  (let [author-name (:lecture/author details)
+        author-id (if (string/blank? author-name)
+                      (:author details)
+                      (:db/id (find-by :person/title author-name)))
         course (:lecture/course details)
         course-id (if (= java.lang.String (type course))
                     (:db/id (find-by :course/title (:lecture/course details)))

@@ -164,7 +164,8 @@
 (defmethod add-form 
   :add-course
   [thing-type comm last-nav-path options]
-  (let [submit-fn 
+  (let [author-name (:person/title (get options :login-user))
+        submit-fn 
           (fn [e]
             (let [input-fields {:course/title ".course-title"
                                 :course/content ".course-content"
@@ -195,7 +196,7 @@
             [:input.field {:id "course-title" :class "course-title" :type "text" :placeholder "the title of course ..."}]]
           [:div.control-group
             [:label.label {:for "course-author"} "Author"]
-            [:input.field {:id "course-author" :class "course-author" :type "text" :placeholder "the author ..."}]]
+            [:input.field {:id "course-author" :class "course-author" :type "text" :placeholder author-name}]]
           [:div.control-group
             [:label.label {:for "course-type"} "Type"]
             [:select {:id "course-type" :class "course-type"}
@@ -232,7 +233,8 @@
 (defmethod add-form 
   :add-lecture
   [thing-type comm last-nav-path options]
-  (let [course-id (get-in last-nav-path [:data :pid])
+  (let [author-name (:person/title (get options :login-user))
+        course-id (get-in last-nav-path [:data :pid])
         submit-fn 
           (fn [e]
             (let [input-fields {:lecture/title ".lecture-title"
@@ -268,7 +270,7 @@
             [:input.field {:id "lecture-title" :class "lecture-title" :type "text" :placeholder "the title of lecture ..."}]]
           [:div.control-group
             [:label.label {:for "lecture-author"} "Author"]
-            [:input.field {:id "lecture-author" :class "lecture-author" :type "text" :placeholder "the author ..."}]]
+            [:input.field {:id "lecture-author" :class "lecture-author" :type "text" :placeholder author-name}]]
           [:div.control-group
             [:label.label {:for "lecture-type"} "Type"]
             [:select {:id "lecture-type" :class "lecture-type"}
@@ -327,7 +329,8 @@
 (defmethod add-form 
   :add-question
   [thing-type comm last-nav-path options]
-  (let [course-id (get-in last-nav-path [:data :pid])
+  (let [author-name (:person/title (get options :login-user))
+        course-id (get-in last-nav-path [:data :pid])
         submit-fn 
           (fn [e]
             (let [input-fields {:question/title ".question-title"
@@ -364,7 +367,7 @@
             [:input.field {:id "question-title" :class "question-title" :type "text" :placeholder "the title of question ..."}]]
           [:div.control-group
             [:label.label {:for "question-author"} "Author"]
-            [:input.field {:id "question-author" :class "question-author" :type "text" :placeholder "the author ..."}]]
+            [:input.field {:id "question-author" :class "question-author" :type "text" :placeholder author-name}]]
           [:div.control-group
             [:label.label {:for "question-type"} "Type"]
             [:select {:id "question-type" :class "question-type"}
@@ -407,7 +410,8 @@
 (defmethod add-form 
   :add-group
   [thing-type comm last-nav-path options]
-  (let [submit-fn 
+  (let [author-name (:person/title (get options :login-user))
+        submit-fn 
           (fn [e]
             (let [input-fields {:group/title ".group-title"
                                 :group/type ".group-type"
@@ -438,7 +442,7 @@
             [:input.field {:id "group-title" :class "group-title" :type "text" :placeholder "the title of group ..."}]]
           [:div.control-group
             [:label.label {:for "group-author"} "Author"]
-            [:input.field {:id "group-author" :class "group-author" :type "text" :placeholder "the author ..."}]]
+            [:input.field {:id "group-author" :class "group-author" :type "text" :placeholder author-name}]]
           [:div.control-group
             [:label.label {:for "group-type"} "Type"]
             [:select {:id "group-type" :class "group-type"}

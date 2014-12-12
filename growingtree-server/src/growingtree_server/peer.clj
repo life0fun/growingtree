@@ -288,7 +288,7 @@
   (let [author (:author details) ; thing-type value is json string.
         result (dda/create-question details)
        ]
-    details))
+    result))
 
 ; add assignment triggered by :assignto, and key is :assign, to diff from assignment form.
 (defmethod add-thing

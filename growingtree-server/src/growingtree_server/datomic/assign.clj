@@ -3,7 +3,7 @@
   (:import [java.io FileReader]
            [java.net URI]
            [java.util Map Map$Entry List ArrayList Collection Iterator HashMap])
-  (:require [clojure.string :as str]
+  (:require [clojure.string :as string]
             [clojure.set :as set]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint :refer [pprint]]
@@ -195,7 +195,11 @@
 (defn create-question
   "create question with details"
   [details]
-  (let [author-id (:db/id (find-by :person/title (:author details)))
+  (log/info "create-question " details)
+  (let [author-name (:question/author details)
+        author-id (if (string/blank? author-name)
+                      (:author details)
+                      (:db/id (find-by :person/title author-name)))
         entity (-> details
                 (select-keys (keys question-schema))
                 (assoc :question/author author-id)
@@ -203,8 +207,8 @@
                 (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
       ]
-    (log/info "create question author " author-id " entity " entity " trans " trans)
-    entity))
+    (log/info "create question entity " entity " trans " trans)
+    [entity]))
 
 
 (defn inc-question-popularity

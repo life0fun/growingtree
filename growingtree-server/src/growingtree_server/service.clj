@@ -267,8 +267,9 @@
         added-things (peer/add-thing (keyword type) (:post-data params))
         result {:status 200 :data (map #(dissoc % :db/id) added-things)}  ; data is [{:course/author ...} {}]
         ; jsonresp (bootstrap/json-response result)
-        jsonresp (bootstrap/edn-response result)
+        jsonresp (bootstrap/edn-response result)  ; we are using edn-response !
        ]
+    (log/info "service add-thing result " added-things)
     (log/info "peer adding thing done " type " res " result " " jsonresp)
     jsonresp))
 
