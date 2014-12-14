@@ -129,47 +129,6 @@ h6{font-size:11.9px}
     margin-bottom: 14px;
 }
 
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-  header buttons
- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-.header, .nav .search {
-  background-color: #566569;
-  background-image: -webkit-linear-gradient(#566569, #3f494b);
-  background-image: linear-gradient(#566569, #3f494b);
-  border-bottom: 1px solid #fff;
-  box-shadow: inset 0px -10px 10px -10px #000;
-  display: block;
-  height: 35px;
-  margin: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-}
-
-.header .button.left, .nav .search .button.left {
-  float: left;
-  line-height: 34px;
-  margin-right: 10px;
-  color: rgba(255,255,255,0.5);
-  display: block;
-  font-size: 21px;
-  height: 100%;
-  text-decoration: none;
-}
-
-.header .button.right, .nav .search .button.right {
-  float: right;
-  line-height: 34px;
-  margin-left: 10px;
-  color: rgba(255,255,255,0.5);
-  display: block;
-  font-size: 21px;
-  height: 100%;
-  text-decoration: none;
-}
-
 /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   login form
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -268,31 +227,25 @@ fieldset {
    }
 }
 
-/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-  main-area sidebar and nav with transition transform 
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  header buttons
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-/* main area, z-index overlap sidebar and nav.*/
-@media (min-width: 1024px) {
-  .main-area {
-    box-shadow:none
-  }
-}
+.header, .nav .search {
+  background-color: #566569;
+  background-image: -webkit-linear-gradient(#566569, #3f494b);
+  background-image: linear-gradient(#566569, #3f494b);
+  border-bottom: 1px solid #fff;
+  box-shadow: inset 0px -10px 10px -10px #000;
+  display: block;
+  height: 35px;
+  margin: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
 
-.main-area {
-  padding: 45px 10px 10px;
-  /*background: #e6ebee url(./images/logo_app.png) repeat !important;*/
-  background: #e6ebee url(./images/page_bg.png) no-repeat center center fixed;
-  background-size: 300px;
-  box-shadow: 0 0 15px 0 rgba(0,0,0,0.5);
-  min-height: 100%;
-  position: relative;
-  z-index: 1000;
-
-  transition-property: transform;
-  transition-duration: 0.25s;
-  transition-timing-function: ease;
-
-  @media (min-width: 768px) {
+  @media (min-width: 1768px) {
     .nav-toggle {
       display:none !important;
     }
@@ -305,6 +258,77 @@ fieldset {
     }
   }
 }
+
+.header .button.left, .nav .search .button.left {
+  float: left;
+  line-height: 34px;
+  margin-right: 10px;
+  color: rgba(255,255,255,0.5);
+  display: block;
+  font-size: 21px;
+  height: 100%;
+  text-decoration: none;
+}
+
+.header .button.right, .nav .search .button.right {
+  float: right;
+  line-height: 34px;
+  margin-left: 10px;
+  color: rgba(255,255,255,0.5);
+  display: block;
+  font-size: 21px;
+  height: 100%;
+  text-decoration: none;
+}
+
+/*----------------------------------------------------
+  slide left right css to translateX 
+----------------------------------------------------*/
+.slide-right,.slide-left {
+    overflow:hidden
+}
+@media (min-width: 1024px) { 
+  .sidebar+.main-area {
+      margin-right:230px
+  }
+  .sidebar ~ .nav {
+      right:230px
+  }
+}
+
+.slide-right {
+  .nav {
+    width: 230px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+  }
+
+  .main-area, .sidebar{
+    transform:translateX(230px)
+  }
+
+  /*@media (min-width: 768px) {
+    .main-area, .sidebar{
+      transform:none;
+    }
+  }*/
+}
+
+.slide-left {
+  .main-area, .nav {
+    transform:translateX(-230px)
+  }
+
+  /*@media (min-width: 1024px) {
+    .main-area, .nav {
+      transform:none;
+    }
+  }*/
+}
+
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   nav side bar
@@ -325,7 +349,8 @@ fieldset {
   transition-timing-function: ease;
 }
 /* when wide, width is auto, override 230px*/
-@media (min-width: 768px) {
+// set to bigger to disable it for now, as we have so many tabs.
+@media (min-width: 1768px) {
   .nav {
     height: 35px;
     padding: 0 150px 0 0;
@@ -344,7 +369,7 @@ fieldset {
   nav and nav search 
 ----------------------------------------------------*/
 /* search box css for min-width and max-width */
-@media (min-width: 768px) {
+@media (min-width: 1768px) {  // disable by setting to bigger.
   .nav .search {
     transition: width 0.25s ease;
     padding: 5px 10px;  // padding only when min-width 
@@ -412,7 +437,8 @@ fieldset {
   }
 }
 
-@media (max-width: 767px) {
+// bigger, always apply sidebar.
+@media (max-width: 1767px) {
   .nav {
     ul.nav-ul {
       max-height: 100%;
@@ -449,7 +475,7 @@ fieldset {
     }
   }
 }
-@media (min-width: 768px) {
+@media (min-width: 1768px) {
   .nav ul.nav-ul {
     background: none;
     border-radius: 0;
@@ -617,53 +643,29 @@ fieldset {
 .file_list .file_item a:hover span{text-decoration:underline !important}
 
 
-
-/*----------------------------------------------------
-  slide left right css to translateX 
-----------------------------------------------------*/
-.slide-right,.slide-left {
-    overflow:hidden
-}
-@media (min-width: 1024px) { 
-  .sidebar+.main-area {
-      margin-right:230px
-  }
-  .sidebar ~ .nav {
-      right:230px
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  main-area sidebar and nav with transition transform 
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+/* main area, z-index overlap sidebar and nav.*/
+@media (min-width: 1024px) {
+  .main-area {
+    box-shadow:none
   }
 }
 
-.slide-right {
-  .nav {
-    width: 230px;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 0;
-  }
+.main-area {
+  padding: 45px 10px 10px;
+  /*background: #e6ebee url(./images/logo_app.png) repeat !important;*/
+  background: #e6ebee url(./images/page_bg.png) no-repeat center center fixed;
+  background-size: 300px;
+  box-shadow: 0 0 15px 0 rgba(0,0,0,0.5);
+  min-height: 100%;
+  position: relative;
+  z-index: 1000;
 
-  .main-area, .sidebar{
-    transform:translateX(230px)
-  }
-
-  @media (min-width: 768px) {
-    .main-area, .sidebar{
-      transform:none;
-    }
-  }
-}
-
-.slide-left {
-  .main-area, .nav {
-    transform:translateX(-230px)
-  }
-
-  @media (min-width: 1024px) {
-    .main-area, .nav {
-      transform:none;
-    }
-  }
+  transition-property: transform;
+  transition-duration: 0.25s;
+  transition-timing-function: ease;  
 }
 
 
