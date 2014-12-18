@@ -35,15 +35,18 @@
          [:ul.user_list
           (map (partial people-entry comm) fil-users)])))))
 
-(defn current-user [comm user]
-  [:a.user-menu-toggle
-    {
-      :on-click (comp (constantly false)
-                    #(put! comm [:user-menu-toggled]))
-    }
-   (utils/gravatar-for (:email user))
-   [:i.icon-angle.button.right {:style #js {:height "inherit"}}]
-   (:full-name user)])
+
+; display current login user icon with user entity from [:login-user] slot
+(defn current-user 
+  [comm user]
+  (let [username (:person/title user)]
+    (.log js/console (pr-str "current user " username user))
+    [:a.user-menu-toggle
+      {:on-click (comp (constantly false) #(put! comm [:user-menu-toggled]))}
+      (utils/gravatar-for (:person/email user))
+      [:i.icon-angle.button.right {:style #js {:height "inherit"}}]
+      username]
+  ))
 
 (defn media-name [src]
   (-> src
@@ -171,9 +174,9 @@
              (om/build (:action-comp opts) (:action-data data) {:opts (:action-opts data)})])])))))
 
 ; app build sidebar with state map cursor :channel = selected-channel, settings
-; data is a map with vals are app state map 
 ; sidebar filter users, conversations, etc, belong to the selected channel.
-(defn sidebar [data owner opts]
+(defn sidebar 
+  [state owner opts]
   (reify
     om/IDisplayName
     (display-name [_]
@@ -182,21 +185,20 @@
     (render [this]
       (html/html
         (let [comm (get-in opts [:comms :controls])
-             channel (:channel data)    ; the selected channel from click
-             settings (:settings data)
-             search-filter (:search-filter data)]
-          (.log js/console "rendering sidebar with selected channel " (:id channel))
+              login-user (utils/get-login-user state)
+              channel (get-in state [:channels :selected-channel])
+              settings (:settings state)
+              search-filter (get-in state [:settings :forms :search :value])]
+          (.log js/console (pr-str "rendering sidebar " login-user))
           [:aside.sidebar
             [:div.header.user-header {:class (when (get-in settings [:menus :user-menu :open]) "open-menu")}
-              (current-user comm (get-in opts [:users (:current-user-email opts)]))
+              (current-user comm login-user)
               [:ul.user-menu
                 [:li]
                 [:li [:a {:on-click #(put! comm [:settings-opened])} "Edit Account"]]
-                [:li
-                  [:a
-                    {:rel "nofollow",
-                     :on-click #(put! comm [:user-logged-out])}
-                    "Logout"]]
+                [:li [:a {:rel "nofollow",
+                          :on-click #(put! comm [:user-logged-out])}
+                          "Logout"]]
                 [:li [:a {:on-click #(put! comm [:help-opened])} "Help"]]
                 [:li [:a {:on-click #(put! comm [:about-opened])} "About growingtree-app"]]]]
               [:div.widgets

@@ -92,12 +92,9 @@
             (om/build navbar/navbar app {:opts {:comms (:comms opts)}})  ; pass entire app cursor
 
             ; pass selected-chan app state MapCursor to sidebar subcomponent in data map.
-            (om/build sidebar/sidebar {:channel selected-channel
-                                       :settings (:settings app)
-                                       :search-filter (get-in app [:settings :forms :search :value])}
+            (om/build sidebar/sidebar app 
                                       {:opts {:comms (:comms opts)
                                               :users (:users app)
-                                              :current-user-email (:current-user-email app)
                                               :selected-channel (:selected-channel app)
                                               :channels (:channels app)}})
             ; pass global app state MapCursor when building main-area component

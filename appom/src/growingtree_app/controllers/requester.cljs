@@ -134,6 +134,12 @@
                       (get nav-path :data))  ; input data is {:add-thing :course :details {:title ... :content ...}}
   )
 
+; user logged out.
+(defmethod request 
+  :user-logged-out
+  [target message nav-path previous-state current-state]
+  (.log js/console (pr-str "Log the user out somehow")))
+
 
 (defmethod request 
   :current-user-mentioned
@@ -204,9 +210,6 @@
   (let [player (sel1 target [(str ".audio-player.sfx.audio-" (:channel-id activity))])]
     (js/setTimeout #(.play player) 35)))
 
-(defmethod request :user-logged-out
-  [target message [activity url] previous-state current-state]
-  (mprint "Log the user out somehow"))
 
 (defmethod request :search-field-focused
   [target message [activity url] previous-state current-state]

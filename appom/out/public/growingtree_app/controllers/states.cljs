@@ -329,9 +329,10 @@
 
 (defmethod transition :user-logged-out
   [target msg-type msg-data state]
-  (-> state
-      (assoc-in [:settings :menus :user-menu :open] false)
-      (assoc-in [:current-user-email] nil)))
+  state)
+  ; (-> state
+  ;     (assoc-in [:settings :menus :user-menu :open] false)
+  ;     (assoc-in [:current-user-email] nil)))
 
 (defmethod transition :audio-source-loaded
   [target msg-type channel-id state]

@@ -66,6 +66,7 @@
 
 ; called from core, where data is MapCursor to app state, with select-keys #{:things :channels :settings}
 ; navbar must take 2 args, cursor and and the backing Om component referred to as the owner. 
+; owner is a data structure/store provided by om and you can store local state here, other than in global app state.
 ; f can take a third argument if :opts is specified in m from (om/build f cursor opts)
 ; (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
 (defn navbar
