@@ -4,6 +4,42 @@
 		"selected_items":
 		[
 			[
+				"Un",
+				"Undiscovery"
+			],
+			[
+				"marg",
+				"margin-top"
+			],
+			[
+				"value",
+				"value"
+			],
+			[
+				"head",
+				"head"
+			],
+			[
+				"nxt",
+				"nxt"
+			],
+			[
+				"window",
+				"window-location"
+			],
+			[
+				"cardi",
+				"cardinality"
+			],
+			[
+				"pop",
+				"popstate"
+			],
+			[
+				"nav",
+				"navigation"
+			],
+			[
 				"text-",
 				"text-align"
 			],
@@ -42,10 +78,6 @@
 			[
 				"get-",
 				"get-entity"
-			],
-			[
-				"pop",
-				"populate-progress-refed-entity"
 			],
 			[
 				"popu",
@@ -482,38 +514,6 @@
 			[
 				"spy",
 				"spyTrack"
-			],
-			[
-				"rec",
-				"recommendations"
-			],
-			[
-				"ret",
-				"retrieve"
-			],
-			[
-				"R",
-				"RECOMMENDATIONS_CONTEXT"
-			],
-			[
-				"_",
-				"_WML"
-			],
-			[
-				"excl",
-				"exclude-color"
-			],
-			[
-				"tra",
-				"transact"
-			],
-			[
-				"tr",
-				"transact"
-			],
-			[
-				"board",
-				"board-component"
 			]
 		]
 	},
@@ -523,15 +523,7 @@
 			"file": "appom/src/growingtree_app/core.cljs",
 			"settings":
 			{
-				"buffer_size": 7558,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "appom/src/growingtree_app/controllers/states.cljs",
-			"settings":
-			{
-				"buffer_size": 16966,
+				"buffer_size": 8144,
 				"line_ending": "Unix"
 			}
 		},
@@ -539,31 +531,7 @@
 			"file": "appom/src/growingtree_app/components/app.cljs",
 			"settings":
 			{
-				"buffer_size": 7382,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "appom/src/growingtree_app/components/main_area.cljs",
-			"settings":
-			{
-				"buffer_size": 10332,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "appom/src/growingtree_app/components/entity_view.cljs",
-			"settings":
-			{
-				"buffer_size": 56116,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "growingtree-server/src/growingtree_server/datomic/family.clj",
-			"settings":
-			{
-				"buffer_size": 23524,
+				"buffer_size": 7169,
 				"line_ending": "Unix"
 			}
 		},
@@ -571,7 +539,50 @@
 			"file": "growingtree-server/src/growingtree_server/datomic/course.clj",
 			"settings":
 			{
-				"buffer_size": 21437,
+				"buffer_size": 22296,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "(ns growingtree-app.components.sidebar\n  (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]\n            [clojure.string :as string]\n            [goog.string :as gstring]\n            [om.core :as om]\n            [growingtree-app.utils :as utils]\n            [sablono.core :as html :refer-macros [html]]))\n\n(defn people-entry [comm person]\n  [:li.user\n   {:title (or (:full-name person)\n               (:username person)\n               (:email person))\n    :key (:email person)}\n   (utils/gravatar-for (:email person))\n   (or (:full-name person)\n       (:username person))])\n\n(defn people-widget [{:keys [channel-users-emails search-filter] :as data} owner opts]\n  (reify\n    om/IDisplayName\n    (display-name [_]\n      (or (:react-name opts) \"PeopleWidget\"))\n    om/IRender\n    (render [this]\n      (html/html\n       (let [comm (get-in opts [:comms :controls])\n             re-filter (when search-filter (js/RegExp. search-filter \"ig\"))\n             channel-users (vals (select-keys (:users opts) channel-users-emails))\n             fil-users (if re-filter\n                         (filter #(or (.match (:full-name %) re-filter)\n                                      (.match (:email %) re-filter)\n                                      (.match (:username %) re-filter)) channel-users)\n                         channel-users)]\n         [:ul.user_list\n          (map (partial people-entry comm) fil-users)])))))\n\n\n; display current login user icon with user entity from [:login-user] slot\n(defn current-user \n  [comm user]\n  (let [username (:person/title user)]\n    [:a.user-menu-toggle\n      {:on-click (comp (constantly false) #(put! comm [:user-menu-toggled]))}\n      (utils/gravatar-for (:person/email user))\n      [:i.icon-angle.button.right {:style #js {:height \"inherit\"}}]\n      username]\n  ))\n\n(defn media-name [src]\n  (-> src\n      (string/split #\"/\")\n      last\n      (string/split #\"\\?\")\n      first\n      gstring/urlDecode))\n\n(defn playlist-entry [comm opts entry]\n  (let [src (:src entry)\n        order (:order entry)\n        name (media-name src)]\n    [:li.user\n     (merge {:title src\n             :key (str (:order entry) src)}\n            (when (= (:order entry) (get-in opts [:channels (:selected-channel opts) :player :playing-order]))\n              {:style #js {:background-color \"#ccc\"}}))\n     [:a\n      {:style #js {:cursor \"pointer\"}\n       :on-click (comp (constantly false)\n                       #(put! comm [:playlist-entry-played [order (:selected-channel opts)]]))}\n      (:order entry) \". \" name]]))\n\n(defn playlist-widget [{:keys [player search-filter]} owner opts]\n  (reify\n    om/IDisplayName\n    (display-name [_]\n      (or (:react-name opts) \"PlaylistWidget\"))\n    om/IRender\n    (render [_]\n      (html/html\n       (let [comm (get-in opts [:comms :controls])\n             re-filter (when search-filter (js/RegExp. search-filter \"ig\"))\n             fil-playlist (if re-filter\n                            (filter #(.match (media-name (:src %)) re-filter) (:playlist player))\n                            (:playlist player))]\n         [:div \n          [:ul.user_list\n           (map (partial playlist-entry comm opts)\n                (sort-by :order fil-playlist))]])))))\n\n(defn playlist-action-widget [{:keys [player]} owner opts]\n  (let [comm (get-in opts [:comms :controls])]\n    (html/html\n     [:div.dropzone\n      (if (= (:state player) :playing)\n        [:i.fa.fa-pause\n         {:style #js {:cursor \"pointer\"}\n          :on-click #(put! comm [:audio-player-stopped (:selected-channel opts)])}]\n        [:i.fa.fa-play\n         {:style #js {:cursor \"pointer\"}\n          :on-click #(put! comm [:audio-player-started (:selected-channel opts)])}])])))\n\n(def icon-map\n  {\"png\" \"img\"\n   \"jpg\" \"img\"\n   \"jpeg\" \"img\"})\n\n(defn media-entry [comm media]\n  (let [extension (-> (string/split (:src media) #\"\\?\")\n                      first\n                      (string/split #\"\\.\")\n                      last)]\n    [:li.file_item {:key (:src media)}\n     [:a\n      {:on-click (constantly false)\n       :target \"_blank\"\n      }\n      [:img {:src (str \"/images/\" (get icon-map extension \"file\") \"_icon.png\")}]\n      [:span (:name media)]]]))\n\n(defn media-widget [{:keys [channel-id media search-filter]} owner opts]\n  (reify\n    om/IDisplayName\n    (display-name [_]\n      (or (:react-name opts) \"MediaWidget\"))\n    om/IRender\n    (render [this]\n      (html/html\n       (let [comm (:comm opts)\n             re-filter (when search-filter (js/RegExp. search-filter \"ig\"))]\n         [:ul.file_list\n          (map (partial media-entry comm) (if re-filter\n                                      (filter #(.match (:name %) re-filter) media)\n                                      media))])))))\n\n(defn media-action-widget [{:keys [channel-id]} owner opts]\n  (let []\n    (html/html\n     [:form#file_upload\n      {:method \"post\",\n       :html \"{:multipart=>true}\",\n       :data-remote \"true\",\n       :action (str \"/channels/\" channel-id \"/attachments.json\"),\n       :accept-charset \"UTF-8\"}\n      [:div\n       {:style #js {:margin \"0\", :padding \"0\", :display \"inline\"}}\n       [:input {:value \"✓\", :type \"hidden\", :name \"utf8\"}]\n       [:input\n        {:value \"bpuDvAt5w97Cp4khpWE25tcTsD2vFEFpKwsIAG0m8fw=\",\n         :type \"hidden\",\n         :name \"authenticity_token\"}]]\n      [:input#channel_id_1 {:type \"hidden\", :name (str \"channel_id[\" channel-id \"]\")}]\n      [:input#file {:type \"file\", :name \"file\"}]\n      [:div.dropzone \"Drop file here to upload\"]])))\n\n(defn widget [data owner opts]\n  (reify\n    om/IDisplayName\n    (display-name [_]\n      (or (:react-name opts) \"Widget\"))\n    om/IRender\n    (render [this]\n      (html/html\n       (let [comm (:comm opts)]\n         [:div.widget\n          [:h5.widget-header.unselectable\n           [:img {:src (:icon opts)}]\n           (:title opts)]\n          [:div.widget-content\n           (om/build (:content-comp opts) (:content-data data) {:opts (:content-opts data)})]\n          (when (:action-comp opts)\n            [:div.widget-action-bar\n             (om/build (:action-comp opts) (:action-data data) {:opts (:action-opts data)})])])))))\n\n; app build sidebar with state map cursor :channel = selected-channel, settings\n; sidebar filter users, conversations, etc, belong to the selected channel.\n(defn sidebar \n  [state owner opts]\n  (reify\n    om/IDisplayName\n    (display-name [_]\n      (or (:react-name opts) \"Sidebar\"))\n    om/IRender\n    (render [this]\n      (html/html\n        (let [comm (get-in opts [:comms :controls])\n              login-user (utils/get-login-user state)\n              channel (get-in state [:channels :selected-channel])\n              settings (:settings state)\n              search-filter (get-in state [:settings :forms :search :value])]\n          (.log js/console (pr-str \"rendering sidebar \" (:person/title login-user)))\n          [:aside.sidebar\n            [:div.header.user-header {:class (when (get-in settings [:menus :user-menu :open]) \"open-menu\")}\n              (current-user comm login-user)\n              [:ul.user-menu\n                [:li]\n                [:li [:a {:on-click #(put! comm [:settings-opened])} \"Edit Account\"]]\n                [:li [:a {:rel \"nofollow\",\n                          :on-click #(put! comm [:user-logged-out])}\n                          \"Logout\"]]\n                [:li [:a {:on-click #(put! comm [:help-opened])} \"Help\"]]\n                [:li [:a {:on-click #(put! comm [:about-opened])} \"About growingtree-app\"]]]]\n              [:div.widgets\n                (om/build widget\n                         {:content-data {:channel-users-emails (:users channel)\n                                         :search-filter search-filter}\n                          :content-opts opts}\n                         {:opts {:title \"People\"\n                                 :icon \"images/people_icon.png\"\n                                 :content-comp people-widget}})\n                (om/build widget\n                         {:content-data {:player        (:player channel)\n                                         :search-filter search-filter}\n                          :content-opts opts\n                          :action-data {:player (:player channel)}\n                          :action-opts opts}\n                         {:opts {:title \"Playlist\"\n                                 :icon \"images/video_icon.png\"\n                                 :content-comp playlist-widget}})\n                (om/build widget\n                         {:content-data {:search-filter search-filter\n                                         :media       (:media channel)\n                                         :channel-id  (:id channel)}\n                          :content-opts {:comm comm}\n                          :action-data {:channel-id (:id channel)}}\n                         {:opts {:title \"My Media\"\n                                 :icon \"images/media_icon.png\"\n                                 :content-comp media-widget}})]\n           ])))))\n",
+			"file": "appom/src/growingtree_app/components/sidebar.cljs",
+			"file_size": 9003,
+			"file_write_time": 130634353610000000,
+			"settings":
+			{
+				"buffer_size": 9001,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "appom/src/growingtree_app/components/main_area.cljs",
+			"settings":
+			{
+				"buffer_size": 9414,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "appom/src/growingtree_app/components/entity_view.cljs",
+			"settings":
+			{
+				"buffer_size": 56934,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "appom/src/growingtree_app/controllers/states.cljs",
+			"settings":
+			{
+				"buffer_size": 17863,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "appom/src/growingtree_app/controllers/requester.cljs",
+			"settings":
+			{
+				"buffer_size": 11525,
 				"line_ending": "Unix"
 			}
 		},
@@ -579,7 +590,7 @@
 			"file": "appom/src/growingtree_app/components/newthing_form.cljs",
 			"settings":
 			{
-				"buffer_size": 23118,
+				"buffer_size": 23511,
 				"line_ending": "Unix"
 			}
 		},
@@ -587,31 +598,15 @@
 			"file": "appom/src/growingtree_app/mock_data.cljs",
 			"settings":
 			{
-				"buffer_size": 9690,
+				"buffer_size": 11513,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "appom/src/growingtree_app/ui.cljs",
+			"file": "appom/src/growingtree_app/utils.cljs",
 			"settings":
 			{
-				"buffer_size": 2206,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "appom/src/growingtree_app/api/cljsajax.cljs",
-			"settings":
-			{
-				"buffer_size": 5958,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "growingtree-server/src/growingtree_server/peer.clj",
-			"settings":
-			{
-				"buffer_size": 9473,
+				"buffer_size": 8334,
 				"line_ending": "Unix"
 			}
 		},
@@ -624,6 +619,14 @@
 			}
 		},
 		{
+			"file": "appom/src/growingtree_app/api/cljsajax.cljs",
+			"settings":
+			{
+				"buffer_size": 5958,
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "growingtree-server/src/growingtree_server/datomic/dbschema.clj",
 			"settings":
 			{
@@ -632,10 +635,34 @@
 			}
 		},
 		{
-			"contents": "\n\n(defn get [chan ]\n  (let [cb (fn [result]\n              (go (>! chan result)))]\n    (http/get url cb))\n\n(let [asyncfn (fn [result]\n        (go >! chan result))]\n  let [result (future (http/get url)))\n      (go (>! chan result))\n(go \n  (>! chan (http/get url)))\n\n\n\n\n{:line 415, \"find-progress \" 17592186045484, \" author \" 17592186045453}\n{:line 425, \" find-progress rule-args \" [17592186045421 17592186045427]}\n{:line 425, \" find-progress rule-args \" [17592186045484 17592186045427]}\n\n\n",
+			"file": "/Users/hyan2/dev/clj/datascript-chat/src/datascript_chat.cljs",
 			"settings":
 			{
-				"buffer_size": 487,
+				"buffer_size": 5094,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "appom/assets/stylesheets/growingtree-app.scss",
+			"settings":
+			{
+				"buffer_size": 53030,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/hyan2/dev/tmp/papaline/src/papaline/core.clj",
+			"settings":
+			{
+				"buffer_size": 7538,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "\n\n(defn get [chan ]\n  (let [cb (fn [result]\n              (go (>! chan result)))]\n    (http/get url cb))\n\n(let [asyncfn (fn [result]\n        (go >! chan result))]\n  let [result (future (http/get url)))\n      (go (>! chan result))\n(go \n  (>! chan (http/get url)))\n\n\n(defn start-async\n  [num]\n  (dotimes [i num]\n    (core.async/thread\n      (while true\n        (let [task-args (<!! in-chan)\n              result (executor task-args)]\n          (>!! out-chan result)))))\n  )\n\n\n(defn prepare-hook [origin]\n  (when-not (-> @origin meta ::hooks)\n    (let [hkmap (atom {})]\n    (alter-var-root origin \n      (fn [origin]\n        (with-meta\n          (fn [& args]\n            (apply (reduce (fn [tot cur]\n                              (apply tot cur args)\n                              origin \n                              (vals @hkmap)) \n              args))))\n          (assoc (meta origin)\n            ::hooks hkmap\n            ::origin origin)\n\n\n; ret chan, so IoC not leaking back to the caller.\n(defn async-get\n  [url]\n  (let [ch (chan)\n        cb (fn [result] (go >! chan result))]\n    (http-kit/async-get url cb)\n    ch))\n\n\n(defn add-hook [origin-fn behavior]\n  (let [hkmap (prepare-hook origin-fn)\n        hks (-> @origin meta ::hooks]\n    (swap! hks assoc  (name behavior) #'behavior))\n\n\n(defn start []\n  (ui/request-rerender)\n  (d/listen! conn \n    (fn [tx-data]\n      (ui/request-rerender (:db-after tx-data) event-bus))))\n\n\n(:import [goog.net.XhrIo])\n(defn ajax [url callback]\n  (.send goog.net.XhrIo url\n    (fn [result]\n      (-> (.-target result)\n          (.getResponseText)\n          (cljs.reader/read-string)\n          (callback)))\n  ))\n\n(defn call [f args callback]\n  (later #(callback (apply f args))))\n\n\n; event listener on event-bus as go-loop parking block.\n(defmacro go-loop-sub [pub key bindings & body]\n  `(let [ch# (cljs.core.async/chan)]\n    (cljs.core.async/sub ~pub ~key ch#)\n    (go-loop []\n      (let [~bindings (cljs.core.async/<! ch#)]\n        ~@body)\n      (recur)\n      )))\n\n(doseq [[id url title] \n        (u/-q '[:find ?id ?src ?title \n                :where [?id :room/source ?src]] \n               @conn)]\n  (ajax url \n    (fn [msgs]\n      (d/transact! conn [{:db/id id\n                          :room/messages msgs}])))\n\n\n(def conn (d/create-conn {:room/msgs {:db/cardinality :db.cardinality/many}}))\n(d/transact! conn fixtures)\n\n(defn send [msg]\n  (async/put! chan\n    (assoc msg {:db/id (swap! next-msg-id inc) :message/timestamp (js/Date.)})))\n\n\n(doseq\n  (let [db @conn\n        [rmid title src] (d/q '[:find ?id ?src ?title] db)]\n  \n    (ajax src \n      (fn [msg]\n        (d/transact! conn [{:db/id rmid :room/msgs msg}]))\n\n\n(go-loop []\n  ; block for random 1 sec, then gen random msg from random \n  ; author from to random room. put msg to chan.\n  (<! (async/timeout (rand-n 200 2000)))\n  (let [db @conn\n        text (rand-message db (rand-room db))\n        msg {:db/id (swap! next-msg-id inc)\n             :message/text (rand-message db room-id)}]\n    (when text\n      (>! chan msg)))\n  (recur))\n\n\n; subscribe by providing on-msg function.\n(defn subscribe\n  [on-msg]\n  (go-loop []\n    (let [msg (<! msgs-chan)]\n      (on-msg msg))\n    (recur)))\n\n\ndefn partition(l, v):\n  w = r = l\n  if not l or not l.next:\n    return l\n\n  while r.next:\n    if r.val < val:\n      swap(w.val, r.val)\n      w = w.next\n    r = r.next\n\n(defn bfs [root]\n  (let [children (children root)]\n    (lazy-cat children (mapcat bfs children))))\n\n(defn dfs [root]\n  (let [c (children root)]\n    (lazy-seq (cons root) (mapcat dfs c))))\n\ndefn heapsort(l):\n  heapify(l)\n  end = len(l)-1\n  while end > 0:\n    swap(l, 0, end)\n    siftdown()\n    end -= 1\n  def heapify(l):\n    start = len(l)/2\n    while start >= 0:\n      siftdown(start)\n  def siftdown(cur):\n      while cur < end:\n        maxnode, maxidx = max(cur, l, r)\n        swap(cur, maxnode)\n\n\n\ndefn regmatch(s,p):\n  if not s or not p:\n    return true\n  pptr = p\n  if not p+1: return s == p\n  if p+1 is '*':\n    while p is '.' or p == s:\n      if regmatch(sp, p+2):\n        return true\n      p += 1\n    else:\n      return regmatch(s, p+2)\n\n  else:\n    return regmatch(s+1, p+1)\n\n\ndefn match(s, p):\n  if p is '*':\n    while s:\n      if not match(s, p+1):\n        s += 1\n      return s != 0\n\ndefn longestValid(s):\n  context(maxStart, maxEnd) = 0\n  for idx, c in s:\n    if c is '(':\n      stk.push(idx)\n    else c is ')':\n      if not stk.empty():\n        preidx = stk.pop()\n        if stk.empty():\n          maxlen = idx - curstart\n        else:\n          maxlen = idx - preidx\n      else:\n        curstart = idx\n\n\ndefn level(root, l, parent):\n  s = q()\n  s.push(root)\n\n  while not s.empty():\n    c = s.pop()\n    print c\n    if c is nexthead:\n      nxthead == None\n      level += 1\n    children = c.children\n    if children and not nexthead:\n      nexthead = first(children)\n    for cc of c.children():\n      s.push()\n\n  while not s.empty():\n    while not s.empty():\n      c = s.pop()\n      for cc in children(c):\n        t.push(cc)\n    s = t\n\n  q.push(root, null)\n  level = 0\n  while not empty(q):\n    c = q.pop()\n    if c:\n      conext.level.push(c)\n      for cc in c.children:\n        q.push(cc)\n    else:\n      if not empty(q):\n        q.push(null)\n        level += 1\n        if reverse:\n          context.level = reverse(context.level)\n        level.clear()\n        reverse != reverse\n      else:\n        break\n\ndefn bftrav(root, level, context):\n  c = root.children\n  context.level.push(root)\n  for cc in c:\n    bftrav(cc, level+1, context)\n\n\n(defn bfs [ & root]\n  (let [c ((mapcat children root)]\n    (lazy-cat\n      root\n      (map bfs c)))\n\n(defn dfs-pre [r]\n  (lazy-seq\n    (cons r\n      (map dfs (child r))))\n\n\n\ndefn threading(root):\n  pre, cur = None, root\n\n  while cur is not None:\n    if cur.left is None:\n      visit(cur)\n      disorder(pre,cur)\n      pre = cur\n      cur = cur.right\n    else:  ; has left, thread\n      clr = cur.left\n      while clr.right and clr.right is not cur:\n        clr = clr.right\n\n      if clr.right is None:\n        clr.right = cur\n        cur = cur.left\n      else:  ; already visited. reset\n        clr.right = None\n        visit(cur)\n        pre = cur\n        cur = cur.right\n\n\ndefn dfs(root):\n  root.vtime = vtime++\n  if not root or not root.left and root.right:\n    return root\n\n  visit-node-early(root)\n  root.color = grey\n\n  for c in root.children:\n    if c.color is white:\n      c.parent = root\n      dfs(c)\n      visit-edge(root,c)\n    else if c.color is not black or edge(root,c) is directed:\n      visit-edge(root,c)\n\n  visit-node-late(root)\n  root.color = black\n\ndefn top-sort(g):\n  sortedstk = []\n  for n in g.vertices:\n    if not n.visited:\n      dfs(n)\n\n  print sortedstk\n\n  defn dfs(root):\n    return root if not root\n    root.color = InStack\n    root.vtime = vtime++\n    visit-node-early(root)\n\n    for c in root.children:\n      if c.color == Undiscovery:\n        c.parent = root\n        visit-edge(root,c)\n        dfs(c)\n      else if c.color is not Done or edge(root.c) is directed:\n        visit-edge(root,c)\n\n    visit-node-late(root)\n    root.color = Done\n\n  defn process-vertex-late(cur):\n    sortedstk.push(cur)\n\n\ndefn bucketsort(A):\n  for i in xrange(0, len(A)):\n    while A.i != i:\n      if A.i <= 0 or A.i > n or A.i == A.i-1:\n        break\n      swap(A.i, A[A.i])\n\ndefn serde(txt):\n  root = Node(first(txt))\n  stk.push(root)\n  while line=BufferedReaderInputStreamReader.readLine() is not None:\n    cur = Node(line)\n    if cur.offset > stk.top().offset:\n      skt.top().child.append(cur)      \n    else:\n      while topnode = stk.pop() offset >= cur.offset:\n        stk.pop()\n      stk.top().children.append(cur)\n    stk.push(cur)\n\ndefn powerset(l):\n  result = []\n  for e in l:\n    for re in result:\n      rset = [].append(re)\n      for i in xrange(len(e)):\n        rset.append(e)\n        result.push(rset)\n    result.push(e)\n\ndefn comb(l,n):\n  if len(l) == n: \n    return l\n  hd = l[0]\n  for e in l[1:]:\n    result = comb(l[1:], n-1)\n    re.push(hd, result)\n\ndefn mutate(s, t, offset, dict, partial, idx, path):\n  if partial is t:\n    upbeat(path)\n  for w in dict:\n    if diff(s, w, offset) == 1:\n      mutate(s, t, offset+1, dict, parital.add(s,1), path.append(w))\n\n\ndefn paren(n, idx, leftp, partial):\n  if idx == 2n:\n    global.push(partial[idx]=\")\")\n\n  if leftp == 0:\n    paren(n, idx+1, leftp+1, partial[idx] = \"(\")\n  else:\n    parent(n, idx, leftp+1, partial[idx] = \"(\")\n    parent(n, idx, leftp-1, partial[idx] = \")\")\n\n\ndefn wordsearch(G, x, y, s, visited, partial):\n  defn nxt(x, y)\n    nx,ny = x+-1, y+-1 and not visited\n    if nx > dimx: nx = dimx\n    if ny > dimy: ny = dimy\n  \n  if G[x,y] is s[0] and len(s) == 1:\n    return true\n  visited,push(x,y)\n  for nx in nxt(x,y,[u,d,l,r]):\n    if g[nx] is s[0]:\n      wordsearch(g, nx, ny, s[1:], partial.push(G[x,y]))\n\ndefn power(x, n):\n  if n == 2: return x*x\n  v = pwoer(x, n/2)\n  if n % 2:\n    return v*v\n  else:\n    return x*v*v\n\n\ndef dp(m,i,j):\n  for i in xrange(mx):\n    for j in xrange(my):\n      r[i,j] = min(r[i-1,j], ) + m[i,j]\n\n\n",
+			"settings":
+			{
+				"buffer_size": 9024,
 				"line_ending": "Unix"
 			}
 		}
@@ -679,6 +706,7 @@
 		"/Users/hyan2/dev/clj/growingtree",
 		"/Users/hyan2/dev/clj/growingtree/appom",
 		"/Users/hyan2/dev/clj/growingtree/appom/assets",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets/stylesheets",
 		"/Users/hyan2/dev/clj/growingtree/appom/src",
 		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app",
 		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/api",
@@ -692,20 +720,62 @@
 	"file_history":
 	[
 		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/service.clj",
-		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/login.cljs",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/family.clj",
-		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/controllers/requester.cljs",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/server.clj",
-		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/routes.cljs",
-		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/navbar.cljs",
-		"/Users/hyan2/dev/clj/growingtree/appom/assets/stylesheets/growingtree-app.scss",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/growingtree/dbfn.dtm",
-		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/mock_data.cljs",
-		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/utils.cljs",
-		"/Users/hyan2/dev/clj/growingtree/appom/README.md",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/sidebar.cljs",
+		"/app/workspace-sts/irs/cache/src/main/java/com/walmart/sitep13n/irs/dao/cache/CouchbaseCacheFactory.java",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/utils.js",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/util.clj",
 		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/ui.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/routes.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/controllers/requester.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/navbar.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/assign.clj",
+		"/Users/hyan2/dev/clj/datascript-chat/src/datascript_chat/server.cljs",
+		"/Users/hyan2/dev/clj/datascript-chat/src/datascript_chat/ui.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/utils.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/peer.clj",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/dda.clj",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/server.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/app.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/goog/structs/queue.js",
+		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/sablono/util.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/sablono/util.js",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/src/growingtree_app/util.clj",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/appom/sablono/util.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/growingtree-app-dev.html",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/course.clj",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/family.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/newthing_form.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/core.cljs",
+		"/Users/hyan2/dev/clj/showkr/src/showkr/root.cljs",
+		"/Users/hyan2/dev/clj/showkr/src/showkr.cljs",
+		"/Users/hyan2/dev/clj/showkr/src/showkr/data.cljs",
+		"/Users/hyan2/dev/clj/showkr/src/showkr/viewing.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/config/sql-transactor-template.properties",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/utils.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/api/cljsajax.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/timeline.clj",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/entity_view.cljs",
+		"/Users/hyan2/dev/clj/datascript-chat/src/datascript_chat/react.cljs",
 		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/main_area.cljs",
+		"/app/workspace-sts/irs/ws-configuration/src/main/resources/environmentConfig/default/irs-app-core.xml",
+		"/Users/hyan2/dev/clj/growingtree/appom/assets/stylesheets/growingtree-app.scss",
+		"/Users/hyan2/dev/Algorithm/reverselist.py",
+		"/app/workspace-sts/wip/c2-cljs-examples/src/c2_cljs_examples/space_pie.cljs",
+		"/app/workspace-sts/wip/c2-cljs-examples/src/c2_cljs_examples/bullet.cljs",
+		"/Users/hyan2/dev/clj/clojure-idiom/graph.clj",
+		"/Users/hyan2/dev/Algorithm/graph.py",
+		"/Users/hyan2/dev/Algorithm/loop_comprehensive.py",
+		"/Users/hyan2/dev/clj/datascript-chat/src/datascript_chat/util.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/login.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/history.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/mock_data.cljs",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/growingtree/seattle-data0.dtm",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/controllers/controls.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/config.rb",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/sablono/util.cljs",
+		"/Users/hyan2/dev/clj/growingtree/appom/out/public/sablono/util.js",
+		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/growingtree/dbfn.dtm",
+		"/Users/hyan2/dev/clj/growingtree/appom/README.md",
 		"/Users/hyan2/dev/clj/growingtree/README.md",
 		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/controllers/post_api.cljs",
 		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/controllers/post_controls.cljs",
@@ -719,27 +789,21 @@
 		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/goog/ui/idgenerator.js",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/events/listenable.js",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/math/coordinate.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/app.cljs",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/peer.clj",
 		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/controllers/api.cljs",
 		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/controllers/controls.cljs",
 		"/Users/hyan2/dev/clj/growingtree/appom/assets/dev.html",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/dda.clj",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/.sass-cache/e625724f5387dae690c3010059acac9464759cdc/_inline-block.scssc",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/bootstrap-datetimepicker.min.css",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/debug/error.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/core.cljs",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-app/config/logback.xml",
 		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/ab4f4dd43221e7c58af84459cffbcec5cf3bd165/_filter.scssc",
 		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/a4bf69faa73bc3421ad8bfcdab3cbd66c36e490f/_tag-cloud.scssc",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/tools/public/.compass-compile-modified",
 		"/Users/hyan2/dev/clj/growingtree/appom/assets/stylesheets/.sass-cache/e625724f5387dae690c3010059acac9464759cdc/_background-origin.scssc",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-server/config/sql-transactor-template.properties",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/assets/stylesheets/growingtree-app-hackday.scss",
 		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/e1fd97f69e69374d482e5872668a0ce56498825b/_inline-block-list.scssc",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/templates/growingtree-app.html",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/object/object.js",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/assign.clj",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/src/growingtree_app/html_templates.clj",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/crypt/hash.js",
 		"/Users/hyan2/dev/finder_testing_automation/vzw/meta/test_fn.sh",
@@ -748,33 +812,25 @@
 		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/growingtree/seattle-schema.dtm",
 		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/e73855c0ffc15fae3c0f6ed8cb82ab2a5bb05cde/_scaffolding.scssc",
 		"/Users/hyan2/dev/clj/growingtree/appom/project.clj",
-		"/Users/hyan2/dev/clj/clojure-idiom/graph.clj",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree-app.css",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/comments.clj",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/timeline.clj",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/array/array.js",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/components/main_area.cljs",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/public/generated-js/out/growingtree_app/rendering.js",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/public/generated-js/out/io/pedestal/app/net/repl_client.cljs",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-server/README.md",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/i18n/timezone.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/api/cljsajax.cljs",
 		"/Users/hyan2/dev/clj/clojure-idiom/java-proxy.clj",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/course.clj",
 		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/ab4f4dd43221e7c58af84459cffbcec5cf3bd165/_user-interface.scssc",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/routes.js.map",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-server/resources/public/generated-js/out/io/pedestal/app/render/push.clj",
-		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/sidebar.cljs",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/dbconn.clj",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/pedestal.css",
-		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/entity_view.cljs",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/debug/entrypointregistry.js",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-app/logs/growingtree-app-2014-05-03.0.log",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/generated-js/out/goog/debug/error.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/components/newthing_form.cljs",
 		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/api/mock.cljs",
 		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/ab4f4dd43221e7c58af84459cffbcec5cf3bd165/_images.scssc",
-		"/Users/hyan2/dev/clj/growingtree/appom/config.rb",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/generated-js/out/io/pedestal/app/render.clj",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/net/wrapperxmlhttpfactory.js",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/goog/structs/queue.js",
@@ -783,8 +839,6 @@
 		"/app/workspace-atlas/atlas/atlas-core/src/main/resources/com/walmart/atlas/global/layouts/base.hbs",
 		"/Users/hyan2/dev/clj/growingtree/appom/.sass-cache/bbeb2d8dc101656a564e0603c6bf7c46920c2fc1/_sprite-img.scssc",
 		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/goog/debug/error.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/sablono/util.cljs",
-		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/sablono/util.js",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/commands.js.map",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-server/src/growingtree_server/datomic/dbschema.clj",
 		"/Users/hyan2/dev/clj/growingtree/appom/src/growingtree_app/commands.cljs",
@@ -792,33 +846,7 @@
 		"/Users/hyan2/dev/clj/growingtree/appom/out-work/public/goog/object/object.js",
 		"/Users/hyan2/dev/clj/growingtree/growingtree-app/tools/public/index.html",
 		"/Users/hyan2/dev/clj/growingtree/appom/out/public/growingtree_app/components/app.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/assets/javascripts/bootstrap.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/test-cljs/omchaya/test.cljs",
-		"/Users/hyan2/dev/clj/growingtree/appom/test-cljs/omchaya/components/navbar.cljs",
-		"/Users/hyan2/dev/clj/growingtree/appom/out/public/sablono/util.cljs",
-		"/Users/hyan2/dev/clj/growingtree/appom/out/public/sablono/util.js",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/src/growingtree_app/util.clj",
-		"/Users/hyan2/dev/clj/growingtree/appom/out/public/dommy/utils.cljs",
-		"/Users/hyan2/dev/clj/growingtree/appom/assets-omchaya/fonts/FontAwesome.otf",
-		"/Users/hyan2/dev/clj/growingtree/appom/assets-omchaya/fonts/fontawesome-webfont.svg",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/src/growingtree_app/newthing_form.cljs",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/growingtree-app-dev.html",
-		"/Users/hyan2/dev/clj/growingtree/appom/assets/stylesheets/.sass-cache/e625724f5387dae690c3010059acac9464759cdc/_opacity.scssc",
-		"/Users/hyan2/dev/clj/growingtree/appom/assets/javascripts/pedestal/js/api.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/assets/javascripts/jquery-min.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/assets/javascripts/datetimepicker.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/resources/private/js/unit-test.js",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-server/uberdoc.html",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-app/app/templates/application.html",
-		"/Users/hyan2/dev/clj/growingtree/appom/resources/private/js/omchaya/components/audio_player.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/assets-omchaya/audio/threetone-alert.wav",
-		"/Users/hyan2/dev/clj/growingtree/appom/out/public/cljs/core/async/impl/dispatch.cljs",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-app/out/public/generated-js/out/io/pedestal/app/util/console_log.cljs",
-		"/Users/hyan2/dev/clj/growingtree/growingtree-app/pom.xml",
-		"/Users/hyan2/dev/clj/growingtree/appom/test-cljs/vendor/console-polyfill.js",
-		"/Users/hyan2/dev/clj/growingtree/appom/target/stale/extract-native.dependencies",
-		"/Users/hyan2/dev/clj/growingtree/appom/assets/stylesheets/pedestal.css",
-		"/Users/hyan2/dev/clj/growingtree/appom/assets-omchaya/css/style.css"
+		"/Users/hyan2/dev/clj/growingtree/appom/assets/javascripts/bootstrap.js"
 	],
 	"find":
 	{
@@ -837,134 +865,134 @@
 		"case_sensitive": false,
 		"find_history":
 		[
-			"find-progress",
-			"populate-course-refed-entity",
-			"populate-person-enrollment-course",
-			"populate-course-refed-entity",
-			"find-progress",
-			"populate-person-enrollment-course",
-			"populate-course-enrollment-person",
-			"populate-course-refed-entity",
-			"person",
-			"populate-enrollment-person",
-			"populate-enrollment-course",
-			"populate-course-enrollment-refed-entity",
-			"populate-person-enrollment-refed-entity",
-			"refed",
-			"enrollment",
-			"populate-course-refed-entity",
-			"update-navbar-selected",
-			"process-api-event",
-			"nav-path",
-			"login-user",
-			"submit-transact",
-			"prn",
-			"type",
-			"postbody",
-			"handle-signup-login",
-			"get-signup-login",
-			"login",
-			"process-control-event",
-			"password",
-			"pass",
-			"submit",
-			"submit-tr",
-			"Reading",
-			"reading",
-			"Science",
-			"science",
-			"Math",
-			"login",
-			"populate-course-refed-entity",
-			"data",
-			"login-state-transition",
-			"process-api-event",
-			"filter-things-onclick",
-			"populate-course-progress",
-			"login",
-			"defn",
-			"nav-path",
-			"utils",
-			"$form",
-			"data",
-			"last",
-			"last-nav-path",
-			"defn",
-			"nav-path",
-			"transition",
-			"api-event",
-			"control",
-			"controls-post",
-			"post-control",
-			"post-control-event!",
-			"controls-post",
-			"post-controls",
-			"post-control-event!",
-			"post-controls",
-			"state-transition",
-			"controls",
-			"state-event",
-			"control-event",
-			"controls",
-			"main",
-			"thing-entry-action-button-li",
-			"sel",
-			"dommy",
-			"nav-path",
-			"app",
-			"jsonresp",
-			"json",
-			"jsonresp",
-			"user",
-			"get-si",
-			"onSuccess",
-			"user",
-			"postdata",
-			"get-signup-login",
-			"println",
-			"prn",
-			"get-signup-login",
-			"login",
-			"get-things",
-			"login",
-			"find-user",
-			"get-user",
-			"parents",
-			"parent",
-			"submit-form-fn",
-			"submit-fn",
-			"join-group-form-input-map",
-			"remark",
 			"title",
-			"group",
-			"filter-things-onclick",
-			"submit-fn",
-			"button",
-			"submit-form-fn",
-			"target",
-			"filter-things-onclick",
-			"target",
-			"opts",
-			"target",
+			"author",
+			"populate-course-progress",
+			"author",
+			"find-progress",
+			"populate-course-progress",
+			"find-progress",
+			"populate-course-refed-entity",
+			"populate-person-enrollment-course",
+			"populate-course-refed-entity",
+			"find-enrollment",
+			"couchbase ",
+			"done-chan",
+			"run-pipeline",
+			"fork",
+			"logging-enabled?",
+			"user-log",
+			"current-user",
+			"selected-channel",
 			"app",
 			"data",
-			"navbar",
-			"setup!",
-			"setup",
-			"login",
-			"name",
-			"login",
-			"child",
-			"Child",
-			"child",
-			"parent",
-			"Parent",
-			"rich",
-			"password",
-			"Password",
-			"text",
-			"name",
-			"search"
+			"current-user",
+			"users",
+			"rich d",
+			"partial",
+			"and",
+			"transd",
+			"xform",
+			"search",
+			"nav-toggle",
+			"if",
+			"details",
+			"create-question",
+			"str/",
+			"add-thing-forms",
+			"add-form",
+			"add-thing-forms",
+			"author-id",
+			"None",
+			"siftdown",
+			"head",
+			"str",
+			"sortestk",
+			"prev",
+			"next",
+			"preventDefault",
+			"login-id",
+			"submit",
+			"str",
+			"fetch-",
+			"fetch",
+			"fetch-user",
+			"eid-or-temp",
+			"qe",
+			"photo-by-order-q",
+			"by-attr",
+			"flickr-fetch",
+			"js->clj",
+			"transact",
+			"render",
+			"symbol",
+			"URL",
+			"filter-things-onclick",
+			"textarea-keydown",
+			"render-data",
+			"mock-data/get-add-thing-msg",
+			"pid",
+			"add-thing-forms",
+			"newthing-form",
+			"newthing-form-msg-nav-path",
+			"add-thing-forms",
+			"add-form",
+			" \"",
+			"author",
+			"find-progress",
+			"progress",
+			"author",
+			"person-attr-tx",
+			"details",
+			"nav-path",
+			"details",
+			"nav-path",
+			"details",
+			"pid",
+			"thing-entry",
+			"comms",
+			"nav-types",
+			"search-box",
+			"thing-listing",
+			"author",
+			"thing-nav",
+			"nav-types",
+			"head",
+			"start",
+			"assignment",
+			"progress",
+			"thishead",
+			"out",
+			"tail",
+			"updated",
+			"topurl",
+			"topview",
+			"thing-entry",
+			"filter-things-onclick",
+			"thing-entry-action-button-li",
+			"event-bus",
+			"event-bus-pub",
+			"go-loop-sub event-bus-pub :recv-msg",
+			"go-loop-sub",
+			"event-bus-pub",
+			"msgs-chan",
+			"server",
+			"subscribe",
+			"Subscribe",
+			"subscribe",
+			"subs",
+			"create-conn",
+			"start",
+			"root",
+			"start",
+			"while",
+			"bar-width",
+			"sc",
+			"crisp",
+			"thing-entry",
+			"ridx",
+			"nxt",
+			"reverse-link"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -989,7 +1017,7 @@
 	"groups":
 	[
 		{
-			"selected": 6,
+			"selected": 3,
 			"sheets":
 			[
 				{
@@ -998,7 +1026,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7558,
+						"buffer_size": 8144,
 						"regions":
 						{
 							"bookmarks":
@@ -1008,8 +1036,8 @@
 								"regions":
 								[
 									[
-										5700,
-										5700
+										6286,
+										6286
 									]
 								],
 								"scope": "bookmarks"
@@ -1018,8 +1046,8 @@
 						"selection":
 						[
 							[
-								2991,
-								2991
+								388,
+								388
 							]
 						],
 						"settings":
@@ -1027,26 +1055,6 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
 								"bh_default",
 								"bh_default_center",
 								"bh_default_open",
@@ -1067,16 +1075,36 @@
 								"bh_single_quote_open",
 								"bh_single_quote_close",
 								"bh_single_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
 								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
@@ -1103,1209 +1131,7 @@
 								[
 									"native",
 									[
-										"sequence",
-										{
-											"commands":
-											[
-												[
-													"insert",
-													{
-														"characters": "ii"
-													}
-												],
-												[
-													"left_delete",
-													null
-												],
-												[
-													"left_delete",
-													null
-												]
-											]
-										}
-									],
-									"mode_insert",
-									null
-								],
-								"sequence": "",
-								"xpos": 14
-							}
-						},
-						"translation.x": 42.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "appom/src/growingtree_app/controllers/states.cljs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 16966,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2784,
-								2806
-							],
-							[
-								3289,
-								3311
-							],
-							[
-								16492,
-								16514
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content"
-							],
-							"syntax": "Packages/Clojure/Clojure.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true,
-							"vintage":
-							{
-								"_vintageous_glue_until_normal_mode": false,
-								"action": null,
-								"action_count": "",
-								"capture_register": false,
-								"mode": "mode_normal",
-								"motion": null,
-								"motion_count": "",
-								"normal_insert_count": "1",
-								"partial_sequence": "",
-								"register": "\"",
-								"repeat_data":
-								[
-									"native",
-									[
-										"insert",
-										{
-											"characters": " "
-										}
-									],
-									null,
-									null
-								],
-								"sequence": "",
-								"xpos": 27
-							}
-						},
-						"translation.x": 14.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "appom/src/growingtree_app/components/app.cljs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7382,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2871,
-								2871
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content"
-							],
-							"syntax": "Packages/Clojure/Clojure.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true,
-							"vintage":
-							{
-								"_vintageous_glue_until_normal_mode": false,
-								"action": null,
-								"action_count": "",
-								"capture_register": false,
-								"mode": "mode_normal",
-								"motion": null,
-								"motion_count": "",
-								"normal_insert_count": "1",
-								"partial_sequence": "",
-								"register": "\"",
-								"sequence": "",
-								"xpos": 42
-							}
-						},
-						"translation.x": 0.0,
-						"translation.y": 411.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "appom/src/growingtree_app/components/main_area.cljs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 10332,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								8108,
-								8108
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content"
-							],
-							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true,
-							"vintage":
-							{
-								"_vintageous_glue_until_normal_mode": false,
-								"action": null,
-								"action_count": "",
-								"capture_register": false,
-								"mode": "mode_normal",
-								"motion": null,
-								"motion_count": "",
-								"normal_insert_count": "1",
-								"partial_sequence": "",
-								"register": "\"",
-								"sequence": "",
-								"xpos": 28
-							}
-						},
-						"translation.x": 0.0,
-						"translation.y": 2632.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 11,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "appom/src/growingtree_app/components/entity_view.cljs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 56116,
-						"regions":
-						{
-							"bookmarks":
-							{
-								"flags": 144,
-								"icon": "bookmark",
-								"regions":
-								[
-									[
-										23935,
-										23935
-									]
-								],
-								"scope": "bookmarks"
-							}
-						},
-						"selection":
-						[
-							[
-								2361,
-								2361
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content"
-							],
-							"history_list_is_closing": true,
-							"syntax": "Packages/Clojure/Clojure.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true,
-							"vintage":
-							{
-								"_vintageous_glue_until_normal_mode": false,
-								"_vintageous_gluing_sequence": false,
-								"_vintageous_non_interactive": false,
-								"action": null,
-								"action_count": "",
-								"capture_register": false,
-								"mode": "mode_normal",
-								"motion": null,
-								"motion_count": "",
-								"normal_insert_count": "1",
-								"partial_sequence": "",
-								"register": "\"",
-								"repeat_data":
-								[
-									"native",
-									[
-										"sequence",
-										{
-											"commands":
-											[
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"move",
-													{
-														"by": "characters",
-														"forward": false
-													}
-												],
-												[
-													"insert",
-													{
-														"characters": "sho-"
-													}
-												],
-												[
-													"left_delete",
-													null
-												],
-												[
-													"insert",
-													{
-														"characters": "w-"
-													}
-												],
-												[
-													"left_delete",
-													null
-												],
-												[
-													"left_delete",
-													null
-												],
-												[
-													"left_delete",
-													null
-												],
-												[
-													"left_delete",
-													null
-												],
-												[
-													"left_delete",
-													null
-												]
-											]
-										}
-									],
-									"mode_insert",
-									null
-								],
-								"sequence": "",
-								"xpos": 33
-							}
-						},
-						"translation.x": 17.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "growingtree-server/src/growingtree_server/datomic/family.clj",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 23524,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								10084,
-								10084
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content"
-							],
-							"history_list_is_closing": true,
-							"syntax": "Packages/Clojure/Clojure.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true,
-							"vintage":
-							{
-								"_vintageous_glue_until_normal_mode": true,
-								"action": null,
-								"action_count": "",
-								"capture_register": false,
-								"mode": "mode_insert",
-								"motion": null,
-								"motion_count": "",
-								"normal_insert_count": "1",
-								"partial_sequence": "",
-								"register": "\"",
-								"sequence": "",
-								"xpos": 63
-							}
-						},
-						"translation.x": 0.0,
-						"translation.y": 3597.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 8,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "growingtree-server/src/growingtree_server/datomic/course.clj",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 21437,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								17933,
-								17933
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content"
-							],
-							"highlight_line": false,
-							"syntax": "Packages/Clojure/Clojure.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true,
-							"vintage":
-							{
-								"_vintageous_glue_until_normal_mode": false,
-								"action": null,
-								"action_count": "",
-								"capture_register": false,
-								"mode": "mode_normal",
-								"motion": null,
-								"motion_count": "",
-								"normal_insert_count": "1",
-								"partial_sequence": "",
-								"register": "\"",
-								"repeat_data":
-								[
-									"native",
-									[
-										"_enter_normal_mode",
-										{
-											"mode": "mode_normal"
-										}
-									],
-									"mode_insert",
-									null
-								],
-								"sequence": "",
-								"xpos": 44
-							}
-						},
-						"translation.x": 0.0,
-						"translation.y": 6547.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 5,
-			"sheets":
-			[
-				{
-					"buffer": 7,
-					"file": "appom/src/growingtree_app/components/newthing_form.cljs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 23118,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								7867,
-								7873
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content"
-							],
-							"history_list_is_closing": true,
-							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true,
-							"vintage":
-							{
-								"_vintageous_glue_until_normal_mode": false,
-								"action": null,
-								"action_count": "",
-								"capture_register": false,
-								"mode": "mode_visual",
-								"motion": null,
-								"motion_count": "",
-								"normal_insert_count": "1",
-								"partial_sequence": "",
-								"register": "\"",
-								"repeat_data":
-								[
-									"native",
-									[
-										"insert_snippet",
-										{
-											"contents": "($0)"
-										}
-									],
-									null,
-									null
-								],
-								"sequence": "",
-								"xpos": 28
-							}
-						},
-						"translation.x": 0.0,
-						"translation.y": 563.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 12,
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "appom/src/growingtree_app/mock_data.cljs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 9690,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3924,
-								3924
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content"
-							],
-							"history_list_is_closing": true,
-							"syntax": "Packages/Clojure/Clojure.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true,
-							"vintage":
-							{
-								"_vintageous_glue_until_normal_mode": true,
-								"action": null,
-								"action_count": "",
-								"capture_register": false,
-								"mode": "mode_insert",
-								"motion": null,
-								"motion_count": "",
-								"normal_insert_count": "1",
-								"partial_sequence": "",
-								"register": "\"",
-								"repeat_data":
-								[
-									"native",
-									[
-										"insert",
-										{
-											"characters": " no"
-										}
-									],
-									null,
-									null
-								],
-								"sequence": "",
-								"xpos": 49
-							}
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 14,
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "appom/src/growingtree_app/ui.cljs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2206,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								536,
-								536
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content"
-							],
-							"history_list_is_closing": true,
-							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true,
-							"vintage":
-							{
-								"_vintageous_glue_until_normal_mode": false,
-								"action": null,
-								"action_count": "",
-								"capture_register": false,
-								"mode": "mode_normal",
-								"motion": null,
-								"motion_count": "",
-								"normal_insert_count": "1",
-								"partial_sequence": "",
-								"register": "\"",
-								"repeat_data":
-								[
-									"native",
-									[
-										"left_delete",
+										"",
 										null
 									],
 									null,
@@ -2316,40 +1142,27 @@
 							}
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 199.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 13,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
-					"buffer": 10,
-					"file": "appom/src/growingtree_app/api/cljsajax.cljs",
+					"buffer": 1,
+					"file": "appom/src/growingtree_app/components/app.cljs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5958,
+						"buffer_size": 7169,
 						"regions":
 						{
-							"mark":
-							{
-								"flags": 144,
-								"icon": "dot",
-								"regions":
-								[
-									[
-										2797,
-										2826
-									]
-								],
-								"scope": "mark"
-							}
 						},
 						"selection":
 						[
 							[
-								2814,
-								2820
+								5006,
+								5006
 							]
 						],
 						"settings":
@@ -2357,26 +1170,6 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
 								"bh_default",
 								"bh_default_center",
 								"bh_default_open",
@@ -2397,16 +1190,929 @@
 								"bh_single_quote_open",
 								"bh_single_quote_close",
 								"bh_single_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
 								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"history_list_is_closing": true,
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"sequence": "",
+								"xpos": 58
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 1208.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "growingtree-server/src/growingtree_server/datomic/course.clj",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 22296,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6827,
+								6827
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"history_list_is_closing": true,
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": true,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_insert",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"sequence": "",
+								"xpos": 5
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 2236.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "appom/src/growingtree_app/components/sidebar.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9001,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								7841,
+								7841
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"history_list_is_closing": true,
+							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": true,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_insert",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"left_delete",
+										null
+									],
+									null,
+									null
+								],
+								"sequence": "",
+								"xpos": 0
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 3163.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "appom/src/growingtree_app/components/main_area.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9414,
+						"regions":
+						{
+							"mark":
+							{
+								"flags": 144,
+								"icon": "dot",
+								"regions":
+								[
+									[
+										8524,
+										8524
+									]
+								],
+								"scope": "mark"
+							}
+						},
+						"selection":
+						[
+							[
+								6770,
+								6774
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"history_list_is_closing": true,
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"insert",
+										{
+											"characters": "t"
+										}
+									],
+									null,
+									null
+								],
+								"sequence": "",
+								"xpos": 34
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 2640.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "appom/src/growingtree_app/components/entity_view.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 56934,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6132,
+								6132
+							],
+							[
+								6201,
+								6201
+							],
+							[
+								15009,
+								15009
+							],
+							[
+								15358,
+								15358
+							],
+							[
+								15530,
+								15530
+							],
+							[
+								15702,
+								15702
+							],
+							[
+								15872,
+								15872
+							],
+							[
+								16215,
+								16215
+							],
+							[
+								18823,
+								18823
+							],
+							[
+								19002,
+								19002
+							],
+							[
+								19185,
+								19185
+							],
+							[
+								19356,
+								19356
+							],
+							[
+								19527,
+								19527
+							],
+							[
+								19696,
+								19696
+							],
+							[
+								20038,
+								20038
+							],
+							[
+								20214,
+								20214
+							],
+							[
+								24747,
+								24747
+							],
+							[
+								25104,
+								25104
+							],
+							[
+								25636,
+								25636
+							],
+							[
+								25809,
+								25809
+							],
+							[
+								25992,
+								25992
+							],
+							[
+								29185,
+								29185
+							],
+							[
+								29362,
+								29362
+							],
+							[
+								29724,
+								29724
+							],
+							[
+								29897,
+								29897
+							],
+							[
+								30071,
+								30071
+							],
+							[
+								33110,
+								33110
+							],
+							[
+								33293,
+								33293
+							],
+							[
+								33660,
+								33660
+							],
+							[
+								33838,
+								33838
+							],
+							[
+								36643,
+								36643
+							],
+							[
+								37011,
+								37011
+							],
+							[
+								37189,
+								37189
+							],
+							[
+								37563,
+								37563
+							],
+							[
+								37736,
+								37736
+							],
+							[
+								37913,
+								37913
+							],
+							[
+								40951,
+								40951
+							],
+							[
+								41304,
+								41304
+							],
+							[
+								41480,
+								41480
+							],
+							[
+								44421,
+								44421
+							],
+							[
+								44592,
+								44592
+							],
+							[
+								48792,
+								48792
+							],
+							[
+								48973,
+								48973
+							],
+							[
+								49330,
+								49330
+							],
+							[
+								52958,
+								52958
+							],
+							[
+								53332,
+								53332
+							],
+							[
+								53505,
+								53505
+							],
+							[
+								55958,
+								55958
+							],
+							[
+								56129,
+								56129
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": true,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_insert",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"move",
+										{
+											"by": "characters",
+											"forward": false
+										}
+									],
+									null,
+									null
+								],
+								"sequence": "",
+								"xpos": 0
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 2826.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "appom/src/growingtree_app/controllers/states.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 17863,
+						"regions":
+						{
+							"mark":
+							{
+								"flags": 144,
+								"icon": "dot",
+								"regions":
+								[
+									[
+										6416,
+										6416
+									]
+								],
+								"scope": "mark"
+							}
+						},
+						"selection":
+						[
+							[
+								14261,
+								14261
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"insert",
+										{
+											"characters": "/"
+										}
+									],
+									null,
+									null
+								],
+								"sequence": "",
+								"xpos": 33
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 5384.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "appom/src/growingtree_app/controllers/requester.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 11525,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6482,
+								6482
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
@@ -2428,42 +2134,38 @@
 								"normal_insert_count": "1",
 								"partial_sequence": "",
 								"register": "\"",
-								"repeat_data":
-								[
-									"native",
-									[
-										"left_delete",
-										null
-									],
-									null,
-									null
-								],
 								"sequence": "",
-								"xpos": 35
+								"xpos": 0
 							}
 						},
 						"translation.x": 0.0,
-						"translation.y": 573.0,
+						"translation.y": 2021.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 7,
 					"type": "text"
-				},
+				}
+			]
+		},
+		{
+			"selected": 11,
+			"sheets":
+			[
 				{
-					"buffer": 11,
-					"file": "growingtree-server/src/growingtree_server/peer.clj",
+					"buffer": 8,
+					"file": "appom/src/growingtree_app/components/newthing_form.cljs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 9473,
+						"buffer_size": 23511,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2088,
-								2088
+								17242,
+								17242
 							]
 						],
 						"settings":
@@ -2471,26 +2173,6 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
 								"bh_default",
 								"bh_default_center",
 								"bh_default_open",
@@ -2511,48 +2193,435 @@
 								"bh_single_quote_open",
 								"bh_single_quote_close",
 								"bh_single_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
 								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
 								"bh_curly_close",
 								"bh_curly_content"
 							],
+							"history_list_is_closing": true,
 							"syntax": "Packages/Clojure/Clojure.tmLanguage",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true,
 							"vintage":
 							{
+								"_vintageous_glue_until_normal_mode": false,
 								"action": null,
 								"action_count": "",
 								"capture_register": false,
 								"mode": "mode_normal",
 								"motion": null,
 								"motion_count": "",
+								"normal_insert_count": "1",
 								"partial_sequence": "",
 								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"move",
+										{
+											"by": "characters",
+											"forward": false
+										}
+									],
+									null,
+									null
+								],
 								"sequence": "",
-								"xpos": 14
+								"xpos": 58
 							}
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 864.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 9,
+					"stack_index": 17,
 					"type": "text"
 				},
 				{
-					"buffer": 12,
+					"buffer": 9,
+					"file": "appom/src/growingtree_app/mock_data.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 11513,
+						"regions":
+						{
+							"mark":
+							{
+								"flags": 144,
+								"icon": "dot",
+								"regions":
+								[
+									[
+										6942,
+										6942
+									]
+								],
+								"scope": "mark"
+							}
+						},
+						"selection":
+						[
+							[
+								10169,
+								10169
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"history_list_is_closing": true,
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"copy",
+										null
+									],
+									null,
+									null
+								],
+								"sequence": "",
+								"xpos": 13
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 4421.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 13,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "appom/src/growingtree_app/components/sidebar.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9001,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6343,
+								6343
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"history_list_is_closing": true,
+							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": true,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_insert",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"left_delete",
+										null
+									],
+									null,
+									null
+								],
+								"sequence": "",
+								"xpos": 0
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 1378.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "appom/src/growingtree_app/utils.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8334,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1983,
+								1983
+							],
+							[
+								2299,
+								2299
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"sequence": "",
+								"xpos": 20
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 588.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
 					"file": "growingtree-server/src/growingtree_server/datomic/dbconn.clj",
 					"semi_transient": false,
 					"settings":
@@ -2564,8 +2633,8 @@
 						"selection":
 						[
 							[
-								9639,
-								9639
+								9403,
+								9403
 							]
 						],
 						"settings":
@@ -2573,26 +2642,6 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
 								"bh_default",
 								"bh_default_center",
 								"bh_default_open",
@@ -2613,16 +2662,36 @@
 								"bh_single_quote_open",
 								"bh_single_quote_close",
 								"bh_single_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
 								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
@@ -2655,31 +2724,31 @@
 									null
 								],
 								"sequence": "",
-								"xpos": 14
+								"xpos": 8
 							}
 						},
-						"translation.x": 0.0,
-						"translation.y": 3742.0,
+						"translation.x": 1.0,
+						"translation.y": 3562.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 16,
 					"type": "text"
 				},
 				{
-					"buffer": 13,
-					"file": "growingtree-server/src/growingtree_server/datomic/dbschema.clj",
+					"buffer": 12,
+					"file": "appom/src/growingtree_app/api/cljsajax.cljs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 15386,
+						"buffer_size": 5958,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								13553,
-								13553
+								2818,
+								2818
 							]
 						],
 						"settings":
@@ -2687,26 +2756,6 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
 								"bh_default",
 								"bh_default_center",
 								"bh_default_open",
@@ -2727,16 +2776,141 @@
 								"bh_single_quote_open",
 								"bh_single_quote_close",
 								"bh_single_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
 								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"history_list_is_closing": true,
+							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"sequence": "",
+								"xpos": 55
+							}
+						},
+						"translation.x": 34.0,
+						"translation.y": 705.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 19,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "growingtree-server/src/growingtree_server/datomic/dbschema.clj",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 15386,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								11448,
+								11448
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
@@ -2761,58 +2935,38 @@
 								"partial_sequence": "",
 								"register": "\"",
 								"sequence": "",
-								"xpos": 1
+								"xpos": 0
 							}
 						},
 						"translation.x": 0.0,
-						"translation.y": 1399.0,
+						"translation.y": 2148.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 10,
+					"stack_index": 15,
 					"type": "text"
 				},
 				{
 					"buffer": 14,
+					"file": "/Users/hyan2/dev/clj/datascript-chat/src/datascript_chat.cljs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 487,
+						"buffer_size": 5094,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								412,
-								412
+								925,
+								925
 							]
 						],
 						"settings":
 						{
 							"BracketHighlighterBusy": false,
-							"auto_name": "",
 							"bh_regions":
 							[
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
 								"bh_default",
 								"bh_default_center",
 								"bh_default_open",
@@ -2833,16 +2987,253 @@
 								"bh_single_quote_open",
 								"bh_single_quote_close",
 								"bh_single_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
 								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"highlight_line": false,
+							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"partial_sequence": "",
+								"register": "\"",
+								"sequence": "",
+								"xpos": 10
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 18,
+					"type": "text"
+				},
+				{
+					"buffer": 15,
+					"file": "appom/assets/stylesheets/growingtree-app.scss",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 53030,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5999,
+								5999
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"syntax": "Packages/CSS/CSS.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"",
+										null
+									],
+									null,
+									null
+								],
+								"sequence": "",
+								"xpos": 9
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 5814.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 14,
+					"type": "text"
+				},
+				{
+					"buffer": 16,
+					"file": "/Users/hyan2/dev/tmp/papaline/src/papaline/core.clj",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7538,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2155,
+								2155
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
 								"bh_curly",
 								"bh_curly_center",
 								"bh_curly_open",
@@ -2850,6 +3241,226 @@
 								"bh_curly_content"
 							],
 							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"partial_sequence": "",
+								"register": "\"",
+								"sequence": "",
+								"xpos": 30
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 1155.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 17,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9024,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8075,
+								8075
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"auto_name": "",
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"highlight_line": false,
+							"syntax": "Packages/Clojure/Clojure.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true,
+							"vintage":
+							{
+								"_vintageous_glue_until_normal_mode": false,
+								"action": null,
+								"action_count": "",
+								"capture_register": false,
+								"mode": "mode_normal",
+								"motion": null,
+								"motion_count": "",
+								"normal_insert_count": "1",
+								"partial_sequence": "",
+								"register": "\"",
+								"repeat_data":
+								[
+									"native",
+									[
+										"move",
+										{
+											"by": "characters",
+											"forward": false
+										}
+									],
+									null,
+									null
+								],
+								"sequence": "",
+								"xpos": 35
+							}
+						},
+						"translation.x": 0.0,
+						"translation.y": 6597.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "appom/src/growingtree_app/components/entity_view.cljs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 56934,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								27626,
+								27626
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content"
+							],
+							"syntax": "Packages/SublimeREPL/config/ClojureScript/clojurescript.tmLanguage",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true,
 							"vintage":
@@ -2868,8 +3479,11 @@
 								[
 									"native",
 									[
-										"left_delete",
-										null
+										"move",
+										{
+											"by": "characters",
+											"forward": false
+										}
 									],
 									null,
 									null
@@ -2879,10 +3493,10 @@
 							}
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 8074.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 4,
 					"type": "text"
 				}
 			]
@@ -2916,7 +3530,7 @@
 		"cols":
 		[
 			0.0,
-			0.552927903197,
+			0.614734877489,
 			1.0
 		],
 		"rows":
@@ -2946,12 +3560,172 @@
 		"selected_items":
 		[
 			[
+				"sideb",
+				"appom/src/growingtree_app/components/sidebar.cljs"
+			],
+			[
+				"enti",
+				"appom/src/growingtree_app/components/entity_view.cljs"
+			],
+			[
 				"course",
 				"growingtree-server/src/growingtree_server/datomic/course.clj"
 			],
 			[
+				"util",
+				"appom/src/growingtree_app/utils.cljs"
+			],
+			[
+				"requet",
+				"appom/src/growingtree_app/controllers/requester.cljs"
+			],
+			[
+				"state",
+				"appom/src/growingtree_app/controllers/states.cljs"
+			],
+			[
+				"request",
+				"appom/src/growingtree_app/controllers/requester.cljs"
+			],
+			[
+				"nav",
+				"appom/src/growingtree_app/components/navbar.cljs"
+			],
+			[
+				"app",
+				"appom/src/growingtree_app/components/app.cljs"
+			],
+			[
+				"utils",
+				"appom/src/growingtree_app/utils.cljs"
+			],
+			[
+				"app.",
+				"appom/src/growingtree_app/components/app.cljs"
+			],
+			[
+				"gr",
+				"appom/assets/stylesheets/growingtree-app.scss"
+			],
+			[
+				"peer",
+				"growingtree-server/src/growingtree_server/peer.clj"
+			],
+			[
+				"dda",
+				"growingtree-server/src/growingtree_server/datomic/dda.clj"
+			],
+			[
+				"service",
+				"growingtree-server/src/growingtree_server/service.clj"
+			],
+			[
+				"cours",
+				"growingtree-server/src/growingtree_server/datomic/course.clj"
+			],
+			[
+				"ass",
+				"growingtree-server/src/growingtree_server/datomic/assign.clj"
+			],
+			[
+				"navba",
+				"appom/src/growingtree_app/components/navbar.cljs"
+			],
+			[
+				"",
+				"appom/src/growingtree_app/components/newthing_form.cljs"
+			],
+			[
+				"newthin",
+				"appom/src/growingtree_app/components/newthing_form.cljs"
+			],
+			[
+				"cour",
+				"growingtree-server/src/growingtree_server/datomic/course.clj"
+			],
+			[
+				"newth",
+				"appom/src/growingtree_app/components/newthing_form.cljs"
+			],
+			[
+				"fam",
+				"growingtree-server/src/growingtree_server/datomic/family.clj"
+			],
+			[
+				"servi",
+				"growingtree-server/src/growingtree_server/service.clj"
+			],
+			[
+				"uti",
+				"appom/out/public/growingtree_app/utils.js"
+			],
+			[
+				"time",
+				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
+			],
+			[
+				"clj",
+				"appom/src/growingtree_app/api/cljsajax.cljs"
+			],
+			[
+				"reque",
+				"appom/src/growingtree_app/controllers/requester.cljs"
+			],
+			[
+				"navb",
+				"appom/src/growingtree_app/components/navbar.cljs"
+			],
+			[
+				"mo",
+				"appom/src/growingtree_app/mock_data.cljs"
+			],
+			[
+				"timelin",
+				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
+			],
+			[
+				"entit",
+				"appom/src/growingtree_app/components/entity_view.cljs"
+			],
+			[
+				"route",
+				"appom/src/growingtree_app/routes.cljs"
+			],
+			[
+				"ma",
+				"appom/src/growingtree_app/components/main_area.cljs"
+			],
+			[
 				"login",
 				"appom/src/growingtree_app/components/login.cljs"
+			],
+			[
+				"side",
+				"appom/src/growingtree_app/components/sidebar.cljs"
+			],
+			[
+				"main",
+				"appom/src/growingtree_app/components/main_area.cljs"
+			],
+			[
+				"contro",
+				"appom/out/public/growingtree_app/controllers/controls.cljs"
+			],
+			[
+				"rou",
+				"appom/src/growingtree_app/routes.cljs"
+			],
+			[
+				"req",
+				"appom/src/growingtree_app/controllers/requester.cljs"
+			],
+			[
+				"dbsc",
+				"growingtree-server/src/growingtree_server/datomic/dbschema.clj"
+			],
+			[
+				"timel",
+				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
 			],
 			[
 				"famil",
@@ -2966,20 +3740,8 @@
 				"growingtree-server/src/growingtree_server/peer.clj"
 			],
 			[
-				"service",
-				"growingtree-server/src/growingtree_server/service.clj"
-			],
-			[
 				"cljs",
 				"appom/src/growingtree_app/api/cljsajax.cljs"
-			],
-			[
-				"request",
-				"appom/src/growingtree_app/controllers/requester.cljs"
-			],
-			[
-				"newthin",
-				"appom/src/growingtree_app/components/newthing_form.cljs"
 			],
 			[
 				"gro",
@@ -2988,22 +3750,6 @@
 			[
 				"logi",
 				"appom/src/growingtree_app/components/login.cljs"
-			],
-			[
-				"main",
-				"appom/src/growingtree_app/components/main_area.cljs"
-			],
-			[
-				"util",
-				"growingtree-server/src/growingtree_server/datomic/util.clj"
-			],
-			[
-				"nav",
-				"appom/src/growingtree_app/components/navbar.cljs"
-			],
-			[
-				"app",
-				"appom/src/growingtree_app/components/app.cljs"
 			],
 			[
 				"ui",
@@ -3038,26 +3784,6 @@
 				"appom/src/growingtree_app/core.cljs"
 			],
 			[
-				"dda",
-				"growingtree-server/src/growingtree_server/datomic/dda.clj"
-			],
-			[
-				"clj",
-				"appom/src/growingtree_app/api/cljsajax.cljs"
-			],
-			[
-				"fam",
-				"growingtree-server/src/growingtree_server/datomic/family.clj"
-			],
-			[
-				"peer",
-				"growingtree-server/src/growingtree_server/peer.clj"
-			],
-			[
-				"servi",
-				"growingtree-server/src/growingtree_server/service.clj"
-			],
-			[
 				"controls",
 				"appom/src/growingtree_app/controllers/post_controls.cljs"
 			],
@@ -3066,16 +3792,8 @@
 				"appom/src/growingtree_app/controllers/post_controls.cljs"
 			],
 			[
-				"contro",
-				"appom/src/growingtree_app/controllers/controls.cljs"
-			],
-			[
 				"ent",
 				"appom/src/growingtree_app/components/entity_view.cljs"
-			],
-			[
-				"gr",
-				"appom/assets/stylesheets/growingtree-app.scss"
 			],
 			[
 				"mock_",
@@ -3122,10 +3840,6 @@
 				"growingtree-server/src/growingtree_server/datomic/comments.clj"
 			],
 			[
-				"ass",
-				"growingtree-server/src/growingtree_server/datomic/assign.clj"
-			],
-			[
 				"timeline",
 				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
 			],
@@ -3138,20 +3852,12 @@
 				"growingtree-server/src/growingtree_server/datomic/assign.clj"
 			],
 			[
-				"cour",
-				"growingtree-server/src/growingtree_server/datomic/course.clj"
-			],
-			[
 				"new",
 				"appom/src/growingtree_app/components/newthing_form.cljs"
 			],
 			[
 				"assi",
 				"growingtree-server/src/growingtree_server/datomic/assign.clj"
-			],
-			[
-				"time",
-				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
 			],
 			[
 				"tim",
@@ -3174,10 +3880,6 @@
 				"growingtree-server/src/growingtree_server/datomic/course.clj"
 			],
 			[
-				"side",
-				"appom/src/growingtree_app/components/sidebar.cljs"
-			],
-			[
 				"timeli",
 				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
 			],
@@ -3190,24 +3892,12 @@
 				"growingtree-server/src/growingtree_server/service.clj"
 			],
 			[
-				"enti",
-				"appom/src/growingtree_app/components/entity_view.cljs"
-			],
-			[
 				"growi",
 				"appom/assets/stylesheets/growingtree-app.scss"
 			],
 			[
-				"entit",
-				"appom/src/growingtree_app/components/entity_view.cljs"
-			],
-			[
 				"family",
 				"growingtree-server/src/growingtree_server/datomic/family.clj"
-			],
-			[
-				"route",
-				"appom/src/growingtree_app/routes.cljs"
 			],
 			[
 				"newthing",
@@ -3230,10 +3920,6 @@
 				"appom/src/growingtree_app/mock_data.cljs"
 			],
 			[
-				"navb",
-				"appom/src/growingtree_app/components/navbar.cljs"
-			],
-			[
 				"newt",
 				"appom/src/growingtree_app/components/newthing_form.cljs"
 			],
@@ -3252,10 +3938,6 @@
 			[
 				"control",
 				"appom/src/growingtree_app/controllers/controls.cljs"
-			],
-			[
-				"",
-				"appom/src/growingtree_app/core.cljs"
 			],
 			[
 				"fa",
@@ -3282,10 +3964,6 @@
 				"growingtree-server/src/growingtree_server/datomic/dbschema.clj"
 			],
 			[
-				"app.",
-				"appom/src/growingtree_app/components/app.cljs"
-			],
-			[
 				"pos",
 				"appom/src/growingtree_app/controllers/post_controls.cljs"
 			],
@@ -3294,20 +3972,8 @@
 				"appom/src/growingtree_app/components/main_area.cljs"
 			],
 			[
-				"timelin",
-				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
-			],
-			[
-				"timel",
-				"growingtree-server/src/growingtree_server/datomic/timeline.clj"
-			],
-			[
 				"post_a",
 				"appom/src/growingtree_app/controllers/post_api.cljs"
-			],
-			[
-				"mo",
-				"appom/src/growingtree_app/mock_data.cljs"
 			],
 			[
 				"con",
@@ -3318,10 +3984,6 @@
 				"appom/src/growingtree_app/core.cljs"
 			],
 			[
-				"dbsc",
-				"growingtree-server/src/growingtree_server/datomic/dbschema.clj"
-			],
-			[
 				"en",
 				"appom/src/growingtree_app/components/entity_view.cljs"
 			],
@@ -3330,24 +3992,12 @@
 				"appom/src/growingtree_app/components/entity_view.cljs"
 			],
 			[
-				"newth",
-				"appom/src/growingtree_app/components/newthing_form.cljs"
-			],
-			[
 				"srvice",
 				"growingtree-server/src/growingtree_server/service.clj"
 			],
 			[
-				"ma",
-				"appom/src/growingtree_app/components/main_area.cljs"
-			],
-			[
 				"newthign_",
 				"appom/src/growingtree_app/components/newthing_form.cljs"
-			],
-			[
-				"utils",
-				"appom/src/growingtree_app/utils.cljs"
 			],
 			[
 				"newthing_",
@@ -3386,10 +4036,6 @@
 				"appom/src/growingtree_app/controllers/post_controls.cljs"
 			],
 			[
-				"cours",
-				"growingtree-server/src/growingtree_server/datomic/course.clj"
-			],
-			[
 				"growingtree",
 				"appom/assets/stylesheets/growingtree-app.scss"
 			],
@@ -3424,38 +4070,6 @@
 			[
 				"beacon",
 				"atlas-beacon.md"
-			],
-			[
-				"recommendations.sp",
-				"workspace-atlas/atlas/frontend/test/js/spec/common/recommendations/recommendations.spec.js"
-			],
-			[
-				"recommendation.spe",
-				"workspace-atlas/atlas/frontend/test/js/spec/common/recommendations/recommendations.spec.js"
-			],
-			[
-				"add-to-rgistry.spec",
-				"workspace-atlas/atlas/frontend/test/js/spec/common/lists/add-to-registry/views/add-to-registry.spec.js"
-			],
-			[
-				"recommendation.sp",
-				"workspace-atlas/atlas/frontend/test/js/spec/common/recommendations/recommendations.spec.js"
-			],
-			[
-				"recomm",
-				"workspace-atlas/tmp/recommendations.spec.js"
-			],
-			[
-				"recommed",
-				"workspace-atlas/tmp/recommendations.spec.js"
-			],
-			[
-				"asda",
-				"irs-ui/static/scripts/src/modules/ASDA.js"
-			],
-			[
-				"deplo",
-				"workspace-atlas/atlas/bin/deploy.sh"
 			]
 		],
 		"width": 0.0
@@ -3479,6 +4093,7 @@
 	"selected_group": 0,
 	"settings":
 	{
+		"_vintageous_last_buffer_search": "find-progr",
 		"_vintageous_reset_during_init": true,
 		"vintage":
 		{
@@ -3488,8 +4103,8 @@
 	"show_minimap": false,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": false,
-	"side_bar_width": 200.0,
+	"side_bar_visible": true,
+	"side_bar_width": 110.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

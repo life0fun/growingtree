@@ -4,6 +4,7 @@ logs/
 pom.xml
 .*
 *.swp
+*.sublime-workspace
 *jar
 /lib/
 /classes/

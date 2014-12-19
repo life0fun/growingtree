@@ -40,7 +40,6 @@
 (defn current-user 
   [comm user]
   (let [username (:person/title user)]
-    (.log js/console (pr-str "current user " username user))
     [:a.user-menu-toggle
       {:on-click (comp (constantly false) #(put! comm [:user-menu-toggled]))}
       (utils/gravatar-for (:person/email user))
@@ -189,7 +188,7 @@
               channel (get-in state [:channels :selected-channel])
               settings (:settings state)
               search-filter (get-in state [:settings :forms :search :value])]
-          (.log js/console (pr-str "rendering sidebar " login-user))
+          (.log js/console (pr-str "rendering sidebar " (:person/title login-user)))
           [:aside.sidebar
             [:div.header.user-header {:class (when (get-in settings [:menus :user-menu :open]) "open-menu")}
               (current-user comm login-user)
@@ -218,7 +217,6 @@
                          {:opts {:title "Playlist"
                                  :icon "images/video_icon.png"
                                  :content-comp playlist-widget}})
-                                 ;:action-comp playlist-action-widget}})
                 (om/build widget
                          {:content-data {:search-filter search-filter
                                          :media       (:media channel)
@@ -228,5 +226,4 @@
                          {:opts {:title "My Media"
                                  :icon "images/media_icon.png"
                                  :content-comp media-widget}})]
-                                 ;:action-comp media-action-widget}})]
            ])))))

@@ -148,13 +148,13 @@
   ])
 
 
-; populate author's progress that origin to the course.
-; author can be author-id or author-title, diff by class author java.lang.String.
+; populate user's progress on his enrolled course
+; user can be user-id or user-title, diff by class user java.lang.String.
 ; assoc progress entity to pseudo :course/progress attr.
 (defn populate-course-progress
-  [entity author]
+  [entity user-id]
   (let [course-id (:db/id entity)
-        progress (find-progress :course course-id author)
+        progress (find-progress :course course-id user-id)   ; find user's progress on the course
         ]
     (assoc entity :course/progress progress)))
 
@@ -166,7 +166,7 @@
   (let [projkeys (keys course-schema)]
       (as-> entity e
         (select-keys e projkeys)
-        (populate-course-progress e author)
+        ;(populate-course-progress e author)
         (util/assoc-refed-many-entities :course/author e)
         (util/add-upvote-attr e)
         (util/add-numcomments-attr e))
@@ -285,30 +285,6 @@
     [(:child ?e ?val) [?e :enrollment/person ?val]]
   ])
 
-
-; for course, enrollment can be attendee of a course; for person, find courses he enrolled into.
-; for [:course 1 :enrollment], we should show attendee of the course
-; however, for [:child 1 :enrollment], we should show course, not attendee.
-(defn find-enrollment
-  "find all person that enrolls to the course by query path "
-  [qpath]
-  (log/info "find enrollment " qpath " entities: " (util/get-qpath-entities qpath get-enrollment-by))
-  (let [user-id (second qpath)  ; [child 1 enrollment]
-        result (if (some #{(first qpath)} #{:parent :child})
-                (->> (util/get-qpath-entities qpath get-enrollment-by)
-                     (map (partial populate-person-enrollment-course user-id))
-                     (map #(util/add-navpath % qpath) )
-                     )
-                (->> (util/get-qpath-entities qpath get-enrollment-by)
-                     ; use mapcat to concat list of person in a enrollment group.
-                     (mapcat populate-course-enrollment-person)
-                     (map #(util/add-navpath % qpath) )))
-        ]
-    (doseq [e result]
-      (log/info "enrollment --> " e))
-    result))
-
-
 ; course enrollments outbound refed entity contains a set of person,
 ; map rets a list, need to be mapcat-ed.
 ; {:enrollment/person #{{:db/id 17592186045453}}, :enrollment/title "love flute", ... }
@@ -323,6 +299,7 @@
       (map #(select-keys % person-keys) e))  ; 
   ))
 
+
 ; one person enrollment contains one person one course entity.
 ; entity {:enrollment/person #{{:db/id 17592186045427}}, :enrollment/title "love math",}
 (defn populate-person-enrollment-course
@@ -330,8 +307,33 @@
   (let [course-keys (keys (assoc (list-attr :course) :db/id :db.type/id))]
     (as-> entity e
       ((comp get-entity :db/id :enrollment/course) e)
-      (populate-course-refed-entity e user-id))
+      (populate-course-refed-entity e user-id)
+      (populate-course-progress e user-id))
   ))
+
+
+; for course, enrollment can be attendee of a course; for person, find courses he enrolled into.
+; for [:course 1 :enrollment], we should show attendee/person entries of the course as enrollment.
+; for [:child 1 :enrollment], we should show course entries as enrollment, not attendee.
+(defn find-enrollment
+  "find all person that enrolls to the course by query path "
+  [qpath]
+  (log/info "find enrollment " qpath " entities: " (util/get-qpath-entities qpath get-enrollment-by))
+  (let [user-id (second qpath)  ; [child 1 enrollment]
+        enrollment-as-course? (some #{(first qpath)} #{:parent :child}) ; [:child 1 :enrollment]
+        result (if enrollment-as-course?
+                (->> (util/get-qpath-entities qpath get-enrollment-by)
+                     (map (partial populate-person-enrollment-course user-id))
+                     (map #(util/add-navpath % qpath) )
+                     )
+                (->> (util/get-qpath-entities qpath get-enrollment-by)
+                     ; use mapcat to concat list of person in a enrollment group.
+                     (mapcat populate-course-enrollment-person)
+                     (map #(util/add-navpath % qpath) )))
+        ]
+    (doseq [e result]
+      (log/info "enrollment --> " e))
+    result))
 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -395,7 +397,8 @@
                             [?e :progress/author ?aid]]
   ])
 
-; one person enrollment contains one person one course entity.
+
+; for each progress, populate its author, and progress steps for this progress.
 (defn populate-progress-refed-entity
   [entity]
   (let [projkeys (keys progress-schema)]
@@ -409,9 +412,10 @@
   ))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+; find user's progress on his enrolled course.
 ; for course, progress can be attendee of a course; for person, find courses he enrolled into.
 ; for [:course 1 :progress], we should show attendee of the course
-; however, for [:child 1 :progress], we should show course, not attendee.
+; for [:child 1 :progress], we should show course, not attendee.
 (defn find-progress
   "find all person that enrolls to the course by query path "
   ([qpath nav-path]
@@ -420,14 +424,14 @@
           author (get-in nav-path [:data :pid])]
       (find-progress rule-name course-id author)))
 
-  ; if author is name string, get its db/id, otherwise, author is long author-id.
-  ([rule-name course-id author]
+  ; if user is name string, get its db/id, otherwise, user is long user-id.
+  ([rule-name course-id user]
     (let [rule (list rule-name '?e '?cid '?aid)
-          author-id (if (= java.lang.String (class author))
-                      (:db/id (family/get-person-by-title author))
-                      author)
-          ; rule-args [17592186045484 17592186045427]  ; [course-id, author-id]
-          rule-args [course-id author-id]  ; [course-id, author-id]
+          user-id (if (= java.lang.String (class user))
+                      (:db/id (family/get-person-by-title user))
+                      user)
+          ; rule-args [17592186045484 17592186045427]  ; [course-id, user-id]
+          rule-args [course-id user-id]  ; [course-id, user-id]
           result (->> (util/get-entities-by-rule rule get-progress-by rule-args)
                     (map populate-progress-refed-entity))
         ]

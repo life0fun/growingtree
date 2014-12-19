@@ -636,6 +636,15 @@
           [:div.clearleft]
       ]])))
 
+
+; thing-entry view for enrollment shows enrolled course with progression bar.
+(defmethod thing-entry
+  :enrollment
+  [app thing-type entity override]
+  (.log js/console (pr-str "enrollment entry" entity))
+  )
+
+
 ; thing-entry view for lecture, datum entity contains thing data value
 (defmethod thing-entry
   :lecture
@@ -847,11 +856,6 @@
           [:div.clearleft]
       ]])))
 
-(defmethod thing-entry
-  :enrollment
-  [app thing-type entity override]
-  (.log js/console (pr-str "enrollment entry" entity))
-  )
 
 ; Answer thing-entry view, datum entity contains thing data value
 (defmethod thing-entry
