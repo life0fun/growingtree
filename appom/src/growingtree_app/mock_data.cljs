@@ -88,6 +88,11 @@
 (def root-add-type #{:parent :group :course})
 
 
+; get app state nav-path
+(defn get-last-nav-path
+  [state]
+  (last (get-in state [:nav-path])))
+
 ; nav-path 
 ; :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} 
 (defn get-nav-path-nxt-thing-type
@@ -263,7 +268,7 @@
      :login-user {}  ; set in login state transition upon login success.
 
      ; nav-path is indicator of current state. updated upon state transition.
-     ; :nav-path [{:title [] :body [:all 0 :parent] :data {}}]
+     ; :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} 
      :nav-path [{:title [] :body [:login [:login 0 :login]] :data {}}]
      :error {}   ; error from ajax
      

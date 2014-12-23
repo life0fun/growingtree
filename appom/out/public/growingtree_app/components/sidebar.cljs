@@ -217,7 +217,6 @@
                          {:opts {:title "Playlist"
                                  :icon "images/video_icon.png"
                                  :content-comp playlist-widget}})
-                                 ;:action-comp playlist-action-widget}})
                 (om/build widget
                          {:content-data {:search-filter search-filter
                                          :media       (:media channel)
@@ -227,5 +226,4 @@
                          {:opts {:title "My Media"
                                  :icon "images/media_icon.png"
                                  :content-comp media-widget}})]
-                                 ;:action-comp media-action-widget}})]
            ])))))

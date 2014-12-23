@@ -4,6 +4,7 @@
             [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
             [growingtree-app.components.draggable-window :as draggable]
             [growingtree-app.components.key-queue :as keyq]
+            [growingtree-app.mock-data :as mock-data]
             [growingtree-app.components.navbar :as navbar]
             [growingtree-app.components.sidebar :as sidebar]
             [growingtree-app.components.main-area :as main-area]
@@ -34,8 +35,7 @@
     om/IRender
     (render [this]
       ; get app state cursors for related keys, and pass map state cursor when building sub-components.
-      (let [nav-path                (last (get-in app [:nav-path])) ; last path segment {:path [:all 0 :parent]}
-            thing-type              (last (:body nav-path))
+      (let [nav-path                (mock-data/get-last-nav-path app) ; last path segment {:path [:all 0 :parent]}
             login-user              (get-in app [:login-user])
             error                   (get-in app [:error])
 

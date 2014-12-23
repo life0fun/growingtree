@@ -170,10 +170,7 @@
               (filter #(.match (:content %) re-filter) things-vec)
               things-vec)
         ;wrap each thing node into a thing-entry.
-        things 
-          (map #(let [author (get-in opts [:users (:author %)])]
-                  (thing-entry app % {}))
-               filtered-things)
+        things (map #(thing-entry app thing-type % {}) filtered-things)
        ]
     ; wrap thing listing inside paginated div
     (list [:div.paginated-activities
@@ -181,10 +178,17 @@
     ))
 
 ; list each entry of thing with data, get view based on thing-type.
-(defn thing-entry
-  [app thing-data override]
-  (let [thing-type (utils/thing-ident thing-data)]
-    (entity-view/thing-entry app thing-type thing-data override)))
+; for top-entity, we use entity type, for body, use nav thing-type from nav-path.
+; course entity can be view in both course and enrollment view.
+(defn- thing-entry
+  "thing type is nav-path next thing type, enrollment can be a course entity,
+   with nav thing-type is enrollment"
+  ([app thing-data override]
+    (let [entity-type (utils/thing-ident thing-data)]
+      (thing-entry app entity-type thing-data override)))
+  ([app thing-type thing-data override]
+    (let [entity-type (utils/thing-ident thing-data)]  ; course entity can be view for both course and enrollment.
+      (entity-view/thing-entry app thing-type thing-data override))))
 
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

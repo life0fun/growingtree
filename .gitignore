@@ -6,6 +6,7 @@ pom.xml
 *.swp
 *.sublime-workspace
 *jar
+out/
 /lib/
 /classes/
 /target/

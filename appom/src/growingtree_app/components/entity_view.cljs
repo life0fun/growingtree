@@ -540,8 +540,6 @@
         content (:content value-map)
         course-type (name (:type value-map))
         url (:url value-map)
-        ; server returns a list of progress, one user only have one progress for one course.
-        progress (first (:progress value-map))
         
         ; enroll form
         enroll-form-name (str "#enrollment-form-" thing-id)
@@ -559,8 +557,76 @@
           :enrollment/email (str "rich-son@rich.com")
           :enrollment/url (str "growingtree.com/enrollment/course/" thing-id)
         } ; peer add-thing :enrollment
+      ]
+    (.log js/console "course thing value " (pr-str thing-id title authors url))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
+        (thing-entry-thumbnail thing-type value-map)
 
-        ; add progress form
+        [:div.entry.unvoted
+          (thing-entry-titles (vector title))
+          (thing-entry-subtitles (vector (str "  " content)
+                                         (str "  " url)))
+          (thing-entry-taglines (vector (str course-type "  Offered by " authors)))
+
+          [:ul.flat-list.buttons
+            (thing-entry-action-button-li "lectures" (:lecture-class value-map)
+                                          (filter-things-onclick app entity :course :lecture))
+            (thing-entry-action-button-li "add lecture" (:add-lecture-class value-map)
+                                          (ui/toggle-hide-fn (str ".add-lecture-form")))
+            (thing-entry-action-button-li "enrollments" (:enrollment-class value-map)
+                                          (filter-things-onclick app entity :course :enrollment))
+            (thing-entry-action-button-li "enroll" (:enroll-class value-map)
+                                          (ui/toggle-hide-fn (str "#enrollment-form-" thing-id)))
+            (thing-entry-action-button-li "likes" (:like-class value-map)
+                                          (filter-things-onclick app entity :course :like))
+            (thing-entry-action-button-li "comments" (:comments-class value-map)
+                                          (filter-things-onclick app entity :course :comments))
+            (thing-entry-action-button-li "similar courses" (:similar-class value-map)
+                                          (filter-things-onclick app entity :course :similar))
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (str "child-form-" thing-id)}
+            (thing-entry-child-form (subs enroll-form-name 1)  ; form id
+                                    "enrollment-form"   ; form class
+                                    enroll-form-input-map
+                                    "enroll"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :enrollment
+                                                    enroll-form-name
+                                                    enroll-form-data
+                                                    enroll-form-fields))
+          ]
+          [:div.clearleft]
+      ]])))
+
+
+; thing-entry view for enrollment shows enrolled course with progression bar.
+(defmethod thing-entry
+  :enrollment
+  [app thing-type entity override]
+  (.log js/console (pr-str "enrollment entry" entity))
+  (let [
+        login-user (get-in app [:login-user])
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+
+        authors (map #(get % :person/title) (get entity :course/author))
+        title (get value-map :title)
+        content (:content value-map)
+        course-type (name (:type value-map))
+        url (:url value-map)
+        ; server returns a list of progress, one user only have one progress for one course.
+        progress (first (:progress value-map))
+
+         ; add progress form
         progressstep-form-name (str "#progressstep-form-" thing-id)
         progressstep-form-input-map {
           :progressstep/title {:id (str "progressstep-title-" thing-id) :type "text" :text "progress"}
@@ -596,12 +662,6 @@
           [:ul.flat-list.buttons
             (thing-entry-action-button-li "lectures" (:lecture-class value-map)
                                           (filter-things-onclick app entity :course :lecture))
-            (thing-entry-action-button-li "add lecture" (:add-lecture-class value-map)
-                                          (ui/toggle-hide-fn (str ".add-lecture-form")))
-            (thing-entry-action-button-li "enrollments" (:enrollment-class value-map)
-                                          (filter-things-onclick app entity :course :enrollment))
-            (thing-entry-action-button-li "enroll" (:enroll-class value-map)
-                                          (ui/toggle-hide-fn (str "#enrollment-form-" thing-id)))
             (thing-entry-action-button-li "add progress" (:progress-class value-map)
                                           (ui/toggle-hide-fn (str "#progressstep-form-" thing-id)))
             (thing-entry-action-button-li "likes" (:like-class value-map)
@@ -614,15 +674,7 @@
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}
-            (thing-entry-child-form (subs enroll-form-name 1)  ; form id
-                                    "enrollment-form"   ; form class
-                                    enroll-form-input-map
-                                    "enroll"        ; submit btn text
-                                    (submit-form-fn app
-                                                    :enrollment
-                                                    enroll-form-name
-                                                    enroll-form-data
-                                                    enroll-form-fields))
+
             (thing-entry-child-form (subs progressstep-form-name 1)  ; form id
                                     "progressstep-form"   ; form class
                                     progressstep-form-input-map
@@ -635,14 +687,6 @@
           ]
           [:div.clearleft]
       ]])))
-
-
-; thing-entry view for enrollment shows enrolled course with progression bar.
-(defmethod thing-entry
-  :enrollment
-  [app thing-type entity override]
-  (.log js/console (pr-str "enrollment entry" entity))
-  )
 
 
 ; thing-entry view for lecture, datum entity contains thing data value
