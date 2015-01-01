@@ -104,8 +104,8 @@
 
 (declare populate-course-refed-entity)
 (declare populate-lecture-refed-entity)
-(declare populate-person-enrollment-course)
-(declare populate-course-enrollment-person)
+(declare get-person-enrollment-course)
+(declare get-course-enrollment-person)
 (declare populate-progress-refed-entity)
 
 ; schema attr-name value type map for parent schema and child schema
@@ -155,7 +155,7 @@
   [entity user-id]
   (let [course-id (:db/id entity)
         progress (find-progress :course course-id user-id)   ; find user's progress on the course
-        ]
+       ]
     (assoc entity :course/progress progress)))
 
 
@@ -166,7 +166,6 @@
   (let [projkeys (keys course-schema)]
       (as-> entity e
         (select-keys e projkeys)
-        ;(populate-course-progress e author)
         (util/assoc-refed-many-entities :course/author e)
         (util/add-upvote-attr e)
         (util/add-numcomments-attr e))
@@ -285,14 +284,15 @@
     [(:child ?e ?val) [?e :enrollment/person ?val]]
   ])
 
-; course enrollments outbound refed entity contains a set of person,
+
+; ret person enrolled to the course from course enrollments outbound refed.
 ; map rets a list, need to be mapcat-ed.
 ; {:enrollment/person #{{:db/id 17592186045453}}, :enrollment/title "love flute", ... }
-(defn populate-course-enrollment-person
-  [entity]
+(defn get-course-enrollment-person
+  [enrollment]
   (let [person-keys (keys (assoc (list-attr :person) :db/id :db.type/id))]
-    (log/info "populate enrollment person entity " entity)
-    (as-> entity e
+    (log/info "populate course enrollment person from " enrollment)
+    (as-> enrollment e
       (:enrollment/person e)  ; enrollment person set -> e
       (filter identity e)     ; filter nil in person set
       (map (comp get-entity :db/id) e)  ; person id to person entity, result assigned to e.
@@ -302,13 +302,43 @@
 
 ; one person enrollment contains one person one course entity.
 ; entity {:enrollment/person #{{:db/id 17592186045427}}, :enrollment/title "love math",}
-(defn populate-person-enrollment-course
+(defn get-person-enrollment-course
   [user-id entity]
   (let [course-keys (keys (assoc (list-attr :course) :db/id :db.type/id))]
     (as-> entity e
       ((comp get-entity :db/id :enrollment/course) e)
       (populate-course-refed-entity e user-id)
       (populate-course-progress e user-id))
+  ))
+
+
+; qpath [:child 1 :enrollment], show courses as enrollment, not attendee.
+(defn find-enrollment-course
+  [qpath]
+  (let [user-id (second qpath)
+        courses (util/get-qpath-entities qpath get-enrollment-by)]
+    (->> courses
+      (map (partial get-person-enrollment-course user-id))
+      (map #(util/add-navpath % qpath)))
+    ))
+
+
+; qpath [:course 1 :enrollment], show enrollment's attendee/person entries.
+(defn find-enrollment-person
+  [qpath]
+  (let [course-id (second qpath)
+        entities (util/get-qpath-entities qpath get-enrollment-by)
+        add-progress
+          (fn [person]
+            (let [pid (:db/id person)
+                  progress (find-progress :course course-id pid)]
+              (assoc person :enrollment/progress progress)))
+        ]
+    (as-> entities enrollments
+      ; use mapcat to concat list of person in a enrollment group.
+      (mapcat get-course-enrollment-person enrollments)
+      (map add-progress enrollments)
+      (map #(util/add-navpath % qpath) enrollments))
   ))
 
 
@@ -320,16 +350,10 @@
   [qpath]
   (log/info "find enrollment " qpath " entities: " (util/get-qpath-entities qpath get-enrollment-by))
   (let [user-id (second qpath)  ; [child 1 enrollment]
-        enrollment-as-course? (some #{(first qpath)} #{:parent :child}) ; [:child 1 :enrollment]
-        result (if enrollment-as-course?
-                (->> (util/get-qpath-entities qpath get-enrollment-by)
-                     (map (partial populate-person-enrollment-course user-id))
-                     (map #(util/add-navpath % qpath) )
-                     )
-                (->> (util/get-qpath-entities qpath get-enrollment-by)
-                     ; use mapcat to concat list of person in a enrollment group.
-                     (mapcat populate-course-enrollment-person)
-                     (map #(util/add-navpath % qpath) )))
+        course-as-enrollment? (some #{(first qpath)} #{:parent :child}) ; [:child 1 :enrollment]
+        result (if course-as-enrollment?
+                (find-enrollment-course qpath)
+                (find-enrollment-person qpath))
         ]
     (doseq [e result]
       (log/info "enrollment --> " e))
@@ -345,7 +369,6 @@
   (log/info "create-enrollment " details  "schema " (keys enrollment-schema))
   (let [course-id (:enrollment/course details)
         ; automatically enroll to all lectures in course
-        ; lecture-id (:enrollment/lecture details)
         enrollment (if course-id
                       (dbconn/find-by :enrollment/course course-id))
                       ; (dbconn/find-by :enrollment/lecture lecture-id))

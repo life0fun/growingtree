@@ -655,7 +655,8 @@
           (thing-entry-titles (vector title))
           (thing-entry-subtitles (vector (str "  " content)
                                          (str "  " url)))
-          (thing-entry-taglines (vector (str course-type "  Offered by " authors)))
+          (when authors
+            (thing-entry-taglines (vector (str course-type "  Offered by " authors))))
 
           (progress-tracker progress)
 
