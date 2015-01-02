@@ -325,32 +325,41 @@
 
 ; qpath [:course 1 :enrollment], show enrollment's attendee/person entries.
 (defn find-enrollment-person
-  [qpath]
-  (let [course-id (second qpath)
-        entities (util/get-qpath-entities qpath get-enrollment-by)
-        add-progress
-          (fn [person]
-            (let [pid (:db/id person)
-                  progress (find-progress :course course-id pid)]
-              (assoc person :enrollment/progress progress)))
-        ]
-    (as-> entities enrollments
-      ; use mapcat to concat list of person in a enrollment group.
-      (mapcat get-course-enrollment-person enrollments)
-      (map add-progress enrollments)
-      (map #(util/add-navpath % qpath) enrollments))
-  ))
+  ([qpath]
+    (let [enrollments (util/get-qpath-entities qpath get-enrollment-by)
+          course-id (second qpath)]
+      (if (zero? course-id)
+        (mapcat (fn [enrollment]
+              (let [course-id (get-in enrollment [:enrollment/course :db/id])]
+                (find-enrollment-person qpath (vector enrollment) course-id)))
+          enrollments)
+        (find-enrollment-person qpath enrollments course-id))
+    ))
+
+  ([qpath entities course-id]
+    (let [add-progress
+            (fn [person]
+              (let [pid (:db/id person)
+                    progress (find-progress :course course-id pid)]
+                (assoc person :enrollment/progress progress)))
+          ]
+      (as-> entities enrollments
+        ; use mapcat to concat list of person in a enrollment group.
+        (mapcat get-course-enrollment-person enrollments)
+        (map add-progress enrollments)
+        (map #(util/add-navpath % qpath) enrollments))
+    )))
 
 
 ; for course, enrollment can be attendee of a course; for person, find courses he enrolled into.
-; for [:course 1 :enrollment], we should show attendee/person entries of the course as enrollment.
-; for [:child 1 :enrollment], we should show course entries as enrollment, not attendee.
+; for [all 0 :enrollment], show all person's all enrolled course.
+; for [:course 1 :enrollment], show attendee/person entries of the course as enrollment.
+; for [:child 1 :enrollment], show course entries as enrollment, not attendee.
 (defn find-enrollment
   "find all person that enrolls to the course by query path "
   [qpath]
   (log/info "find enrollment " qpath " entities: " (util/get-qpath-entities qpath get-enrollment-by))
-  (let [user-id (second qpath)  ; [child 1 enrollment]
-        course-as-enrollment? (some #{(first qpath)} #{:parent :child}) ; [:child 1 :enrollment]
+  (let [course-as-enrollment? (some #{(first qpath)} #{:parent :child}) ; [:child 1 :enrollment]
         result (if course-as-enrollment?
                 (find-enrollment-course qpath)
                 (find-enrollment-person qpath))
@@ -423,10 +432,10 @@
 
 ; for each progress, populate its author, and progress steps for this progress.
 (defn populate-progress-refed-entity
-  [entity]
+  [progress]
   (let [projkeys (keys progress-schema)]
-    (log/info "populate-progress-refed-entity " entity)
-    (as-> entity e
+    (log/info "populate-progress-refed-entity " progress)
+    (as-> progress e
       (select-keys e projkeys)
       (util/assoc-refed-many-entities :progress/author e)
       (util/assoc-refed-many-entities :progress/steps e)  ; touch to get its attrs

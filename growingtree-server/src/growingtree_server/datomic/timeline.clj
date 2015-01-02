@@ -170,7 +170,7 @@
       :activity (family/populate-activity-refed-entity entity)
       :course (course/populate-course-refed-entity entity)
       :lecture (course/populate-lecture-refed-entity entity)
-      :enrollment (course/populate-course-enrollment-person entity)
+      :enrollment (course/get-course-enrollment-person entity)
       :question (assign/populate-question-refed-entity entity)
       :assignment (assign/populate-assignment-refed-entity entity)
       :answer (assign/populate-answer-refed-entity entity)
