@@ -301,12 +301,12 @@
   (let [title (:progressstep/title step)
         status (:progressstep/status step)]  ; status is string steps
     [:li.progress-step
-        [:span.progress-title
-          [:a title ]
-          [:div.meter
-            [:span {:style #js {:width (str status "%")}}]
-          ]
-        ]]
+      [:span.progress-title
+        [:a title ]
+        [:div.meter
+          [:span {:style #js {:width (str status "%")}}]
+        ]
+      ]]
   ))
 
 ; progress tracker, its a ol list with progress steps as list items.
@@ -314,38 +314,46 @@
 ;  :progress/steps #{{:progressstep/status "50", :progress/title "progression of flute 101", :db/id 17592186045494}) 
 (defn progress-tracker
   [progress]
-  (let [course-id (:origin progress)
-        progress-steps (:progress/steps progress)]  ; a set of progress steps
-    (.log js/console (pr-str "progress tracker " progress " steps " progress-steps))
-    (list
+  (when-let [progress-steps (:progress/steps progress)]  ; a set of progress steps
       [:ol.progress-tracker
         (map progress-step progress-steps)
       ]
-    )))
+    ))
 
 ;- - - - ;- - - - ;- - - -;- - - -;- - - -;- - - -;- - - -;- - - -
 ; child form at the bottom of thing entry
 ; input-map {:group/title {:id :type :text} :group/remart {:id :type :text}}
+; input-map {:progress/title {:id :type list :datalist []}}
 (defn thing-entry-child-form
   [form-id form-class input-map submit-text submit-fn]
   [:div.hide {:id form-id}
     [:form {:class form-class :style #js {:float "left;"}}
-      (for [[fk fmap] input-map]
-        (cond 
-          (= "datetime" (:type fmap))
+      (for [[field-name field-data] input-map]
+        (condp = (:type field-data)
+          "datetime"
             [:div.datetime-picker.input-append
-              [:input {:id (:id fmap) :type (:type fmap) :data-format "hh:mm:ss MM/dd/yyyy" :placeholder (:text fmap)}]
-              [:span.add-on [:a {:href (str "javascript:NewCal('" (:id fmap) "','mmddyyyy', 'true');")}
+              [:input {:id (:id field-data) :type (:type field-data) :data-format "hh:mm:ss MM/dd/yyyy" :placeholder (:text field-data)}]
+              [:span.add-on [:a {:href (str "javascript:NewCal('" (:id field-data) "','mmddyyyy', 'true');")}
                               [:i {:data-time-icon "icon-time" :data-data-icon "icon-calendar"}]
                               [:img {:src "cal.gif" :width "16" :height "16"}]]] 
             ]
-          (= "select" (:type fmap))
-            (if-let [options (:select fmap)]
-              [:select {:id (:id fmap)}
+          "select"
+            (if-let [options (:select field-data)]
+              [:select {:id (:id field-data)}
                 (map (fn [v] [:option {:value v} (name v)]) options)
               ])
-          :else
-            [:input {:id (:id fmap) :type (:type fmap) :placeholder (:text fmap)}]
+          "list"
+            (let [datalist (:datalist field-data)
+                  datalist-name (str (:id field-data) "-datalist")]
+              (.log js/console (pr-str "datalist " datalist))
+              (list
+                [:input {:id (:id field-data) :type :list :list datalist-name}]
+                [:datalist {:id datalist-name}
+                  (map (fn [v] [:option {:value v} (str (name v))]) datalist)]
+                )
+              )
+          ; a single default expr at the end.
+          [:input {:id (:id field-data) :type (:type field-data) :placeholder (:text field-data)}]
         ))
       [:button.btn.btn-primary.inline-form-btn  
         {:type "button" :id "submit" :on-click submit-fn}
@@ -628,8 +636,9 @@
 
          ; add progress form
         progressstep-form-name (str "#progressstep-form-" thing-id)
+        progressstep-datalist (map :progressstep/title (:progress/steps progress))
         progressstep-form-input-map {
-          :progressstep/title {:id (str "progressstep-title-" thing-id) :type "text" :text "progress"}
+          :progressstep/title {:id (str "progressstep-title-" thing-id) :type "list" :datalist progressstep-datalist}
           :progressstep/author {:id (str "progressstep-author-" thing-id) :type "text" :text (:person/title login-user)}
           :progressstep/status {:id (str "progressstep-status-" thing-id) :type "select" :select ["25" "50" "75" "100"]}
         }

@@ -14,3 +14,6 @@ out/
 .lein-repl-history
 .lein-plugins/
 resources/private/
+*.scssc
+*.css
+*.map

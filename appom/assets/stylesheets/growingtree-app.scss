@@ -394,17 +394,17 @@ fieldset {
   }
 
   input.submit {
-      background: url("./images/search_icon.png") center no-repeat;
-      border: none;
-      width: 16px;
-      padding: 0;
-      text-indent: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      position: absolute;
-      top: 5px;
-      right: 20px;
-      bottom: 5px;
+    background: url("./images/search_icon.png") center no-repeat;
+    border: none;
+    width: 16px;
+    padding: 0;
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    position: absolute;
+    top: 5px;
+    right: 20px;
+    bottom: 5px;
   }
 }
 
@@ -738,8 +738,17 @@ fieldset {
 
   input {
     display: inline-block;
-    vertical-align: middle;;
+    vertical-align: middle;
     width: 300px;
+    /*padding: 4px 6px;*/
+    height: 20px;
+    margin-bottom: 9px;
+    font-size: 14px;
+    line-height: 20px;
+    color: #555555
+  }
+
+  datalist {
   }
 
   // datetime picker add-on
