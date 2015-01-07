@@ -473,22 +473,37 @@
     result))
   )
 
+; from progress-id, get progress steps
+(defn find-progress-steps
+  "find steps of a progress"
+  [progress-id]
+  (let [prog-entity (get-entity progress-id)]
+    (-> prog-entity
+      (populate-progress-refed-entity)
+      (:progress/steps))))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-; {:db/id , :progress/tasks #db/id[:db.part/user -1000000], :progress/origin , :progress/author 17592186045427, :progress/title "progression of flute 101"}}
-; when progress :db/id nil, populate all attrs. For update progress task, populate ONLY tasks id.
+; if progress exist, insert progress steps to it. Otherwise, create new step.
+; {:db/id , :progress/steps #db/id[:db.part/user -1000000], :progress/origin , :progress/author 17592186045427, :progress/title "progression of flute 101"}}
+; when progress :db/id nil, populate all attrs. For update progress step, populate ONLY steps id.
 (defn upsert-progress
-  [progress task-id]
+  [progress step-name]
   (let [author-id (:db/id (find-by :person/title (:progress/author progress)))
         course-id (:progress/origin progress)
         progress-id (:db/id progress)
-        ; populate only progress/tasks when inserting tasks.
+        ; populate only progress/steps when inserting steps.
         progress (if progress-id
-                    (-> {:progress/tasks task-id}
-                        (assoc :db/id progress-id))
+                    (let [steps (find-progress-steps progress-id)
+                          step-id (or (-> (filter #(= step-name (:progressstep/title %)) steps)
+                                          first
+                                          :db/id)
+                                      (d/tempid :db.part/user))
+                         ]
+                      (-> {:progress/steps step-id}
+                          (assoc :db/id progress-id)))
                     ; populate all progress attrs when insert a new progress.
                     (-> progress
-                      (assoc :progress/tasks task-id)
+                      (assoc :progress/steps step-id)
                       (assoc :progress/author author-id)
                       (assoc :db/id (d/tempid :db.part/user))))
        ]
@@ -506,12 +521,16 @@
   (log/info "create-progress " details  "schema " (keys progress-schema))
   (let [task-id (d/tempid :db.part/user)
         ; from progressstep/origin, we get the progress entity.
-        progress (as-> (:progressstep/origin details) prog
-                       (upsert-progress prog task-id))
+        progress (:progressstep/origin details)
+        step-name (:progressstep/title details)
+        step-author (:progressstep/author details)
+        progress (upsert-progress progress step-name)
+
         progress-step (-> (dissoc details :progressstep/origin)
                           (select-keys (keys progressstep-schema))
                           (assoc :progressstep/origin (:db/id progress))
                           (assoc :db/id task-id))
+        ; :db/ident :inc-rank defined in resources/growingtree/dbfn.dtm
         inc-rank [:inc-rank (:db/id progress-step) (:db/id progress)
                              :progress/steps :progressstep/order]
         trans (submit-transact [progress-step progress inc-rank])

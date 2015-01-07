@@ -614,9 +614,9 @@
 (defmethod thing-entry
   :enrollment
   [app thing-type entity override]
-  (.log js/console (pr-str "enrollment entry" entity))
+  (.log js/console (pr-str "thing-entry :enrollment " entity))
   (let [
-        login-user (get-in app [:login-user])
+        login-user (utils/get-login-user app)
         comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
         
@@ -650,7 +650,7 @@
         progressstep-form-data {
           :progressstep/origin {:db/id (:db/id progress)     ; populate progress id when we have it.
                                 :progress/origin thing-id
-                                :progress/author "rich-son"
+                                :progress/author (:db/id login-user)
                                 :progress/title (str "progression of " title)}
           :progressstep/start (utils/to-epoch)
         }

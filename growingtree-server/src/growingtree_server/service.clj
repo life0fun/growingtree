@@ -252,7 +252,7 @@
 
 ;;==================================================================================
 ; POST add-thing, request's :edn-params = params, :path-params /add/:thing
-; request is formed in cljs-ajax with :format :edn and param {:thign-type :path :post-data}
+; request is formed in cljs-ajax with :format :edn and param {:thign-type :post-data}
 ; :edn-params {:thing-type :path :qpath :post-data {:title "aa", :content "", :type "math"}
 ; For add-thing, type is taken from /add/:thing => lecture.
 ; params {:thing-type nil, :path nil, :qpath nil, :post-data {:lecture/content "c",..}

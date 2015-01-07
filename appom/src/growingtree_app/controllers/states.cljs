@@ -102,14 +102,14 @@
     ))
 
 
-; add-thing msg-data = [:add-thing [:course {}]], append to :nav-path
+; add-thing msg-data is add-thing data dict. [:add-thing [:course {}]]
 ; :add-thing, post control chan to cljs ajax to back-end.
 (defmethod transition 
   :add-thing
-  [target msg-type msg-data state] ; msg-data = [:course {:title :content}]
+  [target msg-type msg-data state] ; msg-data  [:course {:title :content}]
   (.log js/console (pr-str "control event :add-thing : conj nav-path " msg-data))
   (-> state
-    (update-in [:nav-path] conj msg-data))) ; nav-path [.[:lecture {:content ... :author ...}]]
+    (update-in [:nav-path] conj msg-data))) ; nav-path [:lecture {:content ... :author ...}]]
 
 ; msg-type is :search-things, msg-data 
 ; {:body [:search-things [thing-type 0 "xx"]] :data {:thing-type :all-things :searchkey "xx"}}
