@@ -483,7 +483,7 @@
       (:progress/steps))))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-; if progress exist, insert progress steps to it. Otherwise, create new step.
+; if progress exist with valid progress-id, insert progress steps to it. else, create new step.
 ; {:db/id , :progress/steps #db/id[:db.part/user -1000000], :progress/origin , :progress/author 17592186045427, :progress/title "progression of flute 101"}}
 ; when progress :db/id nil, populate all attrs. For update progress step, populate ONLY steps id.
 (defn upsert-progress
@@ -491,9 +491,10 @@
   (let [author-id (:db/id (find-by :person/title (:progress/author progress)))
         course-id (:progress/origin progress)
         progress-id (:db/id progress)
-        ; populate only progress/steps when inserting steps.
+        ; exist progress with valid progress-id
         progress (if progress-id
                     (let [steps (find-progress-steps progress-id)
+                          ; query existing step-id, or new tempid if not found.
                           step-id (or (-> (filter #(= step-name (:progressstep/title %)) steps)
                                           first
                                           :db/id)
@@ -501,9 +502,9 @@
                          ]
                       (-> {:progress/steps step-id}
                           (assoc :db/id progress-id)))
-                    ; populate all progress attrs when insert a new progress.
+                    ; create new progress, with temp steps ref id.
                     (-> progress
-                      (assoc :progress/steps step-id)
+                      (assoc :progress/steps (d/tempid :db.part/user))
                       (assoc :progress/author author-id)
                       (assoc :db/id (d/tempid :db.part/user))))
        ]
@@ -529,11 +530,16 @@
         progress-step (-> (dissoc details :progressstep/origin)
                           (select-keys (keys progressstep-schema))
                           (assoc :progressstep/origin (:db/id progress))
-                          (assoc :db/id task-id))
+                          (assoc :db/id (:progress/steps progress)))
         ; :db/ident :inc-rank defined in resources/growingtree/dbfn.dtm
+        ; do not call inc-rank when updating existing step.
         inc-rank [:inc-rank (:db/id progress-step) (:db/id progress)
                              :progress/steps :progressstep/order]
-        trans (submit-transact [progress-step progress inc-rank])
+        ; if only update step status, step-id valid, only step transaction
+        trans-vec (cond-> [progress-step]
+                    (not (number? (:db/id progress-step))) (conj progress inc-rank))
+
+        trans (submit-transact trans-vec)
        ]
     (log/info "create progress " progress " task " progress-step)
   ))

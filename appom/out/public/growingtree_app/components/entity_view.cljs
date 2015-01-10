@@ -651,6 +651,7 @@
           :progressstep/origin {:db/id (:db/id progress)     ; populate progress id when we have it.
                                 :progress/origin thing-id
                                 :progress/author (:db/id login-user)
+                                :progressstep/author (:db/id login-user)
                                 :progress/title (str "progression of " title)}
           :progressstep/start (utils/to-epoch)
         }
