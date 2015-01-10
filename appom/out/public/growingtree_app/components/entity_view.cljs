@@ -315,8 +315,9 @@
 (defn progress-tracker
   [progress]
   (when-let [progress-steps (:progress/steps progress)]  ; a set of progress steps
+      (.log js/console (pr-str "progress-step " progress-steps))
       [:ol.progress-tracker
-        (map progress-step progress-steps)
+        (map progress-step (sort-by :progressstep/order progress-steps))
       ]
     ))
 
