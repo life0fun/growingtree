@@ -1,6 +1,6 @@
 (defproject growingtree "0.0.1-SNAPSHOT"
   :description "growingtree app"
-  :url "http://github.com/sgrove/growingtree"
+  :url "http://github.com/life0fun/growingtree"
   :plugins [[com.cemerick/clojurescript.test "0.2.2"]
             [hiccup-bridge "1.0.0-SNAPSHOT"]
             [lein-cljsbuild "1.0.3"]]

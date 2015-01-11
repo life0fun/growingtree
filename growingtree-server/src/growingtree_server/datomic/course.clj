@@ -359,7 +359,7 @@
   "find all person that enrolls to the course by query path "
   [qpath]
   (log/info "find enrollment " qpath " entities: " (util/get-qpath-entities qpath get-enrollment-by))
-  (let [course-as-enrollment? (some #{(first qpath)} #{:parent :child}) ; [:child 1 :enrollment]
+  (let [course-as-enrollment? (some #{(first qpath)} #{:parent :child :all}) ; [:child 1 :enrollment]
         result (if course-as-enrollment?
                 (find-enrollment-course qpath)
                 (find-enrollment-person qpath))

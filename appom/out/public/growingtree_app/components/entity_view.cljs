@@ -222,10 +222,13 @@
                     (assoc tot attr (dommy/value (sel1 fieldid))))
                     {}
                     fields)
-            form-data (-> (merge base-data data)
-                          (utils/set-time :assignment "end")
-                          (utils/set-time :activity "start")
-                          )
+            ; merge will override default base data using form collected data
+            form-data (as-> data d
+                        (into {} (remove #(if (string? (val %)) (empty? (val %)) false) d))
+                        (merge base-data d)
+                        (utils/set-time d :assignment "end")
+                        (utils/set-time d :activity "start")
+                        )
            ]
         (dommy/toggle-class! $form "hide")
         (.log js/console (pr-str form-name " data " form-data))
@@ -315,7 +318,6 @@
 (defn progress-tracker
   [progress]
   (when-let [progress-steps (:progress/steps progress)]  ; a set of progress steps
-      (.log js/console (pr-str "progress-step " progress-steps))
       [:ol.progress-tracker
         (map progress-step (sort-by :progressstep/order progress-steps))
       ]
@@ -562,8 +564,9 @@
         }
         enroll-form-data {
           :enrollment/course thing-id
-          :enrollment/content (str "enroll into " title)
-          :enrollment/email (str "rich-son@rich.com")
+          :enrollment/person (:person/title login-user)
+          :enrollment/content (str (:person/title login-user) " enrolls into " title)
+          :enrollment/email (:person/email login-user)
           :enrollment/url (str "growingtree.com/enrollment/course/" thing-id)
         } ; peer add-thing :enrollment
       ]
