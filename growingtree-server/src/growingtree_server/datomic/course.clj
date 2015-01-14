@@ -324,10 +324,14 @@
 
 
 ; qpath [:course 1 :enrollment], show enrollment's attendee/person entries.
+; for [:all 0 enrollment], show all person's all enrolled course.
+;  :enrollment/course {:db/id 17592186045421}, :enrollment/person #{{:db/id 17592186045427} {:db/id 17592186045453}},
 (defn find-enrollment-person
   ([qpath]
     (let [enrollments (util/get-qpath-entities qpath get-enrollment-by)
           course-id (second qpath)]
+      ; list all person's all enrolled courses
+      (log/info "find-enrollment-person " enrollments)
       (if (zero? course-id)
         (mapcat (fn [enrollment]
               (let [course-id (get-in enrollment [:enrollment/course :db/id])]
@@ -337,7 +341,8 @@
     ))
 
   ([qpath entities course-id]
-    (let [add-progress
+    (let [course (dbconn/get-entity course-id)
+          add-progress
             (fn [person]
               (let [pid (:db/id person)
                     progress (find-progress :course course-id pid)]
@@ -347,6 +352,7 @@
         ; use mapcat to concat list of person in a enrollment group.
         (mapcat get-course-enrollment-person enrollments)
         (map add-progress enrollments)
+        (map #(assoc % :enrollment/course course) enrollments)
         (map #(util/add-navpath % qpath) enrollments))
     )))
 
@@ -355,11 +361,12 @@
 ; for [all 0 :enrollment], show all person's all enrolled course.
 ; for [:course 1 :enrollment], show attendee/person entries of the course as enrollment.
 ; for [:child 1 :enrollment], show course entries as enrollment, not attendee.
+;   :enrollment/course {:db/id 17592186045421}, :enrollment/person #{{:db/id 17592186045427} {:db/id 17592186045453}},  
 (defn find-enrollment
   "find all person that enrolls to the course by query path "
   [qpath]
   (log/info "find enrollment " qpath " entities: " (util/get-qpath-entities qpath get-enrollment-by))
-  (let [course-as-enrollment? (some #{(first qpath)} #{:parent :child :all}) ; [:child 1 :enrollment]
+  (let [course-as-enrollment? (some #{(first qpath)} #{:parent :child}) ; [:child 1 :enrollment]
         result (if course-as-enrollment?
                 (find-enrollment-course qpath)
                 (find-enrollment-person qpath))

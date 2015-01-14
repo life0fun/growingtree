@@ -22,6 +22,11 @@
   (:require-macros [cljs.core.async.macros :as am :refer [go alt!]])
   (:use-macros [dommy.macros :only [node sel sel1]]))
 
+
+; forward declares
+(declare thing-entry-enrollment-person)
+(declare thing-entry-enrollment-course)
+
 ;;==================================================================================
 ; action key for each thing nav sublink type,
 ; the value for each sublink is thing class selector hide or not.
@@ -175,8 +180,8 @@
                                   (if (utils/many? v)
                                     (string/join ", " v)
                                     v)))
-                   {}
-                   thing-data)
+                    {}
+                    thing-data)
        ]
     (assoc value-map :id id)))
 
@@ -224,6 +229,7 @@
                     fields)
             ; merge will override default base data using form collected data
             form-data (as-> data d
+                        ; strip out empty string.
                         (into {} (remove #(if (string? (val %)) (empty? (val %)) false) d))
                         (merge base-data d)
                         (utils/set-time d :assignment "end")
@@ -238,6 +244,10 @@
 ;;=============================================================================
 ; thing author is always a set #{{:person ...} {:person ...}}
 ; authors = (map #(get % :person/title) (get entity :course/author))
+; thing-type is the last of nav-path, the reted entity is composition of various attrs namespaces.
+; [:all-things [:all 0 :enrollment]]
+;  {:person/phone #{"123-456-7890"}, :person/email #{"rich-son@rich.com"}, 
+;   :enrollment/course {:course/author #{...}} :enrollment/progress ({:progress/upvote..)}
 ;;=============================================================================
 (defmulti thing-entry
   (fn [app thing-type entity override]
@@ -619,6 +629,107 @@
   :enrollment
   [app thing-type entity override]
   (.log js/console (pr-str "thing-entry :enrollment " entity))
+  (let [attendee (:person/title entity)]
+    (if attendee
+      (thing-entry-enrollment-person app thing-type entity override)
+      (thing-entry-enrollment-course app thing-type entity override))))
+
+; enrollment as course, entity is course.
+; {:course/title "flute 101", ... }
+(defn thing-entry-enrollment-course
+  [app thing-type entity override]
+  (.log js/console (pr-str "thing-entry enrollment-course " entity))
+  (let [
+        login-user (utils/get-login-user app)
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+
+        authors (map #(get % :person/title) (get entity :course/author))
+        title (get value-map :title)
+        content (:content value-map)
+        course-type (name (:type value-map))
+        url (:url value-map)
+        ; server returns a list of progress, one user only have one progress for one course.
+        progress (first (:progress value-map))
+
+         ; add progress form
+        progressstep-form-name (str "#progressstep-form-" thing-id)
+        progressstep-datalist (map :progressstep/title (:progress/steps progress))
+        progressstep-form-input-map {
+          :progressstep/title {:id (str "progressstep-title-" thing-id) :type "list" :datalist progressstep-datalist}
+          :progressstep/author {:id (str "progressstep-author-" thing-id) :type "text" :text (:person/title login-user)}
+          :progressstep/status {:id (str "progressstep-status-" thing-id) :type "select" :select ["25" "50" "75" "100"]}
+        }
+        progressstep-form-fields {
+          :progressstep/title (str "#" (get-in progressstep-form-input-map [:progressstep/title :id]))
+          :progressstep/author (str "#" (get-in progressstep-form-input-map [:progressstep/author :id]))
+          :progressstep/status (str "#" (get-in progressstep-form-input-map [:progressstep/status :id]))
+        }
+        progressstep-form-data {
+          :progressstep/origin {:db/id (:db/id progress)     ; populate progress id when we have it.
+                                :progress/origin thing-id
+                                :progress/author (:db/id login-user)
+                                :progressstep/author (:db/id login-user)
+                                :progress/title (str "progression of " title)}
+          :progressstep/start (utils/to-epoch)
+        }
+      ]
+    (.log js/console "course thing value " (pr-str thing-id title authors url))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map))}
+        (thing-entry-thumbnail thing-type value-map)
+
+        [:div.entry.unvoted
+          (thing-entry-titles (vector title))
+          (thing-entry-subtitles (vector (str "  " content)
+                                         (str "  " url)))
+          (when authors
+            (thing-entry-taglines (vector (str course-type "  Offered by " authors))))
+
+          (progress-tracker progress)
+
+          [:ul.flat-list.buttons
+            (thing-entry-action-button-li "lectures" (:lecture-class value-map)
+                                          (filter-things-onclick app entity :course :lecture))
+            (thing-entry-action-button-li "add progress" (:progress-class value-map)
+                                          (ui/toggle-hide-fn (str "#progressstep-form-" thing-id)))
+            (thing-entry-action-button-li "likes" (:like-class value-map)
+                                          (filter-things-onclick app entity :course :like))
+            (thing-entry-action-button-li "comments" (:comments-class value-map)
+                                          (filter-things-onclick app entity :course :comments))
+            (thing-entry-action-button-li "similar courses" (:similar-class value-map)
+                                          (filter-things-onclick app entity :course :similar))
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (str "child-form-" thing-id)}
+
+            (thing-entry-child-form (subs progressstep-form-name 1)  ; form id
+                                    "progressstep-form"   ; form class
+                                    progressstep-form-input-map
+                                    "add progress step"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :progressstep  ; tab name
+                                                    progressstep-form-name
+                                                    progressstep-form-data
+                                                    progressstep-form-fields))
+          ]
+          [:div.clearleft]
+      ]])))
+
+
+; enrollment as attendee of the course, entity is person + :enrollment/course + :enrollment/progress 
+; :person/lname "poor",
+; {:course/title "flute 101", ... }
+(defn thing-entry-enrollment-person
+  [app thing-type entity override]
+  (.log js/console (pr-str "thing-entry enrollment-course " entity))
   (let [
         login-user (utils/get-login-user app)
         comm (get-in app [:comms :controls])
