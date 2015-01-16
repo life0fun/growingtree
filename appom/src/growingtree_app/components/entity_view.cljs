@@ -724,38 +724,43 @@
       ]])))
 
 
-; enrollment as attendee of the course, entity is person + :enrollment/course + :enrollment/progress 
+; enrollment as attendee of the course, entity is person + :enrollment/course + :enrollment/progress
+; use course action keys(lecture, ) for navigation.
 ; :person/lname "poor",
 ; {:course/title "flute 101", ... }
 (defn thing-entry-enrollment-person
   [app thing-type entity override]
-  (.log js/console (pr-str "thing-entry enrollment-course " entity))
+  (.log js/console (pr-str "thing-entry enrollment-person " entity))
   (let [
         login-user (utils/get-login-user app)
         comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
         
+        person-title (:person/title entity)
+        course (:enrollment/course entity)
+        course-id (:db/id course)
+
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
-                         (actionkeys-class thing-id actionkeys)
-                         override)
 
-        authors (map #(get % :person/title) (get entity :course/author))
-        title (get value-map :title)
-        content (:content value-map)
-        course-type (name (:type value-map))
-        url (:url value-map)
+        course-value (merge (thing-value course)
+                        (actionkeys-class course-id actionkeys)
+                        override)
+
+        title (:title course-value)
+        content (:content course-value)
+        course-type (name (:type course-value))
+        url (:url course-value)
         ; server returns a list of progress, one user only have one progress for one course.
-        progress (first (:progress value-map))
+        progress (first (:enrollment/progress entity))
 
          ; add progress form
-        progressstep-form-name (str "#progressstep-form-" thing-id)
+        progressstep-form-name (str "#progressstep-form-" course-id)
         progressstep-datalist (map :progressstep/title (:progress/steps progress))
         progressstep-form-input-map {
-          :progressstep/title {:id (str "progressstep-title-" thing-id) :type "list" :datalist progressstep-datalist}
-          :progressstep/author {:id (str "progressstep-author-" thing-id) :type "text" :text (:person/title login-user)}
-          :progressstep/status {:id (str "progressstep-status-" thing-id) :type "select" :select ["25" "50" "75" "100"]}
+          :progressstep/title {:id (str "progressstep-title-" course-id) :type "list" :datalist progressstep-datalist}
+          :progressstep/author {:id (str "progressstep-author-" course-id) :type "text" :text (:person/title login-user)}
+          :progressstep/status {:id (str "progressstep-status-" course-id) :type "select" :select ["25" "50" "75" "100"]}
         }
         progressstep-form-fields {
           :progressstep/title (str "#" (get-in progressstep-form-input-map [:progressstep/title :id]))
@@ -764,35 +769,35 @@
         }
         progressstep-form-data {
           :progressstep/origin {:db/id (:db/id progress)     ; populate progress id when we have it.
-                                :progress/origin thing-id
+                                :progress/origin course-id
                                 :progress/author (:db/id login-user)
                                 :progressstep/author (:db/id login-user)
                                 :progress/title (str "progression of " title)}
           :progressstep/start (utils/to-epoch)
         }
       ]
-    (.log js/console "course thing value " (pr-str thing-id title authors url))
+    (.log js/console "course thing value " (pr-str course-id title authors url))
     (list
-      [:div.thing.link {:id (str (:db/id value-map))}
-        (thing-entry-thumbnail thing-type value-map)
+      [:div.thing.link {:id (str (:db/id course-value))}
+        (thing-entry-thumbnail thing-type course-value)
 
         [:div.entry.unvoted
-          (thing-entry-titles (vector title))
+          (thing-entry-titles (vector (str person-title " enrolled in " title)))
           (thing-entry-subtitles (vector (str "  " content)
                                          (str "  " url)))
-          (when authors
-            (thing-entry-taglines (vector (str course-type "  Offered by " authors))))
+          ; (when authors
+          ;   (thing-entry-taglines (vector (str course-type "  Offered by " authors))))
 
           (progress-tracker progress)
 
           [:ul.flat-list.buttons
-            (thing-entry-action-button-li "lectures" (:lecture-class value-map)
+            (thing-entry-action-button-li "lectures" (:lecture-class course-value)
                                           (filter-things-onclick app entity :course :lecture))
-            (thing-entry-action-button-li "add progress" (:progress-class value-map)
+            (thing-entry-action-button-li "add progress" (:progress-class course-value)
                                           (ui/toggle-hide-fn (str "#progressstep-form-" thing-id)))
-            (thing-entry-action-button-li "likes" (:like-class value-map)
+            (thing-entry-action-button-li "likes" (:like-class course-value)
                                           (filter-things-onclick app entity :course :like))
-            (thing-entry-action-button-li "comments" (:comments-class value-map)
+            (thing-entry-action-button-li "comments" (:comments-class course-value)
                                           (filter-things-onclick app entity :course :comments))
             (thing-entry-action-button-li "similar courses" (:similar-class value-map)
                                           (filter-things-onclick app entity :course :similar))
