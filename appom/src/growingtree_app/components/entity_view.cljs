@@ -630,7 +630,7 @@
   [app thing-type entity override]
   (.log js/console (pr-str "thing-entry :enrollment " entity))
   (let [attendee (:person/title entity)]
-    (if attendee
+    (if attendee  ; if result entity has person, show person enrolls to course.
       (thing-entry-enrollment-person app thing-type entity override)
       (thing-entry-enrollment-course app thing-type entity override))))
 
@@ -638,7 +638,6 @@
 ; {:course/title "flute 101", ... }
 (defn thing-entry-enrollment-course
   [app thing-type entity override]
-  (.log js/console (pr-str "thing-entry enrollment-course " entity))
   (let [
         login-user (utils/get-login-user app)
         comm (get-in app [:comms :controls])
@@ -724,25 +723,22 @@
       ]])))
 
 
-; enrollment as attendee of the course, entity is person + :enrollment/course + :enrollment/progress
-; use course action keys(lecture, ) for navigation.
-; :person/lname "poor",
-; {:course/title "flute 101", ... }
+; enrollment as attendees enrolls into course, entity is 
+; :person/lname + :enrollment/course + :enrollment/progress
+; use course action keys(lecture, ) for navigation. thing-type is enrollment.
 (defn thing-entry-enrollment-person
   [app thing-type entity override]
-  (.log js/console (pr-str "thing-entry enrollment-person " entity))
   (let [
         login-user (utils/get-login-user app)
         comm (get-in app [:comms :controls])
-        thing-id (:db/id entity)
         
+        person-id (:db/id entity)
         person-title (:person/title entity)
         course (:enrollment/course entity)
         course-id (:db/id course)
 
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-
         course-value (merge (thing-value course)
                         (actionkeys-class course-id actionkeys)
                         override)
@@ -750,6 +746,7 @@
         title (:title course-value)
         content (:content course-value)
         course-type (name (:type course-value))
+        course-author (:author course-value)
         url (:url course-value)
         ; server returns a list of progress, one user only have one progress for one course.
         progress (first (:enrollment/progress entity))
@@ -783,38 +780,21 @@
 
         [:div.entry.unvoted
           (thing-entry-titles (vector (str person-title " enrolled in " title)))
-          (thing-entry-subtitles (vector (str "  " content)
-                                         (str "  " url)))
-          ; (when authors
-          ;   (thing-entry-taglines (vector (str course-type "  Offered by " authors))))
+          (thing-entry-subtitles (vector (str "  " content) (str "  " url)))
+          (when authors
+            (thing-entry-taglines (vector (str course-type "  Offered by " course-author))))
 
           (progress-tracker progress)
 
           [:ul.flat-list.buttons
             (thing-entry-action-button-li "lectures" (:lecture-class course-value)
-                                          (filter-things-onclick app entity :course :lecture))
-            (thing-entry-action-button-li "add progress" (:progress-class course-value)
-                                          (ui/toggle-hide-fn (str "#progressstep-form-" thing-id)))
+                                          (filter-things-onclick app course :course :lecture))
             (thing-entry-action-button-li "likes" (:like-class course-value)
-                                          (filter-things-onclick app entity :course :like))
+                                          (filter-things-onclick app course :course :like))
             (thing-entry-action-button-li "comments" (:comments-class course-value)
-                                          (filter-things-onclick app entity :course :comments))
+                                          (filter-things-onclick app course :course :comments))
             (thing-entry-action-button-li "similar courses" (:similar-class value-map)
-                                          (filter-things-onclick app entity :course :similar))
-          ]
-
-          ; hidden divs for in-line forms
-          [:div.child-form {:id (str "child-form-" thing-id)}
-
-            (thing-entry-child-form (subs progressstep-form-name 1)  ; form id
-                                    "progressstep-form"   ; form class
-                                    progressstep-form-input-map
-                                    "add progress step"        ; submit btn text
-                                    (submit-form-fn app
-                                                    :progressstep  ; tab name
-                                                    progressstep-form-name
-                                                    progressstep-form-data
-                                                    progressstep-form-fields))
+                                          (filter-things-onclick app course :course :similar))
           ]
           [:div.clearleft]
       ]])))
