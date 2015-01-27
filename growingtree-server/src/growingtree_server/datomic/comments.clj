@@ -247,14 +247,15 @@
 (defn create-like
   "create a like with details "
   [details]
-  (let [author-id (:db/id (find-by :person/title (:author details)))
+  (log/info "create like " details)
+  (let [origin-id (:like/origin details)
+        like-entity-id (or (:db/id (find-by :like/origin origin-id))
+                        (d/tempid :db.part/user))
         entity (-> details
-                   (select-keys (keys like-schema))
-                   (assoc :like/person author-id)  ; append author-id to ref many person
-                   (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
-                   (assoc :db/id (d/tempid :db.part/user)))
+                  (select-keys (keys like-schema))
+                  (assoc :db/id like-entity-id))
         trans (submit-transact [entity])  ; transaction is a list of entity
        ]
-    (log/info "create like entity " author-id entity " trans " trans)
+    (log/info "create like entity trans " trans)
     [entity]))
 

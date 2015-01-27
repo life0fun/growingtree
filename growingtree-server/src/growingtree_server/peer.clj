@@ -353,8 +353,7 @@
 (defmethod add-thing
   :like
   [type details]
-  (let [author (:author details)
-        result (dda/create-like details)
+  (let [result (dda/create-like details)
        ]
     result))
 

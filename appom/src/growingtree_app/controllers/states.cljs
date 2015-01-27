@@ -167,25 +167,24 @@
       (update-in [:nav-path] conj {:title [] :body [:all 0 :course] :data {}}))))
   
 
-; add-thing success ajax. refresh after add means just re-direct url to nav-path that
+; add-thing success ajax. refresh after add by re-direct url to prev nav-path that
 ; just before add-thing. This way we can switch to client side routing in the future.
 ; To trigger ajax call on the last nav-path, post control event.
-; update-in nav path directly. Or put! comm last-nav-path, 
+; update-in nav path directly. Or put! comm prev-nav-path, 
 (defmethod transition
   :api-success
   [target msg-type msg-data state]
   (let [comm (get-in state [:comms :controls])
         ;{:body [:filter-things [:pareni 1 :child]], :data {:pid 1}} 
-        last-nav-path (last (drop-last (get-in state [:nav-path])))  ; url before :add-thing
-        added-thing-type (get-in last-nav-path [:body 1 0])
-        ; when api success, replace {:body [:newthing-form [:course :add-course]]} with [:all-things [:all 0 :thing-type]] 
-        msg (as-> (get-in last-nav-path [:body 0]) msg-type 
+        prev-nav-path (mock-data/get-prev-nav-path state)
+        prev-thing-type (get-in prev-nav-path [:body 1 0])
+        msg (as-> (get-in prev-nav-path [:body 0]) msg-type 
               (if (= :newthing-form msg-type)
-                ; refer to thing-nav in navbar for creating nav-path for :all-things
-                (mock-data/all-things-msg-nav-path added-thing-type {:pid (utils/get-login-id state)})
-                [msg-type last-nav-path]))
+                ; replace {:body [:newthing-form [:course :add-course]]} with [:all-things [:all 0 :thing-type]]
+                (mock-data/all-things-msg-nav-path prev-thing-type {:pid (utils/get-login-id state)})
+                [msg-type prev-nav-path]))
        ]
-    (.log js/console (pr-str "api-success : re-direct by sending to comm msg " msg))
+    (.log js/console (pr-str "api-success : re-direct prev nav path msg " msg))
     (put! comm msg)
     (-> state   ; nullify state :body slot where thing-vec taken from in main_area things-list
       (assoc-in [:body] nil))

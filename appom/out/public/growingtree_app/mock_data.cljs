@@ -88,10 +88,20 @@
 (def root-add-type #{:parent :group :course})
 
 
+; get nav path vector stored in state [:nav-path] slot
+(defn get-nav-path
+  [state]
+  (get-in state [:nav-path]))
+
 ; get app state nav-path
 (defn get-last-nav-path
   [state]
-  (last (get-in state [:nav-path])))
+  (last (get-nav-path state)))
+
+(defn get-prev-nav-path
+  [state]
+  (last (drop-last (get-nav-path state))))
+
 
 ; nav-path 
 ; :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} 

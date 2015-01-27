@@ -185,6 +185,25 @@
        ]
     (assoc value-map :id id)))
 
+;; upvote a thing, create a like object.
+(defn upvote-onclick
+  ([app entity]
+    (upvote-onclick app entity {}))
+  
+  ([app entity options]
+    (let [comm (get-in app [:comms :controls])
+          thing-id (:db/id entity)
+          login-user (get-in app [:login-user])]
+      ; onclick handler is callback that invoked outside rendering phase.
+      (fn [_]
+        (let [login-user-id (:db/id @login-user)
+              like-data {:like/origin thing-id :like/person login-user-id}
+             ]
+          (.log js/console (pr-str "upvote-onclick " thing-id @login-user))
+          (put! comm (mock-data/add-thing-msg-nav-path :like like-data))))
+    ))
+  )
+
 
 ; when click flat list subthing link, put title type thing in title, and filtered in body.
 ; parent-type :answer, filtered-type :comments, title thing id is parent id in data.pid
@@ -241,6 +260,7 @@
         (put! comm (mock-data/add-thing-msg-nav-path add-thing-type form-data))
       ))))
 
+
 ;;=============================================================================
 ; thing author is always a set #{{:person ...} {:person ...}}
 ; authors = (map #(get % :person/title) (get entity :course/author))
@@ -255,13 +275,15 @@
 
 ; thing entry thumbnail and upvote
 (defn thing-entry-thumbnail
-  [thing-type value-map]
+  [thing-type value-map upvote-fn]
   (list
     [:span.rank "1"]   ; index offset in the list of filtered things
     [:div.midcol.unvoted
-      [:div.arrow.up {:role "button" :arial-label "upvote"}]
+      [:div.arrow.up 
+        {:role "button" :arial-label "upvote" :on-click upvote-fn}]
       [:div.score.unvoted (:upvote value-map)]
-      [:div.arrow.down {:role "button" :arial-label "downvote"}]]
+      [:div.arrow.down 
+        {:role "button" :arial-label "downvote"}]]
       
     [:a.thumbnail
       [:img {:width "70" :height "70" :src (str "/" (thing-type thing-thumbnail))}]]
@@ -425,7 +447,7 @@
        ]
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        (thing-entry-thumbnail thing-type value-map)
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
 
         [:div.entry.unvoted
           (thing-entry-titles (vector title))
@@ -497,7 +519,7 @@
        ]
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        (thing-entry-thumbnail thing-type value-map)
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
       
         [:div.entry.unvoted
           (thing-entry-titles (vector title))
@@ -583,7 +605,7 @@
     (.log js/console "course thing value " (pr-str thing-id title authors url))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        (thing-entry-thumbnail thing-type value-map)
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
 
         [:div.entry.unvoted
           (thing-entry-titles (vector title))
@@ -682,7 +704,7 @@
     (.log js/console "course thing value " (pr-str thing-id title authors url))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        (thing-entry-thumbnail thing-type value-map)
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
 
         [:div.entry.unvoted
           (thing-entry-titles (vector title))
@@ -773,16 +795,16 @@
           :progressstep/start (utils/to-epoch)
         }
       ]
-    (.log js/console "course thing value " (pr-str course-id title authors url))
+    (.log js/console "course thing value " (pr-str course-id title course-author url))
     (list
       [:div.thing.link {:id (str (:db/id course-value))}
-        (thing-entry-thumbnail thing-type course-value)
+        (thing-entry-thumbnail thing-type course-value (upvote-onclick app entity))
 
         [:div.entry.unvoted
           (thing-entry-titles (vector (str person-title " enrolled in " title)))
           (thing-entry-subtitles (vector (str "  " content) (str "  " url)))
-          (when authors
-            (thing-entry-taglines (vector (str course-type "  Offered by " course-author))))
+          (when course-author
+            (thing-entry-taglines (vector (str course-type "  Offered by " (:person/title course-author)))))
 
           (progress-tracker progress)
 
@@ -793,7 +815,7 @@
                                           (filter-things-onclick app course :course :like))
             (thing-entry-action-button-li "comments" (:comments-class course-value)
                                           (filter-things-onclick app course :course :comments))
-            (thing-entry-action-button-li "similar courses" (:similar-class value-map)
+            (thing-entry-action-button-li "similar courses" (:similar-class course-value)
                                           (filter-things-onclick app course :course :similar))
           ]
           [:div.clearleft]
@@ -823,7 +845,7 @@
     (.log js/console "lecture thing value " (pr-str authors title content))
     (list
       [:div.thing.link {:id (str thing-id)}
-        (thing-entry-thumbnail thing-type value-map)
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
       
         [:div.entry.unvoted
           (thing-entry-titles (vector title))
@@ -894,7 +916,7 @@
     (.log js/console "question thing value " (pr-str value-map))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        (thing-entry-thumbnail thing-type value-map)
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
       
         [:div.entry.unvoted
           (thing-entry-titles (vector title))
@@ -972,7 +994,7 @@
     (.log js/console "assignment thing value " (pr-str value-map))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        (thing-entry-thumbnail thing-type value-map)
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
 
         [:div.entry.unvoted
           (thing-entry-clickable-titles assignee-name 
@@ -1051,7 +1073,7 @@
     (.log js/console "answer thing value " (pr-str value-map))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        (thing-entry-thumbnail thing-type value-map)
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
       
         [:div.entry.unvoted
           (thing-entry-titles (vector title))
@@ -1125,7 +1147,7 @@
     (.log js/console "comments thing value " (pr-str value-map))
     (list
       [:div.thing.link {:id (str (:db/id value-map)) :class (str "comment" offset)}
-        (thing-entry-thumbnail thing-type value-map)
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
       
         [:div.entry.unvoted
           (thing-entry-titles (vector title))
@@ -1207,7 +1229,7 @@
     (.log js/console "groups thing entry " (pr-str thing-id title authors))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        (thing-entry-thumbnail thing-type value-map)
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
       
         [:div.entry.unvoted
           (thing-entry-titles (vector title))
@@ -1286,7 +1308,7 @@
     (.log js/console "thing-entry " (pr-str thing-id title url))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
-        (thing-entry-thumbnail thing-type value-map)
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
       
         [:div.entry.unvoted
           (thing-entry-titles (vector title))
@@ -1343,7 +1365,7 @@
     (.log js/console "timeline thing value " (pr-str (keyword (str thing-type "/title"))) (pr-str value-map))
     (list
       [:div.thing.link {:id (str (:db/id value-map)) :class (str "timeline" offset)}
-        (thing-entry-thumbnail thing-type value-map)
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
       
         [:div.entry.unvoted
           (thing-entry-titles (vector title))

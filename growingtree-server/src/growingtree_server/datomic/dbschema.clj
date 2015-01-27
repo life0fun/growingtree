@@ -333,18 +333,6 @@
     [order :string "the order this step in the progression"]
   ))
 
-; Deprecated !!!
-; progress sub tasks, each task is one step in a progress
-; (defschema progresstask
-;   (part app)
-;   (fields
-;     [title :string :fulltext " the name of task"]
-;     [origin :ref :one :indexed " the progress this task belongs to"]
-;     [start :long "starting time of the task"]
-;     [end :long "due time"]
-;     [status :long "percentage of progression"]
-;     [step :string "the step this task in the progression"]
-;   ))
 
 (defschema like
   (part app)
