@@ -245,7 +245,7 @@
 
 ; for now, all courses are created and lectured by person
 (defn create-like
-  "create a like with details "
+  "create a like with details contains fqna :like/origin :like/person"
   [details]
   (log/info "create like " details)
   (let [origin-id (:like/origin details)

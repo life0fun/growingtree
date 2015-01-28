@@ -83,7 +83,7 @@
                 :question :assignment
                 :activity])
 (def my-nav-types [:group :enrollment 
-                   :question :assignment
+                   :question :assignment :like
                    :activity :timeline])
 (def root-add-type #{:parent :group :course})
 
@@ -257,7 +257,8 @@
 
 ; dep inj global comm channels into app state.
 ; identity makes rand chan as val of :id key, channels = {:id (random-chan 1 (random-title))}
-(defn initial-state [comms]
+(defn initial-state 
+  [comms]
   (let [channels (into {} (map (comp (juxt :id identity) random-channel) (range 2 100)))
         ; each nav-type contains a thing-listing, consist of a listing of things within the type.
         thing-listing (map-indexed thing-listing nav-types)
@@ -267,7 +268,6 @@
                       (map (juxt :type identity))
                       (into {}))
        ]
-
     ;nav-path segment is a map contains query filters for things in body.
     {:top {}     ; top section of main area.
      :body {}    ; set in api-event, main area thing-list read.

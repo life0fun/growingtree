@@ -54,7 +54,7 @@
            :on-click #(put! comm (mock-data/filter-things-msg-nav-path user-type login-id thing-type {:pid login-id}))
            :class (str "js-" (name thing-type) (when (:selected thing-listing) " active"))
           }
-          (:title thing-listing)]  ; nav type title, course, parent, lecture, etc.
+          (:title thing-listing)]  ; nav type title, my group, my enrollment, etc
         (if (some #{type} mock-data/root-add-type)
           [:i.fa.fa-plus-square
             {:on-click #(put! comm (mock-data/newthing-form-msg-nav-path thing-type options))}]
@@ -77,16 +77,17 @@
       (or (:react-name opts) "Navbar"))
     om/IRender
     (render [this]
-      (html/html
-       (let [comm (get-in opts [:comms :controls])  ; comm chan is control
-             settings (:settings state)
-             login-user (utils/get-login-user state)
-             search-box "search-box"
-             search-box-div (sel1 (str "#" search-box))
+      (let [comm (get-in opts [:comms :controls])  ; comm chan is control
+            settings (:settings state)
+            login-user (utils/get-login-user state)
+            search-box "search-box"
+            search-box-div (sel1 (str "#" search-box))
 
-             things (vals (:things state))
-             my-things (vals (:my-things state))
-            ]
+            things (vals (:things state))
+            my-things (vals (:my-things state))
+           ]
+        (.log js/console (pr-str "my-things " my-things))
+        (html/html
           [:nav.nav {:class (when (get-in settings [:forms :search :focused]) "search-focus")}
             [:form.search {:action "/search" :method "get" :on-submit (constantly false)}
               [:input.query {:id search-box :name "query" :type "text"}]
@@ -101,6 +102,7 @@
             [:ul.nav-ul
               (map (partial thing-nav comm login-user) (sort-by :order things))
             ]
+            ; my things
             [:ul.nav-ul.my-nav
               (map (partial my-thing-nav comm login-user) (sort-by :order my-things))
             ]

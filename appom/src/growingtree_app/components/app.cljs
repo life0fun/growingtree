@@ -68,7 +68,7 @@
                               "ctrl+r"     restore-local-state!
                               ;"slash"      focus-search!
                               "esc"        blur-current-field!})]
-        (.log js/console (pr-str "app state change, render nav-path " (:person/title login-user) " path " nav-path))
+        (.log js/console (pr-str "app state change, render nav-path path " nav-path))
         (html/html
           [:div
             {:className (str (when (get-in app [:settings :sidebar :right :open]) "slide-left ")

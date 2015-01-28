@@ -185,10 +185,12 @@
 (set! (.-onload js/window) init-state!)
 
 ;; Local dev tooling
-(defn ^:export send-async-message [ch-name message data]
+(defn ^:export send-async-message
+  [ch-name message data]
   (put! (get-in @app-state [:comms (keyword ch-name)]) [(keyword message) (js->clj data :keywordize-keys true)]))
 
-(defn ^:export remove-channel! [channel-id]
+(defn ^:export remove-channel!
+  [channel-id]
   (put! (get-in @app-state [:comms :controls]) [:channel-remotely-destroyed channel-id]))
 
 (comment

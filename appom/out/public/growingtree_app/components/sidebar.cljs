@@ -16,7 +16,9 @@
    (or (:full-name person)
        (:username person))])
 
-(defn people-widget [{:keys [channel-users-emails search-filter] :as data} owner opts]
+
+(defn people-widget 
+  [{:keys [channel-users-emails search-filter] :as data} owner opts]
   (reify
     om/IDisplayName
     (display-name [_]
@@ -47,6 +49,7 @@
       username]
   ))
 
+
 (defn media-name [src]
   (-> src
       (string/split #"/")
@@ -55,7 +58,9 @@
       first
       gstring/urlDecode))
 
-(defn playlist-entry [comm opts entry]
+
+(defn playlist-entry 
+  [comm opts entry]
   (let [src (:src entry)
         order (:order entry)
         name (media-name src)]
@@ -70,7 +75,9 @@
                        #(put! comm [:playlist-entry-played [order (:selected-channel opts)]]))}
       (:order entry) ". " name]]))
 
-(defn playlist-widget [{:keys [player search-filter]} owner opts]
+
+(defn playlist-widget 
+  [{:keys [player search-filter]} owner opts]
   (reify
     om/IDisplayName
     (display-name [_]
@@ -88,7 +95,9 @@
            (map (partial playlist-entry comm opts)
                 (sort-by :order fil-playlist))]])))))
 
-(defn playlist-action-widget [{:keys [player]} owner opts]
+
+(defn playlist-action-widget 
+  [{:keys [player]} owner opts]
   (let [comm (get-in opts [:comms :controls])]
     (html/html
      [:div.dropzone
@@ -105,7 +114,9 @@
    "jpg" "img"
    "jpeg" "img"})
 
-(defn media-entry [comm media]
+
+(defn media-entry 
+  [comm media]
   (let [extension (-> (string/split (:src media) #"\?")
                       first
                       (string/split #"\.")
@@ -118,7 +129,9 @@
       [:img {:src (str "/images/" (get icon-map extension "file") "_icon.png")}]
       [:span (:name media)]]]))
 
-(defn media-widget [{:keys [channel-id media search-filter]} owner opts]
+
+(defn media-widget 
+  [{:keys [channel-id media search-filter]} owner opts]
   (reify
     om/IDisplayName
     (display-name [_]
@@ -133,7 +146,9 @@
                                       (filter #(.match (:name %) re-filter) media)
                                       media))])))))
 
-(defn media-action-widget [{:keys [channel-id]} owner opts]
+
+(defn media-action-widget 
+  [{:keys [channel-id]} owner opts]
   (let []
     (html/html
      [:form#file_upload
@@ -152,6 +167,7 @@
       [:input#channel_id_1 {:type "hidden", :name (str "channel_id[" channel-id "]")}]
       [:input#file {:type "file", :name "file"}]
       [:div.dropzone "Drop file here to upload"]])))
+
 
 (defn widget [data owner opts]
   (reify
@@ -209,12 +225,21 @@
                                  :icon "images/people_icon.png"
                                  :content-comp people-widget}})
                 (om/build widget
-                         {:content-data {:player        (:player channel)
+                         {:content-data {:player (:player channel)
                                          :search-filter search-filter}
                           :content-opts opts
                           :action-data {:player (:player channel)}
                           :action-opts opts}
-                         {:opts {:title "Playlist"
+                         {:opts {:title "Channels"
+                                 :icon "images/video_icon.png"
+                                 :content-comp playlist-widget}})
+                (om/build widget
+                         {:content-data {:player (:player channel)
+                                         :search-filter search-filter}
+                          :content-opts opts
+                          :action-data {:player (:player channel)}
+                          :action-opts opts}
+                         {:opts {:title "Direct Messages"
                                  :icon "images/video_icon.png"
                                  :content-comp playlist-widget}})
                 (om/build widget
@@ -223,7 +248,7 @@
                                          :channel-id  (:id channel)}
                           :content-opts {:comm comm}
                           :action-data {:channel-id (:id channel)}}
-                         {:opts {:title "My Media"
+                         {:opts {:title "My Groups"
                                  :icon "images/media_icon.png"
                                  :content-comp media-widget}})]
            ])))))
