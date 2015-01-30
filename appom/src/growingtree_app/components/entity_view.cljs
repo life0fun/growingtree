@@ -1382,10 +1382,41 @@
       ]])))
 
 
-; timeline thing-entry view.
-; {:db/id 17592186045442,
-;  :search/type "group"
-;  :search/origin {:group/author, ... } }
+(defmethod thing-entry
+  :like
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :like/author))
+        
+        origin (get entity :like/origin)
+        origin-id (:db/id origin)
+        origin-type (utils/thing-ident origin)
+
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (origin-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value origin)
+                         (actionkeys-class origin-id actionkeys)
+                         override)
+        title (get value-map (keyword (str origin-type "/title")))
+       ]
+    (.log js/console "like thing value " (pr-str (keyword (str thing-type "/title"))) (pr-str value-map))
+    (list
+      [:div.thing.link {:id origin-id :class (str "like")}
+        (thing-entry-thumbnail origin-type value-map (upvote-onclick app origin))
+      
+        [:div.entry.unvoted
+          (thing-entry-titles (vector title))
+          
+          [:ul.flat-list.buttons
+          ]
+          [:div.clearleft]
+      ]])))
+
+
+; search thing-entry view.
+; {:db/id 17592186045442, :search/type "group" :search/origin {:group/author, ...}}
 (defmethod thing-entry
   :search
   [app thing-type entity override]

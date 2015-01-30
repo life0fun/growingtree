@@ -230,16 +230,18 @@
                   (map #(util/add-navpath % qpath) ))
        ]
     (doseq [e likes]
-      (log/info "like --> " e))
+      (log/info "likes --> " e))
     likes))
 
 
-; populate like refed outbound entity
+; populate :like/origin entity, instead return the like/origin entity.
 (defn populate-like-refed-entity
   [entity]
   (let [projkeys (keys like-schema)]
     (as-> entity e
-      (select-keys e projkeys))
+      (select-keys e projkeys)
+      (util/assoc-refed-entity :like/origin e)
+      (util/add-upvote-attr e))
     ))
 
 

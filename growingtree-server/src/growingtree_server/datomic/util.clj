@@ -241,7 +241,6 @@
   ; (log/info "assoc-ref-entity " ref-attr entity)
   (let [ref-id (get-in entity [ref-attr :db/id])
         ref-e (dbconn/get-entity ref-id)]
-    (log/info "assoc-ref-entity " ref-id ref-e)
     (assoc entity ref-attr ref-e)))
 
 
