@@ -86,7 +86,6 @@
             things (vals (:things state))
             my-things (vals (:my-things state))
            ]
-        (.log js/console (pr-str "my-things " my-things))
         (html/html
           [:nav.nav {:class (when (get-in settings [:forms :search :focused]) "search-focus")}
             [:form.search {:action "/search" :method "get" :on-submit (constantly false)}

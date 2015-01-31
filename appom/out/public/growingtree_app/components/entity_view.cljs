@@ -165,10 +165,10 @@
     actionkeys))
 
 
-; for each thing entity, we strip out namespace prefix on thing props.
-; without namespace, we can re-use code for parent/child person.
+; for each thing entity, we strip out thing type prefix on thing props.
+; without thing type namespace, we can re-use code for parent/child person.
 ; use name of :person/url as key to strip out (namespace :person/url).
-(defn thing-value
+(defn thing-value-strip-type
   "ret thing value map from datomic entity by striping out attr's namespace"
   [entity]
   (let [id (:db/id entity)
@@ -406,7 +406,7 @@
   (let [thing-id (:db/id entity)
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)  ; strip out :course prefix in keys
+        value-map (merge (thing-value-strip-type entity)  ; strip out :course prefix in keys
                          (actionkeys-class thing-id actionkeys))
         ]
     (.log js/console (str "thing-entry :default " value-map))))
@@ -429,7 +429,7 @@
         thing-id (:db/id entity)
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
+        value-map (merge (thing-value-strip-type entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
         title (:title value-map)
@@ -500,7 +500,7 @@
         thing-id (:db/id entity)
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
+        value-map (merge (thing-value-strip-type entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
         title (get value-map :title)
@@ -574,11 +574,14 @@
         
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
+        value-map (merge (thing-value-strip-type entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
 
-        authors (map #(get % :person/title) (get entity :course/author))
+        authors (remove nil? 
+                  (map #(get % :person/title) 
+                    (or (get entity :course/author) (get entity :author))))
+
         title (get value-map :title)
         content (:content value-map)
         course-type (name (:type value-map))
@@ -602,7 +605,7 @@
           :enrollment/url (str "growingtree.com/enrollment/course/" thing-id)
         } ; peer add-thing :enrollment
       ]
-    (.log js/console "course thing value " (pr-str thing-id title authors url))
+    (.log js/console "course thing value " (pr-str thing-id title value-map))
     (list
       [:div.thing.link {:id (str (:db/id value-map))}
         (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
@@ -611,7 +614,8 @@
           (thing-entry-titles (vector title))
           (thing-entry-subtitles (vector (str "  " content)
                                          (str "  " url)))
-          (thing-entry-taglines (vector (str course-type "  Offered by " authors)))
+          (when-not (empty? authors)
+            (thing-entry-taglines (vector (str course-type "  Offered by " authors))))
 
           [:ul.flat-list.buttons
             (thing-entry-action-button-li "lectures" (:lecture-class value-map)
@@ -656,6 +660,7 @@
       (thing-entry-enrollment-person app thing-type entity override)
       (thing-entry-enrollment-course app thing-type entity override))))
 
+
 ; enrollment as course, entity is course.
 ; {:course/title "flute 101", ... }
 (defn thing-entry-enrollment-course
@@ -667,11 +672,13 @@
         
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
+        value-map (merge (thing-value-strip-type entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
 
-        authors (map #(get % :person/title) (get entity :course/author))
+        authors (remove nil? 
+                  (map #(get % :person/title) 
+                    (or (get entity :course/author) (get entity :author))))
         title (get value-map :title)
         content (:content value-map)
         course-type (name (:type value-map))
@@ -710,8 +717,8 @@
           (thing-entry-titles (vector title))
           (thing-entry-subtitles (vector (str "  " content)
                                          (str "  " url)))
-          (when authors
-            (thing-entry-taglines (vector (str course-type "  Offered by " authors))))
+          (when (not-empty? authors
+            (thing-entry-taglines (vector (str course-type "  Offered by " authors)))))
 
           (progress-tracker progress)
 
@@ -761,7 +768,7 @@
 
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        course-value (merge (thing-value course)
+        course-value (merge (thing-value-strip-type course)
                         (actionkeys-class course-id actionkeys)
                         override)
 
@@ -832,10 +839,12 @@
 
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
+        value-map (merge (thing-value-strip-type entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
-        authors (map #(get % :person/title) (get entity :lecture/author))
+        authors (remove nil? 
+                  (map #(get % :person/title) 
+                    (or (get entity :lecture/author) (get entity :author))))
         title (:title value-map)
         content (:content value-map)
         url (:url value-map)
@@ -851,8 +860,9 @@
           (thing-entry-titles (vector title))
           (thing-entry-subtitles (vector (str "  " content) 
                                          (str "  " url)))
-          (thing-entry-taglines (vector (str "Offered by " authors)
-                                        (str start "  -  " end)))
+          (when-not (empty? authors)
+            (thing-entry-taglines (vector (str "Offered by " authors))))
+          (thing-entry-taglines (vector (str start "  -  " end)))
 
           [:ul.flat-list.buttons
             (thing-entry-action-button-li "course" (:course-class value-map)
@@ -883,7 +893,7 @@
         thing-id (:db/id entity)
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
+        value-map (merge (thing-value-strip-type entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
         authors (map #(get % :person/title) (get entity :question/author))
@@ -961,7 +971,7 @@
         ; all sublink class selector with thing-id is defined in actionkeys-class
         thing-id (:db/id entity)
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
+        value-map (merge (thing-value-strip-type entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
         
@@ -1045,7 +1055,7 @@
         
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
+        value-map (merge (thing-value-strip-type entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
         title (get-in value-map [:title])
@@ -1122,7 +1132,7 @@
         
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
+        value-map (merge (thing-value-strip-type entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
         thingroot (get value-map :thingroot)
@@ -1188,7 +1198,7 @@
 
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
+        value-map (merge (thing-value-strip-type entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
         title (get value-map :title)
@@ -1286,7 +1296,7 @@
         
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
+        value-map (merge (thing-value-strip-type entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
         title (get value-map :title)
@@ -1352,7 +1362,7 @@
         
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value entity)
+        value-map (merge (thing-value-strip-type entity)
                          (actionkeys-class thing-id actionkeys)
                          override)
         thing-type (keyword (:type value-map))  ; use real thing-type, not timeline
@@ -1382,13 +1392,15 @@
       ]])))
 
 
+; like entity contains origin.
+; {:like/person #{} :like/origin {:course/title "", :course/content "",}}, :db/id 1, :course/type :art},
+;  :like/upvote 0, :navpath [:child 1 :like 2], :db/id 17592186045571} 
 (defmethod thing-entry
   :like
   [app thing-type entity override]
   (let [
         comm (get-in app [:comms :controls])
         thing-id (:db/id entity)
-        authors (map #(get % :person/title) (get entity :like/author))
         
         origin (get entity :like/origin)
         origin-id (:db/id origin)
@@ -1396,23 +1408,14 @@
 
         ; all sublink class selector with thing-id is defined in actionkeys-class
         actionkeys (origin-type thing-nav-actionkey) ; nav sublinks
-        value-map (merge (thing-value origin)
+        value-map (merge (thing-value-strip-type origin)
                          (actionkeys-class origin-id actionkeys)
                          override)
-        title (get value-map (keyword (str origin-type "/title")))
+        title (get value-map :title)
        ]
-    (.log js/console "like thing value " (pr-str (keyword (str thing-type "/title"))) (pr-str value-map))
-    (list
-      [:div.thing.link {:id origin-id :class (str "like")}
-        (thing-entry-thumbnail origin-type value-map (upvote-onclick app origin))
-      
-        [:div.entry.unvoted
-          (thing-entry-titles (vector title))
-          
-          [:ul.flat-list.buttons
-          ]
-          [:div.clearleft]
-      ]])))
+    (.log js/console "like thing value " (pr-str origin-type title value-map))
+    (thing-entry app origin-type origin override)))
+
 
 
 ; search thing-entry view.
