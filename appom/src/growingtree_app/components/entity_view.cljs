@@ -277,7 +277,7 @@
 (defn thing-entry-thumbnail
   [thing-type value-map upvote-fn]
   (list
-    [:span.rank "1"]   ; index offset in the list of filtered things
+    [:span.rank (or (:rank value-map) "1")]  ; rank setted in main area list-things
     [:div.midcol.unvoted
       [:div.arrow.up 
         {:role "button" :arial-label "upvote" :on-click upvote-fn}]
@@ -717,8 +717,8 @@
           (thing-entry-titles (vector title))
           (thing-entry-subtitles (vector (str "  " content)
                                          (str "  " url)))
-          (when (not-empty? authors
-            (thing-entry-taglines (vector (str course-type "  Offered by " authors)))))
+          (when-not (empty? authors)
+            (thing-entry-taglines (vector (str course-type "  Offered by " authors))))
 
           (progress-tracker progress)
 

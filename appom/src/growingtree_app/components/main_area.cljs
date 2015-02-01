@@ -170,7 +170,7 @@
               (filter #(.match (:content %) re-filter) things-vec)
               things-vec)
         ;wrap each thing node into a thing-entry.
-        things (map #(thing-entry app thing-type % {}) filtered-things)
+        things (map-indexed (fn [idx item] (thing-entry app thing-type item {:rank (inc idx)})) filtered-things)
        ]
     ; wrap thing listing inside paginated div
     (list [:div.paginated-activities

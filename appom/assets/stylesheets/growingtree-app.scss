@@ -1225,123 +1225,165 @@ button.button {
 .thumbnail {                                                                                                                                                                      
     float: left;
     font-size: 0;
-    margin: 0 5px;
-    margin-bottom: 2px;
+    margin: 10px 20px;
     overflow: hidden;
     width: 70px;
 } 
 
 /*Arrows*/
 .link, .comment, .message {
-    .arrow {
-        width: 28px; height: 28px;
-        cursor: pointer;
-        display: block;
-        margin: 1px auto 0px;
-        outline: none;
+  .arrow {
+    width: 28px; height: 28px;
+    cursor: pointer;
+    display: block;
+    margin: 1px auto 0px;
+    outline: none;
 
-        margin: 2px 0px 0px 0px;
-        width: 100%;
-        height: 14px;
-        display: block;
-        cursor: pointer;
-        background-position: center center;
-        background-repeat: no-repeat;.
-        width: 15px;
-        margin-left: auto;
-        margin-right: auto;.
-        outline: none;
+    margin: 2px 0px 0px 0px;
+    width: 24px;
+    height: 24px;
+    display: block;
+    cursor: pointer;
+    background-position: center center;
+    background-repeat: no-repeat;.
+    width: 15px;
+    margin-left: auto;
+    margin-right: auto;.
+    outline: none;
 
-        //Unvoted
-        &.up {
-             @include sprite($static + 'upvote.png');
-        }
-        &.down {
-            @include sprite($static + 'downvote.png');
-        }
-        //Voted
-        &.upmod {
-            @include sprite($static + 'upvote-active.png');
-        }
-        &.downmod {
-            @include sprite($static + 'downvote-active.png');
-        }
-
-        //Unvoted
-        /*&.up {
-            @include sprite($static + 'aupgray.gif');
-        }
-        &.down {
-            @include sprite($static + 'adowngray.gif');
-        }*/
-        //Voted
-        /*&.upmod {
-            @include sprite($static + 'aupgray.gif');
-        }
-        &.downmod {
-            @include sprite($static + 'adowngray.gif');
-        }*/
+    //Unvoted
+    &.up {
+         @include sprite($static + 'upvote.png');
+    }
+    &.down {
+        @include sprite($static + 'downvote.png');
+    }
+    //Voted
+    &.upmod {
+        @include sprite($static + 'upvote-active.png');
+    }
+    &.downmod {
+        @include sprite($static + 'downvote-active.png');
     }
 
-    .options_expando {
-        background: hsl(210,35%,20%);
-        margin:  35px -5px -1px;
-        border-top:  1px solid hsl(210,35%,10%);
-        display: none;
-        @include box-shadow(inset 0px 3px 8px hsla(0,0%,0%,.8));
-        text-shadow: 0px -1px 0px hsla(0,0%,0%,.8);
-        text-align: center;
-        height: 60px;
-        overflow: hidden;
-
-        a {
-            display: inline-block;
-            color: white;
-            text-decoration: none;
-            font-size: 11px;
-            padding: 10px;
-            width: 50px; height: 40px;
-            text-align: center;
-            border-right:  1px solid hsl(210,35%,10%);
-            border-left:  1px solid hsl(210,35%,30%);
-            @include transition(all 100ms ease-in);
-
-            &:active {
-                background-color: hsl(210,35%,30%);
-                border-left: 1px solid hsl(210,35%,40%);
-            }
-
-            &:hover {
-                background-color: hsl(210,25%,20%);
-                @include box-shadow(inset 0px 3px 8px hsla(0,0%,0%,.8));
-                border-left: 1px solid hsl(210,35%,40%);
-            }
-
-            &:first-child {
-                border-left: none;
-            }
-            &:last-child {
-                border-right: none;
-            }
-        }
-
-        &.expanded {
-            display: block;
-        }
+    //Unvoted
+    /*&.up {
+        @include sprite($static + 'aupgray.gif');
     }
+    &.down {
+        @include sprite($static + 'adowngray.gif');
+    }*/
+    //Voted
+    /*&.upmod {
+        @include sprite($static + 'aupgray.gif');
+    }
+    &.downmod {
+        @include sprite($static + 'adowngray.gif');
+    }*/
+  }
+
+  /* Voting stuff */
+  .rank {
+    float:left; 
+    margin-top: 25px;
+    color: grey;
+    font-weight: bold;
+    font-size: 16px;
+    width: 2.2ex;
+    height: 18px;
+    display: block;
+    text-align: right;
+  }
+
+  .midcol {
+    float: left;
+    margin-left: 7px;
+    margin-right: 4px;
+    overflow: hidden;
+    font-weight: bold;
+    // font-size: small;
+    // width: 25px;
+    // margin: 0 10px 1px 0px;
+    padding-bottom: 5px; 
+    position: relative;
+
+    .score {
+      margin: 4px;
+      padding: 4px;
+      font-size: 18px;
+    }
+  }
+
+  .midcol.likes > .score { color: #E07A7A; }
+  .midcol.dislikes > .score { color: #7272D1;}
+
+  .options_expando {
+      background: hsl(210,35%,20%);
+      margin:  35px -5px -1px;
+      border-top:  1px solid hsl(210,35%,10%);
+      display: none;
+      @include box-shadow(inset 0px 3px 8px hsla(0,0%,0%,.8));
+      text-shadow: 0px -1px 0px hsla(0,0%,0%,.8);
+      text-align: center;
+      height: 60px;
+      overflow: hidden;
+
+      a {
+          display: inline-block;
+          color: white;
+          text-decoration: none;
+          font-size: 11px;
+          padding: 10px;
+          width: 50px; height: 40px;
+          text-align: center;
+          border-right:  1px solid hsl(210,35%,10%);
+          border-left:  1px solid hsl(210,35%,30%);
+          @include transition(all 100ms ease-in);
+
+          &:active {
+              background-color: hsl(210,35%,30%);
+              border-left: 1px solid hsl(210,35%,40%);
+          }
+
+          &:hover {
+              background-color: hsl(210,25%,20%);
+              @include box-shadow(inset 0px 3px 8px hsla(0,0%,0%,.8));
+              border-left: 1px solid hsl(210,35%,40%);
+          }
+
+          &:first-child {
+              border-left: none;
+          }
+          &:last-child {
+              border-right: none;
+          }
+      }
+
+      &.expanded {
+          display: block;
+      }
+  }
 }
 
 /*Links*/
 .link {
-    min-height: 70px;
-    border-bottom: 1px solid #999; 
-    border-top: 1px solid #ddd;
-    padding: 5px 5px;
-    padding-bottom: 0px; 
-    @include box-sizing(border-box);
-    background: rgba(255,255,255,.6);
-    position: relative;
+  min-height: 70px;
+  border-bottom: 1px solid #999; 
+  border-top: 1px solid #ddd;
+  padding: 5px 5px;
+  padding-bottom: 0px; 
+  @include box-sizing(border-box);
+  background: rgba(255,255,255,.6);
+  position: relative;
+  overflow: hidden;
+  
+  /*Image*/
+  /*.thumbnail {
+    float: right; 
+    margin: 0 0 5px 5px;
     overflow: hidden;
+    max-height: 50px; 
+  }*/
 }
 .link:first-child {
     border-top: none;
@@ -1361,8 +1403,7 @@ button.button {
 
 .link > .entry  .score.unvoted,
 .link > .entry.likes  .score.likes,
-.link > .entry.dislikes  .score.dislikes
-{
+.link > .entry.dislikes  .score.dislikes {
     display:inline;
     font-weight: bold;
 }
@@ -1378,33 +1419,7 @@ button.button {
   padding: 1px 0;
 }
 
-/* Voting stuff */
-.link > .rank {
-    float:left; 
-    margin-top: 15px;
-    color: black;
-    font-weight: bold;
-    font-size: 16px;
-    width: 2.2ex;
-    height: 18px;
-    display: block;
-    text-align: right;
-}
-/* experimental */
-.link .modcol { float: left; }
-.link > .midcol {
-    float: left;
-    margin-left: 7px;
-    margin-right: 4px;
-    overflow: hidden;
-    font-weight: bold;
-    // font-size: small;
-    // width: 25px;
-    // margin: 0 10px 1px 0px;
-    padding-bottom: 5px; 
-    position: relative;
-}
-
+/* commemnt */
 .comment { 
     position: relative; 
 }
@@ -1416,23 +1431,6 @@ button.button {
 .comment > .entry.dislikes > .tagline .score.dislikes{
     display:inline;
 }
-
-/** Vote up **/
-.link > .midcol.likes > .score {
-    color: #E07A7A;
-}
-
-/** Vote down **/
-.link > .midcol.dislikes > .score {
-    color: #7272D1;
-}
-/*Image*/
-// .link .thumbnail {
-//     float: right; 
-//     margin: 0 0 5px 5px;
-//     overflow: hidden;
-//     max-height: 50px; 
-// }
 
 
 /* Entry*/
