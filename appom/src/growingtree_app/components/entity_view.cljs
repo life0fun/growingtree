@@ -453,7 +453,7 @@
           (thing-entry-titles (vector title))
           (thing-entry-subtitles (vector (str "phone: " (:phone value-map)) 
                                          (str "email: " (:email value-map))))
-          (thing-entry-taglines (vector (str "Joined since " [:time "Aug 2013"])))
+          (thing-entry-taglines (vector (str "url: " (:url value-map))))
 
 
           [:ul.flat-list.buttons
@@ -525,7 +525,7 @@
           (thing-entry-titles (vector title))
           (thing-entry-subtitles (vector (str "phone: " (:phone value-map)) 
                                          (str "email: " (:email value-map))))
-          (thing-entry-taglines (vector (str "Joined since " [:time "Aug 2013"])))
+          (thing-entry-taglines (vector (str "url: " (:url value-map))))
 
           [:ul.flat-list.buttons
             (thing-entry-action-button-li "parents" (:parent-class value-map)
@@ -963,6 +963,7 @@
           [:div.clearleft]
       ]])))
 
+
 ; thing entry view for assignment
 (defmethod thing-entry
   :assignment
@@ -1283,6 +1284,14 @@
           ]
           [:div.clearleft]
       ]])))
+
+
+; group-members thing-entry
+(defmethod thing-entry
+  :group-members
+  [app thing-type entity override]
+  (let [person-type (:person/type entity)]
+    (thing-entry app person-type entity override)))
 
 
 ; activity thing entry view
