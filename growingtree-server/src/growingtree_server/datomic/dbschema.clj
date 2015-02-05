@@ -360,6 +360,21 @@
     [wiki :string "wiki page of the thing"]
   ))
 
+
+; shoutout, datomic does not support blob, so how to store img and videos ?
+; thingroot is thing's id this shoutout made to. origin is origin shoutout id if retweeted.
+(defschema shoutout
+  (part app)
+  (fields
+    [title :string :fulltext "the title of the shoutout"] 
+    [author :ref :one :indexed "the author of the commentss"]
+    [contenturl :string "url to the content, img, videos"]
+    [thingroot :ref :one :indexed "the thingroot id this shoutout made to"]
+    [origin :ref :one :indexed "the origin shoutout id, if this is a retweet"]
+    [tag :string :indexed "uniquely identifier"]
+  ))
+
+
 ; (defn create-schema
 ;   "create schema using datomic-schema in db connection"
 ;   []
