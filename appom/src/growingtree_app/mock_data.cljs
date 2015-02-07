@@ -81,9 +81,10 @@
 (def nav-types [:parent :child :group
                 :course :lecture :enrollment
                 :question :assignment
-                :activity])
+                :activity :shoutout])
 (def my-nav-types [:group :enrollment 
-                   :question :assignment :like
+                   :question :assignment 
+                   :like :shoutout
                    :activity :timeline])
 (def root-add-type #{:parent :group :course})
 
@@ -151,6 +152,7 @@
        ]
     nav-path
   ))
+
 
 ; get :all-things msg to be sent to control channel to trigger controls chan event for ajax.
 ; :all-things {:body [:all-things [:all 0 :course]], :data {:pid login-id}} false 

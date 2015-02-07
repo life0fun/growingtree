@@ -66,6 +66,19 @@
 ; do not use URI. you can always URI.parse string to URI.
 ;
 
+; To find a schemal id,
+;  [:find ?id :where [?id :db/ident :shoutout/tag] ]
+;
+;bin/repl
+;  (require '[datomic.api :as d])
+;  (def uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
+;  (def conn (d/connect uri))
+;  (def db (d/db conn))
+;
+;  (d/transact conn '[{:db/id #db/id[db.part/user] :db/excise 598}])
+;
+;
+
 ; app partition
 (defpart app)
 
@@ -367,11 +380,11 @@
   (part app)
   (fields
     [title :string :fulltext "the title of the shoutout"] 
-    [author :ref :one :indexed "the author of the commentss"]
+    [author :ref :one :indexed "the author of the shoutout"]
     [contenturl :string "url to the content, img, videos"]
     [thingroot :ref :one :indexed "the thingroot id this shoutout made to"]
     [origin :ref :one :indexed "the origin shoutout id, if this is a retweet"]
-    [tag :string :indexed "uniquely identifier"]
+    [tag :string :fulltext :indexed "uniquely identifier"]
   ))
 
 

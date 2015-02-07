@@ -182,6 +182,15 @@ To test server API endpoints, use curl.
     curl --cookie-jar /tmp/cookie1 --location localhost:8080/msgs
 
 
+To backup and restore:
+
+    bin/datomic list-backups "file:/Users/hyan2/dev/clj/growingtree/growingtree-server/resources"
+
+    bin/datomic -Xmx4g -Xms4g backup-db "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic" "file:/Users/hyan2/dev/clj/growingtree/growingtree-server/resources"
+
+
+    bin/datomic -Xmx4g -Xms4g restore-db "file:/Users/hyan2/dev/clj/growingtree/growingtree-server/resources" "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic" (t)
+
 ## Database Schema 
 
 Before we have web UI to input data, we need some command line tool to populate the databases. We will use my colorcloud project as the tool for database interact. Here we set our database uri point to

@@ -453,7 +453,7 @@
           (thing-entry-titles (vector title))
           (thing-entry-subtitles (vector (str "phone: " (:phone value-map)) 
                                          (str "email: " (:email value-map))))
-          (thing-entry-taglines (vector (str "url " (:url value-map))))
+          (thing-entry-taglines (vector (str "url: " (:url value-map))))
 
 
           [:ul.flat-list.buttons
@@ -525,7 +525,7 @@
           (thing-entry-titles (vector title))
           (thing-entry-subtitles (vector (str "phone: " (:phone value-map)) 
                                          (str "email: " (:email value-map))))
-          (thing-entry-taglines (vector (str "url " (:url value-map))))
+          (thing-entry-taglines (vector (str "url: " (:url value-map))))
 
           [:ul.flat-list.buttons
             (thing-entry-action-button-li "parents" (:parent-class value-map)

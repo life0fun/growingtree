@@ -165,9 +165,9 @@
   (log/info "creating database schema...")
   (do
     ; turn all defparts macro statement into schema transaction
-    ; (submit-transact (dschema/build-parts d/tempid))
+    (submit-transact (dschema/build-parts d/tempid))
     ; turn all defschema macro statement into schema transaction
-    ; (submit-transact (dschema/build-schema d/tempid))
+    (submit-transact (dschema/build-schema d/tempid))
     ; submit database function, project root is the home directory.
     (submit-transact (read-string (slurp "resources/growingtree/dbfn.dtm")))
     ))
