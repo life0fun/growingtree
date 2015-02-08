@@ -86,7 +86,7 @@
                    :question :assignment 
                    :like :shoutout
                    :activity :timeline])
-(def root-add-type #{:parent :group :course})
+(def root-add-type #{:parent :group :course :shoutout})
 
 
 ; get nav path vector stored in state [:nav-path] slot
@@ -176,6 +176,22 @@
        ]
     msg))
 
+
+(defn message-things-msg-nav-path
+  [parent-type parent-id message-type data]
+  (let [msg [:message-things 
+              {:body [:message-things [parent-type parent-id message-type]]
+               :data (merge {:pid parent-id} data)}]
+       ]
+    msg))
+
+; either ret msg path with filter-things for navigation, or :message-things for chat.
+(defn things-msg-nav-path
+  [parent-type parent-id thing-type data]
+  (if (#{:shoutout} thing-type)
+    (message-things-msg-nav-path parent-type parent-id thing-type data)
+    (filter-things-msg-nav-path parent-type parent-id thing-type data))
+  )
 
 ; get popstate msg to sent to control channel to trigger state transition.
 ; msg-type :popstate msg-data is url

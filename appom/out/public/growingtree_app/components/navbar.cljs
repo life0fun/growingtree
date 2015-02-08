@@ -46,16 +46,17 @@
         user-name (:person/title login-user)
         user-type (:person/type login-user)  ; use for [:child 1 :assignment]
         login-id (:db/id login-user)
-        options {:pid login-id}]
+        options {:pid login-id}
+        ]
     [:li.protected 
       [:div.nav-channel
         [:a.show_channel
-          {:key type
-           :on-click #(put! comm (mock-data/filter-things-msg-nav-path user-type login-id thing-type {:pid login-id}))
+          {:key thing-type
+           :on-click #(put! comm (mock-data/things-msg-nav-path user-type login-id thing-type {:pid login-id}))
            :class (str "js-" (name thing-type) (when (:selected thing-listing) " active"))
           }
           (:title thing-listing)]  ; nav type title, my group, my enrollment, etc
-        (if (some #{type} mock-data/root-add-type)
+        (if (some #{thing-type} mock-data/root-add-type)
           [:i.fa.fa-plus-square
             {:on-click #(put! comm (mock-data/newthing-form-msg-nav-path thing-type options))}]
           [:i.fa.fa-square]

@@ -20,6 +20,7 @@
 (declare main-content)
 (declare add-thing-forms)
 (declare main-html)
+(declare chatbox)
 
 (def delimiter-re #" ")
 
@@ -126,6 +127,33 @@
       (list-things app thing-type nav-path search-filter opts)
     ]))
 
+; message things, we are not navigation, messaging app is addictive.
+; nav-path [:child 1 :shoutout]
+(defmethod main-content 
+  :message-things
+  [app nav-path search-filter opts]
+  (let [comm (get-in app [:comms :controls])
+        thing-type (mock-data/get-nav-path-nxt-thing-type nav-path)
+        pid (get-in nav-path [:data :pid])
+        top-url (as-> (routes/window-location) url 
+                     (string/split url #"/") 
+                     (drop-last url)
+                     (string/join "/" url))
+        
+        add-thing (keyword (str "add-" (name thing-type)))
+        override {}
+        opts (assoc opts :author pid :login-user (utils/get-login-user app))
+       ]
+    (.log js/console (pr-str "message things " nav-path top-url))
+    [:div.message-things
+      ; list-things ret rendered list of thing with each thing-entry
+      (list-things app thing-type nav-path search-filter opts)
+      ; chatbox fn ret [div.chat]
+      (chatbox comm opts)
+    ]
+    ))
+
+
 ; for search, {:body [:search-things [:all-things 0 "math"]]
 (defmethod main-content 
   :search-things
@@ -211,16 +239,27 @@
     ]))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-; chatbox, deprecated.
 (defn chatbox 
   [comm opts]
-  [:div.chatbox [:textarea.chat-input
-                  (merge
-                    {:on-focus #(put! comm [:user-message-focused])
-                     :on-blur #(put! comm [:user-message-blurred])
-                     :on-key-up #(if (= (.. % -which) 13)
-                                    (put! comm [:user-message-submitted])
-                                    (put! comm [:user-message-updated (.. % -target -value)]))}
-                    (when-not (:input-focused? opts)
-                      {:value (:input-value opts)}))]
-    [:button.post {:on-click #(put! comm [:user-message-submitted])} "Post"]])
+  [:div.chatbox
+    [:a#chat-file-btn.chat-file-btn
+      [:i.fa.fa-arrow-circle-o-up
+        {:on-click #(put! comm {})}]
+    ]
+    [:div.chat-message-form
+      [:form.message-form
+        [:a.emo-menu
+          [:img {:src "https://slack.global.ssl.fastly.net/20655/img/emoji_menu_button.png"
+                 :width "16px;" :height "16px;"}]
+        ]
+        [:textarea#chat-input.chat-input
+          (merge
+            {:on-focus #(put! comm [:user-message-focused])
+             :on-blur #(put! comm [:user-message-blurred])
+             :on-key-up #(if (= (.. % -which) 13)
+                          (put! comm [:add-shoutout])
+                          (put! comm [:add-shoutout (.. % -target -value)]))}
+            (when-not (:input-focused? opts)
+              {:value (:input-value opts)}))]
+      [:button.post {:on-click #(put! comm [:add-shoutout])} "Post"]]
+    ]])
