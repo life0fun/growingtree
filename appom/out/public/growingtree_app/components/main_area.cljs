@@ -20,7 +20,6 @@
 (declare main-content)
 (declare add-thing-forms)
 (declare main-html)
-(declare chatbox)
 
 (def delimiter-re #" ")
 
@@ -55,7 +54,6 @@
             [:img {:src "logo_thumb.png" :height "35" :title "growingtree-app"}]]]
         [:div#content
             (main-content app nav-path search-filter opts)
-          ;(chatbox comm opts)
         ]
       ]
     )))
@@ -149,7 +147,7 @@
       ; list-things ret rendered list of thing with each thing-entry
       (list-things app thing-type nav-path search-filter opts)
       ; chatbox fn ret [div.chat]
-      (chatbox comm opts)
+      (entity-view/chatbox app comm opts)
     ]
     ))
 
@@ -237,29 +235,3 @@
       (newthing-form/add-form :add-lecture comm nav-path opts)
       (newthing-form/add-form :add-question comm nav-path opts)
     ]))
-
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-(defn chatbox 
-  [comm opts]
-  [:div.chatbox
-    [:a#chat-file-btn.chat-file-btn
-      [:i.fa.fa-arrow-circle-o-up
-        {:on-click #(put! comm {})}]
-    ]
-    [:div.chat-message-form
-      [:form.message-form
-        [:a.emo-menu
-          [:img {:src "https://slack.global.ssl.fastly.net/20655/img/emoji_menu_button.png"
-                 :width "16px;" :height "16px;"}]
-        ]
-        [:textarea#chat-input.chat-input
-          (merge
-            {:on-focus #(put! comm [:user-message-focused])
-             :on-blur #(put! comm [:user-message-blurred])
-             :on-key-up #(if (= (.. % -which) 13)
-                          (put! comm [:add-shoutout])
-                          (put! comm [:add-shoutout (.. % -target -value)]))}
-            (when-not (:input-focused? opts)
-              {:value (:input-value opts)}))]
-      [:button.post {:on-click #(put! comm [:add-shoutout])} "Post"]]
-    ]])

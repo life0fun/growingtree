@@ -1139,7 +1139,39 @@ fieldset {
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 .message-things {
   .chat-file-btn {
-    
+    position: absolute;
+    bottom: 22px;
+    width: 48px;
+    border: 2px solid; 
+    line-height: 36px;
+    font-size: 32px;
+    text-align: center;
+  }
+  .chat-message-form {
+    position: absolute;
+    bottom: 22px;
+    left: 58px;
+    right: 10px;
+    margin: 0px;
+
+    .message-form {
+      margin-bottom: -10px;
+    }
+  }
+  .emo-menu {
+    position: absolute;
+    right: 7px;
+    top: 2px;
+    width: 16px;
+  }
+  .chat-input {
+    overflow-y: hidden;
+    height: 36px;
+    width: 100%;
+    font-size: 20px;
+  }
+  .chat-post {
+    display: none;
   }
 }
 

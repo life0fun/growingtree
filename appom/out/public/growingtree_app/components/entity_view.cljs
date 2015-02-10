@@ -1442,3 +1442,38 @@
 ; show add comments input box, trigger by thing data emitter [:setup :x 1 :comments]
 ; form id is the thing-id this comment's origin and thingroot
 ;;===========================================================================
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+(defn chatbox 
+  [app comm opts]
+  (let [login-user (get-in app [:login-user])
+        shoutout-path-fn
+          (fn [txt]
+            (let [shoutout-data {:shoutout/title txt :shoutout/author login-user
+                              :shoutout/contenturl "imgurl/xxx.png"}]
+              (mock-data/add-thing-msg-nav-path :shoutout shoutout-data)))
+        ]
+    (list
+      [:div.chatbox
+        [:a#chat-file-btn.chat-file-btn
+          [:i.fa.fa-arrow-circle-o-up
+            {:on-click #(put! comm {})}]
+        ]
+        [:div.chat-message-form
+          [:form.message-form
+            [:a.emo-menu
+              [:img {:src "https://slack.global.ssl.fastly.net/20655/img/emoji_menu_button.png"
+                     :width "16px;" :height "16px;"}]
+            ]
+            [:textarea#chat-input.chat-input
+              (merge
+                {;:on-focus #(put! comm [:user-message-focused])
+                 :on-key-up #(if (= (.. % -which) 13) ; 13 is return or enter.
+                              (let [txt (.. % -target -value)]
+                                (put! comm (shoutout-path-fn txt))))
+                }
+                (when-not (:input-focused? opts) {:value (:input-value opts)}))
+            ]
+          [:button.chat-post.hidden {:on-click #(put! comm (shoutout-path-fn "fake"))} "Post"]]
+        ]])
+  ))
