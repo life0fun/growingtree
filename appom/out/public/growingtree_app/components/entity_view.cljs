@@ -1446,11 +1446,11 @@
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 (defn chatbox 
   [app comm opts]
-  (let [login-user (get-in app [:login-user])
+  (let [login-user-id (utils/get-login-id app)
         shoutout-path-fn
           (fn [txt]
-            (let [shoutout-data {:shoutout/title txt :shoutout/author login-user
-                              :shoutout/contenturl "imgurl/xxx.png"}]
+            (let [shoutout-data {:shoutout/title txt :shoutout/author login-user-id
+                                 :shoutout/contenturl "imgurl/xxx.png"}]
               (mock-data/add-thing-msg-nav-path :shoutout shoutout-data)))
         ]
     (list

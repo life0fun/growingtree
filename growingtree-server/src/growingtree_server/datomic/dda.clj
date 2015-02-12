@@ -18,6 +18,7 @@
             [growingtree-server.datomic.course :as course]
             [growingtree-server.datomic.assign :as assign]
             [growingtree-server.datomic.comments :as comments]
+            [growingtree-server.datomic.shoutout :as shoutout]
             [growingtree-server.datomic.timeline :as timeline]
             [growingtree-server.datomic.util :as util]))
 
@@ -407,6 +408,21 @@
   "find comments by query path"
   [qpath]
   (comments/find-comments qpath))
+
+;;==============================================================
+;; shoutout related, should use multi-method to dispatch
+;;==============================================================
+; make a shoutout on any eid
+(defn create-shoutout
+  "create a shoutout on an assignment"
+  [details]
+  (shoutout/create-shoutout details))
+
+; list all shoutout
+(defn find-shoutout
+  "find shoutout by query path"
+  [qpath]
+  (shoutout/find-shoutout qpath))
 
 ;;==============================================================
 ; like, create like, or add user to like ref person.

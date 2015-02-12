@@ -170,18 +170,17 @@
     shoutout))
 
 
+;
 ; for now, all courses are created and lectured by person
 (defn create-shoutout
   "create a shoutout with details "
   [details]
-  (let [author-id (:db/id (find-by :person/title (:shoutout/author details)))
-        entity (-> details
+  (let [entity (-> details
                    (select-keys (keys shoutout-schema))
-                   (assoc :shoutout/author author-id)  ; append author-id to ref many person
                    (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
                    (assoc :db/id (d/tempid :db.part/user)))
         trans (submit-transact [entity])  ; transaction is a list of entity
        ]
-    (log/info "create shoutout entity " author-id entity " trans " trans)
+    (log/info "create shoutout entity " entity " trans " trans)
     [entity]))
 

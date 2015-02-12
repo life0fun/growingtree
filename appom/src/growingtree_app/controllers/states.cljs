@@ -81,8 +81,15 @@
 
 
 ;{:body [:filter-things [:group 1 :activity]], :data {:pid 1}}
-(defmethod transition 
+(defmethod transition
   :filter-things
+  [target msg-type msg-data state]
+  (conj-nav-path msg-type msg-data state))
+
+
+; {:body [:message-things [:child 17592186045427 :shoutout]], :data {:pid 17592186045427}
+(defmethod transition
+  :message-things
   [target msg-type msg-data state]
   (conj-nav-path msg-type msg-data state))
 

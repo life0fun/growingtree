@@ -9,9 +9,31 @@
 ; The data model in datomic is represented by entity. Everything is entity.
 ; A table is an entity, each column is an entity, and each tuple row is an entity.
 
-; For parent table, it is a parent entity with many attributes.
-; The name attribute of parent, or name column, is an entity. it has its own id and its attribute identifier is :parent/name. The type of the attr is string. so primitive string text is stored. and it cardi is one.
-; For children attribute of parent, it has its own id and iden is :parent/children. The type of the attr is ref, so a list of children ids are stored here, and the cardi is many.
+; schema attributes are entities with associated attributes.
+; schema attributes are defined using built-in system attributes.
+; A table schema is a collection of attributes grouped within the same namespace. :person/name.
+; Every new attr defined by 3 required attributes, :db/ident, :db/valueType, :db/cardinality.
+
+; :db.part/db is a system entity, with eid 0.
+; every attribute must be installed to the ref of :db.install/attribute of system *entity* :db.part/db.
+; every partition must be installed to the ref of :db.install/partition of system *entity* :db.part/db.
+
+; [:db/add :db.part/db :db.install/partition #db/id[:db.part/db -1]]]
+; [{:db/id #db/id[:db.part/db], :db/ident :communities, :db.install/_partition :db.part/db}]
+
+; (d/transact conn '[{:db/id #db/id[:db.part/db] :db.install/_attribute :db.part/db
+;                     :db/ident :shoutout/tag :db/valueType :db.type/string
+;                     :db/cardinality :db.cardinality/one :db/fulltext true :db/index true}])
+
+; :db/ident specify a keyword name of an attribut. d/entid ret the id for the keyword.
+;  (d/touch (d/entity db (d/entid db :db.part/db)))
+;  (d/entid db :parent/child)
+;  (d/entid db :db.part/db)
+;  (d/ident db eid)
+;  (d/ident db 1)  :db/add
+;  (d/ident db 2)  :db/retract
+;  (d/ident db 3)  :db.part/tx
+;  (d/ident db 4)  :db.part/user
 
 ;
 ; datomic db stores are repr by datoms. Each datom is an addition or retraction
@@ -24,6 +46,7 @@
 ;   :db/ident - unique name in :<namespace>/<name>
 ;   :db/valueType - [:db.type/string, boolean, long, ref, instant(time) ]
 ;   :db/cardinality - attribute values, :db.cardinality/one, many, 
+; Optional attributes
 ;   :db/unique - like pk, implies :db/index. possible values are
 ;     :db.unique/value no upsert. :db.unique/identity upsert merge temp id to db value.
 ;   :db/index 
@@ -62,22 +85,10 @@
 ;
 
 ;
-; as a restful service, everything should be json string. 
-; do not use URI. you can always URI.parse string to URI.
-;
+; to alter schema, 2 ways, rename an entity, or altering schema attributes.
+; [{:db/id :person/name :db/ident :person/full-name}]
+; [{:db/id :person/favorite-food :db/cardinality :db.cardinality/many :db.alter/_attribute :db.part/db}
 
-; To find a schemal id,
-;  [:find ?id :where [?id :db/ident :shoutout/tag] ]
-;
-;bin/repl
-;  (require '[datomic.api :as d])
-;  (def uri "datomic:sql://colorcloud?jdbc:mysql://localhost:3306/datomic?user=datomic&password=datomic")
-;  (def conn (d/connect uri))
-;  (def db (d/db conn))
-;
-;  (d/transact conn '[{:db/id #db/id[db.part/user] :db/excise 598}])
-;
-;
 
 ; app partition
 (defpart app)

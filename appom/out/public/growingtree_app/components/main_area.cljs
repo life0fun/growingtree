@@ -146,7 +146,6 @@
     [:div.message-things
       ; list-things ret rendered list of thing with each thing-entry
       (list-things app thing-type nav-path search-filter opts)
-      ; chatbox fn ret [div.chat]
       (entity-view/chatbox app comm opts)
     ]
     ))

@@ -326,6 +326,14 @@
         ]
     result))
 
+;:post-data {:shoutout/title "x\n" :shoutout/author 1}}}
+(defmethod add-thing
+  :shoutout
+  [type details]
+  (let [result (dda/create-shoutout details)]
+    result))
+
+
 ;  :group {:group/person 1, :group/title "a", :group/email "b", :group/url "c"}
 (defmethod add-thing
   :add-group
