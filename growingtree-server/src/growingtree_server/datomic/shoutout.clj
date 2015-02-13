@@ -103,7 +103,7 @@
 (def shoutout-schema (assoc (list-attr :shoutout) :db/id :db.type/id))
 
 
-; rule set for get parent by. rule name is the parent thing type.
+; rule set for get shoutout by.
 (def get-shoutout-by
   '[[(:all ?e ?val) [?e :shoutout/author]]   ; select all
     [(:author ?e ?val) [?e :shoutout/author ?val]]
@@ -155,7 +155,7 @@
       shoutout)))
 
 
-; [:course 17592186045425 :shoutout]
+; [:child 17592186045427 :shoutout]
 (defn find-shoutout
   "find all shoutout by query path"
   [qpath]

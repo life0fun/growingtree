@@ -148,4 +148,3 @@
      :id (get-in nav-path [:body 1 1])
      :filtered (name (get-in nav-path [:body 1 2]))
     }))
-

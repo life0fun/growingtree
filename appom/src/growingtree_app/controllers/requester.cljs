@@ -103,6 +103,26 @@
                       nav-path)   ; request :params :details is nav-path. [:all 0 :parent], or [:qpath [:course 1 :lecture]]
   )
 
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; comm chan post control event, called from core to process control event in comm chan.
+; {:body [:message-things [:child 1 :shoutout]], :data {:pid 17592186045438}}
+; ajax request to get data using query path.
+(defmethod request
+  :message-things
+  [target msg-type nav-path previous-state current-state]
+  (.log js/console (pr-str "post ajax message-things nav-path " nav-path))
+  ; update secretary router match to action.
+  (routes/set-window-href! "message" (routes/v1-filter-things-route nav-path))
+                            ; {:parent (name (get-in nav-path [:body 1 0]))
+                            ;  :id (get-in nav-path [:body 1 1])
+                            ;  :filtered (name (get-in nav-path [:body 1 2]))
+                            ; }))
+  (cljsajax/cljs-ajax :request-things
+                      nav-path
+                      (get-in current-state [:comms :api])  ; ajax ret data to api-ch.
+                      nav-path)   ; request :params :details is nav-path. [:all 0 :parent], or [:qpath [:course 1 :lecture]]
+  )
+
 ; nav-path is msg-data in get-search-msg, map of :body [] :data {}
 (defmethod request 
   :search-things

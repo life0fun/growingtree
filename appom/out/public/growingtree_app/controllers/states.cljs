@@ -34,8 +34,9 @@
   :default
   [target msg-type msg-data state]
   (.log js/console (pr-str "default transition : conj nav-path "  msg-type msg-data))
-  (-> state
-    (update-in [:nav-path] conj msg-data)))
+  (when msg-data
+    (-> state
+      (update-in [:nav-path] conj msg-data))))
 
 ; for login control, msg-data {:body [:login [:login 0 :login]]
 (defmethod transition 
@@ -58,7 +59,7 @@
       )))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-; global state update for control event for navbar.
+; upon transition msg, msg-data is nav-path, conj to global nav-path state.
 ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
 ; {:body [:filter-things [:group 1 :activity]], :data {:pid 1}}
 (defn conj-nav-path
@@ -66,7 +67,7 @@
   (let [cur-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
         nxt-nav-type (mock-data/get-nav-path-nxt-thing-type msg-data)
        ]
-    (.log js/console (pr-str "control event conj [:nav-path] " msg-data))
+    (.log js/console (pr-str "transition conj nav path " cur-nav-type " " nxt-nav-type " " msg-data))
     ; just update both navbar and nav-path.
     (cond-> state
       :else (update-navbar-selected cur-nav-type nxt-nav-type)
@@ -428,7 +429,7 @@
   (let [last-nav-type (some #{last-nav-type} mock-data/nav-types)
         cur-nav-type (some #{cur-nav-type}  mock-data/nav-types)
        ]
-    (.log js/console (pr-str "update-navbar-selected cur-nav-type " cur-nav-type " last " last-nav-type))
+    (.log js/console (pr-str "upon transition, update-navbar-selected cur-nav-type " cur-nav-type " last " last-nav-type))
     (cond-> state
       last-nav-type (assoc-in [:things last-nav-type :selected] false)
       cur-nav-type (assoc-in [:things cur-nav-type :selected] true))

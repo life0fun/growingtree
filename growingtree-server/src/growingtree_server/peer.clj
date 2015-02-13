@@ -130,6 +130,7 @@
   (let [answers (dda/find-answer qpath)]
     answers))
 
+
 (defmethod get-things
   :comments
   [type qpath nav-path]
@@ -138,16 +139,25 @@
 
 
 (defmethod get-things
+  :shoutout
+  [type qpath nav-path]
+  (let [shoutout (dda/find-shoutout qpath)]
+    shoutout))
+
+
+(defmethod get-things
   :enrollment
   [type qpath nav-path]
   (let [enrollments (dda/find-enrollment qpath)]
     enrollments))
+
 
 (defmethod get-things
   :progress
   [type qpath nav-path]
   (let [progress (dda/find-progress qpath nav-path)]
     progress))
+
 
 (defmethod get-things
   :group
