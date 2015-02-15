@@ -47,7 +47,7 @@
 
 
 ; forward declarations
-(declare thing-next-or-thing-origin)
+(declare entity-next-or-origin-attr)
 
 
 ; distinct-by a collect by the result of apply f to the tuple in the collection.
@@ -165,7 +165,6 @@
   "get entities by arg-val and rule-name, rule-set, for each tuple, touch to realize
    all attrs called directly for comments comments case"
   [rule rule-set arg-vals]  ; when rule is :all, arg-vals no effect.
-  (log/info "get-entities-by-rule " rule (first rule-set) arg-vals)
   (let [rule-args (nnext rule)
         q (-> (into '[:find ?e :in $ %] rule-args)  ; we need to conj rule-args
               (conj :where rule))
@@ -174,6 +173,7 @@
         ; touch entity to realize/materialize all attributes.
         entities (map (comp get-entity first) eids)
        ]
+    (log/info "get-entities-by-rule " rule (first rule-set) arg-vals " entities " entities)
     entities))
 
 
@@ -185,7 +185,7 @@
   [qpath rule-set]
   (let [[thing-type eid nxt-thing-type] (take-last 3 qpath)  ; [:course 1 :comments 2 :comments]
         e (get-entity eid)   ; we have thing-id, get thing entity
-        nxt-thing-val (thing-next-or-thing-origin e thing-type nxt-thing-type)
+        nxt-thing-val (entity-next-or-origin-attr e thing-type nxt-thing-type)
         rule [thing-type '?e '?val]  ; rule is rule-name=thing-type and rule-args
         ; rule (list thing-type '?e '?val)  ; rule is rule-name=thing-type and rule-args
        ]
@@ -212,8 +212,8 @@
 ; find entity's thing-type/nxt-thing attr. If entity is leaf thing, find its thing-type/origin attr.
 ; e.g, assignment/question is actually reprented by assignment/origin.
 ; ret a vector of entities as the value is :ref :many.
-(defn thing-next-or-thing-origin
-  "ret a vector of entities of thing's attr, or the entity refred by origin
+(defn entity-next-or-origin-attr
+  "ret a vector of entities of :thing/next-thing, or :thing/origin, like :assignment/question or :assignment/origin.
    origin :ref can be :one or :many, need to set? check"
   [e thing-type nxt-thing-type]
   (let [nxt-thing-val (->> (keyword (str (name thing-type) "/" (name nxt-thing-type)))
@@ -221,7 +221,7 @@
         origin-thing-val (->> (keyword (str (name thing-type) "/" (name :origin)))
                               (get e))
        ]
-    (log/info "thing-next-or-thing-origin" thing-type nxt-thing-type nxt-thing-val origin-thing-val)
+    (log/info "entity-next-or-origin-attr" (str thing-type "/" nxt-thing-type) nxt-thing-val origin-thing-val)
     (if nxt-thing-val
       (vector nxt-thing-val)  ; ret a list of matching entities
       ; origin :ref can be :one or :many, always ret a list.

@@ -112,8 +112,8 @@
     [(:title ?e ?val) [?e :shoutout/title ?val]]
     [(:url ?e ?val) [?e :shoutout/url ?val]]
 
-    [(:child ?e ?val) [?e :shoutout/origin ?val]]
-    [(:parent ?e ?val) [?e :shoutout/origin ?val]]
+    [(:child ?e ?val) [?e :shoutout/author ?val]]
+    [(:parent ?e ?val) [?e :shoutout/author ?val]]
     
     ; all shoutout whose origin point to this shoutout
     [(:shoutout ?e ?val) [?e :shoutout/origin ?val]]
@@ -143,6 +143,7 @@
                       (map populate-shoutout-refed-entity)
                       (map #(util/add-navpath % navpath)))
        ]
+    (log/info "query-shoutout " shoutout)
     shoutout))
 
 ; concat the shoutout of shoutout by [:course 1 :shoutout 2 :shoutout]
