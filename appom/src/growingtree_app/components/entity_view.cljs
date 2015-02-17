@@ -1189,6 +1189,79 @@
       ]])))
 
 
+; shoutout thing-entry view
+; thingroot is the id of shoutout.
+; origin is the origin shoutout id if this shoutout is a re-tweet.
+; comments of the shoutout should be tracked by comments object.
+; indention is done by offsetX css class.
+; :navpath [:child 1 :shoutout 2], :shoutout/contenturl "imgurl/xxx.png", :db/id 1, :shoutout/title "hello world\n"
+; :shoutout/author #{{:person/lname "rich", :person/url #{"rich-son.com"}}
+(defmethod thing-entry
+  :shoutout
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :shoutout/author))
+        
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value-strip-type entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        thingroot (get value-map :thingroot)
+        title (get value-map :title)
+        tm (-> (get value-map :txtime) (/ 1000) (utils/time-to-string))
+        ago (utils/moment-from (js/moment (get value-map :txtime)) (js/moment))
+        offset (/ (- (count (get value-map :navpath)) 2) 2)
+
+        reply-form-name (str "#reply-form-" thing-id)
+        reply-form-input-map {
+          :shoutout/title {:id (str "reply-title-" thing-id) :type "text" :text "shoutout"}
+        }
+        reply-form-fields {
+          :shoutout/title (str "#" (get-in reply-form-input-map [:shoutout/title :id]))
+        }
+        reply-form-data {
+          :shoutout/origin thing-id
+          :shoutout/thingroot thingroot
+          :shoutout/author "rich-son"   ; XXX hard code
+        } ; peer add-thing :reply
+       ]
+    (.log js/console "shoutout thing value " (pr-str value-map))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map)) :class (str "comment" offset)}
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
+      
+        [:div.entry.unvoted
+          (thing-entry-titles (vector title))
+          (thing-entry-taglines (vector (str "submitted " ago  " ago at " tm)))
+
+          [:ul.flat-list.buttons
+            (thing-entry-action-button-li "shoutout" (:shoutout-class value-map)
+                                          (filter-things-onclick app entity :shoutout :shoutout))
+            (thing-entry-action-button-li "tips" (:tips-class value-map)
+                                          (filter-things-onclick app entity :shoutout :shoutout))
+            (thing-entry-action-button-li "reply" (:shoutout-class value-map)
+                                          (ui/toggle-hide-fn (str "#reply-form-" thing-id)))
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (str "child-form-" thing-id)}
+            (thing-entry-child-form (subs reply-form-name 1)  ; form id
+                                    "reply-form"   ; form class
+                                    reply-form-input-map
+                                    "reply"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :shoutout       ; reply of a comment itself is a comment
+                                                    reply-form-name
+                                                    reply-form-data
+                                                    reply-form-fields))
+          ]
+          [:div.clearleft]
+      ]])))
+
+
 ; group thing-entry view
 (defmethod thing-entry
   :group

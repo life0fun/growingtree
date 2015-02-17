@@ -47,7 +47,7 @@
 
 
 ; forward declarations
-(declare entity-next-or-origin-attr)
+(declare entity-outbound-or-origin-attr)
 
 
 ; distinct-by a collect by the result of apply f to the tuple in the collection.
@@ -165,6 +165,7 @@
   "get entities by arg-val and rule-name, rule-set, for each tuple, touch to realize
    all attrs called directly for comments comments case"
   [rule rule-set arg-vals]  ; when rule is :all, arg-vals no effect.
+  (log/info "get-entities-by-rule " rule (first rule-set) arg-vals)
   (let [rule-args (nnext rule)
         q (-> (into '[:find ?e :in $ %] rule-args)  ; we need to conj rule-args
               (conj :where rule))
@@ -185,13 +186,15 @@
   [qpath rule-set]
   (let [[thing-type eid nxt-thing-type] (take-last 3 qpath)  ; [:course 1 :comments 2 :comments]
         e (get-entity eid)   ; we have thing-id, get thing entity
-        nxt-thing-val (entity-next-or-origin-attr e thing-type nxt-thing-type)
+        ; check whether parent entity has outbound next ref or origin attr
+        nxt-thing-val (entity-outbound-or-origin-attr e thing-type nxt-thing-type)
         rule [thing-type '?e '?val]  ; rule is rule-name=thing-type and rule-args
         ; rule (list thing-type '?e '?val)  ; rule is rule-name=thing-type and rule-args
        ]
+    (log/info "get-qpath-entities " thing-type "/" nxt-thing-type)
     (cond
       ; for comments of comments, query directly. (:comments 1 :comments)
-      (and (= thing-type :comments) (= nxt-thing-type :comments))
+      (and (= thing-type nxt-thing-type) (#{:comments :shoutout} nxt-thing-type))
         (get-entities-by-rule rule rule-set [eid]) ; thing-type is rule name.
 
       ; head thing [:course 1 :course], however, comments can ref to comments.
@@ -209,10 +212,11 @@
         (get-entities-by-rule rule rule-set [eid]))))  ; thing-type is rule name.
 
 
+; check wehther parent entity has outbound next attr. e.g, child entity has :shoutout attr.
 ; find entity's thing-type/nxt-thing attr. If entity is leaf thing, find its thing-type/origin attr.
 ; e.g, assignment/question is actually reprented by assignment/origin.
 ; ret a vector of entities as the value is :ref :many.
-(defn entity-next-or-origin-attr
+(defn entity-outbound-or-origin-attr
   "ret a vector of entities of :thing/next-thing, or :thing/origin, like :assignment/question or :assignment/origin.
    origin :ref can be :one or :many, need to set? check"
   [e thing-type nxt-thing-type]
@@ -221,7 +225,7 @@
         origin-thing-val (->> (keyword (str (name thing-type) "/" (name :origin)))
                               (get e))
        ]
-    (log/info "entity-next-or-origin-attr" (str thing-type "/" nxt-thing-type) nxt-thing-val origin-thing-val)
+    (log/info "entity-outbound-or-origin-attr" (str thing-type "/" nxt-thing-type) nxt-thing-val origin-thing-val)
     (if nxt-thing-val
       (vector nxt-thing-val)  ; ret a list of matching entities
       ; origin :ref can be :one or :many, always ret a list.
@@ -375,6 +379,5 @@
   (let [eid (:db/id entity)
         [txid eid v op] (first (dbconn/entity-attr-tx eid :comments/title)) ; latest on top
         txtm (:db/txInstant (get-entity txid))]
-    (log/info "get-entity-attr-tx " eid " transaction time" txtm)
     (assoc-in entity [:comments/txtime] txtm)))
 

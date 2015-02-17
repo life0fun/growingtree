@@ -135,6 +135,7 @@
       (util/get-entity-attr-tx e))
     ))
 
+
 (defn query-shoutout
   "query shoutout by path, [:child 1 :shoutout] or [:child 1 :shoutout 2 :shoutout]"
   [navpath]
@@ -143,17 +144,19 @@
                       (map populate-shoutout-refed-entity)
                       (map #(util/add-navpath % navpath)))
        ]
-    (log/info "query-shoutout " shoutout)
+    (log/info "query-shoutout " navpath shoutout)
     shoutout))
+
 
 ; concat the shoutout of shoutout by [:course 1 :shoutout 2 :shoutout]
 (defn shoutout-of
   "give a shoutout, find all shoutout whose origin point to this shoutout"
-  [c]
-  (when-not (nil? c)
-    (let [navpath (concat (:navpath c) [:shoutout])
-          shoutout (query-shoutout navpath)]
-      shoutout)))
+  [shoutout]
+  (when-not (nil? shoutout)
+    (let [navpath (concat (:navpath shoutout) [:shoutout])
+          shoutout-of (query-shoutout navpath)]
+      (log/info "shoutout-of " navpath shoutout-of)
+      shoutout-of)))
 
 
 ; [:child 17592186045427 :shoutout]
@@ -162,7 +165,7 @@
   [qpath]
   (let [; iteratively apply a fn to a coll. result is a new lazy sequence.
         ; (iterate f x), ret a lazy sequence of x, (f x), (f (f x)), mapcat to get one list.
-        shoutout (->> (iterate (fn [c] (mapcat #(shoutout-of %) c)) (query-shoutout qpath))
+        shoutout (->> (iterate (fn [shoutouts] (mapcat #(shoutout-of %) shoutouts)) (query-shoutout qpath))
                       (take 3)  ; how many levels of recursive shoutout tree
                       (apply concat))
        ]
