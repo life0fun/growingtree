@@ -132,7 +132,7 @@
       (util/assoc-refed-entity :shoutout/origin e)
       (util/add-upvote-attr e)
       (util/ref->dbid e :shoutout/thingroot)
-      (util/get-entity-attr-tx e))
+      (util/get-entity-attr-tx e :shoutout/title))
     ))
 
 

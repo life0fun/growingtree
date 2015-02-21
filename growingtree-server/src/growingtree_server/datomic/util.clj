@@ -375,9 +375,17 @@
 ; get tx timestamp, #inst "2014-01-08T21:07:24.366-00:00"
 ; ============================================================================
 (defn get-entity-attr-tx
-  [entity]
-  (let [eid (:db/id entity)
-        [txid eid v op] (first (dbconn/entity-attr-tx eid :comments/title)) ; latest on top
-        txtm (:db/txInstant (get-entity txid))]
-    (assoc-in entity [:comments/txtime] txtm)))
+  ([entity]
+    (let [eid (:db/id entity)
+          [txid eid v op] (first (dbconn/entity-attr-tx eid :comments/title)) ; latest on top
+          txtm (:db/txInstant (get-entity txid))]
+      (assoc-in entity [:comments/txtime] txtm)))
+  ([entity attr]
+    (let [thing-type (namespace attr)
+          txtm-attr (keyword (str thing-type "/txtime"))
+          eid (:db/id entity)
+          [txid eid v op] (first (dbconn/entity-attr-tx eid attr))
+          txtm (:db/txInstant (get-entity txid))]
+      (assoc-in entity [txtm-attr] txtm)))
+  )
 

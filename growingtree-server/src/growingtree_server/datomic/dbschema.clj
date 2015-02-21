@@ -399,6 +399,15 @@
   ))
 
 
+(defschema groupshoutout
+  (part app)
+  (fields
+    [group :ref :unique-value "the unique group"]
+    [shoutout :ref :many "the shoutouts of the group"]
+    [url :string "url of this group chat"]
+  ))
+
+
 ; (defn create-schema
 ;   "create schema using datomic-schema in db connection"
 ;   []

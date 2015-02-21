@@ -1215,18 +1215,16 @@
         ago (utils/moment-from (js/moment (get value-map :txtime)) (js/moment))
         offset (/ (- (count (get value-map :navpath)) 2) 2)
 
-        reply-form-name (str "#reply-form-" thing-id)
-        reply-form-input-map {
-          :shoutout/title {:id (str "reply-title-" thing-id) :type "text" :text "shoutout"}
+        forward-form-name (str "#forward-form-" thing-id)
+        forward-form-input-map {
+          :groupshoutout/group {:id (str "group-title-" thing-id) :type "text" :text "group title"}
         }
-        reply-form-fields {
-          :shoutout/title (str "#" (get-in reply-form-input-map [:shoutout/title :id]))
+        forward-form-fields {
+          :groupshoutout/group (str "#" (get-in forward-form-input-map [:groupshoutout/group :id]))
         }
-        reply-form-data {
-          :shoutout/origin thing-id
-          :shoutout/thingroot thingroot
-          :shoutout/author "rich-son"   ; XXX hard code
-        } ; peer add-thing :reply
+        forward-form-data {
+          :groupshoutout/shoutout thing-id
+        }
        ]
     (.log js/console "shoutout thing value " (pr-str value-map))
     (list
@@ -1238,25 +1236,25 @@
           (thing-entry-taglines (vector (str "submitted " ago  " ago at " tm)))
 
           [:ul.flat-list.buttons
-            (thing-entry-action-button-li "shoutout" (:shoutout-class value-map)
+            (thing-entry-action-button-li "comments" (:shoutout-class value-map)
                                           (filter-things-onclick app entity :shoutout :shoutout))
             (thing-entry-action-button-li "tips" (:tips-class value-map)
                                           (filter-things-onclick app entity :shoutout :shoutout))
-            (thing-entry-action-button-li "reply" (:shoutout-class value-map)
-                                          (ui/toggle-hide-fn (str "#reply-form-" thing-id)))
+            (thing-entry-action-button-li "forward" (:shoutout-class value-map)
+                                          (ui/toggle-hide-fn (str "#forward-form-" thing-id)))
           ]
 
           ; hidden divs for in-line forms
           [:div.child-form {:id (str "child-form-" thing-id)}
-            (thing-entry-child-form (subs reply-form-name 1)  ; form id
+            (thing-entry-child-form (subs forward-form-name 1)  ; form id
                                     "reply-form"   ; form class
-                                    reply-form-input-map
-                                    "reply"        ; submit btn text
+                                    forward-form-input-map
+                                    "forward"        ; submit btn text
                                     (submit-form-fn app
-                                                    :shoutout       ; reply of a comment itself is a comment
-                                                    reply-form-name
-                                                    reply-form-data
-                                                    reply-form-fields))
+                                                    :shoutout       ; forward of a comment itself is a comment
+                                                    forward-form-name
+                                                    forward-form-data
+                                                    forward-form-fields))
           ]
           [:div.clearleft]
       ]])))

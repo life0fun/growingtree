@@ -1189,6 +1189,77 @@
       ]])))
 
 
+; shoutout thing-entry view
+; thingroot is the id of shoutout.
+; origin is the origin shoutout id if this shoutout is a re-tweet.
+; comments of the shoutout should be tracked by comments object.
+; indention is done by offsetX css class.
+; :navpath [:child 1 :shoutout 2], :shoutout/contenturl "imgurl/xxx.png", :db/id 1, :shoutout/title "hello world\n"
+; :shoutout/author #{{:person/lname "rich", :person/url #{"rich-son.com"}}
+(defmethod thing-entry
+  :shoutout
+  [app thing-type entity override]
+  (let [
+        comm (get-in app [:comms :controls])
+        thing-id (:db/id entity)
+        authors (map #(get % :person/title) (get entity :shoutout/author))
+        
+        ; all sublink class selector with thing-id is defined in actionkeys-class
+        actionkeys (thing-type thing-nav-actionkey) ; nav sublinks
+        value-map (merge (thing-value-strip-type entity)
+                         (actionkeys-class thing-id actionkeys)
+                         override)
+        thingroot (get value-map :thingroot)
+        title (get value-map :title)
+        tm (-> (get value-map :txtime) (/ 1000) (utils/time-to-string))
+        ago (utils/moment-from (js/moment (get value-map :txtime)) (js/moment))
+        offset (/ (- (count (get value-map :navpath)) 2) 2)
+
+        forward-form-name (str "#forward-form-" thing-id)
+        forward-form-input-map {
+          :groupshoutout/group {:id (str "group-title-" thing-id) :type "text" :text "group title"}
+        }
+        forward-form-fields {
+          :groupshoutout/group (str "#" (get-in forward-form-input-map [:groupshoutout/group :id]))
+        }
+        forward-form-data {
+          :groupshoutout/shoutout thing-id
+        }
+       ]
+    (.log js/console "shoutout thing value " (pr-str value-map))
+    (list
+      [:div.thing.link {:id (str (:db/id value-map)) :class (str "comment" offset)}
+        (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
+      
+        [:div.entry.unvoted
+          (thing-entry-titles (vector title))
+          (thing-entry-taglines (vector (str "submitted " ago  " ago at " tm)))
+
+          [:ul.flat-list.buttons
+            (thing-entry-action-button-li "comments" (:shoutout-class value-map)
+                                          (filter-things-onclick app entity :shoutout :shoutout))
+            (thing-entry-action-button-li "tips" (:tips-class value-map)
+                                          (filter-things-onclick app entity :shoutout :shoutout))
+            (thing-entry-action-button-li "forward" (:shoutout-class value-map)
+                                          (ui/toggle-hide-fn (str "#forward-form-" thing-id)))
+          ]
+
+          ; hidden divs for in-line forms
+          [:div.child-form {:id (str "child-form-" thing-id)}
+            (thing-entry-child-form (subs forward-form-name 1)  ; form id
+                                    "reply-form"   ; form class
+                                    forward-form-input-map
+                                    "forward"        ; submit btn text
+                                    (submit-form-fn app
+                                                    :shoutout       ; forward of a comment itself is a comment
+                                                    forward-form-name
+                                                    forward-form-data
+                                                    forward-form-fields))
+          ]
+          [:div.clearleft]
+      ]])))
+
+
 ; group thing-entry view
 (defmethod thing-entry
   :group
