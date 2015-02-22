@@ -399,7 +399,7 @@
   ))
 
 
-(defschema groupshoutout
+(defschema groupchat
   (part app)
   (fields
     [group :ref :unique-value "the unique group"]

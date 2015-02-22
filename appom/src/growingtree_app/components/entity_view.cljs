@@ -204,6 +204,32 @@
     ))
   )
 
+; click on title, 
+(defn title-onclick
+  ([app entity thing-type filtered-type]
+    (title-onclick app entity thing-type filtered-type {}))
+
+  ([app entity thing-type filtered-type options]
+    (let [comm (get-in app [:comms :controls])
+          thing-id (:db/id entity)]
+      (fn [_]
+        (let [; deprecate, use top entity id instead. no need full url.
+              top-url (as-> (routes/window-location) url
+                        (string/split url #"/")
+                        (last url)
+                        (str url "/" thing-id))
+              top-eid thing-id
+             ]
+          ; course/17592186045421/lecture/17592186045423
+          (.log js/console (pr-str "title click top-url " top-url top-eid))
+          (ui/hide-all-forms thing-id)
+          (om/update! app [:top] entity)
+          (om/update! app [:url-data top-eid] entity)
+          (put! comm (mock-data/filter-things-msg-nav-path thing-type thing-id filtered-type options)))
+        )
+      )
+    )
+  )
 
 ; when click flat list subthing link, put title type thing in title, and filtered in body.
 ; parent-type :answer, filtered-type :comments, title thing id is parent id in data.pid
@@ -301,8 +327,8 @@
 
 (defn thing-entry-clickable-titles
   [title click-fn]
-  [:p.title "to   " 
-    [:a.title 
+  [:p.title "  " 
+    [:a.title
       {:on-click click-fn}
     (str "   " title)
     ]])
@@ -1314,7 +1340,8 @@
         (thing-entry-thumbnail thing-type value-map (upvote-onclick app entity))
       
         [:div.entry.unvoted
-          (thing-entry-titles (vector title))
+          (thing-entry-clickable-titles title 
+                                        (filter-things-onclick app entity :group :groupchat {:chatbox true}))
           (thing-entry-taglines (vector (str "created by " authors)))
 
           [:ul.flat-list.buttons
@@ -1524,6 +1551,7 @@
                                  :shoutout/contenturl "imgurl/xxx.png"}]
               (mock-data/add-thing-msg-nav-path :shoutout shoutout-data)))
         ]
+    (.log js/console (pr-str "drawing chatbox " opts))
     (list
       [:div.chatbox
         [:a#chat-file-btn.chat-file-btn

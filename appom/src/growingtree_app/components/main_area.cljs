@@ -113,9 +113,9 @@
                   pid (merge (entity-view/actionkey-class pid thing-type "hide"))
                   pid (merge (entity-view/actionkey-class pid add-thing " "))
                   pid (merge (entity-view/actionkey-class pid join-thing " ")))
-        opts (assoc opts :author pid :login-user (utils/get-login-user app))
+        opts (merge opts (:data nav-path) {:author pid :login-user (utils/get-login-user app)})
        ]
-    (.log js/console (pr-str "filter things " nav-path top-url top-entity))
+    (.log js/console (pr-str "filter things " nav-path opts top-url))
     [:div
       ; show clicked thing entry on top section. top thing data set in filter-things-onclick.
       (when top-entity (thing-entry app top-entity override))
@@ -123,6 +123,8 @@
       (add-thing-forms app nav-path search-filter opts)
       ; datomic peer query to get list of things by nav-path
       (list-things app thing-type nav-path search-filter opts)
+      (when (:chatbox opts)
+        (entity-view/chatbox app comm opts))
     ]))
 
 ; message things, we are not navigation, messaging app is addictive.

@@ -1415,7 +1415,7 @@ fieldset legend {
  chat box
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 /* line 1141, ../../assets/stylesheets/growingtree-app.scss */
-.message-things .chat-file-btn {
+.chatbox .chat-file-btn {
   position: absolute;
   bottom: 22px;
   width: 48px;
@@ -1425,7 +1425,7 @@ fieldset legend {
   text-align: center;
 }
 /* line 1150, ../../assets/stylesheets/growingtree-app.scss */
-.message-things .chat-message-form {
+.chatbox .chat-message-form {
   position: absolute;
   bottom: 22px;
   left: 58px;
@@ -1433,25 +1433,25 @@ fieldset legend {
   margin: 0px;
 }
 /* line 1157, ../../assets/stylesheets/growingtree-app.scss */
-.message-things .chat-message-form .message-form {
+.chatbox .chat-message-form .message-form {
   margin-bottom: -10px;
 }
 /* line 1161, ../../assets/stylesheets/growingtree-app.scss */
-.message-things .emo-menu {
+.chatbox .emo-menu {
   position: absolute;
   right: 7px;
   top: 2px;
   width: 16px;
 }
 /* line 1167, ../../assets/stylesheets/growingtree-app.scss */
-.message-things .chat-input {
+.chatbox .chat-input {
   overflow-y: hidden;
   height: 36px;
   width: 100%;
   font-size: 20px;
 }
 /* line 1173, ../../assets/stylesheets/growingtree-app.scss */
-.message-things .chat-post {
+.chatbox .chat-post {
   display: none;
 }
 
