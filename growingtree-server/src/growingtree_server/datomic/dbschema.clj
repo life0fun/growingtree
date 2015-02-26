@@ -196,7 +196,7 @@
     [title :string :one :unique-value "activity content"]
     [author :ref :one :indexed "who created the activity"]
     [type :keyword "the thing-type of the activity"]
-    [origin :ref :one "the origin thing that triggers this activity, if any"]
+    [origin :ref :one "the group that this activity belongs to"]
     [target :ref :many "target entity, not sure about this"]
     [content :string :fulltext]
     [tag :string :many :fulltext]
@@ -395,16 +395,8 @@
     [contenturl :string "url to the content, img, videos"]
     [thingroot :ref :one :indexed "the thingroot id this shoutout made to"]
     [origin :ref :one :indexed "the origin shoutout id, if this is a retweet"]
+    [group :ref :many :indexed "which groups this group chat belongs to"]
     [tag :string :fulltext :indexed "uniquely identifier"]
-  ))
-
-
-(defschema groupchat
-  (part app)
-  (fields
-    [group :ref :unique-value "the unique group"]
-    [shoutout :ref :many "the shoutouts of the group"]
-    [url :string "url of this group chat"]
   ))
 
 

@@ -30,6 +30,9 @@
 (defn main-area 
   [{:keys [app nav-path channel search-filter]} owner opts]
   (reify
+    om/IInitState
+    (init-state [_]
+      {:chatbox-text ""})
     om/IDisplayName
     (display-name [_] "MainArea")
     ; render impl.
@@ -98,7 +101,8 @@
   [app nav-path search-filter opts]
   (let [comm (get-in app [:comms :controls])
         thing-type (mock-data/get-nav-path-nxt-thing-type nav-path) ; newthing type is last last
-        pid (get-in nav-path [:data :pid])
+        pid (get-in nav-path [:body 1 1]) ; {:body [:filter-things [:course 1 :lecture]]
+        ; pid (get-in nav-path [:data :pid]) ; :data {:pid 1}
         top-url (as-> (routes/window-location) url 
                      (string/split url #"/") 
                      (drop-last url)
@@ -113,7 +117,7 @@
                   pid (merge (entity-view/actionkey-class pid thing-type "hide"))
                   pid (merge (entity-view/actionkey-class pid add-thing " "))
                   pid (merge (entity-view/actionkey-class pid join-thing " ")))
-        opts (merge opts (:data nav-path) {:author pid :login-user (utils/get-login-user app)})
+        opts (merge opts (:data nav-path) {:login-user (utils/get-login-user app)})
        ]
     (.log js/console (pr-str "filter things " nav-path opts top-url))
     [:div
@@ -124,7 +128,8 @@
       ; datomic peer query to get list of things by nav-path
       (list-things app thing-type nav-path search-filter opts)
       (when (:chatbox opts)
-        (entity-view/chatbox app comm opts))
+        (let [opts (merge opts {:shoutout/group pid})]
+          (entity-view/chatbox app comm opts)))
     ]))
 
 ; message things, we are not navigation, messaging app is addictive.
@@ -134,7 +139,7 @@
   [app nav-path search-filter opts]
   (let [comm (get-in app [:comms :controls])
         thing-type (mock-data/get-nav-path-nxt-thing-type nav-path)
-        pid (get-in nav-path [:data :pid])
+        pid (get-in nav-path [:body 1 1])
         top-url (as-> (routes/window-location) url 
                      (string/split url #"/") 
                      (drop-last url)

@@ -1545,9 +1545,12 @@
 (defn chatbox 
   [app comm opts]
   (let [login-user-id (utils/get-login-id app)
-        shoutout-path-fn
+        group-id (:shoutout/group opts)
+        add-shoutout-fn
           (fn [txt]
-            (let [shoutout-data {:shoutout/title txt :shoutout/author login-user-id
+            (let [shoutout-data {:shoutout/title txt 
+                                 :shoutout/author login-user-id
+                                 :shoutout/group group-id
                                  :shoutout/contenturl "imgurl/xxx.png"}]
               (mock-data/add-thing-msg-nav-path :shoutout shoutout-data)))
         ]
@@ -1569,10 +1572,11 @@
                 {;:on-focus #(put! comm [:user-message-focused])
                  :on-key-up #(if (= (.. % -which) 13) ; 13 is return or enter.
                               (let [txt (.. % -target -value)]
-                                (put! comm (shoutout-path-fn txt))))
+                                (set! (.. % -target -value) "")
+                                (put! comm (add-shoutout-fn txt))))
                 }
                 (when-not (:input-focused? opts) {:value (:input-value opts)}))
             ]
-          [:button.chat-post.hidden {:on-click #(put! comm (shoutout-path-fn "fake"))} "Post"]]
+          [:button.chat-post.hidden {:on-click #(put! comm (add-shoutout-fn "fake"))} "Post"]]
         ]])
   ))
