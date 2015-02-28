@@ -114,7 +114,8 @@
 
     [(:child ?e ?val) [?e :shoutout/author ?val]]
     [(:parent ?e ?val) [?e :shoutout/author ?val]]
-    
+    [(:group ?e ?val) [?e :shoutout/group ?val]]
+
     ; all shoutout whose origin point to this shoutout
     [(:shoutout ?e ?val) [?e :shoutout/origin ?val]]
   ])
@@ -136,6 +137,7 @@
     ))
 
 
+; [:group 17592186045438 :shoutout
 (defn query-shoutout
   "query shoutout by path, [:child 1 :shoutout] or [:child 1 :shoutout 2 :shoutout]"
   [navpath]
@@ -165,7 +167,8 @@
   [qpath]
   (let [; iteratively apply a fn to a coll. result is a new lazy sequence.
         ; (iterate f x), ret a lazy sequence of x, (f x), (f (f x)), mapcat to get one list.
-        shoutout (->> (iterate (fn [shoutouts] (mapcat #(shoutout-of %) shoutouts)) (query-shoutout qpath))
+        topshoutout (query-shoutout qpath)
+        shoutout (->> (iterate (fn [shoutouts] (mapcat #(shoutout-of %) shoutouts)) topshoutout)
                       (take 3)  ; how many levels of recursive shoutout tree
                       (apply concat))
        ]

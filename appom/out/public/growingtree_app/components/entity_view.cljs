@@ -1341,7 +1341,7 @@
       
         [:div.entry.unvoted
           (thing-entry-clickable-titles title 
-                                        (filter-things-onclick app entity :group :groupchat {:chatbox true}))
+                                        (filter-things-onclick app entity :group :shoutout {:chatbox true}))
           (thing-entry-taglines (vector (str "created by " authors)))
 
           [:ul.flat-list.buttons
@@ -1572,7 +1572,7 @@
                 {;:on-focus #(put! comm [:user-message-focused])
                  :on-key-up #(if (= (.. % -which) 13) ; 13 is return or enter.
                               (let [txt (.. % -target -value)]
-                                (set! (.. % -target -value) "")
+                                (set! (.. % -target -values) "")
                                 (put! comm (add-shoutout-fn txt))))
                 }
                 (when-not (:input-focused? opts) {:value (:input-value opts)}))
