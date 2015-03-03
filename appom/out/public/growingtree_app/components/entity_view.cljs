@@ -1243,13 +1243,13 @@
 
         forward-form-name (str "#forward-form-" thing-id)
         forward-form-input-map {
-          :groupshoutout/group {:id (str "group-title-" thing-id) :type "text" :text "group title"}
+          :shoutout/group {:id (str "group-title-" thing-id) :type "text" :text "forward to group"}
         }
         forward-form-fields {
-          :groupshoutout/group (str "#" (get-in forward-form-input-map [:groupshoutout/group :id]))
+          :shoutout/group (str "#" (get-in forward-form-input-map [:shoutout/group :id]))
         }
         forward-form-data {
-          :groupshoutout/shoutout thing-id
+          :shoutout/id thing-id
         }
        ]
     (.log js/console "shoutout thing value " (pr-str value-map))
@@ -1262,8 +1262,6 @@
           (thing-entry-taglines (vector (str "submitted " ago  " ago at " tm)))
 
           [:ul.flat-list.buttons
-            (thing-entry-action-button-li "comments" (:shoutout-class value-map)
-                                          (filter-things-onclick app entity :shoutout :shoutout))
             (thing-entry-action-button-li "tips" (:tips-class value-map)
                                           (filter-things-onclick app entity :shoutout :shoutout))
             (thing-entry-action-button-li "forward" (:shoutout-class value-map)

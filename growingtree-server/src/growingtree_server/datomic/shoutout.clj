@@ -182,10 +182,17 @@
 (defn create-shoutout
   "create a shoutout with details "
   [details]
-  (let [entity (-> details
+  (log/info "creating shoutout " details)
+  (let [shoutid (or (:shoutout/id details) (d/tempid :db.part/user))
+        entity (-> details
                    (select-keys (keys shoutout-schema))
                    (util/to-datomic-attr-vals)   ; coerce to datomic value for insertion
-                   (assoc :db/id (d/tempid :db.part/user)))
+                   (assoc :db/id shoutid))
+        group-id (when (:shoutout/group details)
+                    (:db/id (dbconn/find-by :group/title (:shoutout/group details))))
+        entity (if group-id 
+                  (assoc entity :shoutout/group group-id)
+                  entity)
         trans (submit-transact [entity])  ; transaction is a list of entity
        ]
     (log/info "create shoutout entity " entity " trans " trans)
