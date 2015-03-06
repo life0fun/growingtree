@@ -29,6 +29,8 @@
                  [com.datomic/datomic-pro "0.9.4755" :exclusions [org.slf4j/slf4j-nop]]
                  [datomic-schema "1.0.2"]  ; macro for db schema
 
+                 [com.taoensso/sente "1.3.0"]  ; sente for websocket and ajax
+
                  [clj-redis "0.0.12"]
                  [org.clojure/data.json "0.2.2"]    ; json package]
                  [clj-time "0.5.1"]       ; clj-time wraps Joda time

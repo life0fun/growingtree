@@ -233,8 +233,8 @@
   [tx-data]  ; tx-data is a list of list/map, each map must have :db/id
   (log/info "submit-transact " tx-data)
   (let [
-        ; ft (d/transact (get-conn) tx-data)  ; ret future task
-        ft tx-data
+        ft (d/transact (get-conn) tx-data)  ; ret future task
+        ; ft tx-data
        ]
     (log/info "dbconn submit trans " tx-data " trans " ft)
     ft))

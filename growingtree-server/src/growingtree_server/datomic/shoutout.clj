@@ -192,7 +192,7 @@
                     (:db/id (dbconn/find-by :group/title (:shoutout/group details))))
         entity (if group-id 
                   (assoc entity :shoutout/group group-id)
-                  entity)
+                  (dissoc entity :shoutout/group))
         trans (submit-transact [entity])  ; transaction is a list of entity
        ]
     (log/info "create shoutout entity " entity " trans " trans)

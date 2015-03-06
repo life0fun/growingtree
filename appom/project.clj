@@ -20,10 +20,11 @@
                  [sablono "0.2.6"]
                  [secretary "1.0.0"]
 
+                 [com.taoensso/sente "1.3.0"]  ; sente websocket and ajax.
                  [cljs-ajax "0.2.4"]  ; cljs ajax client
 		             [com.andrewmcveigh/cljs-time "0.1.4"]  ; cljs-time mimic clj-time joda
                  [ch.qos.logback/logback-classic "1.0.7" :exclusions [org.slf4j/slf4j-api]]
-                 ]
+                ]
 
   :source-paths ["src" "yaks/om/src" "yaks/sablono/src" "target/generated/clj" "assets"]
 

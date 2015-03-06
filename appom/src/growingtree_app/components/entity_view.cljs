@@ -1552,7 +1552,7 @@
                                  :shoutout/contenturl "imgurl/xxx.png"}]
               (mock-data/add-thing-msg-nav-path :shoutout shoutout-data)))
         ]
-    (.log js/console (pr-str "drawing chatbox " opts))
+    (.log js/console (pr-str "drawing chatbox " login-user-id))
     (list
       [:div.chatbox
         [:a#chat-file-btn.chat-file-btn
@@ -1570,7 +1570,7 @@
                 {;:on-focus #(put! comm [:user-message-focused])
                  :on-key-up #(if (= (.. % -which) 13) ; 13 is return or enter.
                               (let [txt (.. % -target -value)]
-                                (set! (.. % -target -values) "")
+                                (dommy/set-value! (sel1 :#chat-input) "")
                                 (put! comm (add-shoutout-fn txt))))
                 }
                 (when-not (:input-focused? opts) {:value (:input-value opts)}))

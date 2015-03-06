@@ -15,6 +15,9 @@
             [io.pedestal.service.http.route :as route]
             [io.pedestal.service.http.route.definition :refer [defroutes]]
             [io.pedestal.service.http.sse :refer :all]
+            
+            [taoensso.sente :as sente]
+
             [ring.util.mime-type :as ring-mime]
             [ring.middleware.session.cookie :as cookie])
   ; load peer lib to access to datomic db layer
@@ -284,12 +287,24 @@
 ;    ["/:id"  ^:constraints {:user-id #"[0-9]+"} ^:interceptors [verify-order-ownership load-order-from-db]
 ;    {:get view-order :post [:make-an-order o/create-order]}]]]]
 ;;==================================================================================
+(let [{:keys [ch-recv send-fn ajax-post-fn ajax-get-or-ws-handshake-fn
+              connected-uids]}
+      (sente/make-channel-socket! {})]
+  (def ring-ajax-post                ajax-post-fn)
+  (def ring-ajax-get-or-ws-handshake ajax-get-or-ws-handshake-fn)
+  (def ch-chsk                       ch-recv) ; ChannelSocket's receive channel
+  (def chsk-send!                    send-fn) ; ChannelSocket's send API fn
+  (def connected-uids                connected-uids) ; Watchable, read-only atom
+  )
+
 (defroutes routes
   [[["/" {:get home-page}
      ; set common intermediate interceptors before reach dest interceptor
      ^:interceptors [(body-params/body-params) bootstrap/html-body session-interceptor]
      ["/msgs" {:get subscribe :post publish}
         "/events" {:get wait-for-events}]   ; define the route for later url-for redirect
+     ["/chsk" {:get ring-ajax-get-or-ws-handshake
+               :post ring-ajax-post }]
      ["/about" {:get about-page}]
      ["/login" {:post handle-signup-login}]  ; post handler of signup-login
      ["/api/:thing" {:post get-things}]
