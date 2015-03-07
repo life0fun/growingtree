@@ -1552,7 +1552,7 @@
                                  :shoutout/contenturl "imgurl/xxx.png"}]
               (mock-data/add-thing-msg-nav-path :shoutout shoutout-data)))
         ]
-    (.log js/console (pr-str "drawing chatbox " opts))
+    (.log js/console (pr-str "drawing chatbox " login-user-id))
     (list
       [:div.chatbox
         [:a#chat-file-btn.chat-file-btn

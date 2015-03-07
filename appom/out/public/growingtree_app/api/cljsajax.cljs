@@ -4,6 +4,7 @@
             [cljs.reader :as r]
             [ajax.core :refer [GET POST]]
             [goog.structs.Map :as map]
+            [taoensso.sente  :as sente :refer (cb-success?)]
   ))
 
 ;
@@ -33,6 +34,16 @@
 ;; for cljs pure object, use variadic (aget object attr nested-attr)
 ;;
 ;; we convert response data to cljs.core.PersistentVector and store i
+
+(let [{:keys [chsk ch-recv send-fn state]}
+      (sente/make-channel-socket! "/chsk" ; Note the same path as before
+       {:type :auto ; e/o #{:auto :ajax :ws}
+       })]
+  (def chsk       chsk)
+  (def ch-chsk    ch-recv) ; ChannelSocket's receive channel
+  (def chsk-send! send-fn) ; ChannelSocket's send API fn
+  (def chsk-state state)   ; Watchable, read-only atom
+  )
 
 ;;==================================================================================
 ; server always deliver list of things, parse to cljs.core.PersistentVector.
