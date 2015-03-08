@@ -3,7 +3,7 @@
             [dommy.core :as dommy]
             [goog.events :as events]
             [goog.history.EventType :as EventType]
-            [secretary.core :as secretary :include-macros true :refer [defroute]]
+            [secretary.core :as secretary :refer-macros [defroute]]
             [growingtree-app.mock-data :as mock-data]
             [growingtree-app.history :as growingtree-history]
             [growingtree-app.utils :as utils])
@@ -18,7 +18,6 @@
 
 ; only when html5 history not support
 ; (secretary/set-config! :prefix "#")
-
 
 (defn listen-once-for-app!
   [app pred on-loaded]

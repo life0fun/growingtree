@@ -42,6 +42,7 @@
       ; (instance? java.util.Map x)
       ))
 
+
 (def initial-query-map
   {:kandan-channels  (string/split (or (.getParameterValue parsed-uri "kandan-channels") "1") #",")
    :kandan-api-key   (.getParameterValue parsed-uri "kandan-api-key")
@@ -58,25 +59,29 @@
   (when logging-enabled?
     (apply print message)))
 
-(defn safe-sel [s]
+(defn safe-sel 
+  [s]
   (str (string/replace (string/lower-case (str s)) #"[\W]" "-")))
 
-(defn email->gravatar-url [email]
+(defn email->gravatar-url
+  [email]
   (let [email (or email "unknown-email@unknown-domain.com")
         container (doto (goog.crypt.Md5.)
                     (.update email))
         hash (crypt/byteArrayToHex (.digest container))]
     (str "http://gravatar.com/avatar/" hash "?s=30&d=identicon")))
 
-(defn gravatar-for [email]
+(defn gravatar-for
+  [email]
   [:img.avatar
    {:src
     (email->gravatar-url email)}])
 
-(defn set-window-href! [path]
-  (js/window.history.pushState #js {}, "", path))
 
-(defn ajax [url method data-string success & [error headers]]
+
+; issue ajax call to url with method.
+(defn ajax 
+  [url method data-string success & [error headers]]
   (let [request (XhrIo.)
         d (goog.async.Deferred.)
         listener-id (ge/listen request gevt/COMPLETE (fn [response]
@@ -97,19 +102,36 @@
 
 
 ;- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; get state attrs
+;- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+; {:person/lname "poor", :person/url #{"poor.com/poor-son"}, :db/id 17592186045450, :person/title "poor-son", :person/email #{"poor-son@poor.com"}}
+(defn get-login-user
+  "get current login user from state, must be called in render phase."
+  [state]
+  (get-in state [:login-user])
+  )
+
+(defn get-login-id
+  "get current login user id"
+  [state]
+  (:db/id (get-login-user state)))
+
+;- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ; thing entity attrs
 ; ret the keyword for thing attr
 (defn thing-attr-keyword
   [thing-type attr-name]
   (keyword (str (name thing-type) "/" attr-name)))
 
+
 ; get the namespace of thing
 (defn thing-ident
   "get thing type of the entity, the namespace, or ident of entity. remove :db/id"
   [entity]
-  (let [e (dissoc entity :db/id)  ; remove :db/id
-        ident (keyword (namespace (ffirst e)))]
-    ident))
+  (when entity
+    (let [e (dissoc entity :db/id)  ; remove :db/id
+          ident (keyword (namespace (ffirst e)))]
+      ident)))
 
 
 ; for enum attr, update thing-val map from string val to keyword.
@@ -123,11 +145,6 @@
     (if (contains? thing-val schema-key)
       (let [enum-key (str (name thing-type) "." keyname)
             enum-fn (fn [v & args] (keyword (str enum-key "/" v)))
-            ; new-val (if enum
-            ;           (-> thing-val
-            ;               (update-in [schema-key] enum-fn))
-            ;           (-> thing-val
-            ;               (update-in [schema-key] keyword)))
             new-val (cond-> thing-val
                       enum (update-in [schema-key] enum-fn)
                       :else (update-in [schema-key] keyword))

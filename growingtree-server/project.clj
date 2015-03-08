@@ -5,8 +5,11 @@
   :url "http://growingtree.com"
   :license {:name "copyright reserved !" }
 
-  :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
+  :dependencies [
+                 ;[org.clojure/clojure "1.5.1"]
+                 ;[org.clojure/core.async "0.1.267.0-0d7780-alpha"]
+                 [org.clojure/clojure "1.7.0-alpha5"]
+                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
 
                  [io.pedestal/pedestal.service "0.2.2"]
                  [io.pedestal/pedestal.service-tools "0.2.2"]
@@ -30,6 +33,7 @@
                  [datomic-schema "1.0.2"]  ; macro for db schema
 
                  [com.taoensso/sente "1.3.0"]  ; sente for websocket and ajax
+                 [com.cognitect/transit-clj  "0.8.259"]
 
                  [clj-redis "0.0.12"]
                  [org.clojure/data.json "0.2.2"]    ; json package]

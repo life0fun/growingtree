@@ -1,7 +1,8 @@
 (ns growingtree-app.history
   (:require [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
             [goog.events :as events]
-            [secretary.core :as sec :include-macros true :refer [defroute]]
+            ;[secretary.core :as sec :include-macros true :refer [defroute]]
+            [secretary.core :as secretary :refer-macros [defroute]]
             [growingtree-app.utils :as utils])
   (:require-macros [cljs.core.async.macros :as am :refer [go go-loop alt!]])
   (:import [goog History]))

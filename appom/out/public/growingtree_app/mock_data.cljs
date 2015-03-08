@@ -311,7 +311,7 @@
 
      :my-things my-things
      
-     ; :controls and :api chans, core def app-state 
+     ; contains :controls and :api chans, defed in core/app-state/controls-ch and api-ch.
      :comms comms
 
      ;; no used

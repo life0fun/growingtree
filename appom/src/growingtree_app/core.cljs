@@ -11,6 +11,7 @@
             [growingtree-app.controllers.post-api :as api-post]
             [growingtree-app.datetime :as dt]
             [growingtree-app.api.kandan :as kandan-api]
+            [growingtree-app.api.communicator :as comm]
             [growingtree-app.mock-data :as mock-data]
             [growingtree-app.routes :as routes]
             [growingtree-app.useful :as useful :refer [ffilter]]
@@ -27,12 +28,14 @@
 ; api chan for api request handling.
 (def controls-ch (chan))
 (def api-ch (chan))
+(def stats-ch (chan))
 
 ; global app state wrapped inside atom, state include control and api chan, 
 ; core passes data flow chan to sub components, and loop processing events from chan.
 (def app-state
   (atom (mock-data/initial-state {:controls controls-ch
-                                  :api      api-ch})))
+                                  :api      api-ch
+                                  :stats    stats-ch})))
 
 ;; :state-history is a vector of vectors, where the inner
 ;; vector is the same shape as the messages played
@@ -129,6 +132,9 @@
 
     ; define client side route for url
     (routes/define-routes! state hist-el)
+
+    ; (comm/start-communicator (:controls comms) (:api comms) (:stats comms))
+
     ; listen on window onpopstate when user hit back on browser.
     (dommy/listen! js/window :popstate (partial routes/onpopstate (:controls comms)))
 

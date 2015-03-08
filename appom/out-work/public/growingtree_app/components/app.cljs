@@ -4,6 +4,7 @@
             [cljs.core.async :as async :refer [>! <! alts! chan sliding-buffer put! close!]]
             [growingtree-app.components.draggable-window :as draggable]
             [growingtree-app.components.key-queue :as keyq]
+            [growingtree-app.mock-data :as mock-data]
             [growingtree-app.components.navbar :as navbar]
             [growingtree-app.components.sidebar :as sidebar]
             [growingtree-app.components.main-area :as main-area]
@@ -26,13 +27,16 @@
       ;next-props is the next app state we are moving to. next-state is the next component local state.
       (let [nav-path (get-in next-props [:nav-path])
             body (:body (last nav-path))]
-        (.log js/console (pr-str "app shouldupdate next-props nav-path" (last nav-path)))
+        ; (.log js/console (pr-str " update if nav-path has body to show. next-props " (last nav-path)))
+        ; re-render only when we have body slot in nav path to render.
+        ; (.log js/console (pr-str "app IShouldUpdate " nav-path))
         (if body true false)))
+    ; render fn 
     om/IRender
     (render [this]
       ; get app state cursors for related keys, and pass map state cursor when building sub-components.
-      (let [nav-path                (last (get-in app [:nav-path])) ; last path segment {:path [:all 0 :parent]}
-            thing-type              (last (:body nav-path))
+      (let [nav-path                (mock-data/get-last-nav-path app) ; last path segment {:path [:all 0 :parent]}
+            login-user              (get-in app [:login-user])
             error                   (get-in app [:error])
 
             selected-channel        (get-in app [:channels (:selected-channel app)])
@@ -64,7 +68,7 @@
                               "ctrl+r"     restore-local-state!
                               ;"slash"      focus-search!
                               "esc"        blur-current-field!})]
-        (.log js/console (pr-str "app state change, render nav-path " nav-path))
+        (.log js/console (pr-str "app state change, render nav-path path " nav-path))
         (html/html
           [:div
             {:className (str (when (get-in app [:settings :sidebar :right :open]) "slide-left ")
@@ -80,16 +84,17 @@
                            :content-data (get-in app path)
                            :content-opts {}})))
 
+            ; Not used, intercept keyboard for real time query
             (om/build keyq/KeyboardHandler app {:opts {:keymap keymap
                                                        :error-ch (get-in app [:comms :error])}})
 
+            ; (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
+            (om/build navbar/navbar app {:opts {:comms (:comms opts)}})  ; pass entire app cursor
+
             ; pass selected-chan app state MapCursor to sidebar subcomponent in data map.
-            (om/build sidebar/sidebar {:channel selected-channel
-                                       :settings (:settings app)
-                                       :search-filter (get-in app [:settings :forms :search :value])}
+            (om/build sidebar/sidebar app 
                                       {:opts {:comms (:comms opts)
                                               :users (:users app)
-                                              :current-user-email (:current-user-email app)
                                               :selected-channel (:selected-channel app)
                                               :channels (:channels app)}})
             ; pass global app state MapCursor when building main-area component
@@ -103,7 +108,7 @@
                                                   :input-focused? (get-in app [:settings :forms :user-message :focused])
                                                   :input-value (get-in app [:settings :forms :user-message :value])}}
                                                   )
-            (om/build navbar/navbar (select-keys app [:things :channels :settings]) {:opts {:comms (:comms opts)}})
+            
             ; [:div#at-view.at-view [:ul#at-view-ul]]
           ])
       ))))

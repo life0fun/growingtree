@@ -26,6 +26,16 @@
   (-> state
     (update-in [:nav-path] conj msg-data)))
 
+; for login control,msg-data {:body [:login [:login 0 :login]]
+(defmethod control-event 
+  :login
+  [target msg-type msg-data state]
+  (let [cur-nav-type (get-in msg-data [:body 1 2])]
+    (.log js/console (pr-str "control event :login conj nav-path " msg-data))
+    (cond-> state
+      :else (update-in [:nav-path] conj msg-data)
+      )))
+
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; global state update for control event for navbar.
 ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
@@ -35,7 +45,7 @@
   (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
         cur-nav-type (get-in msg-data [:body 1 2])
        ]
-    (.log js/console (pr-str "all-things event : conj nav-path " msg-data))
+    (.log js/console (pr-str "control event :all-things : conj nav-path " msg-data))
     ;(.log js/console (pr-str "all-things event : state things " state))
     (cond-> state
       :else (update-navbar-selected last-nav-type cur-nav-type)
@@ -49,7 +59,7 @@
   (let [last-nav-type (get-in (last (get-in state [:nav-path])) [:body 1 2])
         cur-nav-type (get-in msg-data [:body 1 2])
        ] 
-    (.log js/console (pr-str "filter-things : conj nav-path " msg-data))
+    (.log js/console (pr-str "control event :filter-things conj nav-path " msg-data))
     (cond-> state
       :else (update-navbar-selected last-nav-type cur-nav-type)
       :else (update-in [:nav-path] conj msg-data)
@@ -60,9 +70,19 @@
 (defmethod control-event 
   :add-thing
   [target msg-type msg-data state] ; msg-data = [:course {:title :content}]
-  (.log js/console (pr-str "add-thing event : conj nav-path " msg-data))
+  (.log js/console (pr-str "control event :add-thing : conj nav-path " msg-data))
   (-> state
     (update-in [:nav-path] conj msg-data))) ; nav-path [.[:lecture {:content ... :author ...}]]
+
+; msg-type is :search-things, msg-data 
+; {:body [:search-things [thing-type 0 "xx"]] :data {:thing-type :all-things :searchkey "xx"}}
+(defmethod control-event 
+  :search-things
+  [target msg-type msg-data state] ; msg-data = [:course {:title :content}]
+  (.log js/console (pr-str "control event :search-thing : conj nav-path " msg-data))
+  (-> state
+    (update-in [:nav-path] conj msg-data))) ; nav-path [.[:lecture {:content ... :author ...}]]
+
 
 (defmethod control-event :api-key-updated
   [target msg-type api-key state]

@@ -124,3 +124,14 @@ When slide btn clicked, add .slide class, transform translateX to right shift.
 
     (sel1 ".form-horizontal .person-title")
     (sel1 ".form-horizontal #person-title")
+
+
+## Build 
+
+1. lein cljsbuild clean will remove out directory.
+2. after that, we need cp the following missing files from  assets folder to out/public.
+    1. dev.html
+    2. assets/javascripts/react-with-addons.min.js
+    3. assets/javascripts/moment.min.js out/public/
+    4. assets/javascripts/* out/public/
+    5. assets/images/* out/public/

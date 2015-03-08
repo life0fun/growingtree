@@ -12,15 +12,26 @@
   :dependencies [[ankha "0.1.1"]
                  [com.facebook/react "0.8.0.1"]
                  [hiccup-bridge "1.0.0-SNAPSHOT"]
-                 [org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2277"]
-                 [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
+                 ;[org.clojure/clojure "1.6.0"]
+                 [org.clojure/clojure "1.7.0-alpha5"]
+                 ;[org.clojure/clojurescript "0.0-2277"]
+                 [org.clojure/clojurescript "0.0-2850"]
+                 [tailrecursion/cljs-priority-map "1.1.0"]
+                 [org.clojure/data.priority-map "0.0.5"]
+
+                 ;[org.clojure/core.async "0.1.267.0-0d7780-alpha"]
+                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [org.clojure/core.match "0.3.0-alpha4"]
+
                  [om "0.7.1"]
                  [prismatic/dommy "0.1.2"]
                  [sablono "0.2.6"]
-                 [secretary "1.0.0"]
+                 [secretary "1.2.1"]
 
                  [com.taoensso/sente "1.3.0"]  ; sente websocket and ajax.
+                 [com.cognitect/transit-clj  "0.8.259"]
+                 [com.cognitect/transit-cljs "0.8.205"]
+
                  [cljs-ajax "0.2.4"]  ; cljs ajax client
 		             [com.andrewmcveigh/cljs-time "0.1.4"]  ; cljs-time mimic clj-time joda
                  [ch.qos.logback/logback-classic "1.0.7" :exclusions [org.slf4j/slf4j-api]]

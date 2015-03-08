@@ -11,7 +11,6 @@
             [growingtree-app.utils :as utils :refer [mprint]])
   (:use-macros [dommy.macros :only [sel sel1]]))
 
-; process event from chan, aside from global state update from controls ns.
 
 (def local-only-commands
   ["/mute" "/unmute"])
@@ -23,11 +22,16 @@
       false
       true)))
 
+;
+; post control event perform ajax call to backend services and send result to api-channel.
+; msg-type is [:all-things :filter-things :add-thing]
+;
 ; target is view $el, not used. msg-type is query type, all-things or filter things.
 ; msg-data is nav-path. 
 ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}  
 ; {:body [:filter-things [:group 17592186045438 :activity]], :data {:pid 17592186045438}}
 ; Ajax request to get data using query path.
+; previouse-state is NOT used.
 (defmulti post-control-event!
   (fn [target msg-type msg-data previous-state current-state] msg-type))
 
@@ -37,18 +41,35 @@
   [target msg-type msg-data previous-state current-state]
   (.log js/console (pr-str "default post-control for: " msg-type)))
 
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+; post control event for navbar, last nav-path tuple.
+; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
+(defmethod post-control-event! 
+  :login
+  [target msg-type nav-path previous-state current-state]
+  (.log js/console (pr-str "post ajax :login nav-path " nav-path))
+  (utils/set-window-href! (routes/v1-all-things
+                            {:thing-type (name (get-in nav-path [:body 1 2]))}))
+  (cljsajax/cljs-ajax :signup-login ;:request-things
+                      nav-path
+                      (get-in current-state [:comms :api]) ; ajax ret data to api-ch.
+                      nav-path)  ; nav-path as request :params :details
+    )
+
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ; post control event for navbar, last nav-path tuple.
 ; {:body [:all-things [:all 0 :group]], :data {:author "rich-dad"}}
 (defmethod post-control-event! 
   :all-things
   [target msg-type nav-path previous-state current-state]
-  (.log js/console (pr-str "post-control-event! all-things nav-path " nav-path))
-  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (get-in nav-path [:body 1 2]))}))
+  (.log js/console (pr-str "post ajax :all-things nav-path " nav-path))
+  (utils/set-window-href! (routes/v1-all-things
+                            {:thing-type (name (get-in nav-path [:body 1 2]))}))
   (cljsajax/cljs-ajax :request-things
                       nav-path
-                      (get-in current-state [:comms :api])
-                      nav-path)
+                      (get-in current-state [:comms :api]) ; ajax ret data to api-ch.
+                      nav-path)  ; nav-path as request :params :details
     )
   
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -58,26 +79,50 @@
 (defmethod post-control-event! 
   :filter-things
   [target msg-type nav-path previous-state current-state]
-  (.log js/console (pr-str "post-control-event! filter-things nav-path " nav-path))
-  (utils/set-window-href! (routes/v1-thing-nodes {:thing-type (name (get-in nav-path [:body 1 2]))}))
+  (.log js/console (pr-str "post ajax filter-things nav-path " nav-path))
+  ; update secretary router match to action.
+  (utils/set-window-href! (routes/v1-filter-things 
+                            {:parent (name (get-in nav-path [:body 1 0]))
+                             :id (get-in nav-path [:body 1 1])
+                             :filtered (name (get-in nav-path [:body 1 2]))
+                            }))
   (cljsajax/cljs-ajax :request-things
                       nav-path
-                      (get-in current-state [:comms :api])
-                      nav-path)   ; data is nav-path. [:all 0 :parent], or [:qpath [:course 1 :lecture]]
+                      (get-in current-state [:comms :api])  ; ajax ret data to api-ch.
+                      nav-path)   ; request :params :details is nav-path. [:all 0 :parent], or [:qpath [:course 1 :lecture]]
   )
 
-; nav-path {:add-thing :lecture :details {:lecture/course 1 :lecture/title ...}}
+; nav-path is msg-data in get-search-msg, map of :body [] :data {}
+(defmethod post-control-event! 
+  :search-things
+  [target msg-type nav-path previous-state current-state]
+  (.log js/console (pr-str "post ajax search-thing nav-path " nav-path));
+  ; ; update secretary router match to action.
+  (utils/set-window-href! (routes/v1-all-things
+                            {:thing-type (name (get-in nav-path [:body 1 0]))
+                             :key (get-in nav-path [:body 1 1])}))
+  (cljsajax/cljs-ajax :search-things
+                      nav-path  
+                      (get-in current-state [:comms :api]) ; api-ch
+                      nav-path) ; request :params :details is nav-path. [:all 0 :parent], or [:qpath [:course 1 :lecture]]
+  )
+
+
+; get-add-thing-msg defines msg-data as nav-path 
+; {:add-thing :lecture :data {:lecture/course 1 :lecture/title ...}}
 (defmethod post-control-event! 
   :add-thing
   [target msg-type nav-path previous-state current-state]
-  (print "post-control-event! add-thing nav-path :" nav-path) ; [:lecture {:lecture/course ...}]
-  (utils/set-window-href! (routes/v1-thing-nodes 
-    {:thing-type (name (get nav-path :add-thing))}))
+  (.log js/console (pr-str "post ajax add-thing nav-path " nav-path)) ; [:lecture {:lecture/course ...}]
+  ; ; update secretary router match to action.
+  (utils/set-window-href! (routes/v1-all-things
+                            {:thing-type (name (get nav-path :add-thing))}))
   (cljsajax/cljs-ajax :add-thing
                       nav-path
                       (get-in current-state [:comms :api])
-                      (get nav-path :details))  ; input data is {:add-thing :course :details {:title ... :content ...}}
+                      (get nav-path :data))  ; input data is {:add-thing :course :details {:title ... :content ...}}
   )
+
 
 (defmethod post-control-event! 
   :current-user-mentioned

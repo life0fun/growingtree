@@ -40,7 +40,6 @@ goog.require('goog.net.ErrorCode');
 goog.require('goog.net.EventType');
 goog.require('goog.net.XhrIo');
 goog.require('goog.net.XhrIoPool');
-goog.require('goog.structs');
 goog.require('goog.structs.Map');
 
 // TODO(user): Add some time in between retries.
@@ -171,7 +170,8 @@ goog.net.XhrManager.prototype.getOutstandingRequestIds = function() {
  * @param {string} id The id of the request.
  * @param {string} url Uri to make the request too.
  * @param {string=} opt_method Send method, default: GET.
- * @param {ArrayBuffer|Blob|Document|FormData|string=} opt_content Post data.
+ * @param {ArrayBuffer|ArrayBufferView|Blob|Document|FormData|string=}
+ *     opt_content Post data.
  * @param {Object|goog.structs.Map=} opt_headers Map of headers to add to the
  *     request.
  * @param {number=} opt_priority The priority of the request. A smaller value
@@ -182,7 +182,7 @@ goog.net.XhrManager.prototype.getOutstandingRequestIds = function() {
  *     should be retried.
  * @param {goog.net.XhrIo.ResponseType=} opt_responseType The response type of
  *     this request; defaults to goog.net.XhrIo.ResponseType.DEFAULT.
- * @return {goog.net.XhrManager.Request} The queued request object.
+ * @return {!goog.net.XhrManager.Request} The queued request object.
  */
 goog.net.XhrManager.prototype.send = function(
     id,
@@ -486,12 +486,7 @@ goog.net.XhrManager.prototype.disposeInternal = function() {
   this.eventHandler_.dispose();
   this.eventHandler_ = null;
 
-  // Call dispose on each request.
-  var requests = this.requests_;
-  goog.structs.forEach(requests, function(value, key) {
-    value.dispose();
-  });
-  requests.clear();
+  this.requests_.clear();
   this.requests_ = null;
 };
 
@@ -536,7 +531,8 @@ goog.inherits(goog.net.XhrManager.Event, goog.events.Event);
  * @param {Function} xhrEventCallback Callback attached to the events of the
  *     XhrIo object of the request.
  * @param {string=} opt_method Send method, default: GET.
- * @param {ArrayBuffer|Blob|Document|FormData|string=} opt_content Post data.
+ * @param {ArrayBuffer|ArrayBufferView|Blob|Document|FormData|string=}
+ *     opt_content Post data.
  * @param {Object|goog.structs.Map=} opt_headers Map of headers to add to the
  *     request.
  * @param {Function=} opt_callback Callback function for when request is
@@ -567,7 +563,7 @@ goog.net.XhrManager.Request = function(url, xhrEventCallback, opt_method,
 
   /**
    * Post data.
-   * @type {ArrayBuffer|Blob|Document|FormData|string|undefined}
+   * @type {ArrayBuffer|ArrayBufferView|Blob|Document|FormData|string|undefined}
    * @private
    */
   this.content_ = opt_content;
@@ -657,7 +653,7 @@ goog.net.XhrManager.Request.prototype.getMethod = function() {
 
 /**
  * Gets the post data.
- * @return {ArrayBuffer|Blob|Document|FormData|string|undefined}
+ * @return {ArrayBuffer|ArrayBufferView|Blob|Document|FormData|string|undefined}
  *     The post data.
  */
 goog.net.XhrManager.Request.prototype.getContent = function() {

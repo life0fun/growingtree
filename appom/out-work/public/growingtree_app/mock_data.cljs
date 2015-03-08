@@ -1,5 +1,8 @@
 (ns growingtree-app.mock-data
-  (:require [growingtree-app.utils :as utils]))
+  (:require 
+    [clojure.string :as string]
+    [cljs.reader :as reader]
+    [growingtree-app.utils :as utils]))
 
 
 (def users
@@ -76,10 +79,158 @@
 
 ; nav types, in app state [:things] key for navbar use.
 (def nav-types [:parent :child :group
-                :course :lecture
+                :course :lecture :enrollment
                 :question :assignment
-                :activity :timeline])
-(def root-add-type #{:parent :child :group :course})
+                :activity :shoutout])
+(def my-nav-types [:group :enrollment 
+                   :question :assignment 
+                   :like :shoutout
+                   :activity :timeline])
+(def root-add-type #{:parent :group :course :shoutout})
+
+
+; get nav path vector stored in state [:nav-path] slot
+(defn get-nav-path
+  [state]
+  (get-in state [:nav-path]))
+
+; get app state nav-path
+(defn get-last-nav-path
+  [state]
+  (last (get-nav-path state)))
+
+(defn get-prev-nav-path
+  [state]
+  (last (drop-last (get-nav-path state))))
+
+
+; nav-path 
+; :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} 
+(defn get-nav-path-nxt-thing-type
+  [nav-path]
+  (let [nxt-thing-type (get-in nav-path [:body 1 2])]
+    nxt-thing-type))
+
+
+; :login or sign up msg to be channeled to core for processing.
+; msg-type: login or signup
+; {:body [:login [:login 0 :login]], :data {:type :login, :name "rich-sonx", :pass "s"}}
+(defn login-msg-nav-path
+  [form-name data]
+  (let [msg-type (if (= form-name "login-form") :login :signup)
+        msg [msg-type {:body [msg-type [:login 0 msg-type]]
+                       :data data}]
+        ]
+    msg))
+
+; send :login-error msg to ctrl channel. cause no
+(defn retry-login-msg-nav-path
+  [error-msg]
+  (let [msg-type :login-error
+        msg [msg-type error-msg]
+        ]
+    msg))
+
+
+; create nav-path from url
+; v1/course => [:all-things [:all 0 :lecture]], :data {:author "rich-dad"}]
+; v1/course/17592186045421/lecture, :filter-things {:body [:filter-things [:course 1 :lecture]], :data {:pid 1}}
+(defn generate-nav-path-from-url
+  [url]
+  (.log js/console (pr-str "gen nav-path " url))
+  (let [[head pid filtered] (string/split url #"/")
+        head (keyword head)
+        pid (when pid (reader/read-string pid))
+        filtered (when filtered (keyword filtered))
+        msg-type (if filtered :filter-things :all-things)
+        nav-path (case msg-type
+                    :all-things
+                      {:body [msg-type [:all 0 head]]}
+                    :filter-things
+                      {:body [msg-type [head pid filtered]]
+                       :data {:pid pid}})
+       ]
+    nav-path
+  ))
+
+
+; get :all-things msg to be sent to control channel to trigger controls chan event for ajax.
+; :all-things {:body [:all-things [:all 0 :course]], :data {:pid login-id}} false 
+(defn all-things-msg-nav-path
+  [thing-type data]
+  (let [msg [:all-things {:body [:all-things [:all 0 thing-type]]
+                          :data data}]
+        ]
+    msg))
+
+
+; get :filter-things msg to be sent to control channel to trigger controls chan event ajax. 
+; has msg-type and msg-data part. msg-data is nav-path map.
+; :filter-things {:body [:filter-things [:parent 1 :child]], :data {:pid 1}}
+; :pid is used as a filter for thing/xxx/next-thing.
+(defn filter-things-msg-nav-path
+  [parent-type parent-id filtered-type data]
+  (let [msg [:filter-things 
+              {:body [:filter-things [parent-type parent-id filtered-type]]
+               :data (merge {:pid parent-id} data)}]
+       ]
+    msg))
+
+
+(defn message-things-msg-nav-path
+  [parent-type parent-id message-type data]
+  (let [msg [:message-things 
+              {:body [:message-things [parent-type parent-id message-type]]
+               :data (merge {:pid parent-id} data)}]
+       ]
+    msg))
+
+; either ret msg path with filter-things for navigation, or :message-things for chat.
+(defn things-msg-nav-path
+  [parent-type parent-id thing-type data]
+  (if (#{:shoutout} thing-type)
+    (message-things-msg-nav-path parent-type parent-id thing-type data)
+    (filter-things-msg-nav-path parent-type parent-id thing-type data))
+  )
+
+; get popstate msg to sent to control channel to trigger state transition.
+; msg-type :popstate msg-data is url
+; :filter-things {:body [:filter-things [:parent 1 :child]], :data {:pid 1}}
+(defn popstate-msg
+  [url]
+  (let [msg [:popstate {:url url}]]
+    msg))
+
+; get :search-thing msg-type and msg-data as nav-path to sent to transition state.
+; msg-type is :search-things, msg data is map of :body [] and :data {}
+(defn search-msg-nav-path
+  [thing-type search]
+  (let [msg [:search-things {:body [:search-things [thing-type 0 search]]
+                             :data {:thing-type thing-type :searchkey search}}]
+       ]
+    msg))
+
+
+; get :newthing-form msg-type and msg-data as nav-path to sent to transition state.
+; :newthing-form {:body [:newthing-form [:group :add-group]], :data {:pid login-id}}
+(defn newthing-form-msg-nav-path
+  [thing-type options]
+  (let [newthing-path (vector thing-type (keyword (str "add-" (name thing-type))))
+        newthing-data {:body [:newthing-form newthing-path] 
+                       :data options}
+        msg [:newthing-form newthing-data]]
+    msg))
+
+
+; get :add-thing msg-type with msg-data as nav-path to sent to transite state.
+; {:add-thing :add-group, :data {:group/title "a", :group/type :math, :group/author "poor-dad", :group/url "c", :group/email "d", :group/wiki "e"}} 
+(defn add-thing-msg-nav-path
+  [thing-type data]
+  (let [msg [:add-thing {:add-thing thing-type
+                         :data data}]  ; add thing details in :data slot.
+       ]
+    msg))
+
 
 ; each chan contains users in the chan and activities inisde chan. random title if no title.
 (defn random-channel [order & [title]]
@@ -115,41 +266,55 @@
                                  #(random-thing (utils/safe-sel (name type)) type))))}
   )
 
+(defn my-thing-listing [idx type]
+  {:type type
+   :title (str "My " (name type))
+   :order idx
+   :selected false }
+  )
+
 ; dep inj global comm channels into app state.
 ; identity makes rand chan as val of :id key, channels = {:id (random-chan 1 (random-title))}
-(defn initial-state [comms]
+(defn initial-state 
+  [comms]
   (let [channels (into {} (map (comp (juxt :id identity) random-channel) (range 2 100)))
         ; each nav-type contains a thing-listing, consist of a listing of things within the type.
         thing-listing (map-indexed thing-listing nav-types)
         ; things is map {:thing-type {:type :title :thing-nodes}}
         things (into {} (map (juxt :type identity) thing-listing))
+        my-things (->> (map-indexed my-thing-listing my-nav-types)
+                      (map (juxt :type identity))
+                      (into {}))
        ]
-
     ;nav-path segment is a map contains query filters for things in body.
-    {; store entity that to be displayed in variouse sections.
-     ; :title {}   ; store entity to show in 
-     :top {}     ; top section of main area.
+    {:top {}     ; top section of main area.
      :body {}    ; set in api-event, main area thing-list read.
      :left {}
      :right {}
      :bottom {}
-     :nav-path [{:title [] :body [:all 0 :parent] :data {}}]
+
+     :login-user {}  ; set in login state transition upon login success.
+
+     ; nav-path is indicator of current state. updated upon state transition.
+     ; :all-things {:body [:all-things [:all 0 :course]], :data {:author "rich-dad"}} 
+     :nav-path [{:title [] :body [:login [:login 0 :login]] :data {}}]
      :error {}   ; error from ajax
      
-     ; XXXX do not use this, not reliable.
-     ; store api-eivent data, updated from api/api-event
-     ; nav-path as key, [:assignment 1 :answer] 
+     ; url as key, "v1/course/17592186045421/lecture"
      ; things-vec value, [{:db/id 1, :answer/author #{{:person/url #{rich-son.com}..}]
-     :nav-path-things {}
+     :url-data {}
 
      ; things is things category for navbar and sidebar, nav-types
      ; [:parent :child :course :lecture :question :assignment]
      :things (as-> things ts
                    (update-in ts [:parent] assoc :selected true))
 
-    
-     :audio {:volume 100
-             :muted true}
+     :my-things my-things
+     
+     ; :controls and :api chans, core def app-state 
+     :comms comms
+
+     ;; no used
      :windows {:window-inspector {:open false}}
      :settings {:message-limit 50
                 :forms {:search {:focused false}
@@ -168,4 +333,4 @@
                      (update-in ch ["1"] assoc :selected true))
      :users users
      :current-user-email "rich-dad@rich.com"
-     :comms comms}))
+     }))
