@@ -36,17 +36,6 @@
 ;; we convert response data to cljs.core.PersistentVector and store i
 
 
-; create websocket chan with sente.
-(let [{:keys [chsk ch-recv send-fn state]}
-      (sente/make-channel-socket! "/chsk" ; Note the same path as before
-       {:type :auto ; e/o #{:auto :ajax :ws}
-       })]
-  (def chsk       chsk)
-  (def ch-chsk    ch-recv) ; ChannelSocket's receive channel
-  (def chsk-send! send-fn) ; ChannelSocket's send API fn
-  (def chsk-state state)   ; Watchable, read-only atom
-  )
-
 ;;==================================================================================
 ; server always deliver list of things, parse to cljs.core.PersistentVector.
 ; nav-path {:body [:filter-things/:all-things [:course 1 :lecture]] :title ... :data {}}]

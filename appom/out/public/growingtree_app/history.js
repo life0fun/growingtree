@@ -74,19 +74,19 @@ return history.state;
 growingtree_app.history.state = (function (){var clj_state = (function (){
 return cljs.core.js__GT_clj.call(null,history.state,new cljs.core.Keyword(null,"keywordize-keys","keywordize-keys",1310784252),true);
 });
-if(typeof growingtree_app.history.t22414 !== 'undefined'){
+if(typeof growingtree_app.history.t23325 !== 'undefined'){
 } else {
 
 /**
 * @constructor
 */
-growingtree_app.history.t22414 = (function (clj_state,meta22415){
+growingtree_app.history.t23325 = (function (clj_state,meta23326){
 this.clj_state = clj_state;
-this.meta22415 = meta22415;
+this.meta23326 = meta23326;
 this.cljs$lang$protocol_mask$partition1$ = 98304;
 this.cljs$lang$protocol_mask$partition0$ = 425984;
 })
-growingtree_app.history.t22414.prototype.cljs$core$ISwap$_swap_BANG_$arity$2 = ((function (clj_state){
+growingtree_app.history.t23325.prototype.cljs$core$ISwap$_swap_BANG_$arity$2 = ((function (clj_state){
 return (function (s,f){
 var self__ = this;
 var s__$1 = this;
@@ -94,7 +94,7 @@ return cljs.core._reset_BANG_.call(null,s__$1,f.call(null,self__.clj_state.call(
 });})(clj_state))
 ;
 
-growingtree_app.history.t22414.prototype.cljs$core$ISwap$_swap_BANG_$arity$3 = ((function (clj_state){
+growingtree_app.history.t23325.prototype.cljs$core$ISwap$_swap_BANG_$arity$3 = ((function (clj_state){
 return (function (s,f,x){
 var self__ = this;
 var s__$1 = this;
@@ -102,7 +102,7 @@ return cljs.core._reset_BANG_.call(null,s__$1,f.call(null,self__.clj_state.call(
 });})(clj_state))
 ;
 
-growingtree_app.history.t22414.prototype.cljs$core$ISwap$_swap_BANG_$arity$4 = ((function (clj_state){
+growingtree_app.history.t23325.prototype.cljs$core$ISwap$_swap_BANG_$arity$4 = ((function (clj_state){
 return (function (s,f,x,y){
 var self__ = this;
 var s__$1 = this;
@@ -110,7 +110,7 @@ return cljs.core._reset_BANG_.call(null,s__$1,f.call(null,self__.clj_state.call(
 });})(clj_state))
 ;
 
-growingtree_app.history.t22414.prototype.cljs$core$ISwap$_swap_BANG_$arity$5 = ((function (clj_state){
+growingtree_app.history.t23325.prototype.cljs$core$ISwap$_swap_BANG_$arity$5 = ((function (clj_state){
 return (function (s,f,x,y,more){
 var self__ = this;
 var s__$1 = this;
@@ -118,7 +118,7 @@ return cljs.core._reset_BANG_.call(null,s__$1,cljs.core.apply.call(null,f,self__
 });})(clj_state))
 ;
 
-growingtree_app.history.t22414.prototype.cljs$core$IReset$_reset_BANG_$arity$2 = ((function (clj_state){
+growingtree_app.history.t23325.prototype.cljs$core$IReset$_reset_BANG_$arity$2 = ((function (clj_state){
 return (function (_,v){
 var self__ = this;
 var ___$1 = this;
@@ -126,7 +126,7 @@ return growingtree_app.history.replace_state_BANG_.call(null,cljs.core.clj__GT_j
 });})(clj_state))
 ;
 
-growingtree_app.history.t22414.prototype.cljs$core$IDeref$_deref$arity$1 = ((function (clj_state){
+growingtree_app.history.t23325.prototype.cljs$core$IDeref$_deref$arity$1 = ((function (clj_state){
 return (function (_){
 var self__ = this;
 var ___$1 = this;
@@ -134,41 +134,41 @@ return self__.clj_state.call(null);
 });})(clj_state))
 ;
 
-growingtree_app.history.t22414.prototype.cljs$core$IMeta$_meta$arity$1 = ((function (clj_state){
-return (function (_22416){
+growingtree_app.history.t23325.prototype.cljs$core$IMeta$_meta$arity$1 = ((function (clj_state){
+return (function (_23327){
 var self__ = this;
-var _22416__$1 = this;
-return self__.meta22415;
+var _23327__$1 = this;
+return self__.meta23326;
 });})(clj_state))
 ;
 
-growingtree_app.history.t22414.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = ((function (clj_state){
-return (function (_22416,meta22415__$1){
+growingtree_app.history.t23325.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = ((function (clj_state){
+return (function (_23327,meta23326__$1){
 var self__ = this;
-var _22416__$1 = this;
-return (new growingtree_app.history.t22414(self__.clj_state,meta22415__$1));
+var _23327__$1 = this;
+return (new growingtree_app.history.t23325(self__.clj_state,meta23326__$1));
 });})(clj_state))
 ;
 
-growingtree_app.history.t22414.cljs$lang$type = true;
+growingtree_app.history.t23325.cljs$lang$type = true;
 
-growingtree_app.history.t22414.cljs$lang$ctorStr = "growingtree-app.history/t22414";
+growingtree_app.history.t23325.cljs$lang$ctorStr = "growingtree-app.history/t23325";
 
-growingtree_app.history.t22414.cljs$lang$ctorPrWriter = ((function (clj_state){
+growingtree_app.history.t23325.cljs$lang$ctorPrWriter = ((function (clj_state){
 return (function (this__4394__auto__,writer__4395__auto__,opt__4396__auto__){
-return cljs.core._write.call(null,writer__4395__auto__,"growingtree-app.history/t22414");
+return cljs.core._write.call(null,writer__4395__auto__,"growingtree-app.history/t23325");
 });})(clj_state))
 ;
 
-growingtree_app.history.__GT_t22414 = ((function (clj_state){
-return (function __GT_t22414(clj_state__$1,meta22415){
-return (new growingtree_app.history.t22414(clj_state__$1,meta22415));
+growingtree_app.history.__GT_t23325 = ((function (clj_state){
+return (function __GT_t23325(clj_state__$1,meta23326){
+return (new growingtree_app.history.t23325(clj_state__$1,meta23326));
 });})(clj_state))
 ;
 
 }
 
-return (new growingtree_app.history.t22414(clj_state,cljs.core.PersistentArrayMap.EMPTY));
+return (new growingtree_app.history.t23325(clj_state,cljs.core.PersistentArrayMap.EMPTY));
 })();
 
 //# sourceMappingURL=history.js.map

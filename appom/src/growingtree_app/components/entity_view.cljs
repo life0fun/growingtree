@@ -132,7 +132,7 @@
     :like "like.jpg"
     :timeline "timeline.jpg"
     :group "group.jpg"
-    :activity "group.jpg"
+    :activity "activity.jpg"
   })
 
 ;;===============================================================

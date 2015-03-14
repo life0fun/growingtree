@@ -10,6 +10,19 @@
             [taoensso.sente.packers.transit :as sente-transit]
   ))
 
+
+; create websocket chan with sente.
+; (let [{:keys [chsk ch-recv send-fn state]}
+;       (sente/make-channel-socket! "/chsk" ; Note the same path as before
+;        {:type :auto ; e/o #{:auto :ajax :ws}
+;        })]
+;   (def chsk       chsk)
+;   (def ch-chsk    ch-recv) ; ChannelSocket's receive channel
+;   (def chsk-send! send-fn) ; ChannelSocket's send API fn
+;   (def chsk-state state)   ; Watchable, read-only atom
+;   )
+
+
 (def packer
   "Defines our packing (serialization) format for client<->server comms."
   (sente-transit/get-flexi-packer :json))
@@ -53,4 +66,5 @@
         {:keys [ch-recv send-fn state]} ws
         handler (make-handler controls-chan api-chan stats-chan)]
     (sente/start-chsk-router! ch-recv handler)
+    ; go-loop listen on controls channel from client, and use chsk's send fn to dispatch msg to server. 
     (query-loop controls-chan send-fn state)))

@@ -31,31 +31,31 @@ cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,ne
 var cur_nav_type = growingtree_app.mock_data.get_nav_path_nxt_thing_type.call(null,msg_data);
 console.log(cljs.core.pr_str.call(null,"control event :login conj nav-path ",msg_data));
 
-var G__21968 = state;
-var G__21968__$1 = cljs.core.update_in.call(null,G__21968,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"nav-path","nav-path",-444531376)], null),cljs.core.conj,msg_data)
+var G__23060 = state;
+var G__23060__$1 = cljs.core.update_in.call(null,G__23060,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"nav-path","nav-path",-444531376)], null),cljs.core.conj,msg_data)
 ;
-return G__21968__$1;
+return G__23060__$1;
 }));
 cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"signup","signup",1961016747),(function (target,msg_type,msg_data,state){
 var cur_nav_type = growingtree_app.mock_data.get_nav_path_nxt_thing_type.call(null,msg_data);
 console.log(cljs.core.pr_str.call(null,"control event :signup conj nav-path ",msg_data));
 
-var G__21969 = state;
-var G__21969__$1 = cljs.core.update_in.call(null,G__21969,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"nav-path","nav-path",-444531376)], null),cljs.core.conj,msg_data)
+var G__23061 = state;
+var G__23061__$1 = cljs.core.update_in.call(null,G__23061,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"nav-path","nav-path",-444531376)], null),cljs.core.conj,msg_data)
 ;
-return G__21969__$1;
+return G__23061__$1;
 }));
 growingtree_app.controllers.states.conj_nav_path = (function conj_nav_path(msg_type,msg_data,state){
 var cur_nav_type = cljs.core.get_in.call(null,cljs.core.last.call(null,cljs.core.get_in.call(null,state,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"nav-path","nav-path",-444531376)], null))),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"body","body",-2049205669),(1),(2)], null));
 var nxt_nav_type = growingtree_app.mock_data.get_nav_path_nxt_thing_type.call(null,msg_data);
 console.log(cljs.core.pr_str.call(null,"transition conj nav path ",cur_nav_type," ",nxt_nav_type," ",msg_data));
 
-var G__21971 = state;
-var G__21971__$1 = growingtree_app.controllers.states.update_navbar_selected.call(null,G__21971,cur_nav_type,nxt_nav_type)
+var G__23063 = state;
+var G__23063__$1 = growingtree_app.controllers.states.update_navbar_selected.call(null,G__23063,cur_nav_type,nxt_nav_type)
 ;
-var G__21971__$2 = cljs.core.update_in.call(null,G__21971__$1,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"nav-path","nav-path",-444531376)], null),cljs.core.conj,msg_data)
+var G__23063__$2 = cljs.core.update_in.call(null,G__23063__$1,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"nav-path","nav-path",-444531376)], null),cljs.core.conj,msg_data)
 ;
-return G__21971__$2;
+return G__23063__$2;
 });
 cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"all-things","all-things",1825895767),(function (target,msg_type,msg_data,state){
 return growingtree_app.controllers.states.conj_nav_path.call(null,msg_type,msg_data,state);
@@ -143,10 +143,10 @@ return cljs.core.assoc_in.call(null,state,new cljs.core.PersistentVector(null, 1
 cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"api-key-updated","api-key-updated",-1848658586),(function (target,msg_type,api_key,state){
 return cljs.core.assoc_in.call(null,state,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"users","users",-713552705),new cljs.core.Keyword(null,"current-user-email","current-user-email",-1030852599).cljs$core$IFn$_invoke$arity$1(state),new cljs.core.Keyword(null,"api-key","api-key",1037904031)], null),api_key);
 }));
-cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"current-user-mentioned","current-user-mentioned",134481480),(function (target,msg_type,p__21972,state){
-var vec__21973 = p__21972;
-var activity = cljs.core.nth.call(null,vec__21973,(0),null);
-var url = cljs.core.nth.call(null,vec__21973,(1),null);
+cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"current-user-mentioned","current-user-mentioned",134481480),(function (target,msg_type,p__23064,state){
+var vec__23065 = p__23064;
+var activity = cljs.core.nth.call(null,vec__23065,(0),null);
+var url = cljs.core.nth.call(null,vec__23065,(1),null);
 return cljs.core.assoc_in.call(null,state,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"channels","channels",1132759174),new cljs.core.Keyword(null,"channel-id","channel-id",138191095).cljs$core$IFn$_invoke$arity$1(activity),new cljs.core.Keyword(null,"sfx","sfx",-634589668),new cljs.core.Keyword(null,"source-url","source-url",569467631)], null),url);
 }));
 cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"user-menu-toggled","user-menu-toggled",-1800346032),(function (target,msg_type,msg_data,state){
@@ -185,29 +185,29 @@ return cljs.core.assoc_in.call(null,state,new cljs.core.PersistentVector(null, 2
 cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"audio-player-unmuted","audio-player-unmuted",710141160),(function (target,msg_type,msg_data,state){
 return cljs.core.assoc_in.call(null,state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"audio","audio",1819127321),new cljs.core.Keyword(null,"muted","muted",1275109029)], null),false);
 }));
-cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"audio-player-source-updated","audio-player-source-updated",-983718025),(function (target,msg_type,p__21974,state){
-var vec__21975 = p__21974;
-var src = cljs.core.nth.call(null,vec__21975,(0),null);
-var channel_id = cljs.core.nth.call(null,vec__21975,(1),null);
+cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"audio-player-source-updated","audio-player-source-updated",-983718025),(function (target,msg_type,p__23066,state){
+var vec__23067 = p__23066;
+var src = cljs.core.nth.call(null,vec__23067,(0),null);
+var channel_id = cljs.core.nth.call(null,vec__23067,(1),null);
 return cljs.core.assoc_in.call(null,state,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"channels","channels",1132759174),channel_id,new cljs.core.Keyword(null,"player","player",-97687400),new cljs.core.Keyword(null,"source-url","source-url",569467631)], null),src);
 }));
 cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"audio-player-unmuted","audio-player-unmuted",710141160),(function (target,msg_type,msg_data,state){
 return cljs.core.assoc_in.call(null,state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"audio","audio",1819127321),new cljs.core.Keyword(null,"muted","muted",1275109029)], null),false);
 }));
 cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"playlist-entry-queued","playlist-entry-queued",-1071587042),(function (target,msg_type,msg_data,state){
-var vec__21976 = msg_data;
-var channel_id = cljs.core.nth.call(null,vec__21976,(0),null);
-var url = cljs.core.nth.call(null,vec__21976,(1),null);
-return cljs.core.update_in.call(null,state,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"channels","channels",1132759174),channel_id,new cljs.core.Keyword(null,"player","player",-97687400),new cljs.core.Keyword(null,"playlist","playlist",1952276871)], null),((function (vec__21976,channel_id,url){
+var vec__23068 = msg_data;
+var channel_id = cljs.core.nth.call(null,vec__23068,(0),null);
+var url = cljs.core.nth.call(null,vec__23068,(1),null);
+return cljs.core.update_in.call(null,state,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"channels","channels",1132759174),channel_id,new cljs.core.Keyword(null,"player","player",-97687400),new cljs.core.Keyword(null,"playlist","playlist",1952276871)], null),((function (vec__23068,channel_id,url){
 return (function (playlist){
 return cljs.core.conj.call(null,playlist,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"order","order",-1254677256),(cljs.core.count.call(null,playlist) + (1)),new cljs.core.Keyword(null,"src","src",-1651076051),url], null));
-});})(vec__21976,channel_id,url))
+});})(vec__23068,channel_id,url))
 );
 }));
-cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"playlist-entry-played","playlist-entry-played",1138783655),(function (target,msg_type,p__21977,state){
-var vec__21978 = p__21977;
-var order = cljs.core.nth.call(null,vec__21978,(0),null);
-var channel_id = cljs.core.nth.call(null,vec__21978,(1),null);
+cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"playlist-entry-played","playlist-entry-played",1138783655),(function (target,msg_type,p__23069,state){
+var vec__23070 = p__23069;
+var order = cljs.core.nth.call(null,vec__23070,(0),null);
+var channel_id = cljs.core.nth.call(null,vec__23070,(1),null);
 return cljs.core.assoc_in.call(null,cljs.core.assoc_in.call(null,state,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"channels","channels",1132759174),channel_id,new cljs.core.Keyword(null,"player","player",-97687400),new cljs.core.Keyword(null,"playing-order","playing-order",-1040974713)], null),order),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"channels","channels",1132759174),channel_id,new cljs.core.Keyword(null,"player","player",-97687400),new cljs.core.Keyword(null,"loading","loading",-737050189)], null),true);
 }));
 cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"user-msg-type-submitted","user-msg-type-submitted",1017951497),(function (target,msg_type,msg_data,state){
@@ -257,12 +257,12 @@ return msg_type;
 ,new cljs.core.Keyword(null,"default","default",-1987822328),hierarchy__4708__auto__,method_table__4704__auto__,prefer_table__4705__auto__,method_cache__4706__auto__,cached_hierarchy__4707__auto__));
 })();
 cljs.core._add_method.call(null,growingtree_app.controllers.states.window_drag_event,new cljs.core.Keyword(null,"grabbed","grabbed",-1247636222),(function (msg_type,initial_mouse_pos,window_state){
-var vec__21979 = initial_mouse_pos;
-var mx = cljs.core.nth.call(null,vec__21979,(0),null);
-var my = cljs.core.nth.call(null,vec__21979,(1),null);
-var vec__21980 = new cljs.core.Keyword(null,"position","position",-2011731912).cljs$core$IFn$_invoke$arity$1(window_state);
-var px = cljs.core.nth.call(null,vec__21980,(0),null);
-var py = cljs.core.nth.call(null,vec__21980,(1),null);
+var vec__23071 = initial_mouse_pos;
+var mx = cljs.core.nth.call(null,vec__23071,(0),null);
+var my = cljs.core.nth.call(null,vec__23071,(1),null);
+var vec__23072 = new cljs.core.Keyword(null,"position","position",-2011731912).cljs$core$IFn$_invoke$arity$1(window_state);
+var px = cljs.core.nth.call(null,vec__23072,(0),null);
+var py = cljs.core.nth.call(null,vec__23072,(1),null);
 var offset = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(mx - px),(my - py)], null);
 return cljs.core.assoc.call(null,window_state,new cljs.core.Keyword(null,"dragging?","dragging?",-995941410),true,new cljs.core.Keyword(null,"offset","offset",296498311),offset);
 }));
@@ -271,15 +271,15 @@ return cljs.core.assoc.call(null,window_state,new cljs.core.Keyword(null,"draggi
 }));
 cljs.core._add_method.call(null,growingtree_app.controllers.states.window_drag_event,new cljs.core.Keyword(null,"mouse-moved","mouse-moved",-1918152310),(function (msg_type,mouse_position,window_state){
 if(cljs.core.truth_(new cljs.core.Keyword(null,"dragging?","dragging?",-995941410).cljs$core$IFn$_invoke$arity$1(window_state))){
-var vec__21981 = mouse_position;
-var mx = cljs.core.nth.call(null,vec__21981,(0),null);
-var my = cljs.core.nth.call(null,vec__21981,(1),null);
-var vec__21982 = new cljs.core.Keyword(null,"offset","offset",296498311).cljs$core$IFn$_invoke$arity$1(window_state);
-var off_x = cljs.core.nth.call(null,vec__21982,(0),null);
-var off_y = cljs.core.nth.call(null,vec__21982,(1),null);
-var vec__21983 = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(mx - off_x),(my - off_y)], null);
-var tnx = cljs.core.nth.call(null,vec__21983,(0),null);
-var tny = cljs.core.nth.call(null,vec__21983,(1),null);
+var vec__23073 = mouse_position;
+var mx = cljs.core.nth.call(null,vec__23073,(0),null);
+var my = cljs.core.nth.call(null,vec__23073,(1),null);
+var vec__23074 = new cljs.core.Keyword(null,"offset","offset",296498311).cljs$core$IFn$_invoke$arity$1(window_state);
+var off_x = cljs.core.nth.call(null,vec__23074,(0),null);
+var off_y = cljs.core.nth.call(null,vec__23074,(1),null);
+var vec__23075 = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(mx - off_x),(my - off_y)], null);
+var tnx = cljs.core.nth.call(null,vec__23075,(0),null);
+var tny = cljs.core.nth.call(null,vec__23075,(1),null);
 var min_x = (-150);
 var max_x = (document.body.clientWidth - (50));
 var min_y = (0);
@@ -292,17 +292,17 @@ return cljs.core.assoc.call(null,window_state,new cljs.core.Keyword(null,"positi
 return window_state;
 }
 }));
-cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"draggable","draggable",1676206163),(function (target,msg_type,p__21985,state){
-var vec__21986 = p__21985;
-var sub_msg_type = cljs.core.nth.call(null,vec__21986,(0),null);
-var map__21987 = cljs.core.nth.call(null,vec__21986,(1),null);
-var map__21987__$1 = ((cljs.core.seq_QMARK_.call(null,map__21987))?cljs.core.apply.call(null,cljs.core.hash_map,map__21987):map__21987);
-var msg_data = map__21987__$1;
-var name = cljs.core.get.call(null,map__21987__$1,new cljs.core.Keyword(null,"name","name",1843675177));
-return cljs.core.update_in.call(null,state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"windows","windows",2068861701),name], null),((function (vec__21986,sub_msg_type,map__21987,map__21987__$1,msg_data,name){
-return (function (p1__21984_SHARP_){
-return growingtree_app.controllers.states.window_drag_event.call(null,sub_msg_type,new cljs.core.Keyword(null,"position","position",-2011731912).cljs$core$IFn$_invoke$arity$1(msg_data),p1__21984_SHARP_);
-});})(vec__21986,sub_msg_type,map__21987,map__21987__$1,msg_data,name))
+cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"draggable","draggable",1676206163),(function (target,msg_type,p__23077,state){
+var vec__23078 = p__23077;
+var sub_msg_type = cljs.core.nth.call(null,vec__23078,(0),null);
+var map__23079 = cljs.core.nth.call(null,vec__23078,(1),null);
+var map__23079__$1 = ((cljs.core.seq_QMARK_.call(null,map__23079))?cljs.core.apply.call(null,cljs.core.hash_map,map__23079):map__23079);
+var msg_data = map__23079__$1;
+var name = cljs.core.get.call(null,map__23079__$1,new cljs.core.Keyword(null,"name","name",1843675177));
+return cljs.core.update_in.call(null,state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"windows","windows",2068861701),name], null),((function (vec__23078,sub_msg_type,map__23079,map__23079__$1,msg_data,name){
+return (function (p1__23076_SHARP_){
+return growingtree_app.controllers.states.window_drag_event.call(null,sub_msg_type,new cljs.core.Keyword(null,"position","position",-2011731912).cljs$core$IFn$_invoke$arity$1(msg_data),p1__23076_SHARP_);
+});})(vec__23078,sub_msg_type,map__23079,map__23079__$1,msg_data,name))
 );
 }));
 cljs.core._add_method.call(null,growingtree_app.controllers.states.transition,new cljs.core.Keyword(null,"toggle-inspector-key-pressed","toggle-inspector-key-pressed",1257821948),(function (target,msg_type,msg_data,state){
@@ -324,10 +324,10 @@ var last_nav_type__$1 = cljs.core.some.call(null,cljs.core.PersistentHashSet.fro
 var cur_nav_type__$1 = cljs.core.some.call(null,cljs.core.PersistentHashSet.fromArray([cur_nav_type], true),growingtree_app.mock_data.nav_types);
 console.log(cljs.core.pr_str.call(null,"upon transition, update-navbar-selected cur-nav-type ",cur_nav_type__$1," last ",last_nav_type__$1));
 
-var G__21989 = state;
-var G__21989__$1 = (cljs.core.truth_(last_nav_type__$1)?cljs.core.assoc_in.call(null,G__21989,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"things","things",1255021880),last_nav_type__$1,new cljs.core.Keyword(null,"selected","selected",574897764)], null),false):G__21989);
-var G__21989__$2 = (cljs.core.truth_(cur_nav_type__$1)?cljs.core.assoc_in.call(null,G__21989__$1,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"things","things",1255021880),cur_nav_type__$1,new cljs.core.Keyword(null,"selected","selected",574897764)], null),true):G__21989__$1);
-return G__21989__$2;
+var G__23081 = state;
+var G__23081__$1 = (cljs.core.truth_(last_nav_type__$1)?cljs.core.assoc_in.call(null,G__23081,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"things","things",1255021880),last_nav_type__$1,new cljs.core.Keyword(null,"selected","selected",574897764)], null),false):G__23081);
+var G__23081__$2 = (cljs.core.truth_(cur_nav_type__$1)?cljs.core.assoc_in.call(null,G__23081__$1,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"things","things",1255021880),cur_nav_type__$1,new cljs.core.Keyword(null,"selected","selected",574897764)], null),true):G__23081__$1);
+return G__23081__$2;
 });
 
 //# sourceMappingURL=states.js.map

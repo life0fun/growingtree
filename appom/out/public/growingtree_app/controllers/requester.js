@@ -13,9 +13,9 @@ goog.require('clojure.string');
 goog.require('growingtree_app.api.cljsajax');
 growingtree_app.controllers.requester.local_only_commands = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["/mute","/unmute"], null);
 growingtree_app.controllers.requester.sendable_message_QMARK_ = (function sendable_message_QMARK_(message){
-var vec__21922 = clojure.string.split.call(null,message,/ |\n/);
-var command = cljs.core.nth.call(null,vec__21922,(0),null);
-var _ = cljs.core.nthnext.call(null,vec__21922,(1));
+var vec__22702 = clojure.string.split.call(null,message,/ |\n/);
+var command = cljs.core.nth.call(null,vec__22702,(0),null);
+var _ = cljs.core.nthnext.call(null,vec__22702,(1));
 if(cljs.core.truth_((function (){var or__3807__auto__ = cljs.core.some.call(null,cljs.core.PersistentHashSet.fromArray([command], true),growingtree_app.controllers.requester.local_only_commands);
 if(cljs.core.truth_(or__3807__auto__)){
 return or__3807__auto__;
@@ -97,29 +97,29 @@ return console.log(cljs.core.pr_str.call(null,"Log the user out somehow"));
 cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,new cljs.core.Keyword(null,"current-user-mentioned","current-user-mentioned",134481480),(function (target,message,args,previous_state,current_state){
 return growingtree_app.utils.mprint.call(null,"notify current user they were mentioned");
 }));
-cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,new cljs.core.Keyword(null,"playlist-entry-played","playlist-entry-played",1138783655),(function (target,message,p__21924,previous_state,current_state){
-var vec__21925 = p__21924;
-var order = cljs.core.nth.call(null,vec__21925,(0),null);
-var channel_id = cljs.core.nth.call(null,vec__21925,(1),null);
+cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,new cljs.core.Keyword(null,"playlist-entry-played","playlist-entry-played",1138783655),(function (target,message,p__22704,previous_state,current_state){
+var vec__22705 = p__22704;
+var order = cljs.core.nth.call(null,vec__22705,(0),null);
+var channel_id = cljs.core.nth.call(null,vec__22705,(1),null);
 var controls_ch = cljs.core.get_in.call(null,current_state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"comms","comms",460172477),new cljs.core.Keyword(null,"controls","controls",1340701452)], null));
 var playlist = cljs.core.get_in.call(null,current_state,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"channels","channels",1132759174),channel_id,new cljs.core.Keyword(null,"player","player",-97687400),new cljs.core.Keyword(null,"playlist","playlist",1952276871)], null));
-var entry = growingtree_app.useful.ffilter.call(null,((function (controls_ch,playlist,vec__21925,order,channel_id){
-return (function (p1__21923_SHARP_){
-return cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"order","order",-1254677256).cljs$core$IFn$_invoke$arity$1(p1__21923_SHARP_),order);
-});})(controls_ch,playlist,vec__21925,order,channel_id))
+var entry = growingtree_app.useful.ffilter.call(null,((function (controls_ch,playlist,vec__22705,order,channel_id){
+return (function (p1__22703_SHARP_){
+return cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"order","order",-1254677256).cljs$core$IFn$_invoke$arity$1(p1__22703_SHARP_),order);
+});})(controls_ch,playlist,vec__22705,order,channel_id))
 ,cljs.core.get_in.call(null,current_state,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"channels","channels",1132759174),channel_id,new cljs.core.Keyword(null,"player","player",-97687400),new cljs.core.Keyword(null,"playlist","playlist",1952276871)], null)));
 return cljs.core.async.put_BANG_.call(null,controls_ch,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"audio-player-source-updated","audio-player-source-updated",-983718025),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"src","src",-1651076051).cljs$core$IFn$_invoke$arity$1(entry),channel_id], null)], null));
 }));
-cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,new cljs.core.Keyword(null,"audio-player-source-updated","audio-player-source-updated",-983718025),(function (target,message,p__21926,previous_state,current_state){
-var vec__21927 = p__21926;
-var src = cljs.core.nth.call(null,vec__21927,(0),null);
-var channel_id = cljs.core.nth.call(null,vec__21927,(1),null);
+cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,new cljs.core.Keyword(null,"audio-player-source-updated","audio-player-source-updated",-983718025),(function (target,message,p__22706,previous_state,current_state){
+var vec__22707 = p__22706;
+var src = cljs.core.nth.call(null,vec__22707,(0),null);
+var channel_id = cljs.core.nth.call(null,vec__22707,(1),null);
 if((cljs.core._EQ_.call(null,channel_id,new cljs.core.Keyword(null,"selected-channel","selected-channel",-366010130).cljs$core$IFn$_invoke$arity$1(current_state))) && (cljs.core._EQ_.call(null,cljs.core.get_in.call(null,current_state,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"channels","channels",1132759174),new cljs.core.Keyword(null,"selected-channel","selected-channel",-366010130).cljs$core$IFn$_invoke$arity$1(current_state),new cljs.core.Keyword(null,"player","player",-97687400),new cljs.core.Keyword(null,"state","state",-1988618099)], null)),new cljs.core.Keyword(null,"playing","playing",70013335)))){
 var player = dommy.template.__GT_node_like.call(null,target).querySelector(dommy.core.selector.call(null,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [[cljs.core.str(".audio-player.audio-"),cljs.core.str(channel_id)].join('')], null)));
-return setTimeout(((function (player,vec__21927,src,channel_id){
+return setTimeout(((function (player,vec__22707,src,channel_id){
 return (function (){
 return player.play();
-});})(player,vec__21927,src,channel_id))
+});})(player,vec__22707,src,channel_id))
 ,(35));
 } else {
 return null;
@@ -133,10 +133,10 @@ var user = cljs.core.get_in.call(null,current_state,new cljs.core.PersistentVect
 var channel__$1 = cljs.core.get_in.call(null,current_state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"channels","channels",1132759174),new cljs.core.Keyword(null,"selected-channel","selected-channel",-366010130).cljs$core$IFn$_invoke$arity$1(current_state)], null));
 var api_key = new cljs.core.Keyword(null,"api-key","api-key",1037904031).cljs$core$IFn$_invoke$arity$1(user);
 var activity = new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"content","content",15833224),content,new cljs.core.Keyword(null,"author","author",2111686192),new cljs.core.Keyword(null,"email","email",1415816706).cljs$core$IFn$_invoke$arity$1(user),new cljs.core.Keyword(null,"created_at","created_at",1484050750),(new Date()),new cljs.core.Keyword(null,"channel-id","channel-id",138191095),new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(channel__$1)], null);
-var temp__4126__auto___21928 = dommy.template.__GT_node_like.call(null,target).querySelector(dommy.core.selector.call(null,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,".chat-input",".chat-input",1342148154)], null)));
-if(cljs.core.truth_(temp__4126__auto___21928)){
-var input_21929 = temp__4126__auto___21928;
-dommy.core.set_value_BANG_.call(null,input_21929,"");
+var temp__4406__auto___22708 = dommy.template.__GT_node_like.call(null,target).querySelector(dommy.core.selector.call(null,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,".chat-input",".chat-input",1342148154)], null)));
+if(cljs.core.truth_(temp__4406__auto___22708)){
+var input_22709 = temp__4406__auto___22708;
+dommy.core.set_value_BANG_.call(null,input_22709,"");
 } else {
 }
 
@@ -174,51 +174,51 @@ cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,ne
 var players = dommy.utils.__GT_Array.call(null,dommy.template.__GT_node_like.call(null,target).getElementsByClassName("audio-player"));
 return setTimeout(((function (players){
 return (function (){
-var seq__21930 = cljs.core.seq.call(null,players);
-var chunk__21931 = null;
-var count__21932 = (0);
-var i__21933 = (0);
+var seq__22710 = cljs.core.seq.call(null,players);
+var chunk__22711 = null;
+var count__22712 = (0);
+var i__22713 = (0);
 while(true){
-if((i__21933 < count__21932)){
-var player = cljs.core._nth.call(null,chunk__21931,i__21933);
+if((i__22713 < count__22712)){
+var player = cljs.core._nth.call(null,chunk__22711,i__22713);
 player.muted = true;
 
-var G__21934 = seq__21930;
-var G__21935 = chunk__21931;
-var G__21936 = count__21932;
-var G__21937 = (i__21933 + (1));
-seq__21930 = G__21934;
-chunk__21931 = G__21935;
-count__21932 = G__21936;
-i__21933 = G__21937;
+var G__22714 = seq__22710;
+var G__22715 = chunk__22711;
+var G__22716 = count__22712;
+var G__22717 = (i__22713 + (1));
+seq__22710 = G__22714;
+chunk__22711 = G__22715;
+count__22712 = G__22716;
+i__22713 = G__22717;
 continue;
 } else {
-var temp__4126__auto__ = cljs.core.seq.call(null,seq__21930);
-if(temp__4126__auto__){
-var seq__21930__$1 = temp__4126__auto__;
-if(cljs.core.chunked_seq_QMARK_.call(null,seq__21930__$1)){
-var c__4594__auto__ = cljs.core.chunk_first.call(null,seq__21930__$1);
-var G__21938 = cljs.core.chunk_rest.call(null,seq__21930__$1);
-var G__21939 = c__4594__auto__;
-var G__21940 = cljs.core.count.call(null,c__4594__auto__);
-var G__21941 = (0);
-seq__21930 = G__21938;
-chunk__21931 = G__21939;
-count__21932 = G__21940;
-i__21933 = G__21941;
+var temp__4406__auto__ = cljs.core.seq.call(null,seq__22710);
+if(temp__4406__auto__){
+var seq__22710__$1 = temp__4406__auto__;
+if(cljs.core.chunked_seq_QMARK_.call(null,seq__22710__$1)){
+var c__4594__auto__ = cljs.core.chunk_first.call(null,seq__22710__$1);
+var G__22718 = cljs.core.chunk_rest.call(null,seq__22710__$1);
+var G__22719 = c__4594__auto__;
+var G__22720 = cljs.core.count.call(null,c__4594__auto__);
+var G__22721 = (0);
+seq__22710 = G__22718;
+chunk__22711 = G__22719;
+count__22712 = G__22720;
+i__22713 = G__22721;
 continue;
 } else {
-var player = cljs.core.first.call(null,seq__21930__$1);
+var player = cljs.core.first.call(null,seq__22710__$1);
 player.muted = true;
 
-var G__21942 = cljs.core.next.call(null,seq__21930__$1);
-var G__21943 = null;
-var G__21944 = (0);
-var G__21945 = (0);
-seq__21930 = G__21942;
-chunk__21931 = G__21943;
-count__21932 = G__21944;
-i__21933 = G__21945;
+var G__22722 = cljs.core.next.call(null,seq__22710__$1);
+var G__22723 = null;
+var G__22724 = (0);
+var G__22725 = (0);
+seq__22710 = G__22722;
+chunk__22711 = G__22723;
+count__22712 = G__22724;
+i__22713 = G__22725;
 continue;
 }
 } else {
@@ -234,51 +234,51 @@ cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,ne
 var players = dommy.utils.__GT_Array.call(null,dommy.template.__GT_node_like.call(null,target).getElementsByClassName("audio-player"));
 return setTimeout(((function (players){
 return (function (){
-var seq__21946 = cljs.core.seq.call(null,players);
-var chunk__21947 = null;
-var count__21948 = (0);
-var i__21949 = (0);
+var seq__22726 = cljs.core.seq.call(null,players);
+var chunk__22727 = null;
+var count__22728 = (0);
+var i__22729 = (0);
 while(true){
-if((i__21949 < count__21948)){
-var player = cljs.core._nth.call(null,chunk__21947,i__21949);
+if((i__22729 < count__22728)){
+var player = cljs.core._nth.call(null,chunk__22727,i__22729);
 player.muted = false;
 
-var G__21950 = seq__21946;
-var G__21951 = chunk__21947;
-var G__21952 = count__21948;
-var G__21953 = (i__21949 + (1));
-seq__21946 = G__21950;
-chunk__21947 = G__21951;
-count__21948 = G__21952;
-i__21949 = G__21953;
+var G__22730 = seq__22726;
+var G__22731 = chunk__22727;
+var G__22732 = count__22728;
+var G__22733 = (i__22729 + (1));
+seq__22726 = G__22730;
+chunk__22727 = G__22731;
+count__22728 = G__22732;
+i__22729 = G__22733;
 continue;
 } else {
-var temp__4126__auto__ = cljs.core.seq.call(null,seq__21946);
-if(temp__4126__auto__){
-var seq__21946__$1 = temp__4126__auto__;
-if(cljs.core.chunked_seq_QMARK_.call(null,seq__21946__$1)){
-var c__4594__auto__ = cljs.core.chunk_first.call(null,seq__21946__$1);
-var G__21954 = cljs.core.chunk_rest.call(null,seq__21946__$1);
-var G__21955 = c__4594__auto__;
-var G__21956 = cljs.core.count.call(null,c__4594__auto__);
-var G__21957 = (0);
-seq__21946 = G__21954;
-chunk__21947 = G__21955;
-count__21948 = G__21956;
-i__21949 = G__21957;
+var temp__4406__auto__ = cljs.core.seq.call(null,seq__22726);
+if(temp__4406__auto__){
+var seq__22726__$1 = temp__4406__auto__;
+if(cljs.core.chunked_seq_QMARK_.call(null,seq__22726__$1)){
+var c__4594__auto__ = cljs.core.chunk_first.call(null,seq__22726__$1);
+var G__22734 = cljs.core.chunk_rest.call(null,seq__22726__$1);
+var G__22735 = c__4594__auto__;
+var G__22736 = cljs.core.count.call(null,c__4594__auto__);
+var G__22737 = (0);
+seq__22726 = G__22734;
+chunk__22727 = G__22735;
+count__22728 = G__22736;
+i__22729 = G__22737;
 continue;
 } else {
-var player = cljs.core.first.call(null,seq__21946__$1);
+var player = cljs.core.first.call(null,seq__22726__$1);
 player.muted = false;
 
-var G__21958 = cljs.core.next.call(null,seq__21946__$1);
-var G__21959 = null;
-var G__21960 = (0);
-var G__21961 = (0);
-seq__21946 = G__21958;
-chunk__21947 = G__21959;
-count__21948 = G__21960;
-i__21949 = G__21961;
+var G__22738 = cljs.core.next.call(null,seq__22726__$1);
+var G__22739 = null;
+var G__22740 = (0);
+var G__22741 = (0);
+seq__22726 = G__22738;
+chunk__22727 = G__22739;
+count__22728 = G__22740;
+i__22729 = G__22741;
 continue;
 }
 } else {
@@ -290,55 +290,55 @@ break;
 });})(players))
 ,(35));
 }));
-cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,new cljs.core.Keyword(null,"current-user-mentioned","current-user-mentioned",134481480),(function (target,message,p__21962,previous_state,current_state){
-var vec__21963 = p__21962;
-var activity = cljs.core.nth.call(null,vec__21963,(0),null);
-var url = cljs.core.nth.call(null,vec__21963,(1),null);
+cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,new cljs.core.Keyword(null,"current-user-mentioned","current-user-mentioned",134481480),(function (target,message,p__22742,previous_state,current_state){
+var vec__22743 = p__22742;
+var activity = cljs.core.nth.call(null,vec__22743,(0),null);
+var url = cljs.core.nth.call(null,vec__22743,(1),null);
 var player = dommy.template.__GT_node_like.call(null,target).querySelector(dommy.core.selector.call(null,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [[cljs.core.str(".audio-player.sfx.audio-"),cljs.core.str(new cljs.core.Keyword(null,"channel-id","channel-id",138191095).cljs$core$IFn$_invoke$arity$1(activity))].join('')], null)));
-return setTimeout(((function (player,vec__21963,activity,url){
+return setTimeout(((function (player,vec__22743,activity,url){
 return (function (){
 return player.play();
-});})(player,vec__21963,activity,url))
+});})(player,vec__22743,activity,url))
 ,(35));
 }));
-cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,new cljs.core.Keyword(null,"search-field-focused","search-field-focused",1388495290),(function (target,message,p__21964,previous_state,current_state){
-var vec__21965 = p__21964;
-var activity = cljs.core.nth.call(null,vec__21965,(0),null);
-var url = cljs.core.nth.call(null,vec__21965,(1),null);
-var temp__4126__auto__ = document.querySelector(dommy.core.selector.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [target,new cljs.core.Keyword(null,"input.query","input.query",1777106866)], null)));
-if(cljs.core.truth_(temp__4126__auto__)){
-var search_field = temp__4126__auto__;
-return window.setTimeout(((function (search_field,temp__4126__auto__,vec__21965,activity,url){
+cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,new cljs.core.Keyword(null,"search-field-focused","search-field-focused",1388495290),(function (target,message,p__22744,previous_state,current_state){
+var vec__22745 = p__22744;
+var activity = cljs.core.nth.call(null,vec__22745,(0),null);
+var url = cljs.core.nth.call(null,vec__22745,(1),null);
+var temp__4406__auto__ = document.querySelector(dommy.core.selector.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [target,new cljs.core.Keyword(null,"input.query","input.query",1777106866)], null)));
+if(cljs.core.truth_(temp__4406__auto__)){
+var search_field = temp__4406__auto__;
+return window.setTimeout(((function (search_field,temp__4406__auto__,vec__22745,activity,url){
 return (function (){
 return search_field.value = cljs.core.get_in.call(null,current_state,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"settings","settings",1556144875),new cljs.core.Keyword(null,"forms","forms",2045992350),new cljs.core.Keyword(null,"search","search",1564939822),new cljs.core.Keyword(null,"value","value",305978217)], null));
-});})(search_field,temp__4126__auto__,vec__21965,activity,url))
+});})(search_field,temp__4406__auto__,vec__22745,activity,url))
 ,(20));
 } else {
 return null;
 }
 }));
 cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,new cljs.core.Keyword(null,"search-focus-key-pressed","search-focus-key-pressed",-469625493),(function (target,message,args,previous_state,current_state){
-var temp__4126__auto__ = document.querySelector(dommy.core.selector.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [target,new cljs.core.Keyword(null,"input.query","input.query",1777106866)], null)));
-if(cljs.core.truth_(temp__4126__auto__)){
-var search_field = temp__4126__auto__;
+var temp__4406__auto__ = document.querySelector(dommy.core.selector.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [target,new cljs.core.Keyword(null,"input.query","input.query",1777106866)], null)));
+if(cljs.core.truth_(temp__4406__auto__)){
+var search_field = temp__4406__auto__;
 return search_field.focus();
 } else {
 return null;
 }
 }));
 cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,new cljs.core.Keyword(null,"search-form-blur-key-pressed","search-form-blur-key-pressed",-312801117),(function (target,message,args,previous_state,current_state){
-var temp__4126__auto__ = document.querySelector(dommy.core.selector.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [target,new cljs.core.Keyword(null,"textarea.chat-input","textarea.chat-input",-1856842913)], null)));
-if(cljs.core.truth_(temp__4126__auto__)){
-var message_field = temp__4126__auto__;
+var temp__4406__auto__ = document.querySelector(dommy.core.selector.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [target,new cljs.core.Keyword(null,"textarea.chat-input","textarea.chat-input",-1856842913)], null)));
+if(cljs.core.truth_(temp__4406__auto__)){
+var message_field = temp__4406__auto__;
 return message_field.focus();
 } else {
 return null;
 }
 }));
 cljs.core._add_method.call(null,growingtree_app.controllers.requester.request,new cljs.core.Keyword(null,"user-message-blur-key-pressed","user-message-blur-key-pressed",1797856612),(function (target,message,args,previous_state,current_state){
-var temp__4126__auto__ = document.querySelector(dommy.core.selector.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [target,new cljs.core.Keyword(null,"input.query","input.query",1777106866)], null)));
-if(cljs.core.truth_(temp__4126__auto__)){
-var search_field = temp__4126__auto__;
+var temp__4406__auto__ = document.querySelector(dommy.core.selector.call(null,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [target,new cljs.core.Keyword(null,"input.query","input.query",1777106866)], null)));
+if(cljs.core.truth_(temp__4406__auto__)){
+var search_field = temp__4406__auto__;
 return search_field.focus();
 } else {
 return null;

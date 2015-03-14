@@ -34,10 +34,10 @@ growingtree_app.datetime.medium_consistent_date = cljs.core.partial.call(null,gr
 growingtree_app.datetime.calendar_date_format = (new goog.i18n.DateTimeFormat("EEE, MMM dd, yyyy 'at' hh:mma"));
 growingtree_app.datetime.calendar_date = cljs.core.partial.call(null,growingtree_app.datetime.format_date,growingtree_app.datetime.calendar_date_format);
 growingtree_app.datetime.date_in_ms = (function date_in_ms(date){
-var vec__22411 = cljs.core.map.call(null,parseInt,cljs.core.name.call(null,date).split(/-/));
-var y = cljs.core.nth.call(null,vec__22411,(0),null);
-var m = cljs.core.nth.call(null,vec__22411,(1),null);
-var d = cljs.core.nth.call(null,vec__22411,(2),null);
+var vec__23322 = cljs.core.map.call(null,parseInt,cljs.core.name.call(null,date).split(/-/));
+var y = cljs.core.nth.call(null,vec__23322,(0),null);
+var m = cljs.core.nth.call(null,vec__23322,(1),null);
+var d = cljs.core.nth.call(null,vec__23322,(2),null);
 return (new Date(Date.UTC(y,(m - (1)),(d - (1)),(0),(0),(0)))).getTime();
 });
 growingtree_app.datetime.day_in_ms = (((1000) * (3600)) * (24));

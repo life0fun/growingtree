@@ -4,8 +4,8 @@ goog.require('cljs.core');
 goog.require('sablono.util');
 goog.require('clojure.string');
 
-sablono.interpreter.IInterpreter = (function (){var obj34432 = {};
-return obj34432;
+sablono.interpreter.IInterpreter = (function (){var obj35841 = {};
+return obj35841;
 })();
 
 sablono.interpreter.interpret = (function interpret(this$){
@@ -59,9 +59,9 @@ return {"value": (this$.props["value"])};
 sablono.interpreter.input = sablono.interpreter.wrap_form_element.call(null,React.DOM.input);
 sablono.interpreter.textarea = sablono.interpreter.wrap_form_element.call(null,React.DOM.textarea);
 sablono.interpreter.dom_fn = (function dom_fn(tag){
-var temp__4124__auto__ = (React.DOM[cljs.core.name.call(null,tag)]);
-if(cljs.core.truth_(temp__4124__auto__)){
-var dom_fn__$1 = temp__4124__auto__;
+var temp__4404__auto__ = (React.DOM[cljs.core.name.call(null,tag)]);
+if(cljs.core.truth_(temp__4404__auto__)){
+var dom_fn__$1 = temp__4404__auto__;
 return cljs.core.get.call(null,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"input","input",556931961),sablono.interpreter.input,new cljs.core.Keyword(null,"textarea","textarea",-650375824),sablono.interpreter.textarea], null),cljs.core.keyword.call(null,tag),dom_fn__$1);
 } else {
 throw cljs.core.ex_info.call(null,[cljs.core.str("Unsupported HTML tag: "),cljs.core.str(cljs.core.name.call(null,tag))].join(''),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"tag","tag",-1290361223),tag], null));
@@ -81,10 +81,10 @@ return attrs__$1;
 * Render an element vector as a HTML element.
 */
 sablono.interpreter.element = (function element(element__$1){
-var vec__34434 = sablono.util.normalize_element.call(null,element__$1);
-var tag = cljs.core.nth.call(null,vec__34434,(0),null);
-var attrs = cljs.core.nth.call(null,vec__34434,(1),null);
-var content = cljs.core.nth.call(null,vec__34434,(2),null);
+var vec__35843 = sablono.util.normalize_element.call(null,element__$1);
+var tag = cljs.core.nth.call(null,vec__35843,(0),null);
+var attrs = cljs.core.nth.call(null,vec__35843,(1),null);
+var content = cljs.core.nth.call(null,vec__35843,(2),null);
 return sablono.interpreter.dom_fn.call(null,tag).call(null,sablono.interpreter.attributes.call(null,attrs),(((cljs.core.sequential_QMARK_.call(null,content)) && (typeof cljs.core.first.call(null,content) === 'string') && (cljs.core.empty_QMARK_.call(null,cljs.core.rest.call(null,content))))?sablono.interpreter.interpret.call(null,cljs.core.first.call(null,content)):(cljs.core.truth_(content)?sablono.interpreter.interpret.call(null,content):null
 )));
 });

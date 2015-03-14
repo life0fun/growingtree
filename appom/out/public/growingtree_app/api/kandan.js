@@ -35,14 +35,14 @@ return "Placeholder";
 growingtree_app.api.kandan.handle_activity = (function handle_activity(data){
 var data__$1 = cljs.core.js__GT_clj.call(null,data,new cljs.core.Keyword(null,"keywordize-keys","keywordize-keys",1310784252));
 var event = new cljs.core.Keyword(null,"event","event",301435442).cljs$core$IFn$_invoke$arity$1(data__$1);
-var vec__34646 = cljs.core.map.call(null,cljs.core.keyword,clojure.string.split.call(null,event,/#/));
-var entity_name = cljs.core.nth.call(null,vec__34646,(0),null);
-var event_name = cljs.core.nth.call(null,vec__34646,(1),null);
+var vec__19816 = cljs.core.map.call(null,cljs.core.keyword,clojure.string.split.call(null,event,/#/));
+var entity_name = cljs.core.nth.call(null,vec__19816,(0),null);
+var event_name = cljs.core.nth.call(null,vec__19816,(1),null);
 return growingtree_app.api.kandan.process_event_BANG_.call(null,entity_name,event_name,data__$1);
 });
 growingtree_app.api.kandan.make_client = (function make_client(auth_token,end_point){
 var client = (new Faye.Client(end_point));
-var auth_extension = (function (){var obj34651 = {"outgoing":((function (client){
+var auth_extension = (function (){var obj19821 = {"outgoing":((function (client){
 return (function (message,cb){
 if(cljs.core._EQ_.call(null,message.channel,"/meta/subscribe")){
 (message["ext"] = {"auth_token": auth_token});
@@ -52,28 +52,28 @@ if(cljs.core._EQ_.call(null,message.channel,"/meta/subscribe")){
 return cb.call(null,message);
 });})(client))
 };
-return obj34651;
+return obj19821;
 })();
-var G__34652 = client;
-G__34652.disable("websocket");
+var G__19822 = client;
+G__19822.disable("websocket");
 
-G__34652.addExtension(auth_extension);
+G__19822.addExtension(auth_extension);
 
-G__34652.bind("transport:down",((function (G__34652,client,auth_extension){
+G__19822.bind("transport:down",((function (G__19822,client,auth_extension){
 return (function (){
 return growingtree_app.utils.mprint.call(null,"Connection to Kandan server is down");
-});})(G__34652,client,auth_extension))
+});})(G__19822,client,auth_extension))
 );
 
-G__34652.bind("transport:up",((function (G__34652,client,auth_extension){
+G__19822.bind("transport:up",((function (G__19822,client,auth_extension){
 return (function (){
 return growingtree_app.utils.mprint.call(null,"Connection to Kandan server is up");
-});})(G__34652,client,auth_extension))
+});})(G__19822,client,auth_extension))
 );
 
-G__34652.subscribe("/app/activities",growingtree_app.api.kandan.handle_activity);
+G__19822.subscribe("/app/activities",growingtree_app.api.kandan.handle_activity);
 
-return G__34652;
+return G__19822;
 });
 growingtree_app.api.kandan.normalize_activity = (function normalize_activity(activity){
 return new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(activity),new cljs.core.Keyword(null,"channel-id","channel-id",138191095),growingtree_app.utils.safe_sel.call(null,new cljs.core.Keyword(null,"channel_id","channel_id",1180018383).cljs$core$IFn$_invoke$arity$1(activity)),new cljs.core.Keyword(null,"created_at","created_at",1484050750),(new Date(new cljs.core.Keyword(null,"created_at","created_at",1484050750).cljs$core$IFn$_invoke$arity$1(activity))),new cljs.core.Keyword(null,"author","author",2111686192),cljs.core.get_in.call(null,activity,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"user","user",1532431356),new cljs.core.Keyword(null,"email","email",1415816706)], null)),new cljs.core.Keyword(null,"content","content",15833224),new cljs.core.Keyword(null,"content","content",15833224).cljs$core$IFn$_invoke$arity$1(activity)], null);
@@ -96,8 +96,8 @@ return cljs.core.async.put_BANG_.call(null,api_ch,new cljs.core.PersistentVector
 return subscription;
 });
 growingtree_app.api.kandan.save = (function save(api_key,obj){
-return growingtree_app.api.kandan.callbacks.post_activity_BANG_.call(null,api_key,cljs.core.js__GT_clj.call(null,obj),(function (p1__34653_SHARP_){
-return growingtree_app.utils.mprint.call(null,"Save Activity Result: ",p1__34653_SHARP_);
+return growingtree_app.api.kandan.callbacks.post_activity_BANG_.call(null,api_key,cljs.core.js__GT_clj.call(null,obj),(function (p1__19823_SHARP_){
+return growingtree_app.utils.mprint.call(null,"Save Activity Result: ",p1__19823_SHARP_);
 }));
 });
 

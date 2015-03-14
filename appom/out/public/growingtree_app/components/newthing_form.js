@@ -32,10 +32,10 @@ var submit_fn = ((function (child_id){
 return (function (e){
 var input_fields = new cljs.core.PersistentArrayMap(null, 7, [new cljs.core.Keyword("person","title","person/title",1791817084),".person-title",new cljs.core.Keyword("person","lname","person/lname",-666049471),".person-lname",new cljs.core.Keyword("person","type","person/type",-1703713807),".person-type",new cljs.core.Keyword("person","email","person/email",122143325),".person-email",new cljs.core.Keyword("person","phone","person/phone",261098638),".person-phone",new cljs.core.Keyword("person","address","person/address",1715807213),".person-address",new cljs.core.Keyword("person","url","person/url",1566531883),".person-url"], null);
 var data = cljs.core.reduce.call(null,((function (input_fields,child_id){
-return (function (tot,p__22016){
-var vec__22017 = p__22016;
-var k = cljs.core.nth.call(null,vec__22017,(0),null);
-var clz = cljs.core.nth.call(null,vec__22017,(1),null);
+return (function (tot,p__22927){
+var vec__22928 = p__22927;
+var k = cljs.core.nth.call(null,vec__22928,(0),null);
+var clz = cljs.core.nth.call(null,vec__22928,(1),null);
 return cljs.core.assoc.call(null,tot,k,dommy.core.value.call(null,document.querySelector(dommy.core.selector.call(null,clz))));
 });})(input_fields,child_id))
 ,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword("family","child","family/child",-210196195),child_id], null),input_fields);
@@ -56,10 +56,10 @@ var submit_fn = ((function (parent_id){
 return (function (e){
 var input_fields = new cljs.core.PersistentArrayMap(null, 7, [new cljs.core.Keyword("person","title","person/title",1791817084),".person-title",new cljs.core.Keyword("person","lname","person/lname",-666049471),".person-lname",new cljs.core.Keyword("person","type","person/type",-1703713807),".person-type",new cljs.core.Keyword("person","email","person/email",122143325),".person-email",new cljs.core.Keyword("person","phone","person/phone",261098638),".person-phone",new cljs.core.Keyword("person","address","person/address",1715807213),".person-address",new cljs.core.Keyword("person","url","person/url",1566531883),".person-url"], null);
 var data = cljs.core.reduce.call(null,((function (input_fields,parent_id){
-return (function (tot,p__22018){
-var vec__22019 = p__22018;
-var k = cljs.core.nth.call(null,vec__22019,(0),null);
-var clz = cljs.core.nth.call(null,vec__22019,(1),null);
+return (function (tot,p__22929){
+var vec__22930 = p__22929;
+var k = cljs.core.nth.call(null,vec__22930,(0),null);
+var clz = cljs.core.nth.call(null,vec__22930,(1),null);
 return cljs.core.assoc.call(null,tot,k,dommy.core.value.call(null,document.querySelector(dommy.core.selector.call(null,clz))));
 });})(input_fields,parent_id))
 ,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword("family","parent","family/parent",927253593),parent_id], null),input_fields);
@@ -76,10 +76,10 @@ var submit_fn = ((function (author_name){
 return (function (e){
 var input_fields = new cljs.core.PersistentArrayMap(null, 7, [new cljs.core.Keyword("course","title","course/title",1957539266),".course-title",new cljs.core.Keyword("course","content","course/content",-768165789),".course-content",new cljs.core.Keyword("course","type","course/type",-1261252169),".course-type",new cljs.core.Keyword("course","author","course/author",723035669),".course-author",new cljs.core.Keyword("course","url","course/url",1136579953),".course-url",new cljs.core.Keyword("course","email","course/email",-1515551193),".course-email",new cljs.core.Keyword("course","wiki","course/wiki",-1555709149),".course-wiki"], null);
 var data = growingtree_app.utils.update_enum.call(null,cljs.core.assoc.call(null,cljs.core.reduce.call(null,((function (input_fields,author_name){
-return (function (tot,p__22020){
-var vec__22021 = p__22020;
-var k = cljs.core.nth.call(null,vec__22021,(0),null);
-var clz = cljs.core.nth.call(null,vec__22021,(1),null);
+return (function (tot,p__22931){
+var vec__22932 = p__22931;
+var k = cljs.core.nth.call(null,vec__22932,(0),null);
+var clz = cljs.core.nth.call(null,vec__22932,(1),null);
 return cljs.core.assoc.call(null,tot,k,dommy.core.value.call(null,document.querySelector(dommy.core.selector.call(null,clz))));
 });})(input_fields,author_name))
 ,cljs.core.PersistentArrayMap.EMPTY,input_fields),new cljs.core.Keyword(null,"author","author",2111686192),new cljs.core.Keyword(null,"author","author",2111686192).cljs$core$IFn$_invoke$arity$1(options)),new cljs.core.Keyword(null,"course","course",1455432948),"type",false);
@@ -97,10 +97,10 @@ var submit_fn = ((function (author_name,course_id){
 return (function (e){
 var input_fields = new cljs.core.PersistentArrayMap(null, 8, [new cljs.core.Keyword("lecture","title","lecture/title",546063213),".lecture-title",new cljs.core.Keyword("lecture","content","lecture/content",97871622),".lecture-content",new cljs.core.Keyword("lecture","type","lecture/type",1093792266),".lecture-type",new cljs.core.Keyword("lecture","author","lecture/author",1991891378),".lecture-author",new cljs.core.Keyword("lecture","start","lecture/start",-303039383),"#lecture-start",new cljs.core.Keyword("lecture","end","lecture/end",-220733156),"#lecture-end",new cljs.core.Keyword("lecture","url","lecture/url",261874388),".lecture-url",new cljs.core.Keyword("lecture","wiki","lecture/wiki",1864799174),".lecture-wiki"], null);
 var data = growingtree_app.utils.set_time.call(null,growingtree_app.utils.update_time.call(null,growingtree_app.utils.update_enum.call(null,cljs.core.assoc.call(null,cljs.core.assoc.call(null,cljs.core.reduce.call(null,((function (input_fields,author_name,course_id){
-return (function (tot,p__22022){
-var vec__22023 = p__22022;
-var k = cljs.core.nth.call(null,vec__22023,(0),null);
-var clz = cljs.core.nth.call(null,vec__22023,(1),null);
+return (function (tot,p__22933){
+var vec__22934 = p__22933;
+var k = cljs.core.nth.call(null,vec__22934,(0),null);
+var clz = cljs.core.nth.call(null,vec__22934,(1),null);
 return cljs.core.assoc.call(null,tot,k,dommy.core.value.call(null,document.querySelector(dommy.core.selector.call(null,clz))));
 });})(input_fields,author_name,course_id))
 ,cljs.core.PersistentArrayMap.EMPTY,input_fields),new cljs.core.Keyword(null,"author","author",2111686192),new cljs.core.Keyword(null,"author","author",2111686192).cljs$core$IFn$_invoke$arity$1(options)),new cljs.core.Keyword("lecture","course","lecture/course",1541674866),cljs.core.get_in.call(null,cljs.core.deref.call(null,last_nav_path),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"data","data",-232669377),new cljs.core.Keyword(null,"pid","pid",1018387698)], null))),new cljs.core.Keyword(null,"lecture","lecture",-1052740831),"type",false),new cljs.core.Keyword(null,"lecture","lecture",-1052740831),"start"),new cljs.core.Keyword(null,"lecture","lecture",-1052740831),"end");
@@ -123,10 +123,10 @@ var submit_fn = ((function (author_name,course_id){
 return (function (e){
 var input_fields = new cljs.core.PersistentArrayMap(null, 7, [new cljs.core.Keyword("question","title","question/title",2003702293),".question-title",new cljs.core.Keyword("question","content","question/content",-847823714),".question-content",new cljs.core.Keyword("question","type","question/type",-2003827326),".question-type",new cljs.core.Keyword("question","author","question/author",509082058),".question-author",new cljs.core.Keyword("question","difficulty","question/difficulty",-779582935),"#question-difficulty",new cljs.core.Keyword("question","url","question/url",1191018908),".question-url",new cljs.core.Keyword("question","tag","question/tag",2088264183),".question-tag"], null);
 var data = growingtree_app.utils.update_enum.call(null,cljs.core.assoc.call(null,cljs.core.assoc.call(null,cljs.core.reduce.call(null,((function (input_fields,author_name,course_id){
-return (function (tot,p__22024){
-var vec__22025 = p__22024;
-var k = cljs.core.nth.call(null,vec__22025,(0),null);
-var clz = cljs.core.nth.call(null,vec__22025,(1),null);
+return (function (tot,p__22935){
+var vec__22936 = p__22935;
+var k = cljs.core.nth.call(null,vec__22936,(0),null);
+var clz = cljs.core.nth.call(null,vec__22936,(1),null);
 return cljs.core.assoc.call(null,tot,k,dommy.core.value.call(null,document.querySelector(dommy.core.selector.call(null,clz))));
 });})(input_fields,author_name,course_id))
 ,cljs.core.PersistentArrayMap.EMPTY,input_fields),new cljs.core.Keyword(null,"author","author",2111686192),new cljs.core.Keyword(null,"author","author",2111686192).cljs$core$IFn$_invoke$arity$1(options)),new cljs.core.Keyword("question","origin","question/origin",1918062226),cljs.core.get_in.call(null,cljs.core.deref.call(null,last_nav_path),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"data","data",-232669377),new cljs.core.Keyword(null,"pid","pid",1018387698)], null))),new cljs.core.Keyword(null,"question","question",-1411720117),"type",false);
@@ -154,10 +154,10 @@ var submit_fn = ((function (author_name){
 return (function (e){
 var input_fields = new cljs.core.PersistentArrayMap(null, 6, [new cljs.core.Keyword("group","title","group/title",735008878),".group-title",new cljs.core.Keyword("group","type","group/type",1534114571),".group-type",new cljs.core.Keyword("group","author","group/author",1937686705),".group-author",new cljs.core.Keyword("group","url","group/url",442022869),".group-url",new cljs.core.Keyword("group","email","group/email",1178906499),".group-email",new cljs.core.Keyword("group","wiki","group/wiki",2112072903),".group-wiki"], null);
 var data = growingtree_app.utils.update_enum.call(null,cljs.core.assoc.call(null,cljs.core.reduce.call(null,((function (input_fields,author_name){
-return (function (tot,p__22026){
-var vec__22027 = p__22026;
-var k = cljs.core.nth.call(null,vec__22027,(0),null);
-var clz = cljs.core.nth.call(null,vec__22027,(1),null);
+return (function (tot,p__22937){
+var vec__22938 = p__22937;
+var k = cljs.core.nth.call(null,vec__22938,(0),null);
+var clz = cljs.core.nth.call(null,vec__22938,(1),null);
 return cljs.core.assoc.call(null,tot,k,dommy.core.value.call(null,document.querySelector(dommy.core.selector.call(null,clz))));
 });})(input_fields,author_name))
 ,cljs.core.PersistentArrayMap.EMPTY,input_fields),new cljs.core.Keyword(null,"author","author",2111686192),new cljs.core.Keyword(null,"author","author",2111686192).cljs$core$IFn$_invoke$arity$1(options)),new cljs.core.Keyword(null,"group","group",582596132),"type",false);

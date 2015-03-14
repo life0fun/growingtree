@@ -7,27 +7,14 @@ goog.require('goog.structs.Map');
 goog.require('cljs.core.async');
 goog.require('cljs.reader');
 goog.require('clojure.string');
-var map__34532_34533 = taoensso.sente.make_channel_socket_BANG_.call(null,"/chsk",new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"type","type",1174270348),new cljs.core.Keyword(null,"auto","auto",-566279492)], null));
-var map__34532_34534__$1 = ((cljs.core.seq_QMARK_.call(null,map__34532_34533))?cljs.core.apply.call(null,cljs.core.hash_map,map__34532_34533):map__34532_34533);
-var state_34535 = cljs.core.get.call(null,map__34532_34534__$1,new cljs.core.Keyword(null,"state","state",-1988618099));
-var send_fn_34536 = cljs.core.get.call(null,map__34532_34534__$1,new cljs.core.Keyword(null,"send-fn","send-fn",351002041));
-var ch_recv_34537 = cljs.core.get.call(null,map__34532_34534__$1,new cljs.core.Keyword(null,"ch-recv","ch-recv",-990916861));
-var chsk_34538 = cljs.core.get.call(null,map__34532_34534__$1,new cljs.core.Keyword(null,"chsk","chsk",-863703081));
-growingtree_app.api.cljsajax.chsk = chsk_34538;
-
-growingtree_app.api.cljsajax.ch_chsk = ch_recv_34537;
-
-growingtree_app.api.cljsajax.chsk_send_BANG_ = send_fn_34536;
-
-growingtree_app.api.cljsajax.chsk_state = state_34535;
 /**
 * cljs-ajax success handler, send back things-vec to api-ch
 */
 growingtree_app.api.cljsajax.handler = (function handler(command,nav_path,api_ch){
 return (function (response){
-var temp__4126__auto__ = response;
-if(cljs.core.truth_(temp__4126__auto__)){
-var result = temp__4126__auto__;
+var temp__4406__auto__ = response;
+if(cljs.core.truth_(temp__4406__auto__)){
+var result = temp__4406__auto__;
 var status = new cljs.core.Keyword(null,"status","status",-1997798413).cljs$core$IFn$_invoke$arity$1(result);
 var error = new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result);
 var things_vec = new cljs.core.Keyword(null,"data","data",-232669377).cljs$core$IFn$_invoke$arity$1(result);
@@ -52,11 +39,11 @@ return null;
 */
 growingtree_app.api.cljsajax.error_handler = (function error_handler(command,nav_path,api_ch){
 return (function (error){
-var map__34540 = error;
-var map__34540__$1 = ((cljs.core.seq_QMARK_.call(null,map__34540))?cljs.core.apply.call(null,cljs.core.hash_map,map__34540):map__34540);
-var response = cljs.core.get.call(null,map__34540__$1,new cljs.core.Keyword(null,"response","response",-1068424192));
-var status_text = cljs.core.get.call(null,map__34540__$1,new cljs.core.Keyword(null,"status-text","status-text",-1834235478));
-var status = cljs.core.get.call(null,map__34540__$1,new cljs.core.Keyword(null,"status","status",-1997798413));
+var map__17691 = error;
+var map__17691__$1 = ((cljs.core.seq_QMARK_.call(null,map__17691))?cljs.core.apply.call(null,cljs.core.hash_map,map__17691):map__17691);
+var response = cljs.core.get.call(null,map__17691__$1,new cljs.core.Keyword(null,"response","response",-1068424192));
+var status_text = cljs.core.get.call(null,map__17691__$1,new cljs.core.Keyword(null,"status-text","status-text",-1834235478));
+var status = cljs.core.get.call(null,map__17691__$1,new cljs.core.Keyword(null,"status","status",-1997798413));
 var err = new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"nav-path","nav-path",-444531376),nav_path,new cljs.core.Keyword(null,"things-vec","things-vec",-1363222375),null,new cljs.core.Keyword(null,"error","error",-978969032),error], null);
 console.log(cljs.core.pr_str.call(null,"xhr error : nav-path ",nav_path," err : ",err));
 
@@ -78,8 +65,8 @@ return cljs.core.get.call(null,nav_path,new cljs.core.Keyword(null,"add-thing","
 var request = new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"handler","handler",-195596612),growingtree_app.api.cljsajax.handler.call(null,command,nav_path,api_ch),new cljs.core.Keyword(null,"error-handler","error-handler",-484945776),growingtree_app.api.cljsajax.error_handler.call(null,command,nav_path,api_ch),new cljs.core.Keyword(null,"format","format",-1306924766),new cljs.core.Keyword(null,"edn","edn",1317840885),new cljs.core.Keyword(null,"params","params",710516235),new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"thing-type","thing-type",15521235),thing_type,new cljs.core.Keyword(null,"path","path",-188191168),query_path,new cljs.core.Keyword(null,"qpath","qpath",-697341501),cljs.core.get.call(null,nav_path,new cljs.core.Keyword(null,"title","title",636505583)),new cljs.core.Keyword(null,"post-data","post-data",-1762044238),post_data], null),new cljs.core.Keyword(null,"headers","headers",-835030129),cljs.core.PersistentArrayMap.EMPTY], null);
 console.log([cljs.core.str("cljs-ajax >>> "),cljs.core.str(command),cljs.core.str(" nav-path "),cljs.core.str(nav_path),cljs.core.str(" post-data "),cljs.core.str(post_data)].join(''));
 
-var G__34542 = (((command instanceof cljs.core.Keyword))?command.fqn:null);
-switch (G__34542) {
+var G__17693 = (((command instanceof cljs.core.Keyword))?command.fqn:null);
+switch (G__17693) {
 case "add-thing":
 return ajax.core.POST.call(null,[cljs.core.str("/add/"),cljs.core.str(cljs.core.name.call(null,thing_type))].join(''),request);
 

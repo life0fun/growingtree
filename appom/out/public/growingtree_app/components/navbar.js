@@ -40,24 +40,24 @@ return cljs.core.async.put_BANG_.call(null,comm,growingtree_app.mock_data.newthi
 ], null)], null):new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"i.fa.fa-square","i.fa.fa-square",-1307287996)], null)),(cljs.core.truth_(new cljs.core.Keyword(null,"loading","loading",-737050189).cljs$core$IFn$_invoke$arity$1(thing_listing))?new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"i.icon-spinner.icon-spin","i.icon-spinner.icon-spin",2121569380)], null):null)], null)], null);
 });
 growingtree_app.components.navbar.navbar = (function navbar(state,owner,opts){
-if(typeof growingtree_app.components.navbar.t21813 !== 'undefined'){
+if(typeof growingtree_app.components.navbar.t22920 !== 'undefined'){
 } else {
 
 /**
 * @constructor
 */
-growingtree_app.components.navbar.t21813 = (function (opts,owner,state,navbar,meta21814){
+growingtree_app.components.navbar.t22920 = (function (opts,owner,state,navbar,meta22921){
 this.opts = opts;
 this.owner = owner;
 this.state = state;
 this.navbar = navbar;
-this.meta21814 = meta21814;
+this.meta22921 = meta22921;
 this.cljs$lang$protocol_mask$partition1$ = 0;
 this.cljs$lang$protocol_mask$partition0$ = 393216;
 })
-growingtree_app.components.navbar.t21813.prototype.om$core$IRender$ = true;
+growingtree_app.components.navbar.t22920.prototype.om$core$IRender$ = true;
 
-growingtree_app.components.navbar.t21813.prototype.om$core$IRender$render$arity$1 = (function (this$){
+growingtree_app.components.navbar.t22920.prototype.om$core$IRender$render$arity$1 = (function (this$){
 var self__ = this;
 var this$__$1 = this;
 var comm = cljs.core.get_in.call(null,self__.opts,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"comms","comms",460172477),new cljs.core.Keyword(null,"controls","controls",1340701452)], null));
@@ -72,24 +72,24 @@ return (function (_){
 var search_key = dommy.core.value.call(null,search_box_div);
 return cljs.core.async.put_BANG_.call(null,comm,growingtree_app.mock_data.search_msg_nav_path.call(null,new cljs.core.Keyword(null,"all-things","all-things",1825895767),search_key));
 });})(comm,settings,login_user,search_box,search_box_div,things,my_things,this$__$1))
-})),(function (){var attrs21816 = cljs.core.map.call(null,cljs.core.partial.call(null,growingtree_app.components.navbar.thing_nav,comm,login_user),cljs.core.sort_by.call(null,new cljs.core.Keyword(null,"order","order",-1254677256),things));
-if(cljs.core.map_QMARK_.call(null,attrs21816)){
-return React.DOM.ul(sablono.interpreter.attributes.call(null,sablono.util.merge_with_class.call(null,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"class","class",-2030961996),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, ["nav-ul"], null)], null),attrs21816)),null);
+})),(function (){var attrs22923 = cljs.core.map.call(null,cljs.core.partial.call(null,growingtree_app.components.navbar.thing_nav,comm,login_user),cljs.core.sort_by.call(null,new cljs.core.Keyword(null,"order","order",-1254677256),things));
+if(cljs.core.map_QMARK_.call(null,attrs22923)){
+return React.DOM.ul(sablono.interpreter.attributes.call(null,sablono.util.merge_with_class.call(null,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"class","class",-2030961996),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, ["nav-ul"], null)], null),attrs22923)),null);
 } else {
-return React.DOM.ul({"className": "nav-ul"},sablono.interpreter.interpret.call(null,attrs21816));
+return React.DOM.ul({"className": "nav-ul"},sablono.interpreter.interpret.call(null,attrs22923));
 }
-})(),(function (){var attrs21817 = cljs.core.map.call(null,cljs.core.partial.call(null,growingtree_app.components.navbar.my_thing_nav,comm,login_user),cljs.core.sort_by.call(null,new cljs.core.Keyword(null,"order","order",-1254677256),my_things));
-if(cljs.core.map_QMARK_.call(null,attrs21817)){
-return React.DOM.ul(sablono.interpreter.attributes.call(null,sablono.util.merge_with_class.call(null,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"class","class",-2030961996),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["nav-ul","my-nav"], null)], null),attrs21817)),null);
+})(),(function (){var attrs22924 = cljs.core.map.call(null,cljs.core.partial.call(null,growingtree_app.components.navbar.my_thing_nav,comm,login_user),cljs.core.sort_by.call(null,new cljs.core.Keyword(null,"order","order",-1254677256),my_things));
+if(cljs.core.map_QMARK_.call(null,attrs22924)){
+return React.DOM.ul(sablono.interpreter.attributes.call(null,sablono.util.merge_with_class.call(null,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"class","class",-2030961996),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, ["nav-ul","my-nav"], null)], null),attrs22924)),null);
 } else {
-return React.DOM.ul({"className": "nav-ul my-nav"},sablono.interpreter.interpret.call(null,attrs21817));
+return React.DOM.ul({"className": "nav-ul my-nav"},sablono.interpreter.interpret.call(null,attrs22924));
 }
 })());
 });
 
-growingtree_app.components.navbar.t21813.prototype.om$core$IDisplayName$ = true;
+growingtree_app.components.navbar.t22920.prototype.om$core$IDisplayName$ = true;
 
-growingtree_app.components.navbar.t21813.prototype.om$core$IDisplayName$display_name$arity$1 = (function (_){
+growingtree_app.components.navbar.t22920.prototype.om$core$IDisplayName$display_name$arity$1 = (function (_){
 var self__ = this;
 var ___$1 = this;
 var or__3807__auto__ = new cljs.core.Keyword(null,"react-name","react-name",-834049397).cljs$core$IFn$_invoke$arity$1(self__.opts);
@@ -100,33 +100,33 @@ return "Navbar";
 }
 });
 
-growingtree_app.components.navbar.t21813.prototype.cljs$core$IMeta$_meta$arity$1 = (function (_21815){
+growingtree_app.components.navbar.t22920.prototype.cljs$core$IMeta$_meta$arity$1 = (function (_22922){
 var self__ = this;
-var _21815__$1 = this;
-return self__.meta21814;
+var _22922__$1 = this;
+return self__.meta22921;
 });
 
-growingtree_app.components.navbar.t21813.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = (function (_21815,meta21814__$1){
+growingtree_app.components.navbar.t22920.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = (function (_22922,meta22921__$1){
 var self__ = this;
-var _21815__$1 = this;
-return (new growingtree_app.components.navbar.t21813(self__.opts,self__.owner,self__.state,self__.navbar,meta21814__$1));
+var _22922__$1 = this;
+return (new growingtree_app.components.navbar.t22920(self__.opts,self__.owner,self__.state,self__.navbar,meta22921__$1));
 });
 
-growingtree_app.components.navbar.t21813.cljs$lang$type = true;
+growingtree_app.components.navbar.t22920.cljs$lang$type = true;
 
-growingtree_app.components.navbar.t21813.cljs$lang$ctorStr = "growingtree-app.components.navbar/t21813";
+growingtree_app.components.navbar.t22920.cljs$lang$ctorStr = "growingtree-app.components.navbar/t22920";
 
-growingtree_app.components.navbar.t21813.cljs$lang$ctorPrWriter = (function (this__4394__auto__,writer__4395__auto__,opt__4396__auto__){
-return cljs.core._write.call(null,writer__4395__auto__,"growingtree-app.components.navbar/t21813");
+growingtree_app.components.navbar.t22920.cljs$lang$ctorPrWriter = (function (this__4394__auto__,writer__4395__auto__,opt__4396__auto__){
+return cljs.core._write.call(null,writer__4395__auto__,"growingtree-app.components.navbar/t22920");
 });
 
-growingtree_app.components.navbar.__GT_t21813 = (function __GT_t21813(opts__$1,owner__$1,state__$1,navbar__$1,meta21814){
-return (new growingtree_app.components.navbar.t21813(opts__$1,owner__$1,state__$1,navbar__$1,meta21814));
+growingtree_app.components.navbar.__GT_t22920 = (function __GT_t22920(opts__$1,owner__$1,state__$1,navbar__$1,meta22921){
+return (new growingtree_app.components.navbar.t22920(opts__$1,owner__$1,state__$1,navbar__$1,meta22921));
 });
 
 }
 
-return (new growingtree_app.components.navbar.t21813(opts,owner,state,navbar,cljs.core.PersistentArrayMap.EMPTY));
+return (new growingtree_app.components.navbar.t22920(opts,owner,state,navbar,cljs.core.PersistentArrayMap.EMPTY));
 });
 
 //# sourceMappingURL=navbar.js.map

@@ -8,8 +8,8 @@ while(true){
 if((cnt < len)){
 (dest[(dest_start + cnt)] = (src[(src_start + cnt)]));
 
-var G__31502 = (cnt + (1));
-cnt = G__31502;
+var G__32934 = (cnt + (1));
+cnt = G__32934;
 continue;
 } else {
 return null;
@@ -112,14 +112,14 @@ var n__4694__auto__ = self__.length;
 var x = (0);
 while(true){
 if((x < n__4694__auto__)){
-var v_31503 = this$.pop();
-if(keep_QMARK_.call(null,v_31503)){
-this$.unshift(v_31503);
+var v_32935 = this$.pop();
+if(keep_QMARK_.call(null,v_32935)){
+this$.unshift(v_32935);
 } else {
 }
 
-var G__31504 = (x + (1));
-x = G__31504;
+var G__32936 = (x + (1));
+x = G__32936;
 continue;
 } else {
 return null;
@@ -178,15 +178,12 @@ var this$__$1 = this;
 return self__.buf.pop();
 });
 
-cljs.core.async.impl.buffers.FixedBuffer.prototype.cljs$core$async$impl$protocols$Buffer$add_BANG_$arity$2 = (function (this$,itm){
+cljs.core.async.impl.buffers.FixedBuffer.prototype.cljs$core$async$impl$protocols$Buffer$add_BANG__STAR_$arity$2 = (function (this$,itm){
 var self__ = this;
 var this$__$1 = this;
-if(cljs.core.not.call(null,cljs.core.async.impl.protocols.full_QMARK_.call(null,this$__$1))){
-} else {
-throw (new Error([cljs.core.str("Assert failed: "),cljs.core.str("Can't add to a full buffer"),cljs.core.str("\n"),cljs.core.str(cljs.core.pr_str.call(null,cljs.core.list(new cljs.core.Symbol(null,"not","not",1044554643,null),cljs.core.list(new cljs.core.Symbol("impl","full?","impl/full?",-97582774,null),new cljs.core.Symbol(null,"this","this",1028897902,null)))))].join('')));
-}
+self__.buf.unbounded_unshift(itm);
 
-return self__.buf.unshift(itm);
+return this$__$1;
 });
 
 cljs.core.async.impl.buffers.FixedBuffer.cljs$lang$type = true;
@@ -234,14 +231,15 @@ var this$__$1 = this;
 return self__.buf.pop();
 });
 
-cljs.core.async.impl.buffers.DroppingBuffer.prototype.cljs$core$async$impl$protocols$Buffer$add_BANG_$arity$2 = (function (this$,itm){
+cljs.core.async.impl.buffers.DroppingBuffer.prototype.cljs$core$async$impl$protocols$Buffer$add_BANG__STAR_$arity$2 = (function (this$,itm){
 var self__ = this;
 var this$__$1 = this;
 if((self__.buf.length === self__.n)){
-return null;
 } else {
-return self__.buf.unshift(itm);
+self__.buf.unshift(itm);
 }
+
+return this$__$1;
 });
 
 cljs.core.async.impl.buffers.DroppingBuffer.prototype.cljs$core$async$impl$protocols$UnblockingBuffer$ = true;
@@ -291,7 +289,7 @@ var this$__$1 = this;
 return self__.buf.pop();
 });
 
-cljs.core.async.impl.buffers.SlidingBuffer.prototype.cljs$core$async$impl$protocols$Buffer$add_BANG_$arity$2 = (function (this$,itm){
+cljs.core.async.impl.buffers.SlidingBuffer.prototype.cljs$core$async$impl$protocols$Buffer$add_BANG__STAR_$arity$2 = (function (this$,itm){
 var self__ = this;
 var this$__$1 = this;
 if((self__.buf.length === self__.n)){
@@ -299,7 +297,9 @@ cljs.core.async.impl.protocols.remove_BANG_.call(null,this$__$1);
 } else {
 }
 
-return self__.buf.unshift(itm);
+self__.buf.unshift(itm);
+
+return this$__$1;
 });
 
 cljs.core.async.impl.buffers.SlidingBuffer.prototype.cljs$core$async$impl$protocols$UnblockingBuffer$ = true;

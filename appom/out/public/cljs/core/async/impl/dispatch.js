@@ -1,8 +1,8 @@
 // Compiled by ClojureScript 0.0-2850 {}
 goog.provide('cljs.core.async.impl.dispatch');
 goog.require('cljs.core');
+goog.require('goog.async.nextTick');
 goog.require('cljs.core.async.impl.buffers');
-cljs.core.async.impl.dispatch.message_channel = null;
 cljs.core.async.impl.dispatch.tasks = cljs.core.async.impl.buffers.ring_buffer.call(null,(32));
 cljs.core.async.impl.dispatch.running_QMARK_ = false;
 cljs.core.async.impl.dispatch.queued_QMARK_ = false;
@@ -12,16 +12,16 @@ cljs.core.async.impl.dispatch.running_QMARK_ = true;
 
 cljs.core.async.impl.dispatch.queued_QMARK_ = false;
 
-var count_31507 = (0);
+var count_32939 = (0);
 while(true){
-var m_31508 = cljs.core.async.impl.dispatch.tasks.pop();
-if((m_31508 == null)){
+var m_32940 = cljs.core.async.impl.dispatch.tasks.pop();
+if((m_32940 == null)){
 } else {
-m_31508.call(null);
+m_32940.call(null);
 
-if((count_31507 < cljs.core.async.impl.dispatch.TASK_BATCH_SIZE)){
-var G__31509 = (count_31507 + (1));
-count_31507 = G__31509;
+if((count_32939 < cljs.core.async.impl.dispatch.TASK_BATCH_SIZE)){
+var G__32941 = (count_32939 + (1));
+count_32939 = G__32941;
 continue;
 } else {
 }
@@ -37,17 +37,9 @@ return cljs.core.async.impl.dispatch.queue_dispatcher.call(null);
 return null;
 }
 });
-if(typeof MessageChannel !== 'undefined'){
-cljs.core.async.impl.dispatch.message_channel = (new MessageChannel());
-
-cljs.core.async.impl.dispatch.message_channel.port1.onmessage = (function (msg){
-return cljs.core.async.impl.dispatch.process_messages.call(null);
-});
-} else {
-}
 cljs.core.async.impl.dispatch.queue_dispatcher = (function queue_dispatcher(){
 if(cljs.core.truth_((function (){var and__3795__auto__ = cljs.core.async.impl.dispatch.queued_QMARK_;
-if(and__3795__auto__){
+if(cljs.core.truth_(and__3795__auto__)){
 return cljs.core.async.impl.dispatch.running_QMARK_;
 } else {
 return and__3795__auto__;
@@ -57,16 +49,7 @@ return null;
 } else {
 cljs.core.async.impl.dispatch.queued_QMARK_ = true;
 
-if(typeof MessageChannel !== 'undefined'){
-return cljs.core.async.impl.dispatch.message_channel.port2.postMessage((0));
-} else {
-if(typeof setImmediate !== 'undefined'){
-return setImmediate(cljs.core.async.impl.dispatch.process_messages);
-} else {
-return setTimeout(cljs.core.async.impl.dispatch.process_messages,(0));
-
-}
-}
+return goog.async.nextTick(cljs.core.async.impl.dispatch.process_messages);
 }
 });
 cljs.core.async.impl.dispatch.run = (function run(f){

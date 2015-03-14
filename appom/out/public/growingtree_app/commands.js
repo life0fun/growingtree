@@ -28,11 +28,11 @@ return growingtree_app.utils.mprint.call(null,"No command for ",cljs.core.pr_str
 }));
 cljs.core._add_method.call(null,growingtree_app.commands.handle_maybe_command,"/play",(function (target,activity,state){
 var controls_ch = cljs.core.get_in.call(null,state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"comms","comms",460172477),new cljs.core.Keyword(null,"controls","controls",1340701452)], null));
-var temp__4126__auto___21917 = (function (){var or__3807__auto__ = (function (){var G__21916 = new cljs.core.Keyword(null,"content","content",15833224).cljs$core$IFn$_invoke$arity$1(activity);
-var G__21916__$1 = (((G__21916 == null))?null:clojure.string.split.call(null,G__21916,/ /));
-var G__21916__$2 = (((G__21916__$1 == null))?null:cljs.core.second.call(null,G__21916__$1));
-var G__21916__$3 = (((G__21916__$2 == null))?null:cljs.core.first.call(null,cljs.core.re_find.call(null,/http.*\.(mp3|mp4|ogg|wav)/,G__21916__$2)));
-return G__21916__$3;
+var temp__4406__auto___22697 = (function (){var or__3807__auto__ = (function (){var G__22696 = new cljs.core.Keyword(null,"content","content",15833224).cljs$core$IFn$_invoke$arity$1(activity);
+var G__22696__$1 = (((G__22696 == null))?null:clojure.string.split.call(null,G__22696,/ /));
+var G__22696__$2 = (((G__22696__$1 == null))?null:cljs.core.second.call(null,G__22696__$1));
+var G__22696__$3 = (((G__22696__$2 == null))?null:cljs.core.first.call(null,cljs.core.re_find.call(null,/http.*\.(mp3|mp4|ogg|wav)/,G__22696__$2)));
+return G__22696__$3;
 })();
 if(cljs.core.truth_(or__3807__auto__)){
 return or__3807__auto__;
@@ -45,9 +45,9 @@ var x__$4 = cljs.core.get.call(null,new cljs.core.PersistentArrayMap(null, 2, ["
 return x__$4;
 }
 })();
-if(cljs.core.truth_(temp__4126__auto___21917)){
-var url_21918 = temp__4126__auto___21917;
-cljs.core.async.put_BANG_.call(null,controls_ch,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"audio-player-source-updated","audio-player-source-updated",-983718025),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [url_21918,new cljs.core.Keyword(null,"selected-channel","selected-channel",-366010130).cljs$core$IFn$_invoke$arity$1(state)], null)], null));
+if(cljs.core.truth_(temp__4406__auto___22697)){
+var url_22698 = temp__4406__auto___22697;
+cljs.core.async.put_BANG_.call(null,controls_ch,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"audio-player-source-updated","audio-player-source-updated",-983718025),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [url_22698,new cljs.core.Keyword(null,"selected-channel","selected-channel",-366010130).cljs$core$IFn$_invoke$arity$1(state)], null)], null));
 } else {
 }
 
@@ -63,9 +63,9 @@ return cljs.core.async.put_BANG_.call(null,controls_ch,new cljs.core.PersistentV
 }));
 cljs.core._add_method.call(null,growingtree_app.commands.handle_maybe_command,"/queue",(function (target,activity,state){
 var controls_ch = cljs.core.get_in.call(null,state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"comms","comms",460172477),new cljs.core.Keyword(null,"controls","controls",1340701452)], null));
-var temp__4126__auto__ = cljs.core.first.call(null,cljs.core.re_find.call(null,/http.*\.(mp3|mp4|ogg|wav)/,cljs.core.second.call(null,clojure.string.split.call(null,new cljs.core.Keyword(null,"content","content",15833224).cljs$core$IFn$_invoke$arity$1(activity),/ |\n/))));
-if(cljs.core.truth_(temp__4126__auto__)){
-var url = temp__4126__auto__;
+var temp__4406__auto__ = cljs.core.first.call(null,cljs.core.re_find.call(null,/http.*\.(mp3|mp4|ogg|wav)/,cljs.core.second.call(null,clojure.string.split.call(null,new cljs.core.Keyword(null,"content","content",15833224).cljs$core$IFn$_invoke$arity$1(activity),/ |\n/))));
+if(cljs.core.truth_(temp__4406__auto__)){
+var url = temp__4406__auto__;
 return cljs.core.async.put_BANG_.call(null,controls_ch,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"playlist-entry-queued","playlist-entry-queued",-1071587042),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"channel-id","channel-id",138191095).cljs$core$IFn$_invoke$arity$1(activity),url], null)], null));
 } else {
 return null;

@@ -7,20 +7,20 @@ return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMP
 });
 growingtree_app.plugins.mentions = (function mentions(activity_pieces,current_user_email,users,settings,author){
 return cljs.core.map.call(null,(function (piece){
-var vec__22437 = cljs.core.re_find.call(null,/(.*)@(\w+)(.*)/,piece);
-var _ = cljs.core.nth.call(null,vec__22437,(0),null);
-var pre = cljs.core.nth.call(null,vec__22437,(1),null);
-var username = cljs.core.nth.call(null,vec__22437,(2),null);
-var post = cljs.core.nth.call(null,vec__22437,(3),null);
-var temp__4124__auto__ = (function (){var and__3795__auto__ = typeof piece === 'string';
+var vec__23348 = cljs.core.re_find.call(null,/(.*)@(\w+)(.*)/,piece);
+var _ = cljs.core.nth.call(null,vec__23348,(0),null);
+var pre = cljs.core.nth.call(null,vec__23348,(1),null);
+var username = cljs.core.nth.call(null,vec__23348,(2),null);
+var post = cljs.core.nth.call(null,vec__23348,(3),null);
+var temp__4404__auto__ = (function (){var and__3795__auto__ = typeof piece === 'string';
 if(and__3795__auto__){
 return cljs.core.some.call(null,cljs.core.PersistentHashSet.fromArray([username], true),cljs.core.map.call(null,cljs.core.comp.call(null,new cljs.core.Keyword(null,"username","username",1605666410),cljs.core.second),users));
 } else {
 return and__3795__auto__;
 }
 })();
-if(cljs.core.truth_(temp__4124__auto__)){
-var at = temp__4124__auto__;
+if(cljs.core.truth_(temp__4404__auto__)){
+var at = temp__4404__auto__;
 return cljs.core._conj.call(null,cljs.core._conj.call(null,cljs.core._conj.call(null,cljs.core.List.EMPTY,post),growingtree_app.plugins.mention.call(null,username)),pre);
 } else {
 return piece;
@@ -32,15 +32,15 @@ return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMP
 });
 growingtree_app.plugins.links = (function links(activity_pieces){
 var helper = (function (piece){
-var temp__4124__auto__ = (function (){var and__3795__auto__ = typeof piece === 'string';
+var temp__4404__auto__ = (function (){var and__3795__auto__ = typeof piece === 'string';
 if(and__3795__auto__){
 return cljs.core.re_find.call(null,/https?:\/\/.*/,piece);
 } else {
 return and__3795__auto__;
 }
 })();
-if(cljs.core.truth_(temp__4124__auto__)){
-var link = temp__4124__auto__;
+if(cljs.core.truth_(temp__4404__auto__)){
+var link = temp__4404__auto__;
 return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"a.href","a.href",-124022175),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"target","target",253001721),"_blank",new cljs.core.Keyword(null,"href","href",-793805698),link], null),link], null);
 } else {
 return piece;
@@ -73,10 +73,10 @@ return activity_pieces;
 }
 });
 growingtree_app.plugins.slash_play = (function slash_play(activity_pieces){
-var vec__22439 = activity_pieces;
-var command = cljs.core.nth.call(null,vec__22439,(0),null);
-var url = cljs.core.nth.call(null,vec__22439,(1),null);
-var rest = cljs.core.nthnext.call(null,vec__22439,(2));
+var vec__23350 = activity_pieces;
+var command = cljs.core.nth.call(null,vec__23350,(0),null);
+var url = cljs.core.nth.call(null,vec__23350,(1),null);
+var rest = cljs.core.nthnext.call(null,vec__23350,(2));
 if(cljs.core._EQ_.call(null,command,"/play")){
 return cljs.core.concat.call(null,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"strong","strong",269529000),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"a.audio-play","a.audio-play",-484097219),"Playing ",new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"a","a",-2123407586),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"target","target",253001721),"_blank",new cljs.core.Keyword(null,"href","href",-793805698),url], null),url], null)], null)], null)], null),rest);
 } else {
@@ -85,15 +85,15 @@ return activity_pieces;
 });
 growingtree_app.plugins.rgb_embed = (function rgb_embed(activity_pieces){
 return cljs.core.map.call(null,(function (piece){
-var temp__4124__auto__ = cljs.core.re_find.call(null,/(.*)rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)(.*)/,piece);
-if(cljs.core.truth_(temp__4124__auto__)){
-var vec__22441 = temp__4124__auto__;
-var _ = cljs.core.nth.call(null,vec__22441,(0),null);
-var pre = cljs.core.nth.call(null,vec__22441,(1),null);
-var r = cljs.core.nth.call(null,vec__22441,(2),null);
-var g = cljs.core.nth.call(null,vec__22441,(3),null);
-var b = cljs.core.nth.call(null,vec__22441,(4),null);
-var post = cljs.core.nth.call(null,vec__22441,(5),null);
+var temp__4404__auto__ = cljs.core.re_find.call(null,/(.*)rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)(.*)/,piece);
+if(cljs.core.truth_(temp__4404__auto__)){
+var vec__23352 = temp__4404__auto__;
+var _ = cljs.core.nth.call(null,vec__23352,(0),null);
+var pre = cljs.core.nth.call(null,vec__23352,(1),null);
+var r = cljs.core.nth.call(null,vec__23352,(2),null);
+var g = cljs.core.nth.call(null,vec__23352,(3),null);
+var b = cljs.core.nth.call(null,vec__23352,(4),null);
+var post = cljs.core.nth.call(null,vec__23352,(5),null);
 return cljs.core._conj.call(null,cljs.core._conj.call(null,cljs.core._conj.call(null,cljs.core.List.EMPTY,post),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"span.color-preview","span.color-preview",246439634),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"style","style",-496642736),{"background-color": [cljs.core.str("rgb("),cljs.core.str(r),cljs.core.str(","),cljs.core.str(g),cljs.core.str(","),cljs.core.str(b),cljs.core.str(")")].join('')}], null)], null)),pre);
 } else {
 return piece;
@@ -102,13 +102,13 @@ return piece;
 });
 growingtree_app.plugins.hex_embed = (function hex_embed(activity_pieces){
 return cljs.core.map.call(null,(function (piece){
-var temp__4124__auto__ = cljs.core.re_find.call(null,/(.*)#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})(.*)/,piece);
-if(cljs.core.truth_(temp__4124__auto__)){
-var vec__22443 = temp__4124__auto__;
-var _ = cljs.core.nth.call(null,vec__22443,(0),null);
-var pre = cljs.core.nth.call(null,vec__22443,(1),null);
-var hex = cljs.core.nth.call(null,vec__22443,(2),null);
-var post = cljs.core.nth.call(null,vec__22443,(3),null);
+var temp__4404__auto__ = cljs.core.re_find.call(null,/(.*)#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})(.*)/,piece);
+if(cljs.core.truth_(temp__4404__auto__)){
+var vec__23354 = temp__4404__auto__;
+var _ = cljs.core.nth.call(null,vec__23354,(0),null);
+var pre = cljs.core.nth.call(null,vec__23354,(1),null);
+var hex = cljs.core.nth.call(null,vec__23354,(2),null);
+var post = cljs.core.nth.call(null,vec__23354,(3),null);
 return cljs.core._conj.call(null,cljs.core._conj.call(null,cljs.core._conj.call(null,cljs.core.List.EMPTY,post),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"span.color-preview","span.color-preview",246439634),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"style","style",-496642736),{"background-color": [cljs.core.str("#"),cljs.core.str(hex)].join('')}], null)], null)),pre);
 } else {
 return piece;
@@ -126,17 +126,17 @@ return piece;
 });
 growingtree_app.plugins.youtube_embed = (function youtube_embed(activity_pieces){
 return cljs.core.map.call(null,(function (piece){
-var temp__4124__auto__ = (function (){var and__3795__auto__ = cljs.core.re_find.call(null,/https?.+www.youtube.com.+watch/,piece);
+var temp__4404__auto__ = (function (){var and__3795__auto__ = cljs.core.re_find.call(null,/https?.+www.youtube.com.+watch/,piece);
 if(cljs.core.truth_(and__3795__auto__)){
 return cljs.core.re_find.call(null,/\Wv=([\w|\-]*)/,piece);
 } else {
 return and__3795__auto__;
 }
 })();
-if(cljs.core.truth_(temp__4124__auto__)){
-var vec__22445 = temp__4124__auto__;
-var _ = cljs.core.nth.call(null,vec__22445,(0),null);
-var video_id = cljs.core.nth.call(null,vec__22445,(1),null);
+if(cljs.core.truth_(temp__4404__auto__)){
+var vec__23356 = temp__4404__auto__;
+var _ = cljs.core.nth.call(null,vec__23356,(0),null);
+var video_id = cljs.core.nth.call(null,vec__23356,(1),null);
 return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.youtube-preview","div.youtube-preview",-1430093382),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"iframe","iframe",884422026),new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"width","width",-384071477),"560",new cljs.core.Keyword(null,"height","height",1025178622),"315",new cljs.core.Keyword(null,"src","src",-1651076051),[cljs.core.str("http://www.youtube.com/embed/"),cljs.core.str(video_id)].join(''),new cljs.core.Keyword(null,"frameBorder","frameBorder",-1546202685),(0),new cljs.core.Keyword(null,"allowFullScreen","allowFullScreen",475491825),true], null)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.name","div.name",1027675228),piece], null)], null);
 } else {
 return piece;
@@ -145,11 +145,11 @@ return piece;
 });
 growingtree_app.plugins.vimeo_embed = (function vimeo_embed(activity_pieces){
 return cljs.core.map.call(null,(function (piece){
-var temp__4124__auto__ = cljs.core.re_find.call(null,/^https?:\/\/vimeo.com\/(\d+)/,piece);
-if(cljs.core.truth_(temp__4124__auto__)){
-var vec__22447 = temp__4124__auto__;
-var _ = cljs.core.nth.call(null,vec__22447,(0),null);
-var video_id = cljs.core.nth.call(null,vec__22447,(1),null);
+var temp__4404__auto__ = cljs.core.re_find.call(null,/^https?:\/\/vimeo.com\/(\d+)/,piece);
+if(cljs.core.truth_(temp__4404__auto__)){
+var vec__23358 = temp__4404__auto__;
+var _ = cljs.core.nth.call(null,vec__23358,(0),null);
+var video_id = cljs.core.nth.call(null,vec__23358,(1),null);
 return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.vimeo-preview","div.vimeo-preview",-1397049933),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"iframe","iframe",884422026),new cljs.core.PersistentArrayMap(null, 7, [new cljs.core.Keyword(null,"width","width",-384071477),"500",new cljs.core.Keyword(null,"height","height",1025178622),"281",new cljs.core.Keyword(null,"src","src",-1651076051),[cljs.core.str("http://player.vimeo.com/video/"),cljs.core.str(video_id)].join(''),new cljs.core.Keyword(null,"frameBorder","frameBorder",-1546202685),(0),new cljs.core.Keyword(null,"webkitAllowFullScreen","webkitAllowFullScreen",-1625319606),true,new cljs.core.Keyword(null,"mozAllowFullScreen","mozAllowFullScreen",768066571),true,new cljs.core.Keyword(null,"allowFullScreen","allowFullScreen",475491825),true], null)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.name","div.name",1027675228),piece], null)], null);
 } else {
 return piece;

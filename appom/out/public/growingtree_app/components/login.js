@@ -14,10 +14,10 @@ var comm = cljs.core.get_in.call(null,app,new cljs.core.PersistentVector(null, 2
 return ((function (comm){
 return (function (_){
 var data = cljs.core.reduce.call(null,((function (comm){
-return (function (tot,p__21994){
-var vec__21995 = p__21994;
-var attr = cljs.core.nth.call(null,vec__21995,(0),null);
-var fieldid = cljs.core.nth.call(null,vec__21995,(1),null);
+return (function (tot,p__22892){
+var vec__22893 = p__22892;
+var attr = cljs.core.nth.call(null,vec__22893,(0),null);
+var fieldid = cljs.core.nth.call(null,vec__22893,(1),null);
 return cljs.core.assoc.call(null,tot,attr,dommy.core.value.call(null,document.querySelector(dommy.core.selector.call(null,fieldid))));
 });})(comm))
 ,cljs.core.PersistentArrayMap.EMPTY,fields);
@@ -29,24 +29,24 @@ return cljs.core.async.put_BANG_.call(null,comm,growingtree_app.mock_data.login_
 ;})(comm))
 });
 growingtree_app.components.login.login = (function login(app,owner,opts){
-if(typeof growingtree_app.components.login.t21999 !== 'undefined'){
+if(typeof growingtree_app.components.login.t22897 !== 'undefined'){
 } else {
 
 /**
 * @constructor
 */
-growingtree_app.components.login.t21999 = (function (opts,owner,app,login,meta22000){
+growingtree_app.components.login.t22897 = (function (opts,owner,app,login,meta22898){
 this.opts = opts;
 this.owner = owner;
 this.app = app;
 this.login = login;
-this.meta22000 = meta22000;
+this.meta22898 = meta22898;
 this.cljs$lang$protocol_mask$partition1$ = 0;
 this.cljs$lang$protocol_mask$partition0$ = 393216;
 })
-growingtree_app.components.login.t21999.prototype.om$core$IRender$ = true;
+growingtree_app.components.login.t22897.prototype.om$core$IRender$ = true;
 
-growingtree_app.components.login.t21999.prototype.om$core$IRender$render$arity$1 = (function (this$){
+growingtree_app.components.login.t22897.prototype.om$core$IRender$render$arity$1 = (function (this$){
 var self__ = this;
 var this$__$1 = this;
 return sablono.interpreter.interpret.call(null,(function (){var comm = cljs.core.get_in.call(null,self__.opts,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"comms","comms",460172477),new cljs.core.Keyword(null,"controls","controls",1340701452)], null));
@@ -61,9 +61,9 @@ return growingtree_app.ui.show_div.call(null,"#signup-form");
 })());
 });
 
-growingtree_app.components.login.t21999.prototype.om$core$IDisplayName$ = true;
+growingtree_app.components.login.t22897.prototype.om$core$IDisplayName$ = true;
 
-growingtree_app.components.login.t21999.prototype.om$core$IDisplayName$display_name$arity$1 = (function (_){
+growingtree_app.components.login.t22897.prototype.om$core$IDisplayName$display_name$arity$1 = (function (_){
 var self__ = this;
 var ___$1 = this;
 var or__3807__auto__ = new cljs.core.Keyword(null,"react-name","react-name",-834049397).cljs$core$IFn$_invoke$arity$1(self__.opts);
@@ -74,33 +74,33 @@ return "login";
 }
 });
 
-growingtree_app.components.login.t21999.prototype.cljs$core$IMeta$_meta$arity$1 = (function (_22001){
+growingtree_app.components.login.t22897.prototype.cljs$core$IMeta$_meta$arity$1 = (function (_22899){
 var self__ = this;
-var _22001__$1 = this;
-return self__.meta22000;
+var _22899__$1 = this;
+return self__.meta22898;
 });
 
-growingtree_app.components.login.t21999.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = (function (_22001,meta22000__$1){
+growingtree_app.components.login.t22897.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = (function (_22899,meta22898__$1){
 var self__ = this;
-var _22001__$1 = this;
-return (new growingtree_app.components.login.t21999(self__.opts,self__.owner,self__.app,self__.login,meta22000__$1));
+var _22899__$1 = this;
+return (new growingtree_app.components.login.t22897(self__.opts,self__.owner,self__.app,self__.login,meta22898__$1));
 });
 
-growingtree_app.components.login.t21999.cljs$lang$type = true;
+growingtree_app.components.login.t22897.cljs$lang$type = true;
 
-growingtree_app.components.login.t21999.cljs$lang$ctorStr = "growingtree-app.components.login/t21999";
+growingtree_app.components.login.t22897.cljs$lang$ctorStr = "growingtree-app.components.login/t22897";
 
-growingtree_app.components.login.t21999.cljs$lang$ctorPrWriter = (function (this__4394__auto__,writer__4395__auto__,opt__4396__auto__){
-return cljs.core._write.call(null,writer__4395__auto__,"growingtree-app.components.login/t21999");
+growingtree_app.components.login.t22897.cljs$lang$ctorPrWriter = (function (this__4394__auto__,writer__4395__auto__,opt__4396__auto__){
+return cljs.core._write.call(null,writer__4395__auto__,"growingtree-app.components.login/t22897");
 });
 
-growingtree_app.components.login.__GT_t21999 = (function __GT_t21999(opts__$1,owner__$1,app__$1,login__$1,meta22000){
-return (new growingtree_app.components.login.t21999(opts__$1,owner__$1,app__$1,login__$1,meta22000));
+growingtree_app.components.login.__GT_t22897 = (function __GT_t22897(opts__$1,owner__$1,app__$1,login__$1,meta22898){
+return (new growingtree_app.components.login.t22897(opts__$1,owner__$1,app__$1,login__$1,meta22898));
 });
 
 }
 
-return (new growingtree_app.components.login.t21999(opts,owner,app,login,cljs.core.PersistentArrayMap.EMPTY));
+return (new growingtree_app.components.login.t22897(opts,owner,app,login,cljs.core.PersistentArrayMap.EMPTY));
 });
 
 //# sourceMappingURL=login.js.map

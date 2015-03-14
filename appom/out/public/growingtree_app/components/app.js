@@ -15,23 +15,23 @@ goog.require('growingtree_app.components.draggable_window');
 goog.require('cljs.reader');
 growingtree_app.components.app.keymap = cljs.core.atom.call(null,null);
 growingtree_app.components.app.app = (function app(app__$1,owner,opts){
-if(typeof growingtree_app.components.app.t21789 !== 'undefined'){
+if(typeof growingtree_app.components.app.t22689 !== 'undefined'){
 } else {
 
 /**
 * @constructor
 */
-growingtree_app.components.app.t21789 = (function (opts,owner,app,meta21790){
+growingtree_app.components.app.t22689 = (function (opts,owner,app,meta22690){
 this.opts = opts;
 this.owner = owner;
 this.app = app;
-this.meta21790 = meta21790;
+this.meta22690 = meta22690;
 this.cljs$lang$protocol_mask$partition1$ = 0;
 this.cljs$lang$protocol_mask$partition0$ = 393216;
 })
-growingtree_app.components.app.t21789.prototype.om$core$IRender$ = true;
+growingtree_app.components.app.t22689.prototype.om$core$IRender$ = true;
 
-growingtree_app.components.app.t21789.prototype.om$core$IRender$render$arity$1 = (function (this$){
+growingtree_app.components.app.t22689.prototype.om$core$IRender$render$arity$1 = (function (this$){
 var self__ = this;
 var this$__$1 = this;
 var nav_path = growingtree_app.mock_data.get_last_nav_path.call(null,self__.app);
@@ -75,11 +75,11 @@ var change_inspector_path_BANG_ = ((function (nav_path,login_user,error,selected
 return (function (){
 var path_string = prompt("New path (must be edn-compatible)",inspector_path_s);
 try{return cljs.core.async.put_BANG_.call(null,controls_ch,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"inspector-path-updated","inspector-path-updated",-165750316),cljs.reader.read_string.call(null,path_string)], null));
-}catch (e21792){if((e21792 instanceof Error)){
-var e = e21792;
+}catch (e22692){if((e22692 instanceof Error)){
+var e = e22692;
 return growingtree_app.utils.mprint.call(null,"Not edn-compatible: ",path_string);
 } else {
-throw e21792;
+throw e22692;
 
 }
 }});})(nav_path,login_user,error,selected_channel,current_user,controls_ch,open_player_BANG_,message_input_focused_QMARK_,search_input_focused_QMARK_,focus_search_BANG_,inspector_path,inspector_path_s,blur_current_field_BANG_,this$__$1))
@@ -102,9 +102,9 @@ return cljs.core.async.put_BANG_.call(null,controls_ch,new cljs.core.PersistentV
 var _ = cljs.core.reset_BANG_.call(null,growingtree_app.components.app.keymap,new cljs.core.PersistentArrayMap(null, 6, ["ctrl+slash",open_player_BANG_,"ctrl+esc",toggle_inspector_BANG_,"ctrl+1",change_inspector_path_BANG_,"ctrl+s",persist_local_state_BANG_,"ctrl+r",restore_local_state_BANG_,"esc",blur_current_field_BANG_], null));
 console.log(cljs.core.pr_str.call(null,"app state change, render nav-path path ",nav_path));
 
-return React.DOM.div({"className": [cljs.core.str((cljs.core.truth_(cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"settings","settings",1556144875),new cljs.core.Keyword(null,"sidebar","sidebar",35784458),new cljs.core.Keyword(null,"right","right",-452581833),new cljs.core.Keyword(null,"open","open",-1763596448)], null)))?"slide-left ":null)),cljs.core.str((cljs.core.truth_(cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"settings","settings",1556144875),new cljs.core.Keyword(null,"sidebar","sidebar",35784458),new cljs.core.Keyword(null,"left","left",-399115937),new cljs.core.Keyword(null,"open","open",-1763596448)], null)))?"slide-right ":null))].join('')},sablono.interpreter.interpret.call(null,(cljs.core.truth_(cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"windows","windows",2068861701),new cljs.core.Keyword(null,"window-inspector","window-inspector",889258900),new cljs.core.Keyword(null,"open","open",-1763596448)], null)))?(function (){var temp__4126__auto__ = cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"settings","settings",1556144875),new cljs.core.Keyword(null,"inspector","inspector",1532863880),new cljs.core.Keyword(null,"path","path",-188191168)], null));
-if(cljs.core.truth_(temp__4126__auto__)){
-var path = temp__4126__auto__;
+return React.DOM.div({"className": [cljs.core.str((cljs.core.truth_(cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"settings","settings",1556144875),new cljs.core.Keyword(null,"sidebar","sidebar",35784458),new cljs.core.Keyword(null,"right","right",-452581833),new cljs.core.Keyword(null,"open","open",-1763596448)], null)))?"slide-left ":null)),cljs.core.str((cljs.core.truth_(cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"settings","settings",1556144875),new cljs.core.Keyword(null,"sidebar","sidebar",35784458),new cljs.core.Keyword(null,"left","left",-399115937),new cljs.core.Keyword(null,"open","open",-1763596448)], null)))?"slide-right ":null))].join('')},sablono.interpreter.interpret.call(null,(cljs.core.truth_(cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"windows","windows",2068861701),new cljs.core.Keyword(null,"window-inspector","window-inspector",889258900),new cljs.core.Keyword(null,"open","open",-1763596448)], null)))?(function (){var temp__4406__auto__ = cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"settings","settings",1556144875),new cljs.core.Keyword(null,"inspector","inspector",1532863880),new cljs.core.Keyword(null,"path","path",-188191168)], null));
+if(cljs.core.truth_(temp__4406__auto__)){
+var path = temp__4406__auto__;
 return om.core.build.call(null,growingtree_app.components.draggable_window.draggable_window,new cljs.core.PersistentArrayMap(null, 7, [new cljs.core.Keyword(null,"title","title",636505583),[cljs.core.str("Data Inspector: "),cljs.core.str(cljs.core.pr_str.call(null,path))].join(''),new cljs.core.Keyword(null,"name","name",1843675177),new cljs.core.Keyword(null,"window-inspector","window-inspector",889258900),new cljs.core.Keyword(null,"window","window",724519534),cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"windows","windows",2068861701),new cljs.core.Keyword(null,"window-inspector","window-inspector",889258900)], null)),new cljs.core.Keyword(null,"comm","comm",-1689770614),cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"comms","comms",460172477),new cljs.core.Keyword(null,"controls","controls",1340701452)], null)),new cljs.core.Keyword(null,"content-com","content-com",808014035),ankha.core.inspector,new cljs.core.Keyword(null,"content-data","content-data",1183622660),cljs.core.get_in.call(null,self__.app,path),new cljs.core.Keyword(null,"content-opts","content-opts",-409462686),cljs.core.PersistentArrayMap.EMPTY], null));
 } else {
 return null;
@@ -112,9 +112,9 @@ return null;
 })():null)),sablono.interpreter.interpret.call(null,om.core.build.call(null,growingtree_app.components.key_queue.KeyboardHandler,self__.app,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"opts","opts",155075701),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"keymap","keymap",-499605268),growingtree_app.components.app.keymap,new cljs.core.Keyword(null,"error-ch","error-ch",-1177587736),cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"comms","comms",460172477),new cljs.core.Keyword(null,"error","error",-978969032)], null))], null)], null))),sablono.interpreter.interpret.call(null,om.core.build.call(null,growingtree_app.components.navbar.navbar,self__.app,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"opts","opts",155075701),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"comms","comms",460172477),new cljs.core.Keyword(null,"comms","comms",460172477).cljs$core$IFn$_invoke$arity$1(self__.opts)], null)], null))),sablono.interpreter.interpret.call(null,om.core.build.call(null,growingtree_app.components.sidebar.sidebar,self__.app,new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"opts","opts",155075701),new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"comms","comms",460172477),new cljs.core.Keyword(null,"comms","comms",460172477).cljs$core$IFn$_invoke$arity$1(self__.opts),new cljs.core.Keyword(null,"users","users",-713552705),new cljs.core.Keyword(null,"users","users",-713552705).cljs$core$IFn$_invoke$arity$1(self__.app),new cljs.core.Keyword(null,"selected-channel","selected-channel",-366010130),new cljs.core.Keyword(null,"selected-channel","selected-channel",-366010130).cljs$core$IFn$_invoke$arity$1(self__.app),new cljs.core.Keyword(null,"channels","channels",1132759174),new cljs.core.Keyword(null,"channels","channels",1132759174).cljs$core$IFn$_invoke$arity$1(self__.app)], null)], null))),sablono.interpreter.interpret.call(null,om.core.build.call(null,growingtree_app.components.main_area.main_area,new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"app","app",-560961707),self__.app,new cljs.core.Keyword(null,"nav-path","nav-path",-444531376),nav_path,new cljs.core.Keyword(null,"channel","channel",734187692),selected_channel,new cljs.core.Keyword(null,"search-filter","search-filter",274098807),cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"settings","settings",1556144875),new cljs.core.Keyword(null,"forms","forms",2045992350),new cljs.core.Keyword(null,"search","search",1564939822),new cljs.core.Keyword(null,"value","value",305978217)], null))], null),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"opts","opts",155075701),new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"comms","comms",460172477),new cljs.core.Keyword(null,"comms","comms",460172477).cljs$core$IFn$_invoke$arity$1(self__.opts),new cljs.core.Keyword(null,"users","users",-713552705),new cljs.core.Keyword(null,"users","users",-713552705).cljs$core$IFn$_invoke$arity$1(self__.app),new cljs.core.Keyword(null,"current-user-email","current-user-email",-1030852599),new cljs.core.Keyword(null,"current-user-email","current-user-email",-1030852599).cljs$core$IFn$_invoke$arity$1(self__.app),new cljs.core.Keyword(null,"input-focused?","input-focused?",445310096),cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"settings","settings",1556144875),new cljs.core.Keyword(null,"forms","forms",2045992350),new cljs.core.Keyword(null,"user-message","user-message",889829115),new cljs.core.Keyword(null,"focused","focused",1851572115)], null)),new cljs.core.Keyword(null,"input-value","input-value",-1719954369),cljs.core.get_in.call(null,self__.app,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"settings","settings",1556144875),new cljs.core.Keyword(null,"forms","forms",2045992350),new cljs.core.Keyword(null,"user-message","user-message",889829115),new cljs.core.Keyword(null,"value","value",305978217)], null))], null)], null))));
 });
 
-growingtree_app.components.app.t21789.prototype.om$core$IShouldUpdate$ = true;
+growingtree_app.components.app.t22689.prototype.om$core$IShouldUpdate$ = true;
 
-growingtree_app.components.app.t21789.prototype.om$core$IShouldUpdate$should_update$arity$3 = (function (this$,next_props,next_state){
+growingtree_app.components.app.t22689.prototype.om$core$IShouldUpdate$should_update$arity$3 = (function (this$,next_props,next_state){
 var self__ = this;
 var this$__$1 = this;
 var nav_path = cljs.core.get_in.call(null,next_props,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"nav-path","nav-path",-444531376)], null));
@@ -126,9 +126,9 @@ return false;
 }
 });
 
-growingtree_app.components.app.t21789.prototype.om$core$IDisplayName$ = true;
+growingtree_app.components.app.t22689.prototype.om$core$IDisplayName$ = true;
 
-growingtree_app.components.app.t21789.prototype.om$core$IDisplayName$display_name$arity$1 = (function (_){
+growingtree_app.components.app.t22689.prototype.om$core$IDisplayName$display_name$arity$1 = (function (_){
 var self__ = this;
 var ___$1 = this;
 var or__3807__auto__ = new cljs.core.Keyword(null,"react-name","react-name",-834049397).cljs$core$IFn$_invoke$arity$1(self__.opts);
@@ -139,33 +139,33 @@ return "growingtree-app";
 }
 });
 
-growingtree_app.components.app.t21789.prototype.cljs$core$IMeta$_meta$arity$1 = (function (_21791){
+growingtree_app.components.app.t22689.prototype.cljs$core$IMeta$_meta$arity$1 = (function (_22691){
 var self__ = this;
-var _21791__$1 = this;
-return self__.meta21790;
+var _22691__$1 = this;
+return self__.meta22690;
 });
 
-growingtree_app.components.app.t21789.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = (function (_21791,meta21790__$1){
+growingtree_app.components.app.t22689.prototype.cljs$core$IWithMeta$_with_meta$arity$2 = (function (_22691,meta22690__$1){
 var self__ = this;
-var _21791__$1 = this;
-return (new growingtree_app.components.app.t21789(self__.opts,self__.owner,self__.app,meta21790__$1));
+var _22691__$1 = this;
+return (new growingtree_app.components.app.t22689(self__.opts,self__.owner,self__.app,meta22690__$1));
 });
 
-growingtree_app.components.app.t21789.cljs$lang$type = true;
+growingtree_app.components.app.t22689.cljs$lang$type = true;
 
-growingtree_app.components.app.t21789.cljs$lang$ctorStr = "growingtree-app.components.app/t21789";
+growingtree_app.components.app.t22689.cljs$lang$ctorStr = "growingtree-app.components.app/t22689";
 
-growingtree_app.components.app.t21789.cljs$lang$ctorPrWriter = (function (this__4394__auto__,writer__4395__auto__,opt__4396__auto__){
-return cljs.core._write.call(null,writer__4395__auto__,"growingtree-app.components.app/t21789");
+growingtree_app.components.app.t22689.cljs$lang$ctorPrWriter = (function (this__4394__auto__,writer__4395__auto__,opt__4396__auto__){
+return cljs.core._write.call(null,writer__4395__auto__,"growingtree-app.components.app/t22689");
 });
 
-growingtree_app.components.app.__GT_t21789 = (function __GT_t21789(opts__$1,owner__$1,app__$2,meta21790){
-return (new growingtree_app.components.app.t21789(opts__$1,owner__$1,app__$2,meta21790));
+growingtree_app.components.app.__GT_t22689 = (function __GT_t22689(opts__$1,owner__$1,app__$2,meta22690){
+return (new growingtree_app.components.app.t22689(opts__$1,owner__$1,app__$2,meta22690));
 });
 
 }
 
-return (new growingtree_app.components.app.t21789(opts,owner,app__$1,cljs.core.PersistentArrayMap.EMPTY));
+return (new growingtree_app.components.app.t22689(opts,owner,app__$1,cljs.core.PersistentArrayMap.EMPTY));
 });
 
 //# sourceMappingURL=app.js.map

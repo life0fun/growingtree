@@ -14,11 +14,11 @@ if(cljs.core.truth_((function (){var and__3795__auto__ = cljs.core.not_EQ_.call(
 if(and__3795__auto__){
 return growingtree_app.useful.ffilter.call(null,((function (and__3795__auto__,current_user,comm){
 return (function (piece){
-var vec__22007 = cljs.core.re_find.call(null,/(.*)@(\w+)(.*)/,piece);
-var _ = cljs.core.nth.call(null,vec__22007,(0),null);
-var pre = cljs.core.nth.call(null,vec__22007,(1),null);
-var username = cljs.core.nth.call(null,vec__22007,(2),null);
-var post = cljs.core.nth.call(null,vec__22007,(3),null);
+var vec__22751 = cljs.core.re_find.call(null,/(.*)@(\w+)(.*)/,piece);
+var _ = cljs.core.nth.call(null,vec__22751,(0),null);
+var pre = cljs.core.nth.call(null,vec__22751,(1),null);
+var username = cljs.core.nth.call(null,vec__22751,(2),null);
+var post = cljs.core.nth.call(null,vec__22751,(3),null);
 return cljs.core._EQ_.call(null,username,new cljs.core.Keyword(null,"username","username",1605666410).cljs$core$IFn$_invoke$arity$1(current_user));
 });})(and__3795__auto__,current_user,comm))
 ,clojure.string.split.call(null,new cljs.core.Keyword(null,"content","content",15833224).cljs$core$IFn$_invoke$arity$1(activity),/ /));
